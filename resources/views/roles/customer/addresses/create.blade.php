@@ -33,7 +33,7 @@ body {
     background: var(--surface);
     color: var(--ink);
     min-height: 100vh;
-    padding-bottom: calc(200px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
     overflow-x: hidden;
 }
 
@@ -160,17 +160,11 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
 .toggle-switch.on { background:var(--green); }
 .toggle-switch.on::after { transform:translateX(22px); }
 
-/* ── SUBMIT BUTTON ───────────────────── */
+/* ── SUBMIT BUTTON (inline — ikut scroll, anti-overlap) ── */
 .bottom-cta {
-    position:fixed;
-    bottom: calc(64px + env(safe-area-inset-bottom, 0px));
-    left:0; right:0;
-    padding:12px 16px;
-    background:rgba(255,255,255,.96);
-    -webkit-backdrop-filter:blur(12px);
-    backdrop-filter:blur(12px);
-    border-top:1.5px solid var(--border);
-    z-index:50;
+    max-width:520px;
+    margin:0 auto;
+    padding:4px 16px 8px;
 }
 .cta-inner { max-width:520px; margin:0 auto; }
 .btn-submit {

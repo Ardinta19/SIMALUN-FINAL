@@ -116,7 +116,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--surface);color:
       </div>
       <div class="faq-item">
         <div class="faq-q" onclick="toggleFaq(this)">Area mana saja yang dijangkau?<span>&#9662;</span></div>
-        <div class="faq-a">Kami melayani area Simalungun dan sekitarnya. Wilayah layanan dibagi menjadi 3 zona:<br>- Zona A (0-3 km): Gratis ongkir<br>- Zona B (3-7 km): Rp 5.000<br>- Zona C (7-12 km): Rp 10.000</div>
+        <div class="faq-a">Kami melayani area Simalungun dan sekitarnya. Setiap pesanan dikenakan <strong>Biaya Penanganan flat Rp 5.000</strong> (sudah termasuk jemput &amp; antar), berapa pun jaraknya.</div>
       </div>
       <div class="faq-item">
         <div class="faq-q" onclick="toggleFaq(this)">Bagaimana jika pakaian hilang atau rusak?<span>&#9662;</span></div>
@@ -168,12 +168,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--surface);color:
       </ul>
     </div>
 
-    <div class="section-title">Zona & Ongkos Kirim</div>
+    <div class="section-title">Biaya Penanganan</div>
     <table class="price-table">
-      <tr><th>Zona</th><th>Jarak</th><th>Ongkir</th></tr>
-      <tr><td>Zona A</td><td>0 - 3 km</td><td>Gratis</td></tr>
-      <tr><td>Zona B</td><td>3 - 7 km</td><td>Rp 5.000</td></tr>
-      <tr><td>Zona C</td><td>7 - 12 km</td><td>Rp 10.000</td></tr>
+      <tr><th>Komponen</th><th>Biaya</th></tr>
+      <tr><td>Biaya Penanganan (jemput &amp; antar)</td><td>Rp 5.000</td></tr>
     </table>
   </div>
 
@@ -264,7 +262,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--surface);color:
       <ul>
         <li><strong>Biaya Layanan:</strong> Dihitung berdasarkan berat aktual (kg) x harga per kg sesuai jenis layanan yang dipilih</li>
         <li><strong>Biaya Item Satuan:</strong> Jika ada item khusus, dihitung per item sesuai harga masing-masing</li>
-        <li><strong>Ongkos Kirim:</strong> Berdasarkan zona alamat penjemputan (Zona A gratis, Zona B Rp 5.000, Zona C Rp 10.000)</li>
+        <li><strong>Biaya Penanganan:</strong> Rp 5.000 flat per pesanan (sudah termasuk jemput &amp; antar), berapa pun jaraknya</li>
         <li><strong>Diskon:</strong> Potongan harga jika ada promo yang berlaku</li>
       </ul>
     </div>

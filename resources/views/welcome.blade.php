@@ -21,6 +21,7 @@ html, body { width:100%; height:100%; overflow:hidden; font-family:'Plus Jakarta
   position:fixed; inset:0; overflow:hidden;
   background:linear-gradient(168deg, #002f5c 0%, #0077b6 45%, #00b4d8 78%, #48cae4 100%);
   cursor:pointer;
+  touch-action:pan-y;
 }
 
 /* AMBIENT */
