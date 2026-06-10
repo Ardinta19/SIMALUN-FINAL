@@ -902,7 +902,10 @@ function startPress(fn) { pressTimer = setInterval(fn, 120); }
 function stopPress()    { clearInterval(pressTimer); }
 document.getElementById('ws-minus').addEventListener('pointerdown', () => startPress(() => setWeight(weight-1)));
 document.getElementById('ws-plus').addEventListener('pointerdown',  () => startPress(() => setWeight(weight+1)));
-document.addEventListener('pointerup', stopPress);
+document.addEventListener('pointerup',     stopPress);
+document.addEventListener('pointercancel', stopPress);  // jari scroll / gesture cancel
+document.getElementById('ws-minus').addEventListener('pointerleave', stopPress);
+document.getElementById('ws-plus').addEventListener('pointerleave',  stopPress);
 
 /* ═══════════════════════════════════════════
    LIVE PRICE CALCULATOR
