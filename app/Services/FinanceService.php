@@ -52,7 +52,7 @@ class FinanceService
             ->sum('line_total');
         $pickupCost = (int) ($order->pickup_cost ?? 0);
         $discount = (int) ($order->discount ?? 0);
-        $calculatedTotal = $serviceCost + $itemTotal + $pickupCost - $discount;
+        $calculatedTotal = max(0, $serviceCost + $itemTotal + $pickupCost - $discount);
 
         try {
             FinanceEntry::create([

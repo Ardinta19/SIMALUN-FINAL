@@ -483,7 +483,7 @@ class OrderController extends Controller
         $reasonText = $reason ? "Alasan: {$reason}" : 'Tidak menyertakan alasan.';
 
         DB::transaction(function () use ($order, $reasonText) {
-            $order->update(['status' => 'dibatalkan']);
+            Order::withoutEvents(fn () => $order->update(['status' => 'dibatalkan']));
 
             OrderStatusHistory::create([
                 'order_id' => $order->id,
@@ -620,10 +620,10 @@ class OrderController extends Controller
         $newStatus = $request->assignment_type === 'pickup' ? 'dijemput' : 'dikirim';
 
         DB::transaction(function () use ($order, $driver, $newStatus, $request) {
-            $order->update([
+            Order::withoutEvents(fn () => $order->update([
                 'driver_id' => $driver->id,
                 'status' => $newStatus,
-            ]);
+            ]));
 
             DriverAssigner::markAssigned($driver);
 
@@ -703,7 +703,7 @@ class OrderController extends Controller
         $oldStatus = $order->status;
 
         DB::transaction(function () use ($order, $request, $statusLabel) {
-            $order->update(['status' => $request->status]);
+            Order::withoutEvents(fn () => $order->update(['status' => $request->status]));
 
             OrderStatusHistory::create([
                 'order_id' => $order->id,
@@ -1067,7 +1067,7 @@ class OrderController extends Controller
 
             $updateData['weight_actual'] = $actualWeight;
             $updateData['service_cost'] = $actualCost;
-            $updateData['total_cost'] = $actualCost + (int) $itemTotal + $order->pickup_cost - $order->discount;
+            $updateData['total_cost'] = max(0, $actualCost + (int) $itemTotal + $order->pickup_cost - $order->discount);
             $note = "Berat aktual: {$actualWeight} kg.";
         }
 
@@ -1085,7 +1085,18 @@ class OrderController extends Controller
         }
 
         DB::transaction(function () use ($order, $updateData, $note, $request) {
-            $order->update($updateData);
+            Order::withoutEvents(fn () => $order->update($updateData));
+
+            // Sinkronkan OrderItem layanan utama (kiloan) dengan berat aktual,
+            // supaya rincian nota tidak berbeda dengan service_cost/total.
+            if (isset($updateData['weight_actual'], $updateData['service_cost'])) {
+                $order->items()
+                    ->where('service_id', $order->service_id)
+                    ->update([
+                        'weight_kg' => $updateData['weight_actual'],
+                        'line_total' => $updateData['service_cost'],
+                    ]);
+            }
 
             OrderStatusHistory::create([
                 'order_id' => $order->id,

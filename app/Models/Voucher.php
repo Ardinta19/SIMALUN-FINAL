@@ -65,17 +65,23 @@ class Voucher extends Model
      */
     public function calculateDiscount(int $subtotal): int
     {
+        if ($subtotal <= 0) {
+            return 0;
+        }
+
         if ($this->type === 'percent') {
             $raw = (int) floor($subtotal * $this->value / 100);
             if ($this->max_discount !== null) {
-                return min($raw, $this->max_discount);
+                $raw = min($raw, $this->max_discount);
             }
-
-            return $raw;
+        } else {
+            // type=fixed
+            $raw = (int) $this->value;
         }
 
-        // type=fixed
-        return min((int) $this->value, $subtotal);
+        // Diskon tidak boleh melebihi subtotal (mencegah total negatif)
+        // dan tidak boleh negatif.
+        return max(0, min($raw, $subtotal));
     }
 
     /**

@@ -245,6 +245,6 @@ class Order extends Model
         $pickupCost = (int) ($this->pickup_cost ?? 0);
         $discount = (int) ($this->discount ?? 0);
 
-        return $serviceCost + $itemTotal + $pickupCost - $discount;
+        return max(0, $serviceCost + $itemTotal + $pickupCost - $discount);
     }
 }
