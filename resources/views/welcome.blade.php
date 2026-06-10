@@ -90,6 +90,7 @@ html, body { width:100%; height:100%; overflow:hidden; font-family:'Plus Jakarta
   gap:.45rem; position:relative;
   overflow-y:auto; overflow-x:hidden;
   -webkit-overflow-scrolling:touch;
+  touch-action:pan-y;
 }
 .panel::-webkit-scrollbar { width:0; height:0; }
 .panel { scrollbar-width:none; }
@@ -779,16 +780,23 @@ btnNext.addEventListener('click', () => { if (cur < TOTAL-1) goTo(cur+1); else e
 btnSkip.addEventListener('click', exitToLogin);
 
 /* ── SWIPE / DRAG ── */
-let pStart=null, tapePx=0, dragging=false, moved=false;
+let pStart=null, pStartY=null, tapePx=0, dragging=false, moved=false, axis=null;
 
-function dragStart(cx) {
+function dragStart(cx, cy) {
   if (busy||exitTriggered) return;
-  pStart=cx; tapePx=parseFloat(gsap.getProperty(tape,'x'))||slideX(cur);
-  dragging=true; moved=false;
+  pStart=cx; pStartY=(cy==null?0:cy); tapePx=parseFloat(gsap.getProperty(tape,'x'))||slideX(cur);
+  dragging=true; moved=false; axis=null;
 }
-function dragMove(cx) {
+function dragMove(cx, cy) {
   if (!dragging||busy) return;
   const dx=cx-pStart;
+  const dy=(cy==null?0:cy)-pStartY;
+  // Tentukan arah gesture sekali saja. Kalau vertikal, jangan geser tape —
+  // biarkan scroll native panel jalan (penting di layar pendek).
+  if (axis===null && (Math.abs(dx)>6 || Math.abs(dy)>6)) {
+    axis = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
+  }
+  if (axis==='v') return;
   if (Math.abs(dx)>4) moved=true;
   const raw=tapePx+dx;
   const minX=slideX(TOTAL-1), maxX=slideX(0);
@@ -800,6 +808,8 @@ function dragMove(cx) {
 function dragEnd(cx) {
   if (!dragging) return;
   dragging=false;
+  if (axis==='v') { axis=null; return; }
+  axis=null;
   if (!moved) return;
   const dx=cx-pStart;
   const thr=getVW()*.18;
@@ -826,12 +836,12 @@ function dragEnd(cx) {
 }
 
 const stage=document.getElementById('stage');
-stage.addEventListener('touchstart',  e=>dragStart(e.touches[0].clientX),         {passive:true});
-stage.addEventListener('touchmove',   e=>dragMove(e.touches[0].clientX),           {passive:true});
+stage.addEventListener('touchstart',  e=>dragStart(e.touches[0].clientX, e.touches[0].clientY),         {passive:true});
+stage.addEventListener('touchmove',   e=>dragMove(e.touches[0].clientX, e.touches[0].clientY),           {passive:true});
 stage.addEventListener('touchend',    e=>dragEnd(e.changedTouches[0].clientX),     {passive:true});
-stage.addEventListener('touchcancel', ()=>{if(dragging){snapTo(cur);dragging=false;}},{passive:true});
-stage.addEventListener('mousedown',   e=>{dragStart(e.clientX);},                  {passive:true});
-window.addEventListener('mousemove',  e=>dragMove(e.clientX));
+stage.addEventListener('touchcancel', ()=>{if(dragging){snapTo(cur);dragging=false;axis=null;}},{passive:true});
+stage.addEventListener('mousedown',   e=>{dragStart(e.clientX, e.clientY);},                  {passive:true});
+window.addEventListener('mousemove',  e=>dragMove(e.clientX, e.clientY));
 window.addEventListener('mouseup',    e=>dragEnd(e.clientX));
 window.addEventListener('resize',     ()=>gsap.set(tape,{x:slideX(cur)}));
 
