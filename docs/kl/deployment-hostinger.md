@@ -15,7 +15,8 @@ Hostinger punya beberapa jenis layanan, dan caranya beda:
 > **Rekomendasi:** pakai paket **Business** ke atas supaya ada akses SSH.
 > Tanpa SSH, deploy Laravel di shared hosting jauh lebih menyakitkan.
 
-Persyaratan aplikasi: **PHP 8.2+** (8.3 disarankan), MySQL/MariaDB,
+Persyaratan aplikasi: **PHP 8.4** (wajib — `openspout ^5.7` & `symfony/* v8`
+di `composer.lock` butuh PHP >= 8.4), MySQL/MariaDB,
 ekstensi `mbstring, openssl, pdo_mysql, tokenizer, xml, ctype, json, bcmath, fileinfo, gd, curl, zip`.
 
 ---
@@ -26,7 +27,12 @@ ekstensi `mbstring, openssl, pdo_mysql, tokenizer, xml, ctype, json, bcmath, fil
 
 1. Login **hPanel** → **Websites** → pilih domain (atau tambah domain/subdomain,
    mis. `app.azkalaundry.com`).
-2. hPanel → **Advanced → PHP Configuration** → set versi **PHP 8.2** atau **8.3**.
+2. hPanel → **Advanced → PHP Configuration** → set versi **PHP 8.4**.
+   > **WAJIB 8.4.** Dependency `openspout ^5.7` dan `symfony/* v8`
+   > (terkunci di `composer.lock`) mensyaratkan PHP >= 8.4. PHP 8.3 ke
+   > bawah akan gagal di `composer install`. Pastikan juga PHP **CLI/SSH**
+   > ikut 8.4 (reconnect SSH lalu `php -v`); kalau CLI masih 8.3, jalankan
+   > Composer via binary eksplisit, mis. `php8.4 $(which composer) install ...`.
 3. Di tab **PHP Extensions**, pastikan aktif: `mbstring`, `pdo_mysql`,
    `openssl`, `gd`, `curl`, `zip`, `fileinfo`, `bcmath`, `intl`.
 

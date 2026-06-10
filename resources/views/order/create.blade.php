@@ -76,7 +76,7 @@ body { font-family:'Plus Jakarta Sans',sans-serif; background:var(--surface); co
 .step-chip.active { background:#fff; width:36px; }
 
 /* ── SCROLL BODY ── */
-.page-body { max-width:520px; margin:0 auto; padding:20px 16px 120px; }
+.page-body { max-width:520px; margin:0 auto; padding:20px 16px 160px; }
 
 /* ── SECTION CARD ── */
 .section-card {
@@ -399,7 +399,7 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
 
 /* ── RESPONSIVE ── */
 @media(min-width:560px){
-  .page-body { padding:24px 24px 120px; }
+  .page-body { padding:24px 24px 160px; }
 }
 </style>
 </head>
