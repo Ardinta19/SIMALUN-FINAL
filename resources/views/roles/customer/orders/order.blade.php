@@ -874,6 +874,11 @@ body {
     function openCancelSheet() {
         const overlay = document.getElementById('cancelOverlay');
         if (!overlay) return;
+        // Pindahkan overlay ke <body> supaya lepas dari stacking context
+        // (animasi GSAP transform di konten membuat overlay bisa tertimpa navbar).
+        if (overlay.parentNode !== document.body) {
+            document.body.appendChild(overlay);
+        }
         overlay.classList.add('active');
         document.body.style.overflow = 'hidden';
     }
