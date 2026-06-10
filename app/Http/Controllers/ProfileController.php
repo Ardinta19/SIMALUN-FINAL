@@ -152,8 +152,7 @@ class ProfileController extends Controller
             'notes' => ['nullable', 'string', 'max:300'],
         ]);
 
-        $km = (float) ($validated['distance_km'] ?? 0);
-        $validated['zone'] = $km > 7 ? 'C' : ($km > 3 ? 'B' : 'A');
+        $validated['zone'] = 'A';
         $validated['is_primary'] = true;
 
         $primary = $user->customerAddresses()->where('is_primary', true)->first();

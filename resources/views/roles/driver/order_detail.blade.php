@@ -225,10 +225,6 @@ body {
             <span class="data-row__value">{{ $order->address_note }}</span>
         </div>
         @endif
-        <div class="data-row">
-            <span class="data-row__label">Zona</span>
-            <span class="data-row__value">Zona {{ $order->zone ?? 'A' }}</span>
-        </div>
         @php
             // Pesan WA disesuaikan dengan tahap order: kurir lagi jemput vs lagi antar.
             $waContext = in_array($order->status, ['dijemput', 'menunggu']) ? 'pickup' : 'delivery';

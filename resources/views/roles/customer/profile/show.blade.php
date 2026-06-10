@@ -356,12 +356,6 @@
                     @if($primaryAddress->phone)
                         <span class="meta-chip">{{ $primaryAddress->phone }}</span>
                     @endif
-                    @if($primaryAddress->zone)
-                        <span class="meta-chip zone-{{ strtolower($primaryAddress->zone) }}">Zona {{ $primaryAddress->zone }}</span>
-                    @endif
-                    @if($primaryAddress->distance_km)
-                        <span class="meta-chip">{{ $primaryAddress->distance_km }} km</span>
-                    @endif
                 </div>
             </div>
 

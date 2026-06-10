@@ -156,36 +156,16 @@ textarea.field-input{resize:none;min-height:80px;line-height:1.5;}
                         placeholder="Warna pagar, patokan, dll."
                         value="{{ old('notes', $address->notes) }}">
                 </div>
-                <div>
-                    <div class="field-label">Jarak dari Laundry (km)</div>
-                    <input type="number" name="distance_km" class="field-input" id="distance-input"
-                        placeholder="Contoh: 3.5" step="0.1" min="0" max="50"
-                        value="{{ old('distance_km', $address->distance_km) }}">
-                </div>
             </div>
         </div>
 
-        {{-- SECTION 3: Zona --}}
+        {{-- SECTION 3: Pengaturan --}}
         <div class="section-card js-card">
             <div class="section-head">
                 <div class="section-num">3</div>
-                <div class="section-title">Zona Pengiriman</div>
+                <div class="section-title">Pengaturan</div>
             </div>
             <div class="section-body">
-                <div>
-                    <div class="field-label">Pilih Zona <span class="required">*</span></div>
-                    <div class="zone-grid">
-                        @foreach([['A','0–3 km','Gratis'],['B','3–7 km','Rp 5rb'],['C','> 7 km','Rp 10rb']] as [$z,$desc,$price])
-                        <label class="zone-pill">
-                            <input type="radio" name="zone" value="{{ $z }}"
-                                {{ old('zone', $address->zone) === $z ? 'checked' : '' }}>
-                            <span class="zone-name">Zona {{ $z }}</span>
-                            <span class="zone-desc">{{ $desc }}</span>
-                            <span class="zone-price">{{ $price }}</span>
-                        </label>
-                        @endforeach
-                    </div>
-                </div>
                 <div>
                     <div class="toggle-wrap">
                         <div>
@@ -260,14 +240,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-// Zone auto-detect
-var _distInput = document.getElementById('distance-input');
-if (_distInput) _distInput.addEventListener('input', function() {
-    const km = parseFloat(this.value) || 0;
-    const zone = km > 7 ? 'C' : km > 3 ? 'B' : 'A';
-    const radio = document.querySelector(`input[name="zone"][value="${zone}"]`);
-    if (radio) radio.checked = true;
-});
+// Zona tidak lagi dipakai — auto-detect dihapus.
 
 function togglePrimary() {
     const btn = document.getElementById('toggle-primary');

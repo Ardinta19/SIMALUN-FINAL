@@ -265,12 +265,6 @@ body {
                     <div class="addr-recipient">{{ $address->recipient_name }} @if($address->phone)· {{ $address->phone }}@endif</div>
                     <div class="addr-full">{{ $address->full_address }}</div>
                     <div class="addr-meta">
-                        @if($address->zone)
-                        <span class="addr-meta-item">🗺️ Zona {{ $address->zone }}</span>
-                        @endif
-                        @if($address->distance_km)
-                        <span class="addr-meta-item">📏 {{ $address->distance_km }} km</span>
-                        @endif
                         @if($address->notes)
                         <span class="addr-meta-item">📝 {{ Str::limit($address->notes, 20) }}</span>
                         @endif

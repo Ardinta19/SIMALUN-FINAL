@@ -109,10 +109,6 @@ h1{font-weight:800;font-size:1.5rem;color:var(--blue-dark);margin-bottom:6px;}
       </span>
     </div>
     <div class="detail-row">
-      <span class="dr-label">Zona</span>
-      <span class="dr-value">Zona {{ $order->zone }}</span>
-    </div>
-    <div class="detail-row">
       <span class="dr-label">Pembayaran</span>
       <span class="dr-value">COD (Bayar di Tempat)</span>
     </div>

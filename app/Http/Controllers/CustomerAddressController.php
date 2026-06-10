@@ -51,10 +51,8 @@ class CustomerAddressController extends Controller
             $validated['is_primary'] = false;
         }
 
-        if (empty($validated['zone']) && isset($validated['distance_km'])) {
-            $km = (float) $validated['distance_km'];
-            $validated['zone'] = $km > 7 ? 'C' : ($km > 3 ? 'B' : 'A');
-        }
+        // Zona tidak lagi dipakai untuk harga (biaya penanganan flat). Default 'A'.
+        $validated['zone'] = 'A';
 
         CustomerAddress::create($validated);
 
@@ -85,10 +83,8 @@ class CustomerAddressController extends Controller
             'notes' => ['nullable', 'string', 'max:300'],
         ]);
 
-        if (empty($validated['zone']) && isset($validated['distance_km'])) {
-            $km = (float) $validated['distance_km'];
-            $validated['zone'] = $km > 7 ? 'C' : ($km > 3 ? 'B' : 'A');
-        }
+        // Zona tidak lagi dipakai untuk harga (biaya penanganan flat). Default 'A'.
+        $validated['zone'] = 'A';
 
         if ($request->boolean('is_primary') && ! $address->is_primary) {
             Auth::user()->customerAddresses()->update(['is_primary' => false]);

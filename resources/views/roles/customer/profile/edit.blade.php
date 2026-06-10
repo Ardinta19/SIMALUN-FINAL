@@ -353,16 +353,6 @@
                 </div>
 
                 <div>
-                    <div class="field-label">Jarak dari Laundry (km)</div>
-                    <input type="number" name="distance_km"
-                           class="field-input"
-                           step="0.1" min="0" max="50"
-                           value="{{ old('distance_km', $primaryAddress->distance_km ?? '') }}"
-                           placeholder="Contoh: 3.5">
-                    <div class="field-hint">Zona ditentukan otomatis: 0–3 km (A), 3–7 km (B), &gt;7 km (C)</div>
-                </div>
-
-                <div>
                     <div class="field-label">Catatan (opsional)</div>
                     <input type="text" name="notes"
                            class="field-input"

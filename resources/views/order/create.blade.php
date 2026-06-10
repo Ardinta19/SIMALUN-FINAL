@@ -1088,13 +1088,6 @@ if (alamatSelect) {
       addressNoteInput.readOnly = true;
     }
 
-    if (zone && ['A','B','C'].includes(zone)) {
-      const zoneRadio = document.querySelector(`input[name="zone"][value="${zone}"]`);
-      if (zoneRadio) {
-        zoneRadio.checked = true;
-      }
-    }
-
     if (addressInput) {
       addressInput.classList.add('addr-selected');
       setTimeout(() => addressInput.classList.remove('addr-selected'), 1200);

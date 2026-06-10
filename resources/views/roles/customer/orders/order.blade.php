@@ -738,10 +738,6 @@ body {
             <span class="ir-value">{{ $order->address_note }}</span>
         </div>
         @endif
-        <div class="info-row">
-            <span class="ir-label">Zona</span>
-            <span class="ir-value">Zona {{ $order->zone ?? 'A' }}</span>
-        </div>
         @if($order->notes)
         <div class="info-row">
             <span class="ir-label">Catatan</span>
