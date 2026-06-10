@@ -70,7 +70,7 @@ class OrderController extends Controller
             'service_id' => ['required', 'exists:services,id'],
             'address' => ['required', 'string', 'min:10', 'max:300'],
             'address_note' => ['nullable', 'string', 'max:200'],
-            'zone' => ['required', 'in:A,B,C'],
+            'zone' => ['nullable', 'in:A,B,C'],
             'pickup_date' => ['required', 'date', 'after_or_equal:today', 'before_or_equal:'.now()->addDays(14)->toDateString()],
             'pickup_time' => ['required', 'in:pagi,siang,sore'],
             'weight_estimate' => ['required', 'numeric', 'min:1', 'max:50'],
@@ -122,7 +122,7 @@ class OrderController extends Controller
 
         $service = Service::findOrFail($request->service_id);
         $weight = (float) $request->weight_estimate;
-        $zone = $request->zone;
+        $zone = $request->zone ?? 'A';
         $pickupCost = Order::zoneCost($zone);
 
         $serviceCost = (int) ($service->effective_unit_price * $weight);

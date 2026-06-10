@@ -492,24 +492,9 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
             value="{{ old('address_note') }}">
         </div>
 
-        <div>
-          <div class="field-label">Zona Pengiriman</div>
-          <div class="zone-grid">
-            @foreach([
-              ['A', '0–3 km'],
-              ['B', '3–7 km'],
-              ['C', '> 7 km'],
-            ] as [$z, $range])
-            <label class="zone-pill">
-              <input type="radio" name="zone" value="{{ $z }}"
-                {{ old('zone','A') === $z ? 'checked' : '' }}>
-              <span class="zone-name">Zona {{ $z }}</span>
-              <span class="zone-price">{{ $range }}</span>
-            </label>
-            @endforeach
-          </div>
-          @error('zone') <div class="err">{{ $message }}</div> @enderror
-        </div>
+        {{-- Zona tidak lagi dipilih customer (biaya kini flat "Biaya Penanganan").
+             Tetap dikirim 'A' sebagai default untuk kompatibilitas data. --}}
+        <input type="hidden" name="zone" value="A">
 
       </div>
     </div>
