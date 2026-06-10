@@ -770,7 +770,7 @@ body {
         </div>
         @endif
         <div class="total-row" style="position:relative;z-index:2">
-            <span class="total-label">Biaya Jemput (Zona {{ $order->zone }})</span>
+            <span class="total-label">Biaya Penanganan</span>
             <span class="total-value">Rp {{ number_format($pickupCost, 0, ',', '.') }}</span>
         </div>
         @if($discount > 0)

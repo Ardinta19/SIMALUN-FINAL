@@ -219,14 +219,17 @@ class Order extends Model
         };
     }
 
+    /**
+     * Biaya penanganan flat per order. Sebelumnya berbasis jarak/zona
+     * (5k/10k/15k), kini disederhanakan jadi satu tarif tetap sesuai
+     * permintaan bisnis. Zona tetap disimpan sebagai info alamat/driver,
+     * tapi tidak lagi memengaruhi biaya.
+     */
+    public const HANDLING_FEE = 5000;
+
     public static function zoneCost(string $zone): int
     {
-        return match ($zone) {
-            'A' => 5000,
-            'B' => 10000,
-            'C' => 15000,
-            default => 5000,
-        };
+        return self::HANDLING_FEE;
     }
 
     /**

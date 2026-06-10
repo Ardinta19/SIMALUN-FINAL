@@ -625,7 +625,7 @@ body.print-thermal-58 .receipt { width: 100%; }
             </div>
             @endif
             <div class="r-total__row">
-                <span class="r-total__row-label">Biaya Jemput (Zona {{ $order->zone }})</span>
+                <span class="r-total__row-label">Biaya Penanganan</span>
                 <span class="r-total__row-value">Rp {{ number_format($pickupCost, 0, ',', '.') }}</span>
             </div>
             @if($discount > 0)

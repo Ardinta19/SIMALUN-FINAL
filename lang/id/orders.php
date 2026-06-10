@@ -61,7 +61,7 @@ return [
         'weight_actual' => 'Berat Aktual',
         'subtotal' => 'Subtotal',
         'discount' => 'Diskon',
-        'pickup_cost' => 'Biaya Jemput',
+        'pickup_cost' => 'Biaya Penanganan',
         'total' => 'Total',
         'voucher_code' => 'Kode Voucher',
         'notes' => 'Catatan',

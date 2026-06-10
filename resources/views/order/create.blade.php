@@ -496,15 +496,15 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
           <div class="field-label">Zona Pengiriman</div>
           <div class="zone-grid">
             @foreach([
-              ['A', 'Rp 5k', '0–3 km'],
-              ['B', 'Rp 10k', '3–7 km'],
-              ['C', 'Rp 15k', '> 7 km'],
-            ] as [$z, $price, $range])
+              ['A', '0–3 km'],
+              ['B', '3–7 km'],
+              ['C', '> 7 km'],
+            ] as [$z, $range])
             <label class="zone-pill">
               <input type="radio" name="zone" value="{{ $z }}"
                 {{ old('zone','A') === $z ? 'checked' : '' }}>
               <span class="zone-name">Zona {{ $z }}</span>
-              <span class="zone-price">{{ $price }}</span>
+              <span class="zone-price">{{ $range }}</span>
             </label>
             @endforeach
           </div>
@@ -700,7 +700,7 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
             <span class="sum-value" id="sum-item-cost">Rp 0</span>
           </div>
           <div class="sum-row">
-            <span class="sum-label">Biaya Jemput</span>
+            <span class="sum-label">Biaya Penanganan</span>
             <span class="sum-value" id="sum-pickup-cost">Rp 5.000</span>
           </div>
           <div class="sum-row" id="sum-discount-row" style="display: none;">
@@ -911,7 +911,7 @@ document.getElementById('ws-plus').addEventListener('pointerleave',  stopPress);
 /* ═══════════════════════════════════════════
    LIVE PRICE CALCULATOR
 ════════════════════════════════════════════ */
-const zoneCosts = {A:5000, B:10000, C:15000};
+const HANDLING_FEE = 5000;
 
 function fmt(n) {
   return 'Rp ' + n.toLocaleString('id-ID');
@@ -924,7 +924,7 @@ function recalc() {
 
   const zoneInput = document.querySelector('input[name="zone"]:checked');
   const zone      = zoneInput ? zoneInput.value : 'A';
-  const pickupCost= zoneCosts[zone] || 5000;
+  const pickupCost= HANDLING_FEE;
 
   const svcCost   = pricePerKg * weight;
 
@@ -990,7 +990,7 @@ function getCurrentSubtotal() {
   const pricePerKg = svcInput ? parseInt(svcInput.dataset.price) : 8000;
   const zoneInput = document.querySelector('input[name="zone"]:checked');
   const zone = zoneInput ? zoneInput.value : 'A';
-  const pickupCost = zoneCosts[zone] || 5000;
+  const pickupCost = HANDLING_FEE;
   let itemCost = 0;
   document.querySelectorAll('.item-qty').forEach(i => {
     itemCost += (parseInt(i.value || 0) || 0) * (parseInt(i.dataset.itemPrice || 0) || 0);

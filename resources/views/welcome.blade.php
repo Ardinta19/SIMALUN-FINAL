@@ -86,7 +86,7 @@ html, body { width:100%; height:100%; overflow:hidden; font-family:'Plus Jakarta
   display:flex; flex-direction:column; align-items:center;
   justify-content:flex-start;
   padding:0.6rem 1.4rem 0;
-  padding-bottom:max(158px, 21vh);
+  padding-bottom:max(188px, 24vh);
   gap:.45rem; position:relative;
   overflow-y:auto; overflow-x:hidden;
   -webkit-overflow-scrolling:touch;
@@ -107,7 +107,7 @@ html, body { width:100%; height:100%; overflow:hidden; font-family:'Plus Jakarta
   #drum-wrap { width:clamp(60px,13vw,80px); height:clamp(60px,13vw,80px); }
   .wm-name { font-size:clamp(1.25rem,5vw,1.6rem); }
   .wm-sub { letter-spacing:4px; }
-  .panel { padding-bottom:max(140px, 20vh); gap:.3rem; }
+  .panel { padding-bottom:max(168px, 22vh); gap:.3rem; }
   .panel-icon-wrap { height:clamp(72px, calc(44vh - 180px), 130px); min-height:72px; }
   .panel h2 { font-size:clamp(1.15rem,5vw,1.5rem); }
   .panel p { font-size:clamp(.74rem,3vw,.85rem); line-height:1.45; }

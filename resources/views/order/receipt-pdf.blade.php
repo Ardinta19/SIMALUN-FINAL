@@ -368,7 +368,7 @@ body {
     </div>
     @endif
     <div class="total-row">
-        <span class="label">Biaya Jemput (Zona {{ $order->zone }})</span>
+        <span class="label">Biaya Penanganan</span>
         <span class="value">Rp {{ number_format($pickupCost, 0, ',', '.') }}</span>
     </div>
     @if($discount > 0)
