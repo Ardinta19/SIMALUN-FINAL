@@ -28,7 +28,7 @@ support PHP-FPM + supervisor). Untuk deploy ke shared hosting murni
 
 ```bash
 cd /var/www
-git clone https://github.com/Ardinta19/simalun.git azka-laundry
+git clone https://github.com/Ardinta19/SIMALUN-FINAL.git azka-laundry
 cd azka-laundry
 
 # Install dependency tanpa dev

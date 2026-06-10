@@ -55,8 +55,8 @@ Pilih salah satu:
 masukkan URL repo dan branch `main`, deploy ke folder mis. `domains/azkalaundry.com/repo`.
 Atau via SSH manual:
 ```bash
-cd ~/domains/azkalaundry.com
-git clone https://github.com/Ardinta19/simalun.git app
+cd ~/domains/azkalaundry.store
+git clone https://github.com/Ardinta19/SIMALUN-FINAL.git app
 ```
 
 **Opsi B — Upload ZIP:** export project (tanpa `vendor/`, `node_modules/`,
