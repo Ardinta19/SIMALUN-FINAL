@@ -133,6 +133,7 @@ html, body { width:100%; height:100%; overflow:hidden; font-family:'Plus Jakarta
   background:rgba(255,255,255,.08);
   border:1.5px solid rgba(255,255,255,.18);
   box-shadow:0 6px 24px rgba(0,0,0,.2);
+  -webkit-backdrop-filter:blur(4px);
   backdrop-filter:blur(4px);
   flex-shrink:0;
   overflow:hidden;
@@ -202,6 +203,7 @@ html, body { width:100%; height:100%; overflow:hidden; font-family:'Plus Jakarta
   background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.22);
   color:rgba(255,255,255,.9); font-size:.67rem; font-weight:800;
   padding:.25rem .65rem; border-radius:99px; letter-spacing:.3px;
+  -webkit-backdrop-filter:blur(4px);
   backdrop-filter:blur(4px);
 }
 
@@ -230,7 +232,7 @@ html, body { width:100%; height:100%; overflow:hidden; font-family:'Plus Jakarta
 /* slogan pill */
 #slogan-bubble {
   background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.22);
-  backdrop-filter:blur(8px); border-radius:99px; padding:.35rem 1rem;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); border-radius:99px; padding:.35rem 1rem;
   display:flex; align-items:center; gap:.5rem;
   box-shadow:0 4px 16px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.15);
 }

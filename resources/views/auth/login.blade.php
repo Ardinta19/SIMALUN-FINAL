@@ -81,7 +81,7 @@ html, body {
 .alert-error { background:rgba(255,80,80,.18); border:1px solid rgba(255,80,80,.35); color:#ffaaaa; }
 .alert-success { background:rgba(0,196,140,.18); border:1px solid rgba(0,196,140,.35); color:#7fffd4; }
 #footer { margin-top:1.6rem; text-align:center; font-size:.68rem; font-weight:700; color:rgba(255,255,255,.35); letter-spacing:.3px; }
-#btn-back { position:fixed; top:max(1rem, env(safe-area-inset-top)); left:1rem; z-index:10; width:38px; height:38px; border-radius:50%; border:none; cursor:pointer; background:rgba(255,255,255,.15); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,.25); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.1rem; transition:background .2s, transform .15s; text-decoration:none; }
+#btn-back { position:fixed; top:max(1rem, env(safe-area-inset-top)); left:1rem; z-index:10; width:38px; height:38px; border-radius:50%; border:none; cursor:pointer; background:rgba(255,255,255,.15); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,.25); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.1rem; transition:background .2s, transform .15s; text-decoration:none; }
 #btn-back:hover { background:rgba(255,255,255,.25); }
 #btn-back:active { transform:scale(.92); }
 </style>

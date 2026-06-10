@@ -156,7 +156,7 @@ html, body {
 #btn-back {
   position:fixed; top:max(1rem, env(safe-area-inset-top)); left:1rem; z-index:10;
   width:38px; height:38px; border-radius:50%;
-  background:rgba(255,255,255,.15); backdrop-filter:blur(8px);
+  background:rgba(255,255,255,.15); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
   border:1px solid rgba(255,255,255,.25);
   display:flex; align-items:center; justify-content:center;
   color:#fff; font-size:1.1rem; text-decoration:none;
@@ -428,13 +428,15 @@ document.addEventListener('DOMContentLoaded', function() {
   /* ── RESET FORM SUBMIT ── */
   const resetForm = document.getElementById('reset-form');
   if (resetForm) {
-    document.getElementById('rpw-toggle-1')?.addEventListener('click', function(){
+    var _t1 = document.getElementById('rpw-toggle-1');
+    if (_t1) _t1.addEventListener('click', function(){
       const inp = document.getElementById('new-pw');
       const show = inp.type==='password';
       inp.type = show?'text':'password';
       this.textContent = show?'🙈':'👁️';
     });
-    document.getElementById('rpw-toggle-2')?.addEventListener('click', function(){
+    var _t2 = document.getElementById('rpw-toggle-2');
+    if (_t2) _t2.addEventListener('click', function(){
       const inp = document.getElementById('new-pw-confirm');
       const show = inp.type==='password';
       inp.type = show?'text':'password';

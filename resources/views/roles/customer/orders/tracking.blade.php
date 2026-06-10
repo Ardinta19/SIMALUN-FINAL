@@ -455,7 +455,8 @@ body {
             }
         }
 
-        document.getElementById('btn-recenter')?.addEventListener('click', fitMap);
+        var _recenter = document.getElementById('btn-recenter');
+        if (_recenter) _recenter.addEventListener('click', fitMap);
 
         // ── Lokasi customer (device sendiri) — hanya jika alamat belum punya koordinat ──
         if (HOME_LAT === null && 'geolocation' in navigator) {

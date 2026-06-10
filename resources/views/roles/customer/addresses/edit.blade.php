@@ -48,8 +48,8 @@ textarea.field-input{resize:none;min-height:80px;line-height:1.5;}
 .zone-name{font-weight:800;font-size:.95rem;color:var(--ink);display:block;}
 .zone-desc{font-size:.68rem;font-weight:800;color:var(--ink-lt);display:block;margin-top:2px;}
 .zone-price{font-size:.7rem;font-weight:900;color:var(--green);display:block;margin-top:2px;}
-.zone-pill:has(input:checked){border-color:var(--blue-mid);background:rgba(0,119,182,.06);box-shadow:0 0 0 3px rgba(0,119,182,.12);}
-.zone-pill:has(input:checked) .zone-name{color:var(--blue-mid);}
+.zone-pill:has(input:checked), .zone-pill.is-checked{border-color:var(--blue-mid);background:rgba(0,119,182,.06);box-shadow:0 0 0 3px rgba(0,119,182,.12);}
+.zone-pill:has(input:checked) .zone-name, .zone-pill.is-checked .zone-name{color:var(--blue-mid);}
 
 #addr-map{height:180px;border-radius:var(--radius-sm);border:1.5px solid var(--border);z-index:10;margin-bottom:4px;}
 .map-hint{font-size:.7rem;font-weight:700;color:var(--ink-lt);display:flex;align-items:center;gap:5px;}
@@ -62,7 +62,7 @@ textarea.field-input{resize:none;min-height:80px;line-height:1.5;}
 .toggle-switch.on{background:var(--green);}
 .toggle-switch.on::after{transform:translateX(22px);}
 
-.bottom-cta{position:fixed;bottom:calc(64px + env(safe-area-inset-bottom,0px));left:0;right:0;padding:12px 16px;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1.5px solid var(--border);z-index:50;}
+.bottom-cta{position:fixed;bottom:calc(64px + env(safe-area-inset-bottom,0px));left:0;right:0;padding:12px 16px;background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-top:1.5px solid var(--border);z-index:50;}
 .cta-inner{max-width:520px;margin:0 auto;}
 .btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--blue-mid) 0%,var(--blue-light) 100%);color:white;font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:.95rem;border:none;border-radius:var(--radius-sm);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 20px rgba(0,119,182,.35);transition:transform .15s;}
 .btn-submit:active{transform:scale(.97);}
@@ -261,7 +261,8 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Zone auto-detect
-document.getElementById('distance-input')?.addEventListener('input', function() {
+var _distInput = document.getElementById('distance-input');
+if (_distInput) _distInput.addEventListener('input', function() {
     const km = parseFloat(this.value) || 0;
     const zone = km > 7 ? 'C' : km > 3 ? 'B' : 'A';
     const radio = document.querySelector(`input[name="zone"][value="${zone}"]`);
@@ -281,6 +282,28 @@ function togglePrimary() {
         gsap.from(btn, { scale: 0.9, duration: 0.2, ease: 'back.out(2)' });
     }
 }
+</script>
+
+<script>
+/* Fallback :has(input:checked) untuk Android/iOS lama — toggle class .is-checked */
+(function(){
+  function syncChecked(){
+    var inputs = document.querySelectorAll('label input[type=radio], label input[type=checkbox]');
+    for (var i = 0; i < inputs.length; i++){
+      var lbl = inputs[i].closest('label');
+      if (!lbl) continue;
+      if (inputs[i].checked) lbl.classList.add('is-checked');
+      else lbl.classList.remove('is-checked');
+    }
+  }
+  document.addEventListener('change', function(e){
+    var t = e.target;
+    if (t && (t.type === 'radio' || t.type === 'checkbox')) syncChecked();
+  });
+  if (document.readyState !== 'loading') syncChecked();
+  else document.addEventListener('DOMContentLoaded', syncChecked);
+  window.addEventListener('load', syncChecked);
+})();
 </script>
 </body>
 </html>

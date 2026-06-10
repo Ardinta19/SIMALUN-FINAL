@@ -483,7 +483,8 @@ body {
  * saat document.hidden = true.
  */
 (function () {
-    const mode = document.querySelector('meta[name="realtime-mode"]')?.content || 'polling';
+    var rtMeta = document.querySelector('meta[name="realtime-mode"]');
+    const mode = (rtMeta && rtMeta.content) || 'polling';
 
     if (mode !== 'polling') {
         // ── BROADCASTING MODE (template, tidak aktif) ─────────────

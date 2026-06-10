@@ -118,12 +118,12 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
 .zone-name { font-weight:800; font-size:.95rem; color:var(--ink); display:block; }
 .zone-desc { font-size:.68rem; font-weight:800; color:var(--ink-lt); display:block; margin-top:2px; }
 .zone-price { font-size:.7rem; font-weight:900; color:var(--green); display:block; margin-top:2px; }
-.zone-pill:has(input:checked) {
+.zone-pill:has(input:checked), .zone-pill.is-checked {
     border-color:var(--blue-mid);
     background:rgba(0,119,182,.06);
     box-shadow:0 0 0 3px rgba(0,119,182,.12);
 }
-.zone-pill:has(input:checked) .zone-name { color:var(--blue-mid); }
+.zone-pill:has(input:checked) .zone-name, .zone-pill.is-checked .zone-name { color:var(--blue-mid); }
 
 /* ── MAP ─────────────────────────────── */
 #addr-map {
@@ -167,6 +167,7 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
     left:0; right:0;
     padding:12px 16px;
     background:rgba(255,255,255,.96);
+    -webkit-backdrop-filter:blur(12px);
     backdrop-filter:blur(12px);
     border-top:1.5px solid var(--border);
     z-index:50;
@@ -400,7 +401,8 @@ function initMap() {
 }
 
 /* ── ZONE AUTO-DETECT dari JARAK ─────── */
-document.getElementById('distance-input')?.addEventListener('input', function() {
+var _distInput = document.getElementById('distance-input');
+if (_distInput) _distInput.addEventListener('input', function() {
     const km = parseFloat(this.value) || 0;
     let zone = 'A';
     if (km > 7)  zone = 'C';
@@ -450,6 +452,28 @@ document.addEventListener('DOMContentLoaded', function () {
     animate('.page-header', { opacity: 0, y: -16, duration: 0.4, ease: 'power2.out' });
     animate('.bottom-cta', { opacity: 0, y: 20, duration: 0.4, ease: 'power2.out', delay: 0.3 });
 });
+</script>
+
+<script>
+/* Fallback :has(input:checked) untuk Android/iOS lama — toggle class .is-checked */
+(function(){
+  function syncChecked(){
+    var inputs = document.querySelectorAll('label input[type=radio], label input[type=checkbox]');
+    for (var i = 0; i < inputs.length; i++){
+      var lbl = inputs[i].closest('label');
+      if (!lbl) continue;
+      if (inputs[i].checked) lbl.classList.add('is-checked');
+      else lbl.classList.remove('is-checked');
+    }
+  }
+  document.addEventListener('change', function(e){
+    var t = e.target;
+    if (t && (t.type === 'radio' || t.type === 'checkbox')) syncChecked();
+  });
+  if (document.readyState !== 'loading') syncChecked();
+  else document.addEventListener('DOMContentLoaded', syncChecked);
+  window.addEventListener('load', syncChecked);
+})();
 </script>
 </body>
 </html>

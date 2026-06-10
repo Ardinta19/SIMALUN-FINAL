@@ -81,7 +81,7 @@ body {
     cursor: pointer; transition: all 0.15s;
     font-size: 0.78rem; font-weight: 700; color: var(--ink-mid);
 }
-.category-pill:has(input:checked) {
+.category-pill:has(input:checked), .category-pill.is-checked {
     border-color: var(--blue); background: var(--blue-lt); color: var(--blue);
 }
 .category-pill input { display: none; }
@@ -291,12 +291,35 @@ body {
 
 <script>
 // File input preview
-document.getElementById('file-input')?.addEventListener('change', function() {
-    const name = this.files[0]?.name;
+var _fileInput = document.getElementById('file-input');
+if (_fileInput) _fileInput.addEventListener('change', function() {
+    const name = (this.files && this.files[0]) ? this.files[0].name : null;
     if (name) {
         document.getElementById('file-name').textContent = name;
     }
 });
+</script>
+
+<script>
+/* Fallback :has(input:checked) untuk Android/iOS lama — toggle class .is-checked */
+(function(){
+  function syncChecked(){
+    var inputs = document.querySelectorAll('label input[type=radio], label input[type=checkbox]');
+    for (var i = 0; i < inputs.length; i++){
+      var lbl = inputs[i].closest('label');
+      if (!lbl) continue;
+      if (inputs[i].checked) lbl.classList.add('is-checked');
+      else lbl.classList.remove('is-checked');
+    }
+  }
+  document.addEventListener('change', function(e){
+    var t = e.target;
+    if (t && (t.type === 'radio' || t.type === 'checkbox')) syncChecked();
+  });
+  if (document.readyState !== 'loading') syncChecked();
+  else document.addEventListener('DOMContentLoaded', syncChecked);
+  window.addEventListener('load', syncChecked);
+})();
 </script>
 </body>
 </html>

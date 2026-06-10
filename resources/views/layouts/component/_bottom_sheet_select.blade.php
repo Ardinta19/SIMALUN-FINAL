@@ -37,6 +37,7 @@
 .bsheet-overlay {
     position: fixed;
     inset: 0;
+    top: 0; right: 0; bottom: 0; left: 0;
     z-index: 9998;
     display: flex;
     align-items: flex-end;
@@ -45,6 +46,7 @@
 .bsheet-backdrop {
     position: absolute;
     inset: 0;
+    top: 0; right: 0; bottom: 0; left: 0;
     background: rgba(0, 47, 77, 0.45); /* brand-900 navy scrim (fallback) */
     background: color-mix(in srgb, var(--brand-900, #002f4d) 45%, transparent);
     backdrop-filter: blur(3px);

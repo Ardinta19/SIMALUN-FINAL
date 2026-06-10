@@ -299,7 +299,7 @@ html, body {
 #btn-back {
   position:fixed; top:max(1rem, env(safe-area-inset-top)); left:1rem; z-index:10;
   width:38px; height:38px; border-radius:50%; border:none; cursor:pointer;
-  background:rgba(255,255,255,.15); backdrop-filter:blur(8px);
+  background:rgba(255,255,255,.15); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
   border:1px solid rgba(255,255,255,.25);
   display:flex; align-items:center; justify-content:center;
   color:#fff; font-size:1.1rem; transition:background .2s, transform .15s;

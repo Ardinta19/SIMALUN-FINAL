@@ -182,13 +182,13 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
 .zone-pill input[type=radio] { position:absolute; opacity:0; }
 .zone-pill .zone-name { font-weight:800; font-size:1rem; color:var(--ink); display:block; }
 .zone-pill .zone-price { font-size:.72rem; font-weight:800; color:var(--ink-lt); display:block; margin-top:2px; }
-.zone-pill:has(input:checked) {
+.zone-pill:has(input:checked), .zone-pill.is-checked {
   border-color:var(--blue-mid);
   background:rgba(0,119,182,.06);
   box-shadow:0 0 0 3px rgba(0,119,182,.12);
 }
-.zone-pill:has(input:checked) .zone-name { color:var(--blue-mid); }
-.zone-pill:has(input:checked) .zone-price { color:var(--blue-mid); }
+.zone-pill:has(input:checked) .zone-name, .zone-pill.is-checked .zone-name { color:var(--blue-mid); }
+.zone-pill:has(input:checked) .zone-price, .zone-pill.is-checked .zone-price { color:var(--blue-mid); }
 
 /* ── SERVICE CARDS ── */
 .service-list { display:flex; flex-direction:column; gap:9px; }
@@ -215,13 +215,13 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
 .service-eta  { font-size:.72rem; font-weight:700; color:var(--ink-lt); margin-top:2px; }
 .service-price { font-weight:800; font-size:1.05rem; color:var(--blue-mid); flex-shrink:0; }
 
-.service-card:has(input:checked) {
+.service-card:has(input:checked), .service-card.is-checked {
   border-color:var(--orange);
   background:var(--orange-lt);
   box-shadow:0 0 0 3px rgba(255,107,53,.12);
 }
-.service-card:has(input:checked) .service-name { color:var(--orange); }
-.service-card:has(input:checked) .service-price { color:var(--orange); }
+.service-card:has(input:checked) .service-name, .service-card.is-checked .service-name { color:var(--orange); }
+.service-card:has(input:checked) .service-price, .service-card.is-checked .service-price { color:var(--orange); }
 
 /* service icon colors per type */
 .icon-reguler  { background:#e0f4ff; }
@@ -323,11 +323,11 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
 .date-chip input[type=radio] { position:absolute; opacity:0; }
 .date-chip .dc-day { font-size:.65rem; font-weight:800; color:var(--ink-lt); text-transform:uppercase; letter-spacing:.5px; }
 .date-chip .dc-num { font-weight:800; font-size:1.3rem; color:var(--ink); line-height:1; }
-.date-chip:has(input:checked) {
+.date-chip:has(input:checked), .date-chip.is-checked {
   border-color:var(--blue-mid); background:var(--blue-mid);
 }
-.date-chip:has(input:checked) .dc-day { color:rgba(255,255,255,.75); }
-.date-chip:has(input:checked) .dc-num { color:#fff; }
+.date-chip:has(input:checked) .dc-day, .date-chip.is-checked .dc-day { color:rgba(255,255,255,.75); }
+.date-chip:has(input:checked) .dc-num, .date-chip.is-checked .dc-num { color:#fff; }
 
 /* ── TIME PILLS ── */
 .time-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
@@ -339,11 +339,11 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
 .time-pill input[type=radio] { position:absolute; opacity:0; }
 .time-pill .tp-icon { font-size:1.2rem; display:block; }
 .time-pill .tp-label { font-size:.78rem; font-weight:800; color:var(--ink); display:block; margin-top:3px; }
-.time-pill:has(input:checked) {
+.time-pill:has(input:checked), .time-pill.is-checked {
   border-color:var(--blue-mid); background:rgba(0,119,182,.07);
   box-shadow:0 0 0 3px rgba(0,119,182,.12);
 }
-.time-pill:has(input:checked) .tp-label { color:var(--blue-mid); }
+.time-pill:has(input:checked) .tp-label, .time-pill.is-checked .tp-label { color:var(--blue-mid); }
 
 /* ── SUMMARY BOX ── */
 .summary-box {
@@ -363,6 +363,7 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
   position:fixed; bottom:0; left:0; right:0;
   padding:12px 16px max(env(safe-area-inset-bottom,0px),16px);
   background:rgba(255,255,255,.98);
+  -webkit-backdrop-filter:blur(12px);
   backdrop-filter:blur(12px);
   border-top:1.5px solid var(--border);
   z-index:9999;
@@ -1207,5 +1208,26 @@ recalc();
 @keyframes spin { to { transform:rotate(360deg); } }
 </style>
 
+<script>
+/* Fallback :has(input:checked) untuk Android/iOS lama — toggle class .is-checked */
+(function(){
+  function syncChecked(){
+    var inputs = document.querySelectorAll('label input[type=radio], label input[type=checkbox]');
+    for (var i = 0; i < inputs.length; i++){
+      var lbl = inputs[i].closest('label');
+      if (!lbl) continue;
+      if (inputs[i].checked) lbl.classList.add('is-checked');
+      else lbl.classList.remove('is-checked');
+    }
+  }
+  document.addEventListener('change', function(e){
+    var t = e.target;
+    if (t && (t.type === 'radio' || t.type === 'checkbox')) syncChecked();
+  });
+  if (document.readyState !== 'loading') syncChecked();
+  else document.addEventListener('DOMContentLoaded', syncChecked);
+  window.addEventListener('load', syncChecked);
+})();
+</script>
 </body>
 </html>
