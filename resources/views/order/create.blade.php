@@ -360,8 +360,8 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
 
 /* ── FIXED BOTTOM CTA ── */
 .bottom-cta {
-  position:fixed; bottom:0; left:0; right:0;
-  padding:12px 16px max(env(safe-area-inset-bottom,0px),20px);
+  position:fixed; bottom:calc(64px + env(safe-area-inset-bottom,0px)); left:0; right:0;
+  padding:12px 16px;
   background:rgba(255,255,255,.98);
   backdrop-filter:blur(12px);
   border-top:1.5px solid var(--border);
