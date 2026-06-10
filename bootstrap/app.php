@@ -1,0 +1,37 @@
+<?php
+
+use App\Http\Middleware\RoleMiddleware;
+use App\Http\Middleware\SanitizeInput;
+use App\Http\Middleware\SecurityHeaders;
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Configuration\Exceptions;
+use Illuminate\Foundation\Configuration\Middleware;
+
+return Application::configure(basePath: dirname(__DIR__))
+    ->withRouting(
+        web: __DIR__.'/../routes/web.php',
+        commands: __DIR__.'/../routes/console.php',
+        health: '/up',
+
+    )
+    ->withMiddleware(function (Middleware $middleware) {
+        $middleware->alias([
+            'role' => RoleMiddleware::class,
+        ]);
+
+        // Apply input sanitization to all web requests
+        $middleware->web(append: [
+            SanitizeInput::class,
+            SecurityHeaders::class,
+        ]);
+
+        // Percayai header proxy (X-Forwarded-*) dari reverse proxy /
+        // load balancer hosting (mis. Hostinger). Tanpa ini, Laravel
+        // bisa salah deteksi HTTP vs HTTPS di belakang proxy → memicu
+        // "Mixed Content" atau redirect loop saat HTTPS dipaksa.
+        $middleware->trustProxies(at: '*');
+    })
+        //
+    ->withExceptions(function (Exceptions $exceptions): void {
+        //
+    })->create();
