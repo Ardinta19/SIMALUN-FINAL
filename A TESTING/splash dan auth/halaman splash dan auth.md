@@ -12,11 +12,9 @@
 | Modul yang Diuji | Halaman Awal (Splash) & Autentikasi |
 | Jenis Pengujian | Black-box Testing (Manual) |
 | Versi Aplikasi | 1.0 |
-| Penyusun | _______________________ |
-| NIM | _______________________ |
-| Mata Kuliah | _______________________ |
-| Dosen Pengampu | _______________________ |
-| Tanggal Pengujian | _______________________ |
+| Penyusun | Ardinata Saputra |
+| NIM | 701240133 |
+| Mata Kuliah | MPSI |
 
 ---
 
