@@ -213,7 +213,7 @@ html, body {
   <div id="card">
 
     <!-- ══ VIEW 1: REQUEST EMAIL ══ -->
-    <div class="view active" id="view-request">
+    <div class="view {{ (isset($token) || session('password_reset_success')) ? '' : 'active' }}" id="view-request">
       <div class="icon-area">
         <div class="icon-circle">🔑</div>
         <div class="card-title">Lupa Password?</div>
@@ -285,7 +285,7 @@ html, body {
     <!-- ══ VIEW 3: RESET PASSWORD FORM (via token) ══ -->
     {{-- This view is shown on the password.reset route --}}
     @if(isset($token))
-    <div class="view" id="view-reset" style="display:block;">
+    <div class="view active" id="view-reset">
       <div class="icon-area">
         <div class="icon-circle">🔐</div>
         <div class="card-title">Buat Password Baru</div>
@@ -334,7 +334,7 @@ html, body {
           <div class="form-error" id="err-rpwc"></div>
         </div>
 
-        <button type="submit" id="btn-send" style="margin-top:.4rem;">
+        <button type="submit" id="btn-reset-send" style="margin-top:.4rem;">
           <span class="btn-spinner"></span>
           <span class="btn-text">Simpan Password Baru 🔐</span>
         </button>
@@ -344,7 +344,7 @@ html, body {
 
     <!-- ══ VIEW 4: RESET SUCCESS ══ -->
     @if(session('password_reset_success'))
-    <div class="view" id="view-reset-success" style="display:block;">
+    <div class="view active" id="view-reset-success">
       <div style="text-align:center;padding:.5rem 0;">
         <div class="sent-icon">🎉</div>
         <div class="card-title">Password Berhasil Diubah!</div>
@@ -459,8 +459,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('new-pw-confirm').classList.add('error'); ok=false;
       }
       if (!ok) { e.preventDefault(); gsap.fromTo('#card',{x:-6},{x:0,duration:.4,ease:'elastic.out(1,.4)'}); return; }
-      document.getElementById('btn-send').classList.add('loading');
-      document.getElementById('btn-send').disabled = true;
+      document.getElementById('btn-reset-send').classList.add('loading');
+      document.getElementById('btn-reset-send').disabled = true;
     });
   }
 
