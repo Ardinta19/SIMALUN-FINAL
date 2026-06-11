@@ -765,10 +765,12 @@ body {
             <span class="total-value">Rp {{ number_format($itemTotal, 0, ',', '.') }}</span>
         </div>
         @endif
+        @if($pickupCost > 0)
         <div class="total-row" style="position:relative;z-index:2">
             <span class="total-label">Biaya Penanganan</span>
             <span class="total-value">Rp {{ number_format($pickupCost, 0, ',', '.') }}</span>
         </div>
+        @endif
         @if($discount > 0)
         <div class="total-row" style="position:relative;z-index:2">
             <span class="total-label">Diskon</span>

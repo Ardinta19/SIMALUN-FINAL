@@ -367,10 +367,12 @@ body {
         <span class="value">Rp {{ number_format($itemTotal, 0, ',', '.') }}</span>
     </div>
     @endif
+    @if($pickupCost > 0)
     <div class="total-row">
         <span class="label">Biaya Penanganan</span>
         <span class="value">Rp {{ number_format($pickupCost, 0, ',', '.') }}</span>
     </div>
+    @endif
     @if($discount > 0)
     <div class="total-row">
         <span class="label">Diskon</span>
