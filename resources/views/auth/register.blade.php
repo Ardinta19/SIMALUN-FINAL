@@ -600,7 +600,9 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ── STEP NAVIGATION ── */
   let currentStep = 1;
   window.goStep = function(next) {
-    if (!validateStep(currentStep)) return;
+    // Hanya validasi saat maju ke step berikutnya. Saat mundur (kembali),
+    // biarkan user kembali tanpa harus mengisi step saat ini dulu.
+    if (next > currentStep && !validateStep(currentStep)) return;
     const prev = currentStep;
     currentStep = next;
 
@@ -739,10 +741,40 @@ document.addEventListener('DOMContentLoaded', function () {
     lbl.style.color = cfg.bg;
   });
 
-  /* ── PHONE: strip leading 0 ── */
-  document.getElementById('phone').addEventListener('input', function() {
-    if (this.value.startsWith('0')) this.value = this.value.slice(1);
-  });
+  /* ── PHONE: normalisasi input agar selalu diawali 8 ── */
+  (function () {
+    const phone = document.getElementById('phone');
+
+    // Ubah input apa pun jadi format lokal tanpa awalan: 8xxxxxxxxxx
+    function normalizePhone(raw) {
+      // Buang semua karakter selain angka (termasuk +, spasi, -, dll)
+      let d = (raw || '').replace(/\D/g, '');
+      // Buang kode negara Indonesia jika di-paste (+62 / 62)
+      if (d.startsWith('62')) d = d.slice(2);
+      // Buang semua angka 0 di depan (08xx / 0xx)
+      d = d.replace(/^0+/, '');
+      return d;
+    }
+
+    function applyNormalize() {
+      const before = phone.value;
+      const after = normalizePhone(before);
+      if (before !== after) {
+        phone.value = after;
+        // pertahankan kursor di akhir agar tidak melompat
+        phone.setSelectionRange(after.length, after.length);
+      }
+    }
+
+    phone.addEventListener('input', applyNormalize);
+    // Tangani paste secara eksplisit (mis. "+62 812-3456-7890" / "0812 3456 7890")
+    phone.addEventListener('paste', function (e) {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData('text');
+      phone.value = normalizePhone(phone.value + text);
+      phone.setSelectionRange(phone.value.length, phone.value.length);
+    });
+  })();
 
   /* ── If Laravel returned errors, show on correct step ── */
   @if($errors->any())
