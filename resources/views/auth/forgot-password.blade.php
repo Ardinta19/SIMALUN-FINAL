@@ -100,7 +100,7 @@ html, body {
 .alert-success { background:rgba(0,196,140,.18); border:1px solid rgba(0,196,140,.35); color:#7fffd4; }
 .alert-info { background:rgba(0,164,218,.18); border:1px solid rgba(0,164,218,.35); color:#a0d8ef; }
 
-#btn-send {
+#btn-send, #btn-reset-send {
   width:100%; padding:.88rem; border:none; border-radius:99px;
   background:linear-gradient(135deg,#FF6B35 0%,#ff8c5a 100%);
   color:#fff; font-family:'Plus Jakarta Sans',sans-serif; font-weight:900;
@@ -108,18 +108,18 @@ html, body {
   box-shadow:0 8px 24px rgba(255,107,53,.45), inset 0 1px 0 rgba(255,255,255,.2);
   transition:transform .15s, box-shadow .15s;
 }
-#btn-send::before {
+#btn-send::before, #btn-reset-send::before {
   content:''; position:absolute; top:0; left:-100%; width:60%; height:100%;
   background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);
   animation:shimmer 2.8s ease-in-out infinite;
 }
 @keyframes shimmer{0%{left:-100%}60%,100%{left:160%}}
-#btn-send:active{transform:scale(.97);} #btn-send:hover{box-shadow:0 12px 32px rgba(255,107,53,.6);}
-#btn-send:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+#btn-send:active, #btn-reset-send:active{transform:scale(.97);} #btn-send:hover, #btn-reset-send:hover{box-shadow:0 12px 32px rgba(255,107,53,.6);}
+#btn-send:disabled, #btn-reset-send:disabled{opacity:.6;cursor:not-allowed;transform:none;}
 .btn-spinner{display:none;width:18px;height:18px;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:.4rem;}
 @keyframes spin{to{transform:rotate(360deg);}}
-#btn-send.loading .btn-spinner{display:inline-block;}
-#btn-send.loading .btn-text{opacity:.6;}
+#btn-send.loading .btn-spinner, #btn-reset-send.loading .btn-spinner{display:inline-block;}
+#btn-send.loading .btn-text, #btn-reset-send.loading .btn-text{opacity:.6;}
 
 /* sent state */
 .sent-icon { font-size:3.5rem; margin-bottom:.8rem; display:block; text-align:center; }
