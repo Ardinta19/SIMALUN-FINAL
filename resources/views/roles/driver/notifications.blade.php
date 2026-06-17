@@ -176,7 +176,7 @@ body {
         @endforeach
 
         <div class="pagination-wrap">
-            {{ $notifications->links() }}
+            {{ $notifications->links('vendor.pagination.token-simple') }}
         </div>
     @else
         <div class="empty-state reveal d2">

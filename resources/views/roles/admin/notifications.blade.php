@@ -192,7 +192,7 @@ body {
 
             @if($notifications->hasPages())
             <div class="pagination-wrap">
-                {{ $notifications->links() }}
+                {{ $notifications->links('vendor.pagination.token-simple') }}
             </div>
             @endif
         </div>

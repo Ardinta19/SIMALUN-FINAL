@@ -237,7 +237,7 @@ body {
     @endforelse
 
     @if($vouchers->hasPages())
-    <div class="pager reveal">{{ $vouchers->links() }}</div>
+    <div class="pager reveal">{{ $vouchers->links('vendor.pagination.token-simple') }}</div>
     @endif
 </main>
 

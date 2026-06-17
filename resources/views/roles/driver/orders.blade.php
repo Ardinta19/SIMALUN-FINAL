@@ -255,7 +255,7 @@ body {
 
     @if($pesanan->hasPages())
     <div class="pagination-wrap">
-        {{ $pesanan->links() }}
+        {{ $pesanan->links('vendor.pagination.token-simple') }}
     </div>
     @endif
 

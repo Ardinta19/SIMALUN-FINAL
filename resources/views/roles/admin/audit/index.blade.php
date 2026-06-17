@@ -336,7 +336,7 @@ body {
 
     @if($logs->hasPages())
     <div class="pagination-wrap">
-        {{ $logs->links() }}
+        {{ $logs->links('vendor.pagination.token-simple') }}
     </div>
     @endif
 
