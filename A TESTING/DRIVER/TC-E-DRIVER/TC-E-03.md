@@ -11,4 +11,4 @@ ACTUAL RESULT:
 Data berhasil ditampilkan tanpa mengganggu sistem
 
 STATUS:
-FAIL
+PASS
