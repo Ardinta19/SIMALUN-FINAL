@@ -2,7 +2,7 @@ Skenario Pengujian:
 Menginput Nilai Diskon Negatif (Minus)
 
 Test Data:
-Nama: Voucher Ramadhan
+Nama: Voucher ramadhan
 Diskon: -10$
 
 Expected Result:
