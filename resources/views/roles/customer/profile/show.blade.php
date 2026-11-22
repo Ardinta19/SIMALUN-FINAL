@@ -371,7 +371,7 @@
             </div>
         @else
             <div class="empty-address">
-                <p>Belum ada alamat utama. Alamat tersimpan belum otomatis digunakan saat checkout sewa.</p>
+                <p>Belum ada alamat utama. Alamat tersimpan dapat dipilih saat checkout sewa.</p>
                 <a href="{{ route('customer.addresses.create') }}" class="btn-add-addr">+ Tambah Alamat Utama</a>
             </div>
         @endif

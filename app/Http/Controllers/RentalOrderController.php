@@ -31,7 +31,9 @@ class RentalOrderController extends Controller
             }
         }
         $universities = RentalUniversity::where('is_active', true)->orderBy('name')->get();
-        return view('rental.checkout', compact('cart', 'products', 'universities'));
+        $savedAddresses = $request->user()->customerAddresses()->orderByDesc('is_primary')->orderBy('label')->get()
+            ->filter(fn ($address) => mb_strlen($address->full_address) <= 1000);
+        return view('rental.checkout', compact('cart', 'products', 'universities', 'savedAddresses'));
     }
 
     public function store(Request $request)

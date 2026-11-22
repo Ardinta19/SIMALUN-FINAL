@@ -11,9 +11,13 @@
 <h3>Jadwal sewa</h3><p class="muted">Tanggal acara sekaligus menjadi tanggal papan diterima, baik diantar maupun diambil di outlet. Jika sewa hanya satu hari, pilih tanggal pengembalian yang sama.</p><div class="row"><label>Tanggal acara dan penerimaan<input type="date" name="units[{{ $key }}][event_on]" value="{{ old('units.'.$key.'.event_on') }}" min="{{ now('Asia/Jakarta')->toDateString() }}" required></label><label>Tanggal pengembalian<input type="date" name="units[{{ $key }}][ends_on]" value="{{ old('units.'.$key.'.ends_on') }}" required></label></div>
 @if($product && $product->packages->isNotEmpty())<label>Pilihan harga<select name="units[{{ $key }}][package_id]"><option value="">Harga dasar (per hari/acara)</option>@foreach($product->packages as $package)<option value="{{ $package->id }}" @selected((string) old('units.'.$key.'.package_id') === (string) $package->id)>{{ $package->name }} · {{ $package->days }} hari · Rp {{ number_format($package->price, 0, ',', '.') }}</option>@endforeach</select></label><p class="muted">Jumlah hari dihitung termasuk tanggal penerimaan dan pengembalian; durasi harus sama dengan paket.</p>@endif
 <h3>Ucapan dan desain</h3><label>Nama penerima<input name="units[{{ $key }}][recipient_name]" value="{{ old('units.'.$key.'.recipient_name') }}" maxlength="160" required></label><label>Ucapan<textarea name="units[{{ $key }}][greeting]" maxlength="1000" required>{{ old('units.'.$key.'.greeting') }}</textarea></label><label>Permintaan desain<textarea name="units[{{ $key }}][design_notes]" maxlength="2000">{{ old('units.'.$key.'.design_notes') }}</textarea></label>
-<h3>Serah terima</h3><label>Penerimaan<select name="units[{{ $key }}][delivery_method]" required><option value="pickup" @selected(old('units.'.$key.'.delivery_method') === 'pickup')>Diambil di outlet</option><option value="delivery" @selected(old('units.'.$key.'.delivery_method') === 'delivery')>Diantar penjual</option></select></label><div data-delivery-fields><label>Alamat pengantaran (wajib jika diantar)<textarea name="units[{{ $key }}][delivery_address]" maxlength="1000">{{ old('units.'.$key.'.delivery_address') }}</textarea></label>
+<h3>Serah terima</h3><label>Penerimaan<select name="units[{{ $key }}][delivery_method]" required><option value="pickup" @selected(old('units.'.$key.'.delivery_method') === 'pickup')>Diambil di outlet</option><option value="delivery" @selected(old('units.'.$key.'.delivery_method') === 'delivery')>Diantar penjual</option></select></label><div data-delivery-fields>
+@if($savedAddresses->isNotEmpty())<div data-saved-address hidden><label>Pakai alamat tersimpan untuk pengantaran<select data-address-choice><option value="">Pilih alamat tersimpan</option>@foreach($savedAddresses as $address)<option value="{{ $address->id }}" data-address="{{ $address->full_address }}">{{ $address->label }}{{ $address->is_primary ? ' · utama' : '' }}</option>@endforeach</select></label><p class="muted">Pilihan akan menyalin alamat ke kolom di bawah; periksa dan lengkapi jika perlu.</p></div>@endif
+<label>Alamat pengantaran (wajib jika diantar)<textarea name="units[{{ $key }}][delivery_address]" maxlength="1000">{{ old('units.'.$key.'.delivery_address') }}</textarea></label>
 <label>Universitas tujuan pengantaran (opsional)<select name="units[{{ $key }}][delivery_university_id]"><option value="">Lokasi lain / tidak diantar</option>@foreach($universities as $university)<option value="{{ $university->id }}" @selected((string) old('units.'.$key.'.delivery_university_id') === (string) $university->id)>{{ $university->name }} · antar Rp {{ number_format($university->delivery_fee, 0, ',', '.') }}</option>@endforeach</select></label>
-</div><label>Pengembalian<select name="units[{{ $key }}][return_method]" required><option value="dropoff" @selected(old('units.'.$key.'.return_method') === 'dropoff')>Dikembalikan ke outlet</option><option value="collection" @selected(old('units.'.$key.'.return_method') === 'collection')>Diambil kembali penjual</option></select></label><div data-return-fields><label>Alamat pengambilan kembali (wajib jika dijemput)<textarea name="units[{{ $key }}][return_address]" maxlength="1000">{{ old('units.'.$key.'.return_address') }}</textarea></label>
+</div><label>Pengembalian<select name="units[{{ $key }}][return_method]" required><option value="dropoff" @selected(old('units.'.$key.'.return_method') === 'dropoff')>Dikembalikan ke outlet</option><option value="collection" @selected(old('units.'.$key.'.return_method') === 'collection')>Diambil kembali penjual</option></select></label><div data-return-fields>
+@if($savedAddresses->isNotEmpty())<div data-saved-address hidden><label>Pakai alamat tersimpan untuk penjemputan<select data-address-choice><option value="">Pilih alamat tersimpan</option>@foreach($savedAddresses as $address)<option value="{{ $address->id }}" data-address="{{ $address->full_address }}">{{ $address->label }}{{ $address->is_primary ? ' · utama' : '' }}</option>@endforeach</select></label><p class="muted">Pilihan akan menyalin alamat ke kolom di bawah; periksa dan lengkapi jika perlu.</p></div>@endif
+<label>Alamat pengambilan kembali (wajib jika dijemput)<textarea name="units[{{ $key }}][return_address]" maxlength="1000">{{ old('units.'.$key.'.return_address') }}</textarea></label>
 <label>Universitas lokasi pengambilan kembali (opsional)<select name="units[{{ $key }}][return_university_id]"><option value="">Lokasi lain / tidak dijemput</option>@foreach($universities as $university)<option value="{{ $university->id }}" @selected((string) old('units.'.$key.'.return_university_id') === (string) $university->id)>{{ $university->name }} · jemput Rp {{ number_format($university->collection_fee, 0, ',', '.') }}</option>@endforeach</select></label></div><p class="muted">Pilihan universitas hanya digunakan jika metode terkait adalah diantar atau dijemput. Isi alamat lengkap agar lokasi dapat ditemukan. Tarif akan ditampilkan kembali untuk disetujui.</p>
 </section>@endforeach
 <div class="notice"><strong>Masih dalam pengujian.</strong> Setelah dikirim, pesanan menunggu konfirmasi admin. Penjadwal perlu berjalan untuk memproses tenggat; jangan gunakan data atau pembayaran nyata.</div>
@@ -48,6 +52,21 @@ document.querySelectorAll('[data-checkout-unit]').forEach((unit, index, units) =
         select.addEventListener('change', update);
         update();
     };
+    unit.querySelectorAll('[data-saved-address]').forEach(wrapper => {
+        const choice = wrapper.querySelector('[data-address-choice]');
+        const target = wrapper.parentElement.querySelector('textarea');
+        wrapper.hidden = false;
+        choice.addEventListener('change', () => {
+            const option = choice.options[choice.selectedIndex];
+            if (!option.value) return;
+            const address = option.dataset.address;
+            if (target.value && target.value !== address && !window.confirm('Ganti alamat yang sudah diisi dengan alamat tersimpan?')) {
+                choice.value = '';
+                return;
+            }
+            target.value = address;
+        });
+    });
     toggleFields('delivery_method', 'delivery', '[data-delivery-fields]');
     toggleFields('return_method', 'collection', '[data-return-fields]');
     if (!button) return;

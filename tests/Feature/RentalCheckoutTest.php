@@ -94,6 +94,24 @@ class RentalCheckoutTest extends TestCase
         $this->get(route('rental.orders.show', $order))->assertOk()->assertSee('Penerimaan:')->assertSee('Acara:');
     }
 
+    public function test_checkout_offers_only_customers_own_saved_addresses_and_still_accepts_manual_address(): void
+    {
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 1]);
+        $customer = User::factory()->create(['role' => 'customer']);
+        $other = User::factory()->create(['role' => 'customer']);
+        $customer->customerAddresses()->create(['label' => 'Alamat sendiri', 'recipient_name' => 'Nama', 'full_address' => 'Jalan Mawar nomor 10', 'is_primary' => true]);
+        $deleted = $customer->customerAddresses()->create(['label' => 'Alamat dihapus', 'recipient_name' => 'Nama', 'full_address' => 'Jalan Lama nomor 11']);
+        $deleted->delete();
+        $other->customerAddresses()->create(['label' => 'Alamat rahasia', 'recipient_name' => 'Lain', 'full_address' => 'Jalan Rahasia nomor 12']);
+        $this->actingAs($customer)->post(route('cart.store', $product), ['quantity' => 1]);
+        $this->get(route('rental.checkout'))->assertOk()->assertSee('Alamat sendiri')->assertSee('Jalan Mawar nomor 10')->assertDontSee('Alamat dihapus')->assertDontSee('Alamat rahasia')->assertDontSee('Jalan Rahasia nomor 12');
+        $key = array_key_first(session('rental_cart'));
+        $event = now('Asia/Jakarta')->addDays(3)->toDateString();
+        $this->post(route('rental.checkout.store'), ['terms' => 1, 'units' => [$key => ['event_on' => $event, 'ends_on' => $event, 'recipient_name' => 'Penerima', 'greeting' => 'Selamat', 'delivery_method' => 'delivery', 'delivery_address' => 'Alamat manual berbeda', 'return_method' => 'dropoff']]])->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('rental_order_units', ['delivery_address' => 'Alamat manual berbeda']);
+    }
+
     public function test_customer_cannot_view_another_customers_order(): void
     {
         $owner = User::factory()->create();
