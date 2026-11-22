@@ -1,0 +1,7 @@
+# Penjadwal konfirmasi sewa (pengujian)
+
+Perintah `php artisan rental:expire-confirmations` membatalkan unit yang masih menunggu konfirmasi saat tenggat 24 jam tercapai. Unit yang sudah dikonfirmasi tidak dibatalkan oleh perintah ini. Perintah aman dijalankan berulang; konfirmasi dan pembatalan otomatis mengunci baris unit agar tidak saling menimpa. Untuk kasus jadwal dekat, tanggal penerimaan pada atau sebelum tanggal tenggat konfirmasi memerlukan centang persetujuan khusus admin sebelum tenggat (belum ada pilihan jam serah-terima, sehingga satu hari penuh dianggap dekat).
+
+Laravel menjadwalkan perintah ini setiap menit, tetapi **scheduler harus benar-benar dijalankan** oleh lingkungan server. Bila scheduler berhenti, pembatalan tertunda sampai scheduler kembali berjalan; konfirmasi setelah tenggat tetap ditolak. Scheduler ini belum mengelola tenggat pelunasan, kelanjutan sewa, hangus DP, atau pengembalian dana. Jangan gunakan sistem untuk transaksi nyata.
+
+Untuk mencoba sekali pada database preview: `php artisan rental:expire-confirmations`. Untuk menjalankan scheduler secara interaktif pada komputer pengujian: `php artisan schedule:work` (biarkan terminal terbuka; hentikan dengan Ctrl+C). Di server, konfigurasi cron atau layanan scheduler sesuai dokumentasi Laravel dan pantau kegagalannya; jangan bergantung pada terminal interaktif. Pastikan zona waktu aplikasi dan jam server benar. Jangan gunakan `migrate:fresh` atau seeder pada database yang berisi data.

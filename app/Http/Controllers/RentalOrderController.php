@@ -91,14 +91,16 @@ class RentalOrderController extends Controller
         return view('rental.admin', compact('orders'));
     }
 
-    public function confirm(RentalOrderUnit $unit)
+    public function confirm(Request $request, RentalOrderUnit $unit)
     {
-        DB::transaction(function () use ($unit) {
+        DB::transaction(function () use ($unit, $request) {
             // Semua konfirmasi untuk produk yang sama diserialisasi pada baris produk.
             $product = RentalProduct::lockForUpdate()->findOrFail($unit->rental_product_id);
             $unit = RentalOrderUnit::lockForUpdate()->findOrFail($unit->id);
             if ($unit->status !== 'pending') throw ValidationException::withMessages(['unit' => 'Unit tidak lagi menunggu konfirmasi.']);
-            if ($unit->order->confirmation_deadline->isPast()) throw ValidationException::withMessages(['unit' => 'Batas konfirmasi telah terlewati.']);
+            if (! $unit->order->confirmation_deadline->isFuture()) throw ValidationException::withMessages(['unit' => 'Batas konfirmasi telah terlewati.']);
+            $special = $unit->needsSpecialConfirmation();
+            if ($special && ! $request->boolean('special_confirmation')) throw ValidationException::withMessages(['unit' => 'Jadwal dekat memerlukan persetujuan khusus admin.']);
             if (! $product->is_active || ! $product->category->is_active) throw ValidationException::withMessages(['unit' => 'Papan tidak aktif.']);
             $overlaps = RentalOrderUnit::where('rental_product_id', $product->id)->where('status', 'confirmed')
                 ->whereDate('starts_on', '<=', $unit->ends_on->toDateString())->whereDate('ends_on', '>=', $unit->starts_on->toDateString())->get(['starts_on', 'ends_on']);
@@ -117,7 +119,7 @@ class RentalOrderController extends Controller
                 if ($reserved >= $product->stock) throw ValidationException::withMessages(['unit' => 'Stok tidak cukup pada periode tersebut.']);
             }
             if ($product->stock < 1) throw ValidationException::withMessages(['unit' => 'Stok tidak cukup pada periode tersebut.']);
-            $unit->update(['status' => 'confirmed', 'confirmed_at' => now()]);
+            $unit->update(['status' => 'confirmed', 'confirmed_at' => now(), 'special_confirmation' => $special]);
         });
         return back()->with('success', 'Unit dikonfirmasi dan stok dicadangkan.');
     }
