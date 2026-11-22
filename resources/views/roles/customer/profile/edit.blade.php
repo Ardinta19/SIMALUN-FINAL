@@ -218,7 +218,7 @@
     }
     .btn-danger:hover { background:var(--red); color:#fff; }
 </style>
-<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
+<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}"><script src="{{ asset('js/page-transitions.js') }}" defer></script>
 @if($user->role === 'customer')<link rel="stylesheet" href="{{ asset('css/customer-forms.css') }}"><link rel="stylesheet" href="{{ asset('css/berkah-experience.css') }}">@endif
 </head>
 <body @if($user->role === 'customer') class="bk-experience bk-customer bk-standalone" @endif>
@@ -226,7 +226,7 @@
 
 <header class="page-header">
     <div class="header-row">
-        <a href="{{ route('customer.profile') }}" class="btn-back" aria-label="Kembali">
+        <a href="{{ route('customer.profile') }}" class="btn-back" aria-label="Kembali ke profil">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M19 12H5M12 5l-7 7 7 7"/>
             </svg>

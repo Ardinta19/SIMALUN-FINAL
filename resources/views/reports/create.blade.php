@@ -174,7 +174,7 @@ body {
 /* ERROR */
 .field__error { font-size: 0.68rem; font-weight: 700; color: var(--red); margin-top: 4px; }
 </style>
-<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
+<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}"><script src="{{ asset('js/page-transitions.js') }}" defer></script>
 @if(auth()->user()->role === 'customer')<link rel="stylesheet" href="{{ asset('css/berkah-experience.css') }}">@endif
 </head>
 <body @if(auth()->user()->role === 'customer') class="bk-experience bk-customer bk-standalone-report" @endif>
@@ -195,7 +195,7 @@ body {
                 default => 'customer.dashboard',
             };
         @endphp
-        <a href="{{ route($backRoute) }}" class="btn-back">
+        <a href="{{ route($backRoute) }}" class="btn-back" aria-label="Kembali ke beranda">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         </a>
         <h1 class="page-title">Lapor Kendala</h1>

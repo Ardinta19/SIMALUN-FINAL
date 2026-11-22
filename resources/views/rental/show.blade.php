@@ -1,7 +1,7 @@
 @extends('catalog.layout')
 @section('title', 'Detail pesanan')
 @section('content')
-<p><a href="{{ route('rental.orders.index') }}">← Pesanan saya</a></p>
+<p><a class="bk-back" href="{{ route('rental.orders.index') }}">← Pesanan saya</a></p>
 <h1>Detail pesanan</h1>
 <p class="muted">Referensi: {{ $order->reference }}</p>
 <p class="muted">Batas konfirmasi: {{ $order->confirmation_deadline->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB</p>

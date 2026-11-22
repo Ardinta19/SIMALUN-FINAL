@@ -315,7 +315,7 @@ html, body {
 @keyframes flower-float{from{transform:translateY(0) rotate(0)}to{transform:translateY(-14px) rotate(20deg)}}
 @media(prefers-reduced-motion:reduce){#brand-logo,.ambient-flower,#drum-spin-ring,#drum-wrap::after{animation:none!important}}
 </style>
-<noscript><style>.form-step{display:block!important}.btn-next-step,.btn-back-step,.step-indicator{display:none!important}</style></noscript><link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
+<noscript><style>.form-step{display:block!important}.btn-next-step,.btn-back-step,.step-indicator{display:none!important}</style></noscript><link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}"><script src="{{ asset('js/page-transitions.js') }}" defer></script>
 </head>
 <body>
 

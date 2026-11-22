@@ -187,7 +187,7 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
 }
 .map-hint[hidden]{display:none}
 </style>
-<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
+<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}"><script src="{{ asset('js/page-transitions.js') }}" defer></script>
 <link rel="stylesheet" href="{{ asset('css/customer-forms.css') }}">
 <link rel="stylesheet" href="{{ asset('css/berkah-experience.css') }}">
 </head>
@@ -196,7 +196,7 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
 
 <header class="page-header">
     <div class="header-row">
-        <a href="{{ route('customer.addresses.index') }}" class="btn-back">
+        <a href="{{ route('customer.addresses.index') }}" class="btn-back" aria-label="Kembali ke daftar alamat">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M19 12H5M12 5l-7 7 7 7"/>
             </svg>

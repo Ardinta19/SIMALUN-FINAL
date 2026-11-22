@@ -517,7 +517,7 @@ body {
     box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
 }
 </style>
-<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
+<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}"><script src="{{ asset('js/page-transitions.js') }}" defer></script>
 </head>
 <body>
 

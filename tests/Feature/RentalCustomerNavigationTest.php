@@ -68,6 +68,16 @@ class RentalCustomerNavigationTest extends TestCase
             ->assertSee('id="bk-command"', false)->assertSee('id="customer-nav"', false);
     }
 
+    public function test_customer_back_links_are_descriptive_and_styled_as_buttons(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer']);
+        foreach ([route('customer.profile'), route('customer.notifications'), route('customer.help'), route('rental.orders.index'), route('cart.index')] as $url) {
+            $this->actingAs($customer)->get($url)->assertOk()->assertSee('class="bk-back"', false)
+                ->assertSee('css/page-transitions.css', false)->assertSee('js/page-transitions.js', false);
+        }
+        $this->get(route('customer.addresses.create'))->assertOk()->assertSee('aria-label="Kembali ke daftar alamat"', false);
+    }
+
     public function test_saved_address_pages_work_without_animation_dependencies_and_preserve_coordinates(): void
     {
         $customer = User::factory()->create(['role' => 'customer']);

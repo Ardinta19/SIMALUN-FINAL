@@ -92,7 +92,7 @@ html, body {
 @keyframes flower-float{from{transform:translateY(0) rotate(0)}to{transform:translateY(-14px) rotate(20deg)}}
 @media(prefers-reduced-motion:reduce){#brand-logo,.ambient-flower,#drum-spin-ring,#drum-wrap::after{animation:none!important}}
 </style>
-<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
+<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}"><script src="{{ asset('js/page-transitions.js') }}" defer></script>
 </head>
 <body>
 
@@ -110,7 +110,7 @@ html, body {
   </svg>
 </div>
 
-<a href="{{ url('/') }}" id="btn-back" title="Kembali">&#8592;</a>
+<a href="{{ url('/') }}" id="btn-back" title="Kembali ke katalog" aria-label="Kembali ke katalog">&#8592;</a>
 
 <div id="page">
 

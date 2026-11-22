@@ -1,7 +1,7 @@
 @extends('catalog.layout')
 @section('title', 'Detail unit')
 @section('content')
-<p><a href="{{ route('rental.orders.show', $order) }}">← Kembali ke unit pesanan</a></p>
+<p><a class="bk-back" href="{{ route('rental.orders.show', $order) }}">← Kembali ke unit pesanan</a></p>
 <h1>Detail unit</h1><p class="muted">Pesanan {{ $order->reference }}</p>
 <div class="notice">Penjadwal harus berjalan untuk memproses tenggat. Jangan gunakan transaksi nyata selama pengujian.</div><div class="items">@foreach(collect([$unit]) as $unit)
 @php
