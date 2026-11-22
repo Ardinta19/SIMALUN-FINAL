@@ -5,6 +5,7 @@ use App\Models\RentalOrder;
 use App\Models\RentalOrderUnit;
 use App\Models\RentalProduct;
 use App\Models\RentalDurationPackage;
+use App\Models\RentalUniversity;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +20,8 @@ class RentalOrderController extends Controller
         $cart = $request->session()->get('rental_cart', []);
         if (! $cart) return redirect()->route('cart.index')->withErrors(['cart' => 'Keranjang masih kosong.']);
         $products = RentalProduct::with(['category', 'packages' => fn ($query) => $query->where('is_active', true)])->whereIn('id', array_column($cart, 'product_id'))->get()->keyBy('id');
-        return view('rental.checkout', compact('cart', 'products'));
+        $universities = RentalUniversity::where('is_active', true)->orderBy('name')->get();
+        return view('rental.checkout', compact('cart', 'products', 'universities'));
     }
 
     public function store(Request $request)
@@ -35,6 +37,8 @@ class RentalOrderController extends Controller
             'units.*.recipient_name' => ['required', 'string', 'max:160'],
             'units.*.greeting' => ['required', 'string', 'max:1000'],
             'units.*.design_notes' => ['nullable', 'string', 'max:2000'],
+            'units.*.delivery_university_id' => ['nullable', 'integer', 'min:1'],
+            'units.*.return_university_id' => ['nullable', 'integer', 'min:1'],
             'units.*.delivery_method' => ['required', Rule::in(['delivery', 'pickup'])],
             'units.*.delivery_address' => ['nullable', 'string', 'max:1000'],
             'units.*.return_method' => ['required', Rule::in(['collection', 'dropoff'])],
@@ -64,10 +68,23 @@ class RentalOrderController extends Controller
                 }
                 $amount = $package ? (int) $package->price : $product->base_price * ($product->price_unit === 'day' ? $days : 1);
                 if ($amount > 4294967295) throw ValidationException::withMessages(['units' => 'Jumlah biaya sewa melebihi batas sistem.']);
-                $order->units()->create(array_merge($unit, ['rental_product_id' => $product->id, 'product_name' => $product->name, 'unit_price' => $product->base_price, 'price_unit' => $product->price_unit, 'rental_amount' => $amount, 'rental_duration_package_id' => $package?->id, 'package_name' => $package?->name, 'package_days' => $package?->days]));
+                $delivery = null; $collection = null;
+                if ($unit['delivery_method'] === 'delivery' && ! empty($unit['delivery_university_id'])) {
+                    $delivery = RentalUniversity::where('is_active', true)->lockForUpdate()->find($unit['delivery_university_id']);
+                    if (! $delivery) throw ValidationException::withMessages(['units' => 'Universitas pengantaran tidak lagi tersedia.']);
+                }
+                if ($unit['return_method'] === 'collection' && ! empty($unit['return_university_id'])) {
+                    $collection = RentalUniversity::where('is_active', true)->lockForUpdate()->find($unit['return_university_id']);
+                    if (! $collection) throw ValidationException::withMessages(['units' => 'Universitas pengambilan kembali tidak lagi tersedia.']);
+                }
+                $allFixed = ($unit['delivery_method'] !== 'delivery' || $delivery) && ($unit['return_method'] !== 'collection' || $collection);
+                $hasTransport = $unit['delivery_method'] === 'delivery' || $unit['return_method'] === 'collection';
+                $transport = ['delivery_university' => $delivery?->name, 'delivery_university_fee' => $delivery?->delivery_fee, 'return_university' => $collection?->name, 'return_university_fee' => $collection?->collection_fee];
+                if ($hasTransport && $allFixed) $transport += ['transport_quote' => (int) ($delivery?->delivery_fee ?? 0) + (int) ($collection?->collection_fee ?? 0), 'transport_quote_version' => 1, 'transport_quote_note' => 'Tarif universitas sesuai pilihan saat checkout.'];
+                $order->units()->create(array_merge($unit, $transport, ['rental_product_id' => $product->id, 'product_name' => $product->name, 'unit_price' => $product->base_price, 'price_unit' => $product->price_unit, 'rental_amount' => $amount, 'rental_duration_package_id' => $package?->id, 'package_name' => $package?->name, 'package_days' => $package?->days]));
             }
             return $order;
-        });
+        }, 3);
         $request->session()->forget('rental_cart');
         return redirect()->route('rental.orders.show', $order)->with('success', 'Pesanan dikirim dan menunggu konfirmasi admin. Stok belum dicadangkan.');
     }
@@ -126,11 +143,16 @@ class RentalOrderController extends Controller
 
     public function quoteTransport(Request $request, RentalOrderUnit $unit)
     {
-        $data = $request->validate(['amount' => ['required', 'integer', 'min:0', 'max:100000000'], 'note' => ['nullable', 'string', 'max:1000']]);
+        $data = $request->validate(['amount' => ['required', 'integer', 'min:0', 'max:200000000'], 'note' => ['nullable', 'string', 'max:1000']]);
         DB::transaction(function () use ($unit, $data) {
             $unit = RentalOrderUnit::lockForUpdate()->findOrFail($unit->id);
             if (! $unit->transportRequired() || $unit->status === 'cancelled' || $unit->transport_approved_at || $unit->payments()->exists()) {
                 throw ValidationException::withMessages(['transport' => 'Ongkos tidak dapat diubah untuk unit ini.']);
+            }
+            $fixed = (int) ($unit->delivery_university_fee ?? 0) + (int) ($unit->return_university_fee ?? 0);
+            $allFixed = ($unit->delivery_method !== 'delivery' || $unit->delivery_university_fee !== null) && ($unit->return_method !== 'collection' || $unit->return_university_fee !== null);
+            if (($allFixed && (int) $data['amount'] !== $fixed) || (! $allFixed && (int) $data['amount'] < $fixed)) {
+                throw ValidationException::withMessages(['transport' => 'Penawaran harus mencakup tarif tetap universitas sesuai pesanan.']);
             }
             $unit->update(['transport_quote' => $data['amount'], 'transport_quote_version' => $unit->transport_quote_version + 1, 'transport_quote_note' => $data['note'] ?? null]);
         });

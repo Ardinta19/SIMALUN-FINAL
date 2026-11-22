@@ -24,6 +24,7 @@ use App\Http\Controllers\RentalOrderController;
 use App\Http\Controllers\RentalDesignController;
 use App\Http\Controllers\RentalPaymentController;
 use App\Http\Controllers\RentalProgressController;
+use App\Http\Controllers\RentalUniversityController;
 use App\Http\Controllers\ServiceCategoryController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\VoucherController;
@@ -163,6 +164,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/sewa/unit/{unit}/ongkos', [RentalOrderController::class, 'quoteTransport'])->name('rental.transport.quote');
         Route::post('/sewa/unit/{unit}/confirm', [RentalOrderController::class, 'confirm'])->name('rental.confirm');
         Route::post('/sewa/unit/{unit}/cancel', [RentalOrderController::class, 'cancel'])->name('rental.cancel');
+        Route::get('/universitas', [RentalUniversityController::class, 'index'])->name('rental.universities.index');
+        Route::post('/universitas', [RentalUniversityController::class, 'store'])->name('rental.universities.store');
+        Route::put('/universitas/{university}', [RentalUniversityController::class, 'update'])->name('rental.universities.update');
+        Route::patch('/universitas/{university}/status', [RentalUniversityController::class, 'toggle'])->name('rental.universities.toggle');
         Route::get('/katalog', [RentalCatalogController::class, 'admin'])->name('catalog.index');
         Route::post('/katalog/kategori', [RentalCatalogController::class, 'categoryStore'])->name('catalog.categories.store');
         Route::put('/katalog/kategori/{category}', [RentalCatalogController::class, 'categoryUpdate'])->name('catalog.categories.update');
