@@ -9,7 +9,7 @@
 </style><link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}"><script src="{{ asset('js/page-transitions.js') }}" defer></script>
 @include('layouts.component._theme_head')
 </head><body>
-<header class="help-hero"><div class="help-head"><a href="@yield('back')">← Kembali ke beranda</a><h1>@yield('heading')</h1><p>@yield('subtitle')</p></div></header>
+<header class="help-hero"><div class="help-head"><a class="bk-back" href="@yield('back')">← Kembali ke beranda</a><h1>@yield('heading')</h1><p>@yield('subtitle')</p></div></header>
 <main class="help-main">@yield('content')</main>
 @yield('navigation')
 @include('layouts.component._form_controls')

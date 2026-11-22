@@ -22,7 +22,7 @@
     <div class="row"><div><label for="catalog-start">Tanggal acara dan penerimaan</label><input id="catalog-start" type="date" name="starts_on" value="{{ $filterValue('starts_on') }}" min="{{ now('Asia/Jakarta')->toDateString() }}" @error('starts_on') aria-invalid="true" aria-describedby="catalog-start-error" @enderror>@error('starts_on')<p class="bk-field-error" id="catalog-start-error">{{ $message }}</p>@enderror</div>
     <div><label for="catalog-end">Tanggal pengembalian</label><input id="catalog-end" type="date" name="ends_on" value="{{ $filterValue('ends_on') }}" min="{{ now('Asia/Jakarta')->toDateString() }}" @error('ends_on') aria-invalid="true" aria-describedby="catalog-end-error" @enderror>@error('ends_on')<p class="bk-field-error" id="catalog-end-error">{{ $message }}</p>@enderror</div></div>
     <p class="muted">Tanggal bersifat opsional. Isi keduanya untuk menyaring papan yang diperkirakan tersedia selama seluruh periode. Untuk sewa satu hari, pilih tanggal yang sama.</p>
-    <p><button class="btn" type="submit">Cari papan</button> <a href="{{ route('welcome') }}">Hapus filter</a></p>
+    <p><button class="btn" type="submit">Cari papan</button> <a class="btn secondary" href="{{ route('welcome') }}">Hapus filter</a></p>
 </form>
 @if($errors->hasAny(['q', 'category', 'starts_on', 'ends_on']))<p class="notice">Pencarian belum diterapkan. Daftar di bawah masih mengikuti filter sebelumnya; perbaiki isian dan cari lagi.</p>@endif
 @if($queryQ !== '' || $queryCategory !== '' || $dates)
@@ -61,6 +61,6 @@
     </div>@if($dates)<input type="hidden" name="starts_on" value="{{ $dates['starts_on'] }}"><input type="hidden" name="ends_on" value="{{ $dates['ends_on'] }}">@endif<button class="bk-atc" type="submit" aria-label="Tambah {{ $product->name }} ke keranjang"><span class="bk-atc__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20.4" r="1.4"></circle><circle cx="19" cy="20.4" r="1.4"></circle><path d="M2.5 3.2h2.1l2.36 11.09a1.9 1.9 0 0 0 1.86 1.51h8.6a1.9 1.9 0 0 0 1.86-1.51L21.4 7.1H6.1"></path></svg></span><span class="bk-atc__label"><span class="bk-atc__label-long">Tambah ke keranjang</span><span class="bk-atc__label-short">Tambah</span></span><span class="bk-atc__bar" aria-hidden="true"></span></button></form>
     @else<p class="bk-product-unavailable">Belum tersedia untuk dipesan</p>@endif</div>
 </article>
-@empty<div class="card body"><p>Tidak ada papan yang cocok atau tersedia untuk pilihan ini.</p><a href="{{ route('welcome') }}">Lihat semua papan</a></div>@endforelse
+@empty<div class="card body"><p>Tidak ada papan yang cocok atau tersedia untuk pilihan ini.</p><a class="btn secondary" href="{{ route('welcome') }}">Lihat semua papan</a></div>@endforelse
 </div><div class="pagination">{{ $products->links() }}</div>
 @endsection

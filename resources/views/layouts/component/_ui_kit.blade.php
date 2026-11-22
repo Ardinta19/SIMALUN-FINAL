@@ -39,7 +39,6 @@
 
         <div class="bk-theme-dialog__stage">
             <svg id="bk-theme-switch" viewBox="0 0 440 240" fill="none" xmlns="http://www.w3.org/2000/svg" aria-checked="false" aria-label="Sakelar tema" tabindex="0" role="switch">
-                <title>Sakelar tema terang dan gelap</title>
                 <path d="M96 40l6 12 12 6-12 6-6 12-6-12-12-6 12-6z" fill="#d9a3b1" opacity=".55"></path>
                 <path d="M388 176l4 9 9 4-9 4-4 9-4-9-9-4 9-4z" fill="#d9a3b1" opacity=".45"></path>
                 <path d="M70 168c-14 6-24 16-30 28" stroke="#cf9fae" stroke-width="4" stroke-linecap="round" opacity=".5"></path>
@@ -61,16 +60,20 @@
                 <circle class="bk-theme-svg__knob" cx="328" cy="124" r="38" data-knob-light="-152" data-knob-dark="0"></circle>
                 <circle class="bk-theme-svg__knob-ring" cx="328" cy="124" r="38" fill="none" stroke="#5b2330" stroke-width="3" opacity=".35"></circle>
 
+                <!-- Tangan robot: grup dalam dicerminkan (scale -1) saat sakelar
+                     bergerak ke kiri, supaya tangan datang dari sisi yang benar. -->
                 <g id="bk-theme-hand-wrap" opacity="0" aria-hidden="true">
-                    <rect x="-168" y="106" width="188" height="38" rx="19" fill="#e9c6cf" stroke="#5b2330" stroke-width="4"></rect>
-                    <rect x="-2" y="86" width="102" height="76" rx="26" fill="#f9e3e8" stroke="#5b2330" stroke-width="4"></rect>
-                    <g stroke="#5b2330" stroke-width="4" stroke-linecap="round">
-                        <path d="M20 104h58"></path>
-                        <path d="M20 124h66"></path>
-                        <path d="M20 144h56"></path>
-                    </g>
-                    <g id="bk-theme-thumb">
-                        <rect x="16" y="62" width="58" height="24" rx="12" fill="#f9e3e8" stroke="#5b2330" stroke-width="4"></rect>
+                    <g id="bk-theme-hand-art">
+                        <rect x="-168" y="106" width="188" height="38" rx="19" fill="#e9c6cf" stroke="#5b2330" stroke-width="4"></rect>
+                        <rect x="-2" y="86" width="102" height="76" rx="26" fill="#f9e3e8" stroke="#5b2330" stroke-width="4"></rect>
+                        <g stroke="#5b2330" stroke-width="4" stroke-linecap="round">
+                            <path d="M20 104h58"></path>
+                            <path d="M20 124h66"></path>
+                            <path d="M20 144h56"></path>
+                        </g>
+                        <g id="bk-theme-thumb">
+                            <rect x="16" y="62" width="58" height="24" rx="12" fill="#f9e3e8" stroke="#5b2330" stroke-width="4"></rect>
+                        </g>
                     </g>
                 </g>
             </svg>

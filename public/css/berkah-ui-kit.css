@@ -894,6 +894,22 @@ html[data-theme="dark"] .bk-theme-btn__moon {
 #bk-theme-switch {
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+    border-radius: 30px;
+    /* Tangan robot masuk dari tepi panggung: tanpa ini ia tampak melayang
+       di luar kotak SVG karena stage memakai overflow visible. */
+    overflow: hidden;
+}
+
+/* Cincin fokus milik sendiri: outline bawaan peramban tampil sebagai kotak
+   putih/kuning di sekeliling panggung SVG. */
+#bk-theme-switch:focus {
+    outline: none;
+}
+
+#bk-theme-switch:focus-visible {
+    outline: 3px solid #bc5b75;
+    outline-offset: 6px;
+    border-radius: 30px;
 }
 
 #bk-theme-switch .bk-theme-svg__panel {

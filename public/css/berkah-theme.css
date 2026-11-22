@@ -601,6 +601,8 @@ html[data-theme="dark"] {
     --bk-heart: #ff7d95;
     --bk-auth-on: #fff6f2;
     --bk-theme-dialog-bg: var(--theme-surface);
+    --bk-theme-dialog-ink: #fdf1f3;
+    --bk-theme-dialog-line: #4b333b;
     --bk-theme-svg-panel: #2a2028;
     --bk-theme-svg-track: #3a2730;
     --bk-qty-bg: var(--theme-surface);
@@ -609,6 +611,24 @@ html[data-theme="dark"] {
     --bk-qty-ink: #ffd9e3;
     --bk-unit-chip-bg: #2e2229;
     --bk-unit-chip-ink: var(--theme-ink-mid);
+}
+
+/* Dialog tema pada mode gelap: tombol tutup & chip tidak boleh berlatar
+   terang-transparan (nyaris tak terlihat di atas permukaan gelap). */
+html[data-theme="dark"] .bk-theme-dialog__close:hover,
+html[data-theme="dark"] .bk-theme-choice:hover {
+    background: var(--theme-surface-3);
+    border-color: var(--bk-theme-dialog-line);
+}
+
+html[data-theme="dark"] .bk-theme-dialog__hint {
+    color: var(--theme-ink-mid);
+    opacity: 1;
+}
+
+html[data-theme="dark"] .bk-theme-dialog__eyebrow {
+    color: var(--theme-ink-mid);
+    opacity: 1;
 }
 
 /* ================================================================

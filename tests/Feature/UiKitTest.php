@@ -372,6 +372,65 @@ class UiKitTest extends TestCase
         $this->assertStringContainsString("window.gsap.to(node", $js);
     }
 
+    public function test_theme_hand_follows_the_switch_direction(): void
+    {
+        $kit = File::get(resource_path('views/layouts/component/_ui_kit.blade.php'));
+        $js = File::get(public_path('js/berkah-ui-kit.js'));
+        $css = File::get(public_path('css/berkah-theme.css'));
+        $kitCss = File::get(public_path('css/berkah-ui-kit.css'));
+
+        // Grup tangan bagian dalam dicerminkan agar datang dari sisi kenop.
+        $this->assertStringContainsString('id="bk-theme-hand-art"', $kit);
+        $this->assertStringContainsString("art.setAttribute('transform', 'scale(-1 1)')", $js);
+        $this->assertStringContainsString('HAND_PARK_LEFT', $js);
+        $this->assertStringContainsString('HAND_PARK_RIGHT', $js);
+
+        // Nilai dibaca ulang setiap restart: arah selalu mengikuti tema baru.
+        $this->assertStringContainsString('x: () => handState.from', $js);
+        $this->assertStringContainsString('x: () => handState.to', $js);
+        $this->assertStringContainsString('primeHand(dark)', $js);
+
+        // Geometri kenop tidak boleh berubah oleh animasi tangan.
+        $this->assertStringContainsString('data-knob-light="-152"', $kit);
+        $this->assertStringContainsString('data-knob-dark="0"', $kit);
+
+        // Tangan dipotong tepi panggung, tidak melayang di luar kotak SVG.
+        $this->assertMatchesRegularExpression('/#bk-theme-switch\s*\{[^}]*overflow:\s*hidden/', $kitCss);
+
+        // Tooltip bawaan peramban tidak menutupi sakelar lagi.
+        $this->assertStringNotContainsString('<title>Sakelar tema', $kit);
+
+        // Dialog tema memakai warna teks & garis versi gelap.
+        $this->assertStringContainsString('--bk-theme-dialog-ink:', $css);
+        $this->assertStringContainsString('--bk-theme-dialog-line:', $css);
+    }
+
+    public function test_secondary_actions_use_the_design_system(): void
+    {
+        // Tautan aksi tidak boleh tampil sebagai tautan bawaan peramban.
+        $expectations = [
+            'catalog/index.blade.php' => ['class="btn secondary" href="{{ route(\'welcome\') }}">Hapus filter'],
+            'catalog/show.blade.php' => ['class="btn secondary" href="{{ route(\'catalog.show\', $product) }}">Hapus tanggal'],
+            'rental/admin.blade.php' => ['class="btn secondary"'],
+            'rental/schedule.blade.php' => ['class="btn secondary"', 'class="bk-back"'],
+            'rental/payment-settings.blade.php' => ['class="bk-back"'],
+            'rental/universities.blade.php' => ['class="bk-back"'],
+            'rental/admin-detail.blade.php' => ['class="bk-back"', 'class="btn secondary"'],
+            'rental/help-layout.blade.php' => ['class="bk-back"'],
+        ];
+
+        foreach ($expectations as $file => $needles) {
+            $blade = File::get(resource_path('views/'.$file));
+
+            foreach ($needles as $needle) {
+                $this->assertStringContainsString($needle, $blade, 'Tautan aksi tanpa gaya sistem di '.$file);
+            }
+        }
+
+        // Fokus keyboard untuk tombol sistem tetap terlihat.
+        $this->assertStringContainsString('.btn:focus-visible', File::get(resource_path('views/catalog/layout.blade.php')));
+    }
+
     public function test_date_picker_disables_fully_booked_dates(): void
     {
         $js = File::get(public_path('js/berkah-controls.js'));

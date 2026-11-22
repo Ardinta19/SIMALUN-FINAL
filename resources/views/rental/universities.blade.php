@@ -1,7 +1,7 @@
 @extends('catalog.layout')
 @section('title', 'Universitas dan tarif')
 @section('content')
-<p><a href="{{ route('admin.catalog.index') }}">← Kelola katalog</a></p>
+<p><a class="bk-back" href="{{ route('admin.catalog.index') }}">← Kelola katalog</a></p>
 <h1>Universitas dan tarif</h1><p class="muted">Masukkan sendiri universitas dan tarif per unit. Tarif antar dan jemput dapat berbeda. Pesanan yang sudah dibuat menyimpan tarif saat checkout.</p>
 <section class="card body"><h2>Tambah universitas</h2><form class="stack" method="post" action="{{ route('admin.rental.universities.store') }}">@csrf
 <label>Nama universitas<input name="name" maxlength="160" required></label><div class="row"><label>Tarif antar (Rp)<input type="number" name="delivery_fee" min="0" max="100000000" required></label><label>Tarif jemput kembali (Rp)<input type="number" name="collection_fee" min="0" max="100000000" required></label></div><p><button class="btn">Tambah</button></p></form></section>

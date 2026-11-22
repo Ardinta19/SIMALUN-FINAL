@@ -7,7 +7,7 @@ $oldText = function (string $key, $fallback = '') {
     return is_scalar($value) ? (string) $value : '';
 };
 @endphp
-<p><a href="{{ route('admin.rental.orders') }}">← Pesanan sewa</a></p>
+<p><a class="bk-back" href="{{ route('admin.rental.orders') }}">← Pesanan sewa</a></p>
 <h1>Pengaturan pembayaran</h1>
 <p class="muted">QRIS adalah pilihan utama. Siapkan QRIS usaha yang benar dan nomor WhatsApp untuk metode lain. Pelanggan tetap mengirim bukti dan admin memverifikasinya secara manual; sistem tidak memeriksa transfer secara otomatis. Jangan masukkan PIN, kata sandi, atau kode rahasia.</p>
 <form class="stack card body" method="post" action="{{ route('admin.rental.payment-settings.update') }}" enctype="multipart/form-data">@csrf @method('PUT')

@@ -126,15 +126,31 @@
         }
     }
 
-    // Ujung jari pada koordinat #bk-theme-hand-wrap: tangan berhenti tepat di
-    // kenop pada sisi yang baru dipilih, bukan di posisi tetap.
+    // Tangan robot: grup dalam (#bk-theme-hand-art) dicerminkan ketika sakelar
+    // bergerak ke "Terang" (kenop ke kiri) sehingga tangan masuk dari kanan dan
+    // telapak berada di kanan kenop; untuk "Gelap" (kenop ke kanan) tangan
+    // datang dari kiri dengan jari mengarah ke kenop.
     const HAND_FINGER_TIP = 78;
+    const HAND_PARK_LEFT = -104;
+    const HAND_PARK_RIGHT = 544;
     function handTarget(dark) {
         const base = knob ? Number(knob.getAttribute('cx')) : NaN;
         const center = (Number.isFinite(base) ? base : 328) + knobOffset(dark);
-        return center - HAND_FINGER_TIP;
+        // Saat dicerminkan ujung jari berada di -78 dari titik nol grup.
+        return dark ? center - HAND_FINGER_TIP : center + HAND_FINGER_TIP;
     }
-    let handTargetX = handTarget(false);
+    // Posisi awal/akhir & arah cermin untuk putaran animasi berikutnya.
+    const handState = { from: HAND_PARK_LEFT, to: handTarget(false) };
+
+    function primeHand(dark) {
+        const art = switchSvg ? switchSvg.querySelector('#bk-theme-hand-art') : null;
+        if (art) {
+            if (dark) art.removeAttribute('transform');
+            else art.setAttribute('transform', 'scale(-1 1)');
+        }
+        handState.from = dark ? HAND_PARK_LEFT : HAND_PARK_RIGHT;
+        handState.to = handTarget(dark);
+    }
 
     function placeToggle() {
         if (!toggleButton) return;
@@ -217,30 +233,32 @@
         if (!handWrap || !knob) return null;
 
         const tl = window.gsap.timeline({ paused: true, defaults: { ease: 'expo.inOut' } });
-        tl.set(handWrap, { x: 0, rotation: 0, opacity: 1 });
-        tl.to(handWrap, { x: 40, duration: 0.4 });
-        tl.to(handWrap, { x: () => handTargetX, duration: 0.55 }, '-=0.05');
+        // Nilai fungsi dibaca ulang setiap restart, jadi arah masuk tangan
+        // selalu mengikuti sisi kenop yang baru dipilih.
+        tl.set(handWrap, { x: () => handState.from, rotation: 0, opacity: 1 });
+        tl.to(handWrap, { x: () => handState.to, duration: 0.75, ease: 'expo.out' });
         if (thumb) {
             tl.fromTo(thumb, { rotation: 45 }, {
                 rotation: 0,
-                duration: 1,
+                duration: 0.9,
                 ease: 'elastic(0.7, 0.3)',
                 transformOrigin: '55% 95%',
-            }, '-=0.35');
+            }, '-=0.6');
         }
         if (hand1 && hand2) {
-            tl.to([hand1, hand2], { opacity: (i) => (i === 0 ? 0 : 1), duration: 0.12 }, '-=0.5');
+            tl.to([hand1, hand2], { opacity: (i) => (i === 0 ? 0 : 1), duration: 0.12 }, '-=0.45');
         }
-        tl.to(handWrap, { x: 0, duration: 0.45, ease: 'back.in(1.2)' }, '+=0.1');
-        if (thumb) tl.to(thumb, { rotation: 23, duration: 0.3, ease: 'power2.in' }, '-=0.4');
-        tl.to(handWrap, { opacity: 0, duration: 0.2 }, '-=0.15');
+        tl.to(handWrap, { x: () => handState.from, duration: 0.5, ease: 'back.in(1.15)' }, '+=0.12');
+        if (thumb) tl.to(thumb, { rotation: 23, duration: 0.3, ease: 'power2.in' }, '-=0.42');
+        tl.to(handWrap, { opacity: 0, duration: 0.22 }, '-=0.15');
         return tl;
     }
 
     function playRobotSwitch() {
         const next = toggleTheme();
-        handTargetX = handTarget(next === 'dark');
-        syncKnob(next === 'dark', true);
+        const dark = next === 'dark';
+        primeHand(dark);
+        syncKnob(dark, true);
         if (prefersReduced()) return;
         if (!robotTimeline) robotTimeline = buildRobotTimeline();
         if (robotTimeline) {

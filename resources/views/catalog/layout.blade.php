@@ -24,6 +24,8 @@ input,select,textarea{font-family:inherit;font-size:1rem;font-weight:400;line-he
 input:not([type=checkbox]):not([type=radio]),select{min-height:48px}
 input[type=checkbox],input[type=radio]{accent-color:var(--wine)}
 .btn{min-height:48px;line-height:1.35;font-size:.95rem;font-weight:700;text-align:center}
+.btn:hover{filter:brightness(.96)}
+.btn.secondary:hover{background:#f2dfe4}
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #bc5b75;outline-offset:3px}
 .notice{line-height:1.65}.notice p:last-child{margin-bottom:0}
 .cart-page{max-width:900px;margin-inline:auto}
