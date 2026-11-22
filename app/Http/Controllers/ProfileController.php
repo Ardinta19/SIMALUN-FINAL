@@ -134,7 +134,11 @@ class ProfileController extends Controller
 
     public function adminShow()
     {
-        return view('roles.admin.profile', ['user' => Auth::user()]);
+        return view('roles.admin.profile', [
+            'user' => Auth::user(),
+            'rentalPending' => \App\Models\RentalOrderUnit::where('status', 'pending')->count(),
+            'rentalActive' => \App\Models\RentalOrderUnit::where('status', 'confirmed')->where('progress', '!=', 'returned')->count(),
+        ]);
     }
 
     public function savePrimaryAddress(Request $request)

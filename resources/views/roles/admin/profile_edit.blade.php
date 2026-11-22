@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Edit Profil Admin – Azka Laundry SIMALUN</title>
+<title>Edit Profil Admin – Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 @include('layouts.component._tokens')
 <style>
@@ -196,7 +196,7 @@ body {
             @method('patch')
 
             <div class="avatar-edit-wrap">
-                <img src="{{ $user->avatar ? asset('storage/'.$user->avatar) : 'https://ui-avatars.com/api/?name='.urlencode($user->name).'&background=0077b6&color=fff' }}" class="avatar-preview" id="preview" alt="{{ $user->name }}">
+                <img src="{{ $user->avatar ? asset('storage/'.$user->avatar) : asset('images/berkah-kreatif-logo.jpeg') }}" class="avatar-preview" id="preview" alt="{{ $user->name }}">
                 <label for="avatar-input" class="avatar-file">
                     @include('layouts.component._icon', ['name' => 'avatar', 'size' => 16])
                     Ganti Foto

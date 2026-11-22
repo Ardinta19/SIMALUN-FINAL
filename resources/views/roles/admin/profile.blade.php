@@ -2,8 +2,8 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Profil Admin – Azka Laundry</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Profil Admin – Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 @include('layouts.component._tokens')
 <style>
@@ -15,6 +15,8 @@
 ═══════════════════════════════════════════════════════════ */
 :root {
     /* Page-local aliases — only reference canonical tokens (no literals) */
+    --brand-100: #f8e9ed; --brand-500: #85092d; --brand-900: #54051f;
+    --surface-50: #faf4f3; --surface-100: #fff7f7; --surface-200: #f0dfe1; --surface-400: #806975;
     --ink:        var(--brand-900);
     --ink-muted:  var(--surface-400);
     --line:       var(--surface-200);
@@ -282,7 +284,7 @@ body {
         <a href="{{ \App\Support\BackUrl::resolve(request(), 'admin.dashboard') }}" class="profile-header__back" aria-label="Kembali">
             @include('layouts.component._icon', ['name' => 'back', 'size' => 16, 'label' => 'Kembali'])
         </a>
-        <img src="{{ $user->avatar ? asset('storage/'.$user->avatar) : 'https://ui-avatars.com/api/?name='.urlencode($user->name).'&background=0d6fb8&color=fff&size=72' }}"
+        <img src="{{ $user->avatar ? asset('storage/'.$user->avatar) : asset('images/berkah-kreatif-logo.jpeg') }}"
              alt="{{ $user->name }}" class="profile-header__avatar">
         <span class="profile-header__title">Profil Admin</span>
     </div>
@@ -303,10 +305,10 @@ body {
     {{-- Profile Card --}}
     <div class="profile-card reveal d2">
         <div class="profile-card__name">{{ $user->name }}</div>
-        <div class="profile-card__role">Administrator Utama &middot; {{ config('laundry.name', 'Azka Laundry') }}</div>
+        <div class="profile-card__role">Administrator &middot; Berkah Kreatif</div>
         <div class="profile-card__status">
             <span class="profile-card__status-dot"></span>
-            Sistem Aktif
+            Mode pengujian
         </div>
     </div>
 
@@ -317,8 +319,8 @@ body {
                 @include('layouts.component._icon', ['name' => 'truck', 'size' => 20])
             </div>
             <div>
-                <div class="stat-card__num">{{ \App\Models\User::where('role','driver')->where('is_active',true)->count() }}</div>
-                <div class="stat-card__label">Kurir Aktif</div>
+                <div class="stat-card__num">{{ $rentalPending }}</div>
+                <div class="stat-card__label">Menunggu konfirmasi</div>
             </div>
         </div>
         <div class="stat-card">
@@ -326,8 +328,8 @@ body {
                 @include('layouts.component._icon', ['name' => 'orders', 'size' => 20])
             </div>
             <div>
-                <div class="stat-card__num">{{ \App\Models\Order::whereDate('created_at', today())->count() }}</div>
-                <div class="stat-card__label">Pesanan Hari Ini</div>
+                <div class="stat-card__num">{{ $rentalActive }}</div>
+                <div class="stat-card__label">Unit aktif</div>
             </div>
         </div>
     </div>
@@ -335,43 +337,43 @@ body {
     {{-- Pengaturan Operasional --}}
     <div class="section-label reveal d4">Pengaturan Operasional</div>
     <div class="menu-card reveal d4">
-        <a href="{{ route('admin.orders') }}" class="menu-card__item">
+        <a href="{{ route('admin.rental.orders') }}" class="menu-card__item">
             <div class="menu-card__icon">
                 @include('layouts.component._icon', ['name' => 'orders', 'size' => 20])
             </div>
             <div class="menu-card__body">
-                <div class="menu-card__label">Manajemen Pesanan</div>
-                <div class="menu-card__sub">Kelola status, tugaskan kurir</div>
+                <div class="menu-card__label">Pesanan sewa</div>
+                <div class="menu-card__sub">Periksa konfirmasi, desain dan pembayaran</div>
             </div>
             <span class="menu-card__arrow">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>
         </a>
-        <a href="{{ route('admin.walkin.form') }}" class="menu-card__item">
+        <a href="{{ route('admin.catalog.index') }}" class="menu-card__item">
             <div class="menu-card__icon">
                 @include('layouts.component._icon', ['name' => 'add-user', 'size' => 20])
             </div>
             <div class="menu-card__body">
-                <div class="menu-card__label">Order Walk-in</div>
-                <div class="menu-card__sub">Buat pesanan pelanggan langsung</div>
+                <div class="menu-card__label">Kelola katalog</div>
+                <div class="menu-card__sub">Atur papan, kategori dan paket</div>
             </div>
             <span class="menu-card__arrow">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>
         </a>
-        <a href="{{ route('admin.finance.index') }}" class="menu-card__item">
+        <a href="{{ route('admin.rental.cashbook.index') }}" class="menu-card__item">
             <div class="menu-card__icon">
                 @include('layouts.component._icon', ['name' => 'finance', 'size' => 20])
             </div>
             <div class="menu-card__body">
-                <div class="menu-card__label">Laporan Keuangan</div>
+                <div class="menu-card__label">Buku kas</div>
                 <div class="menu-card__sub">Rekap pemasukan dan pengeluaran</div>
             </div>
             <span class="menu-card__arrow">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>
         </a>
-        <a href="{{ route('admin.reports') }}" class="menu-card__item">
+        <a href="{{ route('admin.rental.schedule') }}" class="menu-card__item">
             <div class="menu-card__icon">
                 @include('layouts.component._icon', ['name' => 'report', 'size' => 20])
             </div>
             <div class="menu-card__body">
-                <div class="menu-card__label">Laporan Masalah</div>
-                <div class="menu-card__sub">Kelola laporan bug & kendala</div>
+                <div class="menu-card__label">Jadwal sewa</div>
+                <div class="menu-card__sub">Lihat rencana serah terima</div>
             </div>
             <span class="menu-card__arrow">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>
         </a>
@@ -391,7 +393,7 @@ body {
             Keluar dari Akun
         </button>
     </form>
-    <div class="version-text reveal d6">{{ config('laundry.name', 'Azka Laundry') }} v{{ config('laundry.version', '2.4.0') }} &middot; Admin Panel</div>
+    <div class="version-text reveal d6">Berkah Kreatif &middot; Panel admin</div>
 
 </div>
 

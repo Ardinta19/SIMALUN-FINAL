@@ -108,4 +108,13 @@ class ProfileTest extends TestCase
         $response->assertSessionHasErrors('password');
         $this->assertNotNull($user->fresh());
     }
+    public function test_profile_pages_show_rental_navigation_and_accurate_account_notice(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer']);
+        $admin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($customer)->get(route('customer.profile'))->assertOk()->assertSee('Alamat tersimpan belum otomatis digunakan saat checkout sewa')->assertDontSee('ui-avatars.com');
+        $this->get(route('profile.edit'))->assertOk()->assertSee('Data pesanan dan catatan transaksi dapat tetap tersimpan')->assertDontSee('Semua data pesanan akan ikut terhapus')->assertDontSee('ui-avatars.com');
+        $this->actingAs($admin)->get(route('admin.profile'))->assertOk()->assertSee('Berkah Kreatif')->assertSee('Menunggu konfirmasi')->assertSee('Unit aktif')->assertSee(route('admin.rental.orders'))->assertSee(route('admin.rental.cashbook.index'))->assertDontSee('Tugaskan kurir')->assertDontSee('ui-avatars.com');
+        $this->get(route('profile.edit'))->assertOk()->assertSee('Berkah Kreatif')->assertDontSee('ui-avatars.com');
+    }
 }

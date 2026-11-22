@@ -2,16 +2,16 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Edit Profil</title>
 @include('layouts.component.customer._head_meta')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <style>
     :root {
-        --blue-dark:#002f5c; --blue-mid:#0077b6; --blue-light:#00b4d8;
-        --blue-sky:#e0f4ff; --orange:#FF6B35; --green:#00C48C; --red:#ef4444;
+        --blue-dark:#54051f; --blue-mid:#85092d; --blue-light:#b6435e;
+        --blue-sky:#f8e9ed; --orange:#FF6B35; --green:#00C48C; --red:#ef4444;
         --ink:#1a2332; --ink-mid:#3d5066; --ink-lt:#8899aa;
-        --surface:#f4f8fc; --border:#ddeeff; --radius:16px; --radius-sm:10px;
+        --surface:#faf4f3; --border:#f0dfe1; --radius:16px; --radius-sm:10px;
     }
     *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
     body {
@@ -264,7 +264,7 @@
             <div class="section-body">
                 <div class="avatar-wrap">
                     <img id="avatar-preview" class="avatar-preview"
-                         src="{{ $user->avatar ? asset('storage/'.$user->avatar) : 'https://ui-avatars.com/api/?name='.urlencode($user->name).'&background=e0f4ff&color=0077b6&size=200' }}"
+                         src="{{ $user->avatar ? asset('storage/'.$user->avatar) : asset('images/berkah-kreatif-logo.jpeg') }}"
                          alt="Foto profil">
                     <label class="avatar-action">
                         Ubah Foto
@@ -407,7 +407,7 @@
             </div>
             <div class="section-body">
                 <div class="field-hint" style="margin:0;">
-                    Akun yang dihapus tidak bisa dipulihkan. Semua data pesanan akan ikut terhapus.
+                    Akun akan dinonaktifkan. Data pesanan dan catatan transaksi dapat tetap tersimpan untuk keperluan operasional.
                 </div>
                 <form method="POST" action="{{ route('profile.destroy') }}" id="form-delete-account">
                     @csrf
@@ -417,7 +417,7 @@
                         <input type="password" name="password" class="field-input" required placeholder="Masukkan password Anda">
                         @error('password') <div class="field-error">{{ $message }}</div> @enderror
                     </div>
-                    <button type="button" class="btn-danger" style="margin-top:12px;" id="btn-delete-account">Hapus Akun Permanen</button>
+                    <button type="button" class="btn-danger" style="margin-top:12px;" id="btn-delete-account">Nonaktifkan Akun</button>
                 </form>
             </div>
         </div>
@@ -486,8 +486,8 @@
                 return;
             }
             showConfirmModal({
-                title: 'Hapus Akun Permanen?',
-                message: 'Semua data kamu termasuk pesanan dan alamat akan dihapus. Tindakan ini tidak bisa dibatalkan.',
+                title: 'Nonaktifkan Akun?',
+                message: 'Akun akan dinonaktifkan. Data pesanan dan catatan transaksi dapat tetap tersimpan. Lanjutkan?',
                 confirmText: 'Ya, Hapus Akun',
                 cancelText: 'Batal',
                 type: 'danger',

@@ -2,16 +2,16 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Profil Saya</title>
 @include('layouts.component.customer._head_meta')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <style>
     :root {
-        --blue-dark:#002f5c; --blue-mid:#0077b6; --blue-light:#00b4d8;
-        --blue-sky:#e0f4ff; --orange:#FF6B35; --green:#00C48C;
+        --blue-dark:#54051f; --blue-mid:#85092d; --blue-light:#b6435e;
+        --blue-sky:#f8e9ed; --orange:#FF6B35; --green:#00C48C;
         --ink:#1a2332; --ink-mid:#3d5066; --ink-lt:#8899aa;
-        --surface:#f4f8fc; --border:#ddeeff; --radius:16px; --nav-h:72px;
+        --surface:#faf4f3; --border:#f0dfe1; --radius:16px; --nav-h:72px;
     }
     *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
     body {
@@ -282,7 +282,7 @@
         </div>
     </div>
     <svg class="header-wave" viewBox="0 0 1440 28" preserveAspectRatio="none" style="height:28px;">
-        <path fill="#f4f8fc" d="M0,14 C240,28 480,0 720,14 C960,28 1200,0 1440,14 L1440,28 L0,28Z"/>
+        <path fill="#faf4f3" d="M0,14 C240,28 480,0 720,14 C960,28 1200,0 1440,14 L1440,28 L0,28Z"/>
     </svg>
 </div>
 
@@ -371,7 +371,7 @@
             </div>
         @else
             <div class="empty-address">
-                <p>Belum ada alamat utama. Tambahkan agar bisa langsung dipakai saat pesan.</p>
+                <p>Belum ada alamat utama. Alamat tersimpan belum otomatis digunakan saat checkout sewa.</p>
                 <a href="{{ route('customer.addresses.create') }}" class="btn-add-addr">+ Tambah Alamat Utama</a>
             </div>
         @endif
