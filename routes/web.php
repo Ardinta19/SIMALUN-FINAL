@@ -18,13 +18,16 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderRatingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\RentalCatalogController;
 use App\Http\Controllers\ServiceCategoryController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\VoucherController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/', [RentalCatalogController::class, 'index'])->name('welcome');
+Route::get('/katalog/{product}', [RentalCatalogController::class, 'show'])->name('catalog.show');
+
 Route::middleware('guest')->group(function () {
-    Route::get('/', fn () => view('welcome'))->name('welcome');
 
     Route::get('/login', fn () => view('auth.login'))->name('login');
     Route::post('/login', [LoginController::class, 'authenticate'])
@@ -131,6 +134,11 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/katalog', [RentalCatalogController::class, 'admin'])->name('catalog.index');
+        Route::post('/katalog/kategori', [RentalCatalogController::class, 'categoryStore'])->name('catalog.categories.store');
+        Route::post('/katalog', [RentalCatalogController::class, 'productStore'])->name('catalog.store');
+        Route::put('/katalog/{product}', [RentalCatalogController::class, 'productUpdate'])->name('catalog.update');
+        Route::patch('/katalog/{product}/toggle', [RentalCatalogController::class, 'toggle'])->name('catalog.toggle');
         Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
 
         Route::get('/orders', [OrderController::class, 'adminIndex'])->name('orders');

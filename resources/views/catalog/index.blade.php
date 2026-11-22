@@ -1,0 +1,8 @@
+@extends('catalog.layout')
+@section('title', 'Katalog papan bunga')
+@section('hero')<div class="intro"><h1>Rayakan momen, sampaikan cerita.</h1><p>Temukan papan bunga untuk orang tersayang. Bentuk papan dipilih dari katalog, desain dan ucapan disesuaikan dengan permintaanmu.</p></div>@endsection
+@section('content')
+<form class="filters" method="get" action="{{ route('welcome') }}"><input type="search" name="q" value="{{ request('q') }}" placeholder="Cari papan bunga" aria-label="Cari papan bunga"><select name="category" aria-label="Kategori"><option value="">Semua kategori</option>@foreach($categories as $category)<option value="{{ $category->id }}" @selected((string) request('category') === (string) $category->id)>{{ $category->name }}</option>@endforeach</select><button class="btn" type="submit">Cari</button></form>
+<h2>Jelajahi katalog</h2><p class="muted">Foto merupakan contoh; desain akhir mengikuti permintaan pelanggan.</p>
+<div class="grid">@forelse($products as $product)<article class="card">@if($product->image_path)<img class="photo" src="{{ asset('storage/'.$product->image_path) }}" alt="Contoh {{ $product->name }}">@else<div class="photo placeholder" aria-hidden="true">✿</div>@endif<div class="body"><p class="muted">{{ $product->category->name }}</p><h3>{{ $product->name }}</h3><p class="price">Rp {{ number_format($product->base_price, 0, ',', '.') }} <span class="muted">/ {{ $product->price_unit === 'day' ? 'hari' : 'acara' }}</span></p><a class="btn secondary" href="{{ route('catalog.show', $product) }}">Lihat detail</a></div></article>@empty<p class="muted">Belum ada papan yang tersedia untuk ditampilkan.</p>@endforelse</div><div class="pagination">{{ $products->links() }}</div>
+@endsection

@@ -257,6 +257,7 @@ body {
 </style>
 </head>
 <body>
+<a href="{{ route('admin.catalog.index') }}" style="display:block;padding:12px;text-align:center;background:#85092d;color:white;font-weight:800;text-decoration:none">Kelola Katalog Berkah Kreatif</a>
 
 @php
     $fullName  = trim(auth()->user()->name ?? 'Admin');
