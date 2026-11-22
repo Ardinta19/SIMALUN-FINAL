@@ -24,10 +24,18 @@ input[type=checkbox],input[type=radio]{accent-color:var(--wine)}
 .btn{min-height:48px;line-height:1.35;font-size:.95rem;font-weight:700;text-align:center}
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #bc5b75;outline-offset:3px}
 .notice{line-height:1.65}.notice p:last-child{margin-bottom:0}
+.cart-page{max-width:900px;margin-inline:auto}
+.cart-item{display:grid;grid-template-columns:112px minmax(0,1fr);gap:18px;align-items:start}
+.cart-image{width:112px;aspect-ratio:1;object-fit:cover;border-radius:14px;background:#f8e9ed}
+.cart-item .cart-placeholder{display:grid;place-items:center;color:#a46272;font-size:2rem}
+.cart-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.cart-item .cart-number{font-size:.78rem;font-weight:700;color:#765f69;margin:0 0 4px}
+.cart-item form{margin-top:12px}
 .checkout-form{max-width:820px;margin-inline:auto}
 .checkout-form [data-checkout-unit]{padding:clamp(18px,3vw,28px)}
 .checkout-form [data-checkout-unit] h3{padding-top:18px;border-top:1px solid var(--line)}
 .checkout-terms ul{padding-left:1.3em}.checkout-terms li{margin:.7em 0;line-height:1.65}
+@media(max-width:420px){.cart-item{grid-template-columns:76px minmax(0,1fr);gap:12px}.cart-image{width:76px}.cart-actions .btn{width:100%}}
 @media(max-width:650px){.top .nav{width:100%;margin-left:0;gap:6px 16px}.nav a{font-size:.85rem;padding:8px 0}.wrap h1{margin-top:4px}.row>*{min-width:min(100%,150px)}}
 </style>
 </head><body>

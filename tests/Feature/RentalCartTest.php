@@ -43,4 +43,18 @@ class RentalCartTest extends TestCase
         $this->assertCount(2, session('rental_cart'));
         $this->get(route('rental.checkout'))->assertOk()->assertSee('Detail penyewaan');
     }
+    public function test_cart_guides_customers_when_an_item_becomes_unavailable(): void
+    {
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100000, 'price_unit' => 'day', 'stock' => 2]);
+        $this->post(route('cart.store', $product), ['quantity' => 2]);
+        $this->get(route('cart.index'))->assertOk()->assertSee('2 unit')->assertSee('UNIT 1')->assertSee('UNIT 2')->assertSee('Lanjut ke checkout');
+        $category->update(['is_active' => false]);
+        $this->get(route('cart.index'))->assertOk()->assertSee('Papan tidak tersedia')->assertSee('Hapus 2 unit yang tidak tersedia')->assertDontSee('Lanjut ke checkout');
+        $keys = array_keys(session('rental_cart'));
+        $this->delete(route('cart.destroy', $keys[0]))->assertRedirect();
+        $this->get(route('cart.index'))->assertOk()->assertSee('Hapus 1 unit yang tidak tersedia');
+        $this->delete(route('cart.destroy', $keys[1]))->assertRedirect();
+        $this->get(route('cart.index'))->assertOk()->assertSee('Keranjangmu masih kosong')->assertSee('Jelajahi katalog');
+    }
 }

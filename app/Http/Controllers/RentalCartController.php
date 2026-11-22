@@ -13,7 +13,12 @@ class RentalCartController extends Controller
         $cart = $request->session()->get('rental_cart', []);
         $products = RentalProduct::with('category')->whereIn('id', array_column($cart, 'product_id'))->get()->keyBy('id');
 
-        return view('catalog.cart', compact('cart', 'products'));
+        $unavailableCount = collect($cart)->filter(function ($item) use ($products) {
+            $product = $products->get($item['product_id']);
+            return ! $product || ! $product->is_active || ! $product->category?->is_active || $product->stock < 1;
+        })->count();
+
+        return view('catalog.cart', compact('cart', 'products', 'unavailableCount'));
     }
 
     public function store(Request $request, RentalProduct $product)
