@@ -23,7 +23,7 @@ class RentalProgressController extends Controller
             }
             if ($next === 'handed_over') {
                 $total = $unit->payableAmount();
-                if ($total === null || $unit->payments()->where('status', 'verified')->sum('amount') < $total) {
+                if ($total === null || $unit->verifiedNet() < $total) {
                     throw ValidationException::withMessages(['progress' => 'Pembayaran harus lunas dan terverifikasi sebelum serah terima.']);
                 }
             }

@@ -4,6 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class RentalOrderUnit extends Model
 {
@@ -23,6 +24,9 @@ class RentalOrderUnit extends Model
     public function order(): BelongsTo { return $this->belongsTo(RentalOrder::class, 'rental_order_id'); }
     public function product(): BelongsTo { return $this->belongsTo(RentalProduct::class, 'rental_product_id'); }
     public function progressEvents(): HasMany { return $this->hasMany(RentalUnitProgressEvent::class)->orderBy('id'); }
+    public function refunds(): HasManyThrough { return $this->hasManyThrough(RentalPaymentRefund::class, RentalPayment::class, 'rental_order_unit_id', 'rental_payment_id'); }
+    public function verifiedNet(): int { return (int) $this->payments()->where('status', 'verified')->sum('amount') - (int) $this->refunds()->sum('rental_payment_refunds.amount'); }
+    public function allocatedNet(): int { return (int) $this->payments()->whereIn('status', ['pending', 'verified'])->sum('amount') - (int) $this->refunds()->sum('rental_payment_refunds.amount'); }
     public function payments(): HasMany { return $this->hasMany(RentalPayment::class)->latest('id'); }
     public function previews(): HasMany { return $this->hasMany(RentalDesignPreview::class)->orderByDesc('version'); }
 }

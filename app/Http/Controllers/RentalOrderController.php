@@ -92,7 +92,7 @@ class RentalOrderController extends Controller
     public function show(Request $request, RentalOrder $order)
     {
         abort_unless($order->customer_id === $request->user()->id, 403);
-        $order->load('units.previews', 'units.payments', 'units.progressEvents');
+        $order->load('units.previews', 'units.payments.refunds', 'units.progressEvents');
         return view('rental.show', compact('order'));
     }
 
@@ -104,7 +104,7 @@ class RentalOrderController extends Controller
 
     public function adminIndex()
     {
-        $orders = RentalOrder::with(['customer', 'units.previews', 'units.payments', 'units.progressEvents.recorder'])->latest()->paginate(20);
+        $orders = RentalOrder::with(['customer', 'units.previews', 'units.payments.refunds', 'units.progressEvents.recorder'])->latest()->paginate(20);
         return view('rental.admin', compact('orders'));
     }
 
@@ -180,7 +180,7 @@ class RentalOrderController extends Controller
             RentalProduct::lockForUpdate()->findOrFail($unit->rental_product_id);
             $unit = RentalOrderUnit::lockForUpdate()->findOrFail($unit->id);
             if ($unit->status === 'cancelled') throw ValidationException::withMessages(['unit' => 'Unit sudah dibatalkan.']);
-            if ($unit->payments()->whereIn('status', ['pending', 'verified'])->exists()) throw ValidationException::withMessages(['unit' => 'Pembatalan unit dengan pembayaran belum tersedia sampai pengembalian dana didukung.']);
+            if (($unit->payments()->where('status', 'pending')->exists() || $unit->verifiedNet() > 0)) throw ValidationException::withMessages(['unit' => 'Selesaikan bukti menunggu verifikasi dan kembalikan pembayaran yang harus dikembalikan sebelum membatalkan unit.']);
             $unit->update(['status' => 'cancelled', 'cancel_reason' => $data['reason']]);
         });
         return back()->with('success', 'Unit dibatalkan dan reservasi dilepas.');
