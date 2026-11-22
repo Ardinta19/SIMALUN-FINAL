@@ -6,6 +6,8 @@ use App\Models\RentalCategory;
 use App\Models\RentalProduct;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class RentalCatalogTest extends TestCase
@@ -58,5 +60,39 @@ class RentalCatalogTest extends TestCase
         $this->patch(route('admin.catalog.categories.toggle', $category))->assertSessionHasNoErrors();
         $this->get('/')->assertSee('Papan Wisuda');
         $this->assertDatabaseHas('rental_categories', ['id' => $category->id, 'name' => 'Kelulusan', 'is_active' => true]);
+    }
+    public function test_catalog_photos_and_product_changes_are_managed_and_audited(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->create(['role' => 'admin']);
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $data = ['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100000, 'price_unit' => 'day', 'stock' => 2];
+        $this->actingAs($admin)->post(route('admin.catalog.store'), $data + ['image' => UploadedFile::fake()->image('awal.jpg')])->assertSessionHasNoErrors();
+        $product = RentalProduct::firstOrFail();
+        $oldPath = $product->image_path;
+        Storage::disk('public')->assertExists($oldPath);
+        $this->assertDatabaseHas('audit_logs', ['action' => 'rental.catalog.product.create', 'auditable_id' => $product->id, 'actor_id' => $admin->id]);
+        $this->put(route('admin.catalog.update', $product), $data + ['image' => UploadedFile::fake()->image('baru.png')])->assertSessionHasNoErrors();
+        $newPath = $product->fresh()->image_path;
+        $this->assertNotSame($oldPath, $newPath);
+        Storage::disk('public')->assertExists($newPath);
+        Storage::disk('public')->assertMissing($oldPath);
+        $this->assertDatabaseHas('audit_logs', ['action' => 'rental.catalog.product.update', 'auditable_id' => $product->id]);
+        $this->patch(route('admin.catalog.toggle', $product))->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('audit_logs', ['action' => 'rental.catalog.product.toggle', 'auditable_id' => $product->id]);
+        $this->assertFalse((bool) $product->fresh()->is_active);
+    }
+
+    public function test_replacing_a_shared_photo_does_not_remove_the_other_products_photo(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->create(['role' => 'admin']);
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $data = ['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 1];
+        Storage::disk('public')->put('catalog/shared.jpg', 'old');
+        $product = RentalProduct::create($data + ['image_path' => 'catalog/shared.jpg']);
+        RentalProduct::create(array_merge($data, ['name' => 'Lain', 'image_path' => 'catalog/shared.jpg']));
+        $this->actingAs($admin)->put(route('admin.catalog.update', $product), $data + ['image' => UploadedFile::fake()->image('baru.png')])->assertSessionHasNoErrors();
+        Storage::disk('public')->assertExists('catalog/shared.jpg');
     }
 }

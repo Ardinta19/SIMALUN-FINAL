@@ -5,9 +5,11 @@ use App\Models\RentalCategory;
 use App\Models\RentalProduct;
 use App\Models\RentalDurationPackage;
 use App\Services\RentalAvailability;
+use App\Support\Audit;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rule;
 
@@ -95,29 +97,73 @@ class RentalCatalogController extends Controller
     public function productStore(Request $request)
     {
         $data = $this->validateProduct($request);
-        if ($request->hasFile('image')) $data['image_path'] = $request->file('image')->store('catalog', 'public');
-        RentalProduct::create($data);
+        $path = $this->storeProductImage($request);
+        unset($data['image']);
+        if ($path) $data['image_path'] = $path;
+        try {
+            DB::transaction(function () use ($data) {
+                $product = RentalProduct::create($data);
+                Audit::log('rental.catalog.product.create', $product, after: $this->productSnapshot($product));
+            });
+        } catch (\Throwable $e) {
+            if ($path) Storage::disk('public')->delete($path);
+            throw $e;
+        }
         return back()->with('success', 'Papan berhasil ditambahkan.');
     }
 
     public function productUpdate(Request $request, RentalProduct $product)
     {
         $data = $this->validateProduct($request);
-        if ($request->hasFile('image')) $data['image_path'] = $request->file('image')->store('catalog', 'public');
-        DB::transaction(function () use ($product, $data) {
-            $locked = RentalProduct::lockForUpdate()->findOrFail($product->id);
-            if ((int) $data['stock'] < $locked->stock && \App\Models\RentalOrderUnit::where('rental_product_id', $locked->id)->where('status', 'confirmed')->exists()) {
-                throw ValidationException::withMessages(['stock' => 'Stok tidak dapat dikurangi selama masih ada reservasi terkonfirmasi.']);
-            }
-            $locked->update($data);
-        });
+        $path = $this->storeProductImage($request);
+        unset($data['image']);
+        if ($path) $data['image_path'] = $path;
+        try {
+            $oldPath = DB::transaction(function () use ($product, $data) {
+                $locked = RentalProduct::lockForUpdate()->findOrFail($product->id);
+                if ((int) $data['stock'] < $locked->stock && \App\Models\RentalOrderUnit::where('rental_product_id', $locked->id)->where('status', 'confirmed')->exists()) {
+                    throw ValidationException::withMessages(['stock' => 'Stok tidak dapat dikurangi selama masih ada reservasi terkonfirmasi.']);
+                }
+                $before = $this->productSnapshot($locked);
+                $oldPath = $locked->image_path;
+                $locked->update($data);
+                Audit::log('rental.catalog.product.update', $locked, before: $before, after: $this->productSnapshot($locked));
+                return $oldPath;
+            });
+        } catch (\Throwable $e) {
+            if ($path) Storage::disk('public')->delete($path);
+            throw $e;
+        }
+        // Hapus hanya foto katalog yang tidak lagi direferensikan produk mana pun.
+        if ($path && $oldPath && $oldPath !== $path && preg_match('~^catalog/[A-Za-z0-9_-]+\.(?:jpg|jpeg|png|webp)$~i', $oldPath)
+            && ! RentalProduct::where('image_path', $oldPath)->exists()) {
+            Storage::disk('public')->delete($oldPath);
+        }
         return back()->with('success', 'Papan berhasil diperbarui.');
     }
 
     public function toggle(RentalProduct $product)
     {
-        $product->update(['is_active' => ! $product->is_active]);
+        DB::transaction(function () use ($product) {
+            $locked = RentalProduct::lockForUpdate()->findOrFail($product->id);
+            $before = $this->productSnapshot($locked);
+            $locked->update(['is_active' => ! $locked->is_active]);
+            Audit::log('rental.catalog.product.toggle', $locked, before: $before, after: $this->productSnapshot($locked));
+        });
         return back()->with('success', 'Status papan diperbarui.');
+    }
+
+    private function storeProductImage(Request $request): ?string
+    {
+        if (! $request->hasFile('image')) return null;
+        $path = $request->file('image')->store('catalog', 'public');
+        if (! $path) throw ValidationException::withMessages(['image' => 'Foto tidak dapat disimpan. Silakan coba lagi.']);
+        return $path;
+    }
+
+    private function productSnapshot(RentalProduct $product): array
+    {
+        return $product->only(['rental_category_id', 'name', 'size', 'description', 'base_price', 'price_unit', 'stock', 'image_path', 'is_active']);
     }
 
     private function validateProduct(Request $request): array
