@@ -49,6 +49,8 @@ class RentalFeedbackTest extends TestCase
         $this->actingAs($customer)->post($productUrl, ['rating' => 5])->assertSessionHasErrors('rating');
         $this->post($orderUrl, ['rating' => 5])->assertSessionHasErrors('rating');
         $unit->update(['status' => 'confirmed', 'progress' => 'returned']);
+        $this->get(route('rental.orders.unit', [$order, $unit]))->assertOk()->assertSee('Nilai produk ini')
+            ->assertSee('name="rating"', false)->assertSee('rating-'.$unit->id.'-5', false)->assertSee('Simpan rating produk');
         $this->post($productUrl, ['rating' => 6])->assertSessionHasErrors('rating');
         $this->post($productUrl, ['rating' => 4])->assertSessionHasNoErrors();
         $this->post($productUrl, ['rating' => 5])->assertSessionHasErrors('rating');

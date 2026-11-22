@@ -52,6 +52,7 @@
         <p>Checkout hanya tersedia untuk akun pelanggan. Masuk sebagai pelanggan untuk menguji pemesanan.</p>
     @else
         <a class="btn" href="{{ route('rental.checkout') }}">Lanjut ke checkout</a>
+    @guest<p class="muted">Kamu akan diminta masuk atau daftar; keranjang ini tetap tersimpan di peramban yang sama.</p>@endguest
     @endif
     <a class="btn secondary" href="{{ route('welcome') }}">Tambah papan lain</a>
     </div>

@@ -73,3 +73,5 @@ Pola di bawah adalah pilihan default yang diterapkan jika sesuai konteks, bukan 
 - Form pemesanan menandai isian wajib/opsional secara eksplisit, menautkan label ke kolom, dan memberi contoh isian pada nama penerima, ucapan, dan permintaan desain.
 - Checkout menyediakan pintasan "Pakai tanggal yang sama (sewa satu hari)", batas minimal tanggal pengembalian mengikuti tanggal acara tanpa perlu JavaScript, serta petunjuk metode penerimaan/pengembalian yang ditautkan dengan `aria-describedby`.
 - Bila pengiriman gagal, fokus berpindah ke kolom bermasalah pertama; tombol kirim menandai formulir `aria-busy` selama proses. Tombol "Isi sisa tagihan" mengisi nominal maksimum pada form pembayaran unit, dan "Minta revisi" mewajibkan catatan revisi.
+- Rating produk memakai grup bintang radio (44 px, dapat dijangkau keyboard) menggantikan menu pilihan, dengan teks pembaca layar per bintang.
+- Tamu diberi tahu bahwa keranjang tetap tersimpan dan mereka akan diminta masuk sebelum mengirim pesanan, baik dari keranjang maupun dari tombol "Pesan langsung" di detail papan.
