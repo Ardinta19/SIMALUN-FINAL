@@ -111,3 +111,49 @@ Sejak revisi ini, kontrol form native tidak lagi ditampilkan apa adanya di halam
 | Bottom sheet ganda | `_bottom_sheet_select` (navy) + `_form_controls` (biru) | Satu komponen, satu palet marun; komponen lama dihapus |
 
 Verifikasi yang sudah dilakukan: `node --check` untuk semua skrip, harness jsdom `form-controls.cjs` dan `login-splash.cjs`, tiga harness lama (filter/checkout/unit), pemeriksaan keseimbangan direktif Blade, serta `tests/Feature/UiDefaultsTest.php`. Pengujian di browser nyata (terutama keyboard ponsel, iOS Safari, dan dialog file) masih perlu dilakukan sebelum dinyatakan selesai.
+
+## Layar kecil: dialog, header ringkas, dan pencegahan regresi visual
+
+Tiga bug visual yang berulang (logo header menghilang setelah digulir, panel filter terpotong, tanggal di panel kembali native) berasal dari pola kode yang sama, bukan dari satu view. Aturan berikut berlaku untuk **semua** dialog, sheet, dan header di aplikasi.
+
+### Dialog dan lembar (bottom sheet)
+
+- **Tinggi wajib berpasangan.** Setiap `max-height`/`min-height` yang memakai `dvh` harus didahului nilai `vh` dengan properti yang sama:
+
+  ```css
+  .bk-dialog {
+      max-height: calc(100vh - 24px);   /* fallback WebView lama */
+      max-height: calc(100dvh - 24px);  /* browser modern */
+  }
+  ```
+
+  WebView lama mengabaikan `dvh`; tanpa fallback, dialog tumbuh melebihi layar dan judul/tombol terpotong. Lint otomatis: `tests/Feature/ResponsiveLayoutTest.php`.
+- **Lebar selalu dikurangi margin.** Gunakan `width: min(560px, calc(100% - 24px))` + `max-width`, lalu `overflow-x: hidden`. Jangan memakai lebar tetap atau `100vw` (dapat memicu gulir horizontal).
+- **Isi boleh menggulir, aksi jangan hilang.** `.bk-dialog` memakai `overflow-y: auto` + `overscroll-behavior: contain`; baris tombol utama lembar filter memakai `position: sticky; bottom: 0` dengan latar gradasi agar selalu dapat ditekan tanpa menutupi teks.
+- **Navigasi bawah pelanggan.** Pil navigasi mengambang setinggi 68 px + jarak 10 px; `body.bk-customer` di ponsel diberi `padding-bottom: calc(84px + env(safe-area-inset-bottom))` agar konten terakhir (tombol, total, tautan) tidak tertutup. Halaman tamu memakai pola yang sama dengan `.bk-guest-tabs`.
+- **Ruang aman perangkat.** `padding-bottom` dialog dan bilah aksi menambahkan `env(safe-area-inset-bottom)`. Sheet bawah juga menyisakan margin bawah, dan `max-height` di ponsel dikurangi ruang tersebut (`calc(100dvh - 52px)`) sehingga sisi atas tidak terpotong di iPhone/gesture bar.
+- **Ritme isi.** Judul memakai `clamp()`; label memiliki jarak atas 16 px dan tidak boleh menempel pada kontrol; semua kontrol selebar kolomnya (`max-width: 100%`), `min-width: 0` pada kolom grid, dan grid `.row` memakai jarak 14–16 px (tanpa `gap`, dua kolom tampak menempel dan teks tanggal terpotong).
+- **Satu judul, satu maksud.** Judul dialog "Cari papan" dan label kolom "Kata kunci" tidak boleh sama; hindari judul berulang tiga kali dalam satu panel.
+
+### Header ringkas (logo yang tidak boleh hilang)
+
+Status header hanya dua: **melebar** (di atas halaman) dan **ringkas** (logo 66 px saat digulir > 180 px). Logo ringkas dapat diketuk untuk membuka menu; saat itu header masuk keadaan **`.is-pinned`**:
+
+- `is-compact` dilepas, `is-pinned` dipasang, dan posisi tetap `fixed` di viewport — header **tidak** kembali menjadi `absolute` di atas dokumen (itu penyebab logo "hilang").
+- Menu pelanggan langsung terbuka saat logo diketuk; menu tamu dibuka lewat tombol dialog. Selama menu terbuka atau fokus keyboard berada di header, `is-pinned` dipertahankan (termasuk setelah Escape yang mengembalikan fokus ke `summary`).
+- Menu ditutup / fokus keluar → `syncHeader()` mengembalikan mode ringkas bila halaman masih tergulir, atau melebar bila sudah di atas.
+- Tidak ada flag "buka-tahan" permanen; `holdOpen` dihapus dan dijaga oleh tes agar tidak muncul kembali.
+
+### Daftar periksa untuk view baru
+
+1. Apakah setiap dialog/panel memakai `.bk-dialog` (atau memenuhi aturan tinggi, lebar, padding, dan safe area di atas)?
+2. Apakah ada `dvh` tanpa pasangan `vh`? Jalankan `php artisan test --filter=ResponsiveLayoutTest`.
+3. Apakah kontrol di dalam dialog ikut ter-enhance `_form_controls` (form dipindah ke dialog setelah `DOMContentLoaded`)? Harness `filter-sheet.cjs` menjadi contoh.
+4. Apakah elemen tetap (header, badge, tombol mengambang) tidak menutupi judul/kontrol utama saat digulir?
+5. Uji tinggi 360×640, 390×844 (safe area), dan lanskap 720×360, serta lebar 320 px.
+
+### Verifikasi otomatis
+
+- `tests/Feature/ResponsiveLayoutTest.php` — lint `dvh` tanpa fallback (komentar CSS diabaikan) di semua CSS + blok `<style>` Blade, memastikan `.bk-dialog` dibatasi `100dvh`, ada safe area, `overscroll-behavior`, bilah aksi sticky, dan status header `is-pinned` (serta `holdOpen` tidak kembali).
+- Harness jsdom (di luar repo): `header-state.cjs` (logo, pin, Escape, fokus keluar) dan `filter-sheet.cjs` (form dipindah ke dialog, tanggal/select tetap kustom, layer di dalam dialog, Escape hanya menutup layer).
+- Batas: jsdom tidak mengukur layout nyata, jadi tinggi/overflow tetap diverifikasi lewat aturan CSS, lint, dan uji perangkat.

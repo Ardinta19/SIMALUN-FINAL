@@ -21,7 +21,7 @@ html, body {
 .ws.w1 { bottom:38%; }
 .ws.w2 { bottom:34%; opacity:.55; }
 .ws.w3 { bottom:30%; opacity:.28; }
-#page { position:relative; z-index:1; min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:2rem 1.2rem max(2rem, env(safe-area-inset-bottom)); }
+#page { position:relative; z-index:1; min-height:100vh;min-height:100dvh; display:flex; flex-direction:column; align-items:center; padding:2rem 1.2rem max(2rem, env(safe-area-inset-bottom)); }
 #header { display:flex; flex-direction:column; align-items:center; gap:.35rem; padding-top:max(2.5rem, env(safe-area-inset-top)); margin-bottom:1.6rem; opacity:0; }
 #drum-wrap { width:clamp(72px,16vw,92px); height:clamp(72px,16vw,92px); position:relative; }
 #drum-wrap::after { content:''; position:absolute; inset:-10px; border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,.14) 40%, transparent 72%); animation:halo 3.5s ease-in-out infinite; }

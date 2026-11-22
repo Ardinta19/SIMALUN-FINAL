@@ -28,7 +28,7 @@ html, body {
 
 /* ── PAGE ── */
 #page {
-  position:relative; z-index:1; min-height:100vh;
+  position:relative; z-index:1; min-height:100vh;min-height:100dvh;
   display:flex; flex-direction:column; align-items:center;
   padding:0 1.2rem max(2rem, env(safe-area-inset-bottom));
 }

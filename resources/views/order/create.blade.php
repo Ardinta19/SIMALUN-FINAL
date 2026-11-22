@@ -29,7 +29,7 @@
 }
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html { scroll-behavior:smooth; }
-body { font-family:'Plus Jakarta Sans',sans-serif; background:var(--surface); color:var(--ink); min-height:100vh; }
+body { font-family:'Plus Jakarta Sans',sans-serif; background:var(--surface); color:var(--ink); min-height:100vh;min-height:100dvh; }
 
 /* ── TOP HEADER ── */
 .top-header {

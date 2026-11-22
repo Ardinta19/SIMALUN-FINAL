@@ -10,7 +10,7 @@
 <title>{{ $code }} – {{ $title }} | Berkah Kreatif</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;color:#301722;background:linear-gradient(168deg,#54051f 0%,#85092d 55%,#b6435e 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;overflow:hidden}
+body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;color:#301722;background:linear-gradient(168deg,#54051f 0%,#85092d 55%,#b6435e 100%);min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px;overflow:hidden}
 body::before,body::after{content:'';position:absolute;border-radius:50%;background:rgba(255,255,255,.09);pointer-events:none}
 body::before{width:280px;height:280px;top:-80px;right:-80px}
 body::after{width:200px;height:200px;bottom:-60px;left:-60px}

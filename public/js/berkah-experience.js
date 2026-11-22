@@ -20,14 +20,88 @@
     if (filterForm && filterSlot) filterSlot.appendChild(filterForm);
     const triggers = document.querySelectorAll('[data-open-dialog]');
     triggers.forEach(button => { button.hidden = false; });
-    let holdOpen = false;
-    const updateHeader = () => { if (!header.contains(document.activeElement) && !document.querySelector('.bk-dialog[open], .bk-header-radial[open]')) header.classList.toggle('is-compact', window.scrollY > 180 && !holdOpen); };
-    // Pulihkan posisi baca tanpa memicu lompatan ke atas saat fokus dikembalikan.
-    const syncHeader = () => header.classList.toggle('is-compact', window.scrollY > 180 && !holdOpen && !document.querySelector('.bk-dialog[open], .bk-header-radial[open]'));
+    // Status header: ringkas saat halaman digulir, tetap terlihat saat menu dibuka.
+    // Tidak ada flag buka-tahan permanen: header tidak boleh menghilang setelah
+    // logo ringkas diketuk lalu halaman digulir lagi.
+    const radialMenu = header.querySelector('.bk-header-radial');
+    const menuButton = header.querySelector('[data-open-dialog="bk-menu"]');
+    const menuOpen = () => !!document.querySelector('.bk-dialog[open], .bk-header-radial[open]');
     const focusWithoutScroll = element => { if (!element) return; try { element.focus({ preventScroll: true }); } catch { element.focus(); } };
-    window.addEventListener('scroll', () => { if (window.scrollY < 80) holdOpen = false; if (window.scrollY <= 180) header.classList.remove('is-compact'); updateHeader(); }, { passive: true });
-    expand.hidden = false;
-    expand.addEventListener('click', () => { holdOpen = true; header.classList.remove('is-compact'); focusWithoutScroll(window.matchMedia('(max-width: 700px)').matches ? (header.querySelector('.bk-menu-trigger') || header.querySelector('.bk-header-radial summary')) : header.querySelector('.bk-desktop-nav a')); });
+    // `:focus-visible` tidak konsisten di WebView lama; lacak modalitas input.
+    let keyboardMode = false;
+    document.addEventListener('keydown', () => { keyboardMode = true; }, true);
+    document.addEventListener('pointerdown', () => { keyboardMode = false; }, true);
+    const keyboardFocusInsideHeader = () => {
+        const active = document.activeElement;
+        return keyboardMode && !!active && active !== expand && header.contains(active) && active.offsetParent !== null;
+    };
+    let pinned = false;
+    const syncHeader = () => {
+        const scrolled = window.scrollY > 180;
+        if (!scrolled) {
+            pinned = false;
+            header.classList.remove('is-compact', 'is-pinned');
+            return;
+        }
+        if (menuOpen() || keyboardFocusInsideHeader()) {
+            // Menu terbuka / fokus keyboard di header: jangan biarkan header
+            // kembali absolut lalu hilang dari layar.
+            pinned = true;
+            header.classList.remove('is-compact');
+            header.classList.add('is-pinned');
+            return;
+        }
+        pinned = false;
+        header.classList.remove('is-pinned');
+        header.classList.add('is-compact');
+    };
+    const updateHeader = syncHeader;
+    window.addEventListener('scroll', syncHeader, { passive: true });
+    if (radialMenu) {
+        radialMenu.addEventListener('toggle', () => { if (!radialMenu.open) syncHeader(); });
+    }
+    header.addEventListener('focusout', () => { window.setTimeout(syncHeader, 0); });
+    // Disclosure native tidak menutup saat klik di luar/Escape; tambahkan agar
+    // menu selalu bisa ditutup dan header kembali ringkas.
+    const closeRadialMenu = () => { if (radialMenu && radialMenu.open) radialMenu.open = false; syncHeader(); };
+    document.addEventListener('pointerdown', event => {
+        if (!radialMenu || !radialMenu.open) return;
+        if (header.contains(event.target) || (event.target.closest && event.target.closest('dialog'))) return;
+        closeRadialMenu();
+    }, true);
+    document.addEventListener('keydown', event => {
+        if (event.key !== 'Escape' || !radialMenu || !radialMenu.open) return;
+        closeRadialMenu();
+        focusWithoutScroll(radialMenu.querySelector('summary'));
+    });
+    if (expand) expand.hidden = false;
+    if (expand) {
+        expand.addEventListener('click', () => {
+            if (!header.classList.contains('is-compact')) return;
+            // Jangan membuka header absolut di luar layar: pin ke viewport
+            // lalu langsung tampilkan menu yang dituju.
+            pinned = true;
+            header.classList.remove('is-compact');
+            header.classList.add('is-pinned');
+            const compactViewport = window.matchMedia('(max-width: 700px)').matches;
+            if (compactViewport && radialMenu) {
+                const summary = radialMenu.querySelector('summary');
+                if (summary && !radialMenu.open) {
+                    summary.click();
+                    radialMenu.open = true;
+                }
+                focusWithoutScroll(summary);
+                syncHeader();
+                return;
+            }
+            if (compactViewport && menuButton) {
+                menuButton.click();
+                return;
+            }
+            focusWithoutScroll(header.querySelector('.bk-desktop-nav a') || expand);
+            syncHeader();
+        });
+    }
     function openDialog(dialog, trigger) {
         if (!dialog || dialog.open || document.querySelector('.bk-dialog[open]')) return;
         dialog.dataset.returnFocus = trigger?.dataset.openDialog || '';

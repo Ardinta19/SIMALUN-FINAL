@@ -8,7 +8,7 @@
 <style>
 :root{--blue-dark:#002f5c;--blue-mid:#0077b6;--orange:#FF6B35;--green:#00C48C;--surface:#f5f9ff;--border:#ddeeff;--radius:16px;}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--surface);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--surface);min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px;}
 
 .card{background:#fff;border-radius:var(--radius);border:1.5px solid var(--border);padding:32px 24px;max-width:400px;width:100%;text-align:center;box-shadow:0 8px 40px rgba(0,47,92,.1);}
 
