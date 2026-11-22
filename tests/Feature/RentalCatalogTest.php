@@ -57,6 +57,18 @@ class RentalCatalogTest extends TestCase
             ->assertSee('js/berkah-experience.js?v=', false);
     }
 
+    public function test_catalog_admin_previews_the_current_photo_in_its_frame(): void
+    {
+        $admin = User::factory()->create(); $admin->forceFill(['role' => 'admin'])->save();
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan Berfoto', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 1, 'image_path' => 'catalog/papan.jpg']);
+        RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan Kosong', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 1]);
+        $this->actingAs($admin)->get(route('admin.catalog.index'))->assertOk()
+            ->assertSee('admin-photo', false)->assertSee('storage/catalog/papan.jpg', false)
+            ->assertSee('Foto Papan Berfoto')->assertSee('Belum ada foto')
+            ->assertSee('object-fit:contain', false);
+    }
+
     public function test_inactive_product_is_not_accessible(): void
     {
         $category = RentalCategory::create(['name' => 'Wisuda']);
