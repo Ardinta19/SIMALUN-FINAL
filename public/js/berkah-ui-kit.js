@@ -126,29 +126,26 @@
         }
     }
 
-    // Tangan robot: grup dalam (#bk-theme-hand-art) dicerminkan ketika sakelar
-    // bergerak ke "Terang" (kenop ke kiri) sehingga tangan masuk dari kanan dan
-    // telapak berada di kanan kenop; untuk "Gelap" (kenop ke kanan) tangan
-    // datang dari kiri dengan jari mengarah ke kenop.
+    // Tangan robot: selalu datang dari KANAN. Grup dalam (#bk-theme-hand-art)
+    // dicerminkan sekali (scale -1) supaya telapak berada di kanan kenop dan
+    // lengan menjulur keluar tepi kanan panggung, untuk tema terang maupun gelap.
     const HAND_FINGER_TIP = 78;
-    const HAND_PARK_LEFT = -104;
     const HAND_PARK_RIGHT = 544;
     function handTarget(dark) {
         const base = knob ? Number(knob.getAttribute('cx')) : NaN;
         const center = (Number.isFinite(base) ? base : 328) + knobOffset(dark);
         // Saat dicerminkan ujung jari berada di -78 dari titik nol grup.
-        return dark ? center - HAND_FINGER_TIP : center + HAND_FINGER_TIP;
+        return center + HAND_FINGER_TIP;
     }
-    // Posisi awal/akhir & arah cermin untuk putaran animasi berikutnya.
-    const handState = { from: HAND_PARK_LEFT, to: handTarget(false) };
+    // Posisi awal/akhir untuk putaran animasi berikutnya.
+    const handState = { from: HAND_PARK_RIGHT, to: handTarget(false) };
 
     function primeHand(dark) {
         const art = switchSvg ? switchSvg.querySelector('#bk-theme-hand-art') : null;
-        if (art) {
-            if (dark) art.removeAttribute('transform');
-            else art.setAttribute('transform', 'scale(-1 1)');
+        if (art && art.getAttribute('transform') !== 'scale(-1 1)') {
+            art.setAttribute('transform', 'scale(-1 1)');
         }
-        handState.from = dark ? HAND_PARK_LEFT : HAND_PARK_RIGHT;
+        handState.from = HAND_PARK_RIGHT;
         handState.to = handTarget(dark);
     }
 

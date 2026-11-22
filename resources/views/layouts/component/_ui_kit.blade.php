@@ -60,8 +60,8 @@
                 <circle class="bk-theme-svg__knob" cx="328" cy="124" r="38" data-knob-light="-152" data-knob-dark="0"></circle>
                 <circle class="bk-theme-svg__knob-ring" cx="328" cy="124" r="38" fill="none" stroke="#5b2330" stroke-width="3" opacity=".35"></circle>
 
-                <!-- Tangan robot: grup dalam dicerminkan (scale -1) saat sakelar
-                     bergerak ke kiri, supaya tangan datang dari sisi yang benar. -->
+                <!-- Tangan robot selalu datang dari kanan: grup dalam
+                     dicerminkan sekali (scale -1) untuk kedua tema. -->
                 <g id="bk-theme-hand-wrap" opacity="0" aria-hidden="true">
                     <g id="bk-theme-hand-art">
                         <rect x="-168" y="106" width="188" height="38" rx="19" fill="#e9c6cf" stroke="#5b2330" stroke-width="4"></rect>

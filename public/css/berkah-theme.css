@@ -587,6 +587,299 @@ html[data-theme="dark"] :is(.fc-cal__day:disabled) {
 }
 
 /* ================================================================
+   7b. Komponen pengalaman pelanggan (nilai gelap)
+   ================================================================
+
+/* Permukaan terang yang tersisa di halaman katalog, keranjang, pesanan,
+   profil, dan bantuan ikut digelapkan BERSAMA warna teksnya, supaya tidak
+   ada teks terang di atas latar terang maupun teks gelap di atas latar
+   gelap. Rasio kontras tiap pasangan di bawah minimal 4.6:1. */
+
+html[data-theme="dark"] :is(.bk-skip) {
+    background: var(--theme-surface-2);
+    color: var(--theme-ink);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.bk-count) {
+    background: var(--theme-surface-3);
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(.bk-guest-tabs a[aria-current]) {
+    background: var(--theme-surface-3);
+    color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(.bk-jump) {
+    background: var(--theme-surface);
+    color: var(--theme-ink);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.bk-jump a) {
+    background: var(--theme-surface-2);
+    color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(.bk-order-list, .bk-quick, .bk-stats) {
+    background: var(--theme-surface);
+    color: var(--theme-ink);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.bk-order-row) {
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(.bk-order-row:hover) {
+    background: var(--theme-surface-2);
+}
+
+html[data-theme="dark"] :is(.bk-order-mark, .bk-order-card__mark, .bk-address-icon, .bk-inbox-icon) {
+    background: var(--theme-surface-3);
+    color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(.bk-category-strip a) {
+    background: var(--theme-surface-2);
+    color: var(--theme-ink);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.bk-consent) {
+    background: var(--theme-surface-2);
+    color: var(--theme-ink);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.bk-applied-filters a) {
+    background: var(--theme-surface-3);
+    color: var(--theme-accent-text);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.bk-applied-filters > span) {
+    color: var(--theme-ink-mid);
+}
+
+html[data-theme="dark"] :is(.bk-inbox-item) {
+    background: var(--theme-surface);
+    color: var(--theme-ink);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.bk-inbox-item.is-unread) {
+    background: var(--theme-surface-2);
+}
+
+html[data-theme="dark"] :is(.bk-inbox-empty, .bk-order-filter, .bk-order-card, .bk-address-card, .bk-help .help-card) {
+    background: var(--theme-surface);
+    color: var(--theme-ink);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.bk-address-card.is-primary) {
+    background: var(--theme-surface-2);
+}
+
+html[data-theme="dark"] :is(.bk-order-status span) {
+    background: var(--theme-surface-3);
+    color: var(--theme-ink-mid);
+}
+
+html[data-theme="dark"] :is(.bk-pagination a, .bk-pagination > span, .bk-pagination__pages span) {
+    background: var(--theme-surface-2);
+    color: var(--theme-accent-text);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.bk-pagination .is-disabled) {
+    background: var(--theme-surface-2);
+    color: var(--theme-ink-lt);
+}
+
+html[data-theme="dark"] :is(.bk-profile-identity, .bk-profile-card, .bk-profile-signout) {
+    background: var(--theme-surface);
+    color: var(--theme-ink);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.bk-profile-identity) {
+    background: var(--theme-surface-2);
+}
+
+html[data-theme="dark"] :is(.bk-product-detail__image img.photo, .cart-page .cart-image) {
+    background: var(--theme-surface-2);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.bk-checkout-steps li) {
+    background: var(--theme-surface-2);
+    color: var(--theme-ink-mid);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.bk-checkout-steps li span) {
+    background: var(--theme-surface-3);
+    color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(.checkout-form .checkout-terms) {
+    background: var(--theme-surface);
+    color: var(--theme-ink);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.bk-header-cart, .bk-header-filter) {
+    background: var(--theme-surface-2);
+    color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(.bk-product-image-link:hover) {
+    background: var(--theme-surface-2);
+}
+
+html[data-theme="dark"] :is(.bk-back) {
+    background: var(--theme-surface-2);
+    color: var(--theme-accent-text);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.bk-back:hover) {
+    background: var(--theme-surface-3);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.bk-desktop-nav a:hover, .bk-desktop-nav a[aria-current="page"], .bk-desktop-action:hover, .bk-desktop-action[aria-current="page"]) {
+    background: var(--theme-surface-3);
+    color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(.bk-help .help-notice) {
+    background: var(--theme-warning-soft);
+    color: var(--theme-warning-ink);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.bk-unit-errors) {
+    background: var(--theme-danger-soft);
+    color: var(--theme-danger-ink);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.bk-experience .placeholder) {
+    background: var(--theme-surface-3);
+    color: var(--theme-ink-lt);
+}
+
+html[data-theme="dark"] :is(.bk-order-card__label) {
+    color: var(--theme-ink-lt);
+}
+
+html[data-theme="dark"] :is(.bk-order-card__link, .bk-order-row, .bk-profile-data > div) {
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.bk-address-primary) {
+    color: var(--theme-accent-text);
+}
+
+/* Aksen yang dibawa border/garis kiri tetap terlihat setelah digelapkan. */
+html[data-theme="dark"] :is(.bk-inbox-item.is-unread) {
+    border-left-color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(.bk-address-card.is-primary) {
+    border-color: var(--theme-accent-text);
+}
+
+/* Baris aksi lengket di sheet filter memakai gradasi krem; di tema gelap
+   gradasi itu menjadi pita terang di atas permukaan gelap. */
+html[data-theme="dark"] .bk-filter-sheet [data-filter-form] > p:last-of-type {
+    background: linear-gradient(to bottom, transparent, var(--theme-surface) 34%);
+}
+
+/* Teks sekunder di dalam kartu yang ikut menggelap (keranjang, error, notifikasi,
+   rating) memakai tinta tema, bukan cokelat gelap warisan tema terang. */
+html[data-theme="dark"] :is(.cart-number, .cart-item .cart-placeholder, .tip) {
+    color: var(--theme-ink-lt);
+}
+
+html[data-theme="dark"] :is(.queue-link, .rating-error) {
+    color: var(--theme-danger-ink);
+}
+
+/* ================================================================
+   7c. Halaman masuk/daftar di mode gelap
+   ================================================================ */
+
+/* .auth-main dan .auth-card tidak punya latar sendiri, jadi di mode gelap
+   teksnya harus ikut terang; sebelumnya #75102e di atas #140f12 (1.5:1). */
+html[data-theme="dark"] :is(.auth-card > p, .auth-foot) {
+    color: var(--theme-ink-mid);
+}
+
+html[data-theme="dark"] :is(.auth-card .auth-eyebrow) {
+    color: var(--theme-ink-lt);
+}
+
+html[data-theme="dark"] :is(.auth-back) {
+    color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(.auth-form label, .auth-card h2) {
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(.auth-form input) {
+    background: var(--theme-surface-2);
+    color: var(--theme-ink);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.auth-form input)::placeholder {
+    color: var(--theme-ink-lt);
+}
+
+html[data-theme="dark"] :is(.auth-alert) {
+    background: var(--theme-success-soft);
+    border-color: var(--theme-line);
+    color: var(--theme-success-ink);
+}
+
+html[data-theme="dark"] :is(.auth-alert.is-error, .auth-error) {
+    color: var(--theme-danger-ink);
+}
+
+html[data-theme="dark"] :is(.auth-alert.is-error) {
+    background: var(--theme-danger-soft);
+    border-color: var(--theme-danger-line);
+}
+
+html[data-theme="dark"] :is(.auth-form input[aria-invalid="true"]) {
+    border-color: var(--theme-danger-line);
+}
+
+/* Form akun pelanggan memakai panel terang dengan teks gelap; pastikan
+   label dan input tetap kontras bila panelnya ikut menggelap. */
+
+html[data-theme="dark"] :is(.section-head) {
+    background: var(--theme-surface-2);
+    border-color: var(--theme-line);
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(.section-num) {
+    background: var(--theme-surface-3);
+    color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(.field-label, .page-body) {
+    color: var(--theme-ink);
+}
+
+/* ================================================================
    8. Komponen UI kit (nilai gelap)
    ================================================================ */
 

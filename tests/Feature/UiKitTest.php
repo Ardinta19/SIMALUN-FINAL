@@ -219,6 +219,126 @@ class UiKitTest extends TestCase
         $this->assertSame([], $missing, "Warna teks gelap literal belum punya padanan tema gelap:\n".implode("\n", $missing));
     }
 
+    public function test_dark_theme_text_stays_readable_on_dark_surfaces(): void
+    {
+        $css = File::get(public_path('css/berkah-theme.css'));
+
+        // Blok cetak sengaja tetap terang, jadi tidak ikut diuji.
+        $printAt = strpos($css, '@media print');
+        if ($printAt !== false) {
+            $css = substr($css, 0, $printAt);
+        }
+        $css = preg_replace('!/\*.*?\*/!s', '', $css);
+
+        preg_match_all('/([^{}]+)\{([^{}]*)\}/s', $css, $rules, PREG_SET_ORDER);
+
+        $failures = [];
+
+        foreach ($rules as $rule) {
+            $selector = trim(preg_replace('/\s+/', ' ', $rule[1]));
+
+            if (! str_contains($selector, 'data-theme="dark"')) {
+                continue;
+            }
+
+            // Teks nonaktif memang dibuat redup; bukan konten yang harus dibaca.
+            if (str_contains($selector, ':disabled')) {
+                continue;
+            }
+
+            preg_match_all('/(?<![\w-])color\s*:\s*(#[0-9a-fA-F]{3,6})/', $rule[2], $matches);
+
+            foreach ($matches[1] as $hex) {
+                $ratio = $this->contrastRatio($hex, '#201820');
+
+                if ($ratio < 4.5) {
+                    $failures[] = $selector.' → '.$hex.' ('.round($ratio, 2).':1)';
+                }
+            }
+        }
+
+        $this->assertSame([], array_values(array_unique($failures)), "Teks tema gelap di bawah 4.5:1 terhadap permukaan #201820:\n".implode("\n", $failures));
+    }
+
+    public function test_customer_surfaces_and_auth_copy_have_dark_values(): void
+    {
+        $theme = File::get(public_path('css/berkah-theme.css'));
+
+        $selectors = [
+            '.bk-category-strip a',
+            '.bk-applied-filters a',
+            '.bk-inbox-item',
+            '.bk-order-card',
+            '.bk-order-status span',
+            '.bk-jump a',
+            '.bk-pagination a',
+            '.bk-profile-card',
+            '.bk-address-card',
+            '.bk-help .help-card',
+            '.bk-checkout-steps li',
+            '.bk-back',
+            '.bk-order-row',
+            '.auth-card > p',
+            '.auth-back',
+            '.auth-form input',
+            '.field-label',
+            '.field-input',
+        ];
+
+        foreach ($selectors as $selector) {
+            $this->assertStringContainsString($selector, $theme, 'Belum ada nilai gelap untuk: '.$selector);
+        }
+
+        // Teks terang di atas permukaan gelap, bukan sebaliknya.
+        $this->assertStringContainsString('.auth-card > p, .auth-foot', $theme);
+        $this->assertStringContainsString('color: var(--theme-ink-mid);', $theme);
+    }
+
+    public function test_light_theme_secondary_text_meets_contrast(): void
+    {
+        $css = File::get(public_path('css/berkah-experience.css'));
+
+        foreach (['.bk-kicker' => '#fffaf6', '.bk-order-card__label' => '#fffaf6'] as $class => $surface) {
+            $pattern = '/'.preg_quote($class, '/').'\s*(?:,[^{}]*)?\{([^{}]*)\}/';
+            preg_match($pattern, $css, $match);
+            $this->assertNotEmpty($match, 'Aturan tidak ditemukan: '.$class);
+            $this->assertMatchesRegularExpression('/color\s*:\s*(#[0-9a-fA-F]{6})/', $match[1], 'Warna teks tidak ditemukan: '.$class);
+
+            preg_match('/color\s*:\s*(#[0-9a-fA-F]{6})/', $match[1], $color);
+            $ratio = $this->contrastRatio($color[1], $surface);
+
+            $this->assertGreaterThanOrEqual(4.5, $ratio, $class.' hanya '.round($ratio, 2).':1 pada tema terang.');
+        }
+    }
+
+    private function contrastRatio(string $foreground, string $background): float
+    {
+        $light = $this->relativeLuminance($foreground);
+        $dark = $this->relativeLuminance($background);
+        $hi = max($light, $dark);
+        $lo = min($light, $dark);
+
+        return ($hi + 0.05) / ($lo + 0.05);
+    }
+
+    private function relativeLuminance(string $hex): float
+    {
+        $hex = ltrim($hex, '#');
+
+        if (strlen($hex) === 3) {
+            $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+        }
+
+        $channels = [];
+
+        foreach ([0, 2, 4] as $offset) {
+            $value = hexdec(substr($hex, $offset, 2)) / 255;
+            $channels[] = $value <= 0.03928 ? $value / 12.92 : (($value + 0.055) / 1.055) ** 2.4;
+        }
+
+        return 0.2126 * $channels[0] + 0.7152 * $channels[1] + 0.0722 * $channels[2];
+    }
+
     private function themeMentions(string $css, string $selector): bool
     {
         $pattern = '/(?<![\w-])'.preg_quote($selector, '/').'(?![\w-])/';
@@ -382,8 +502,8 @@ class UiKitTest extends TestCase
         // Grup tangan bagian dalam dicerminkan agar datang dari sisi kenop.
         $this->assertStringContainsString('id="bk-theme-hand-art"', $kit);
         $this->assertStringContainsString("art.setAttribute('transform', 'scale(-1 1)')", $js);
-        $this->assertStringContainsString('HAND_PARK_LEFT', $js);
         $this->assertStringContainsString('HAND_PARK_RIGHT', $js);
+        $this->assertStringNotContainsString('HAND_PARK_LEFT', $js);
 
         // Nilai dibaca ulang setiap restart: arah selalu mengikuti tema baru.
         $this->assertStringContainsString('x: () => handState.from', $js);
