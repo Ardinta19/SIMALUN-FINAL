@@ -2,18 +2,17 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<title>Daftar – Azka Laundry SIMALUN</title>
+<title>Daftar – Berkah Kreatif</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 
 <style>
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html, body {
   width:100%; min-height:100%; font-family:'Plus Jakarta Sans',sans-serif;
-  background:linear-gradient(168deg, #002f5c 0%, #0077b6 45%, #00b4d8 78%, #48cae4 100%);
+  background:linear-gradient(168deg, #54051f 0%, #85092d 45%, #ad3553 78%, #cf7488 100%);
   overflow-x:hidden;
 }
 
@@ -57,7 +56,7 @@ html, body {
 @keyframes ring-spin { to{transform:rotate(360deg);} }
 .wm-name { font-weight:800; font-size:clamp(1.4rem,5.5vw,1.9rem); color:#fff; letter-spacing:-.5px; text-shadow:0 3px 18px rgba(0,0,0,.28); line-height:1; }
 .wm-sub  { font-size:clamp(.5rem,1.9vw,.62rem); font-weight:800; color:rgba(144,224,239,.9); letter-spacing:5px; text-transform:uppercase; margin-top:.18rem; }
-.wm-bar  { width:60px; height:2.5px; background:#FF6B35; border-radius:99px; margin:.3rem auto 0; opacity:.75; }
+.wm-bar  { width:60px; height:2.5px; background:#a92143; border-radius:99px; margin:.3rem auto 0; opacity:.75; }
 
 /* ── CARD ── */
 #card {
@@ -90,7 +89,7 @@ html, body {
   transition:all .3s ease;
 }
 .step-dot.active {
-  background:#FF6B35; border-color:#FF6B35; color:#fff;
+  background:#a92143; border-color:#a92143; color:#fff;
   box-shadow:0 0 14px rgba(255,107,53,.5);
 }
 .step-dot.done {
@@ -198,14 +197,14 @@ html, body {
 .gender-label span:first-child { font-size:1.3rem; }
 .gender-label span:last-child { font-size:.68rem; font-weight:800; color:rgba(255,255,255,.7); }
 .gender-opt:checked + .gender-label {
-  background:rgba(255,107,53,.2); border-color:#FF6B35;
+  background:rgba(255,107,53,.2); border-color:#a92143;
   box-shadow:0 0 0 2px rgba(255,107,53,.25);
 }
 .gender-opt:checked + .gender-label span:last-child { color:#fff; }
 
 /* terms checkbox */
 .terms-row { display:flex; align-items:flex-start; gap:.7rem; margin-top:.6rem; }
-.terms-cb { width:18px; height:18px; flex-shrink:0; cursor:pointer; accent-color:#FF6B35; margin-top:2px; }
+.terms-cb { width:18px; height:18px; flex-shrink:0; cursor:pointer; accent-color:#a92143; margin-top:2px; }
 .terms-txt { font-size:.75rem; font-weight:700; color:rgba(255,255,255,.75); line-height:1.5; }
 .terms-txt a { color:rgba(144,224,239,.9); text-decoration:none; font-weight:900; }
 
@@ -222,7 +221,7 @@ html, body {
 
 .btn-next-step, .btn-submit {
   flex:1; padding:.85rem; border:none; border-radius:99px;
-  background:linear-gradient(135deg,#FF6B35 0%,#ff8c5a 100%);
+  background:linear-gradient(135deg,#a92143 0%,#c05a71 100%);
   color:#fff; font-family:'Plus Jakarta Sans',sans-serif; font-weight:900;
   font-size:.95rem; letter-spacing:.3px; cursor:pointer; position:relative; overflow:hidden;
   box-shadow:0 8px 24px rgba(255,107,53,.45), inset 0 1px 0 rgba(255,255,255,.2);
@@ -308,10 +307,18 @@ html, body {
 #btn-back:hover { background:rgba(255,255,255,.25); }
 #btn-back:active { transform:scale(.92); }
 </style>
-</head>
+<style>
+#header{opacity:1!important} #card{opacity:1!important;transform:none!important}
+#brand-logo{animation:brand-intro .7s ease-out both}
+.ambient-flower{position:absolute;color:rgba(255,255,255,.35);font-size:28px;animation:flower-float 5s ease-in-out infinite alternate}
+@keyframes brand-intro{from{transform:rotate(-120deg) scale(.85)}to{transform:rotate(0) scale(1)}}
+@keyframes flower-float{from{transform:translateY(0) rotate(0)}to{transform:translateY(-14px) rotate(20deg)}}
+@media(prefers-reduced-motion:reduce){#brand-logo,.ambient-flower,#drum-spin-ring,#drum-wrap::after{animation:none!important}}
+</style>
+<noscript><style>.form-step{display:block!important}.btn-next-step,.btn-back-step,.step-indicator{display:none!important}</style></noscript></head>
 <body>
 
-<div id="ambient" aria-hidden="true"></div>
+<div id="ambient" aria-hidden="true"><span class="ambient-flower" style="left:12%;top:24%">✿</span><span class="ambient-flower" style="right:12%;top:48%;animation-delay:-2s">✿</span><span class="ambient-flower" style="left:24%;bottom:12%;animation-delay:-4s">✿</span></div>
 <div id="wave-band" aria-hidden="true">
   <svg class="ws w1" viewBox="0 0 1440 64" preserveAspectRatio="none">
     <path fill="rgba(255,255,255,.20)" d="M0,32 C200,64 400,0 600,32 C800,64 1000,0 1200,32 C1320,48 1400,20 1440,32 L1440,64 L0,64Z"/>
@@ -330,26 +337,10 @@ html, body {
   <div id="header">
     <div id="drum-wrap">
       <div id="drum-spin-ring"></div>
-      <svg id="drum-svg" width="100%" viewBox="0 0 148 148" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="74" cy="74" r="70" fill="rgba(255,255,255,.07)" stroke="rgba(255,255,255,.18)" stroke-width="1.5"/>
-        <rect x="16" y="26" width="116" height="106" rx="18" fill="rgba(255,255,255,.14)" stroke="rgba(255,255,255,.35)" stroke-width="1.8"/>
-        <rect x="16" y="26" width="116" height="30" rx="16" fill="rgba(255,255,255,.2)"/>
-        <circle cx="36" cy="41" r="7" fill="#FF6B35"/>
-        <circle cx="56" cy="41" r="7" fill="#00C48C"/>
-        <circle cx="112" cy="41" r="5" fill="rgba(255,255,255,.45)"/>
-        <circle cx="124" cy="41" r="5" fill="rgba(255,255,255,.28)"/>
-        <circle cx="74" cy="90" r="38" fill="rgba(0,100,160,.55)" stroke="rgba(255,255,255,.45)" stroke-width="2.5"/>
-        <circle cx="74" cy="90" r="31" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" stroke-dasharray="6 5"/>
-        <circle cx="74" cy="90" r="22" fill="rgba(255,255,255,.16)" stroke="rgba(255,255,255,.6)" stroke-width="2.5"/>
-        <path d="M63 88 Q74 78 85 88 L82 100 H66Z" fill="white" opacity=".9"/>
-        <path d="M63 88 L57 80 L66 75 L71 82" fill="white" opacity=".9"/>
-        <path d="M85 88 L91 80 L82 75 L77 82" fill="white" opacity=".9"/>
-        <circle cx="90" cy="70" r="6" fill="#FF6B35"/>
-        <circle cx="80" cy="62" r="4.5" fill="#00A8E8" opacity=".85"/>
-      </svg>
+      <img id="brand-logo" src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt="Logo Berkah Kreatif" style="width:100%;height:100%;object-fit:contain;border-radius:50%;background:white">
     </div>
-    <div class="wm-name">Azka Laundry</div>
-    <div class="wm-sub">LAUNDRY&nbsp;&nbsp;•&nbsp;&nbsp;SIMALUN</div>
+    <div class="wm-name">Berkah Kreatif</div>
+    <div class="wm-sub">PAPAN BUNGA&nbsp;&nbsp;•&nbsp;&nbsp;BERKAH KREATIF</div>
     <div class="wm-bar"></div>
   </div>
 
@@ -400,6 +391,7 @@ html, body {
               <span>👩</span><span>Perempuan</span>
             </label>
           </div>
+          @error('gender')<div class="form-error show">{{ $message }}</div>@enderror
           <div class="form-error" id="err-gender"></div>
         </div>
 
@@ -441,7 +433,7 @@ html, body {
           @error('email')<div class="form-error show">{{ $message }}</div>@enderror
           <div class="form-error" id="err-email"></div>
           <div style="font-size:.66rem;font-weight:700;color:rgba(255,255,255,.55);margin-top:.35rem;line-height:1.4;">
-            Notifikasi pesanan kami kirim lewat WhatsApp ke nomor HP kamu. Email hanya cadangan.
+            Nomor HP digunakan untuk kontak. Notifikasi pesanan tersedia di dalam aplikasi.
           </div>
         </div>
 
@@ -453,6 +445,7 @@ html, body {
               placeholder="Min. 8 karakter" autocomplete="new-password">
             <button type="button" class="pw-toggle" id="pw-toggle-1">👁️</button>
           </div>
+          @error('password')<div class="form-error show">{{ $message }}</div>@enderror
           <div class="form-error" id="err-pw"></div>
           <!-- Strength meter -->
           <div class="pw-strength" id="pw-strength">
@@ -513,10 +506,10 @@ html, body {
         <div class="terms-row">
           <input type="checkbox" class="terms-cb" id="terms" name="terms">
           <label class="terms-txt" for="terms">
-            Saya menyetujui <a href="#" onclick="return false;">Syarat & Ketentuan</a>
-            serta <a href="#" onclick="return false;">Kebijakan Privasi</a> Azka Laundry
+            Saya menyetujui penggunaan data saya untuk pengelolaan akun dan pesanan Berkah Kreatif.
           </label>
         </div>
+        @error('terms')<div class="form-error show">{{ $message }}</div>@enderror
         <div class="form-error" id="err-terms"></div>
 
         <div class="btn-row">
@@ -549,44 +542,12 @@ html, body {
   </div>
 
   <div id="footer">
-    &copy; {{ date('Y') }} Azka Laundry · SIMALUN · v1.0
+    &copy; {{ date('Y') }} Berkah Kreatif · Papan Bunga
   </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-
-  /* ── WAVES ── */
-  document.querySelectorAll('.ws').forEach((w,i)=>{
-    gsap.fromTo(w,{x:'0%'},{x:'-50%',duration:14+i*4,ease:'none',repeat:-1});
-    gsap.to(w,{y:i%2?5:-5,duration:3+i*1.5,ease:'sine.inOut',yoyo:true,repeat:-1});
-  });
-
-  /* ── DRUM SPIN ── */
-  gsap.to('#drum-svg',{rotation:'+=360',duration:18,ease:'none',repeat:-1,transformOrigin:'50% 50%'});
-
-  /* ── AMBIENT BUBBLES ── */
-  (function(){
-    const amb=document.getElementById('ambient'), VH=window.innerHeight;
-    const cfg=[[8,.7],[14,.5],[6,.8],[20,.42],[10,.65],[5,.85],[16,.5],[9,.72],[24,.38],[7,.78]];
-    cfg.forEach(([base,al],i)=>{
-      const sz=base+Math.random()*6, el=document.createElement('div');
-      el.style.cssText=['position:absolute',`width:${sz}px`,`height:${sz}px`,'border-radius:50%',
-        'background:radial-gradient(circle at 30% 28%,rgba(255,255,255,.88),rgba(255,255,255,.1))',
-        'border:1.5px solid rgba(255,255,255,.4)',`left:${3+Math.random()*93}%`,
-        `top:${VH+sz+10}px`,'opacity:0','pointer-events:none'].join(';');
-      amb.appendChild(el);
-      const delay=.5+i*.1+Math.random()*3;
-      gsap.to(el,{opacity:al,duration:.5,delay});
-      gsap.fromTo(el,{y:0},{y:-(VH*1.3),x:(Math.random()-.5)*50,duration:10+Math.random()*14,
-        ease:'none',repeat:-1,delay,onRepeat(){gsap.set(el,{y:0,x:0,left:(3+Math.random()*93)+'%'});}});
-    });
-  })();
-
-  /* ── INTRO ANIMATION ── */
-  const tl = gsap.timeline();
-  tl.to('#header',{opacity:1,y:0,duration:.9,ease:'elastic.out(.75,.65)'},.2)
-    .to('#card',{opacity:1,y:0,duration:.6,ease:'back.out(1.6)'},.55);
 
   /* ── SHOW SUCCESS STATE IF SESSION ── */
   @if(session('registered'))
@@ -594,11 +555,17 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.form-step,.login-row').forEach(el => el.style.display='none');
     const ss = document.getElementById('success-state');
     ss.style.display = 'block';
-    gsap.fromTo(ss, {opacity:0, scale:.9}, {opacity:1, scale:1, duration:.6, ease:'back.out(1.8)'});
+
   @endif
 
   /* ── STEP NAVIGATION ── */
-  let currentStep = 1;
+  @php
+    $initialStep = $errors->hasAny(['name', 'gender', 'phone']) ? 1 : ($errors->hasAny(['email', 'password']) ? 2 : ($errors->hasAny(['address', 'address_note', 'terms']) ? 3 : 1));
+  @endphp
+  let currentStep = {{ $initialStep }};
+  document.querySelectorAll('.form-step').forEach((step) => step.classList.remove('active'));
+  document.getElementById(`step-${currentStep}`).classList.add('active');
+  updateStepDots(currentStep);
   window.goStep = function(next) {
     // Hanya validasi saat maju ke step berikutnya. Saat mundur (kembali),
     // biarkan user kembali tanpa harus mengisi step saat ini dulu.
@@ -606,17 +573,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const prev = currentStep;
     currentStep = next;
 
-    // animate out
-    gsap.to(`#step-${prev}`, {opacity:0, x: next>prev ? -30 : 30, duration:.22, ease:'power2.in', onComplete(){
-      document.getElementById(`step-${prev}`).classList.remove('active');
-      document.getElementById(`step-${next}`).classList.add('active');
-      // animate in
-      gsap.fromTo(`#step-${next}`,{opacity:0, x: next>prev ? 30 : -30},{opacity:1, x:0, duration:.32, ease:'power2.out'});
-    }});
-
+    document.getElementById(`step-${prev}`).classList.remove('active');
+    document.getElementById(`step-${next}`).classList.add('active');
     updateStepDots(next);
-    // pulse drum on step change
-    gsap.to('#drum-svg',{rotation:'+=90',duration:.25,ease:'power2.out'});
   };
 
   function updateStepDots(step) {
@@ -672,7 +631,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
     if (!ok) {
-      gsap.fromTo('#card',{x:-6},{x:0,duration:.4,ease:'elastic.out(1,.4)'});
+
     }
     return ok;
   }
@@ -688,7 +647,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let ok = true;
     if (!addr || addr.length < 10) { showErr('err-address','Alamat minimal 10 karakter'); ok=false; }
     if (!terms) { showErr('err-terms','Kamu harus menyetujui syarat & ketentuan'); ok=false; }
-    if (!ok) { e.preventDefault(); gsap.fromTo('#card',{x:-6},{x:0,duration:.4,ease:'elastic.out(1,.4)'}); return; }
+    if (!ok) { e.preventDefault(); return; }
     document.getElementById('btn-submit').classList.add('loading');
     document.getElementById('btn-submit').disabled = true;
   });
@@ -776,16 +735,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   })();
 
-  /* ── If Laravel returned errors, show on correct step ── */
-  @if($errors->any())
-    @if($errors->has('name') || $errors->has('gender') || $errors->has('phone'))
-      currentStep = 1;
-    @elseif($errors->has('email') || $errors->has('password'))
-      goStep(2);
-    @else
-      goStep(3);
-    @endif
-  @endif
 
 });
 </script>

@@ -2,18 +2,17 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<title>Login – Azka Laundry SIMALUN</title>
+<title>Login – Berkah Kreatif</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 
 <style>
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html, body {
   width:100%; min-height:100%; font-family:'Plus Jakarta Sans',sans-serif;
-  background:linear-gradient(168deg, #002f5c 0%, #0077b6 45%, #00b4d8 78%, #48cae4 100%);
+  background:linear-gradient(168deg, #54051f 0%, #85092d 45%, #ad3553 78%, #cf7488 100%);
   overflow-x:hidden;
 }
 #ambient { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
@@ -31,7 +30,7 @@ html, body {
 @keyframes ring-spin { to{transform:rotate(360deg);} }
 .wm-name { font-weight:800; font-size:clamp(1.6rem,6vw,2.2rem); color:#fff; letter-spacing:-.5px; text-shadow:0 3px 18px rgba(0,0,0,.28); line-height:1; }
 .wm-sub  { font-size:clamp(.52rem,2vw,.65rem); font-weight:800; color:rgba(144,224,239,.9); letter-spacing:5px; text-transform:uppercase; margin-top:.2rem; }
-.wm-bar  { width:70px; height:2.5px; background:#FF6B35; border-radius:99px; margin:.35rem auto 0; opacity:.75; }
+.wm-bar  { width:70px; height:2.5px; background:#a92143; border-radius:99px; margin:.35rem auto 0; opacity:.75; }
 #card { width:100%; max-width:420px; background:rgba(255,255,255,.10); border:1.5px solid rgba(255,255,255,.22); border-radius:24px; backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); box-shadow:0 16px 48px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.2); padding:1.8rem 1.6rem 1.6rem; opacity:0; transform:translateY(32px); }
 .card-title { font-weight:800; font-size:clamp(1.3rem,5vw,1.6rem); color:#fff; text-align:center; margin-bottom:.25rem; text-shadow:0 2px 12px rgba(0,0,0,.2); }
 .card-sub { font-size:.8rem; font-weight:700; color:rgba(255,255,255,.7); text-align:center; margin-bottom:1.3rem; letter-spacing:.2px; }
@@ -51,10 +50,10 @@ html, body {
 .error-msg { font-size:.72rem; font-weight:700; color:#ff9999; margin-top:.35rem; padding-left:.2rem; }
 .form-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.2rem; gap:.5rem; }
 .remember-label { display:flex; align-items:center; gap:.5rem; cursor:pointer; font-size:.78rem; font-weight:700; color:rgba(255,255,255,.75); }
-.remember-label input[type=checkbox] { width:16px; height:16px; border-radius:4px; cursor:pointer; accent-color:#FF6B35; }
+.remember-label input[type=checkbox] { width:16px; height:16px; border-radius:4px; cursor:pointer; accent-color:#a92143; }
 .forgot-link { font-size:.78rem; font-weight:800; color:rgba(144,224,239,.9); text-decoration:none; letter-spacing:.2px; white-space:nowrap; transition:color .2s; }
 .forgot-link:hover { color:#fff; }
-#btn-login { width:100%; padding:.9rem; border:none; border-radius:99px; background:linear-gradient(135deg,#FF6B35 0%,#ff8c5a 100%); color:#fff; font-family:'Plus Jakarta Sans',sans-serif; font-weight:900; font-size:1rem; letter-spacing:.4px; cursor:pointer; position:relative; overflow:hidden; box-shadow:0 8px 24px rgba(255,107,53,.45), inset 0 1px 0 rgba(255,255,255,.2); transition:transform .15s, box-shadow .15s; }
+#btn-login { width:100%; padding:.9rem; border:none; border-radius:99px; background:linear-gradient(135deg,#a92143 0%,#c05a71 100%); color:#fff; font-family:'Plus Jakarta Sans',sans-serif; font-weight:900; font-size:1rem; letter-spacing:.4px; cursor:pointer; position:relative; overflow:hidden; box-shadow:0 8px 24px rgba(255,107,53,.45), inset 0 1px 0 rgba(255,255,255,.2); transition:transform .15s, box-shadow .15s; }
 #btn-login::before { content:''; position:absolute; top:0; left:-100%; width:60%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent); animation:shimmer 2.8s ease-in-out infinite; }
 @keyframes shimmer { 0%{left:-100%} 60%,100%{left:160%} }
 #btn-login:active { transform:scale(.97); }
@@ -85,10 +84,18 @@ html, body {
 #btn-back:hover { background:rgba(255,255,255,.25); }
 #btn-back:active { transform:scale(.92); }
 </style>
+<style>
+#header{opacity:1!important} #card{opacity:1!important;transform:none!important}
+#brand-logo{animation:brand-intro .7s ease-out both}
+.ambient-flower{position:absolute;color:rgba(255,255,255,.35);font-size:28px;animation:flower-float 5s ease-in-out infinite alternate}
+@keyframes brand-intro{from{transform:rotate(-120deg) scale(.85)}to{transform:rotate(0) scale(1)}}
+@keyframes flower-float{from{transform:translateY(0) rotate(0)}to{transform:translateY(-14px) rotate(20deg)}}
+@media(prefers-reduced-motion:reduce){#brand-logo,.ambient-flower,#drum-spin-ring,#drum-wrap::after{animation:none!important}}
+</style>
 </head>
 <body>
 
-<div id="ambient" aria-hidden="true"></div>
+<div id="ambient" aria-hidden="true"><span class="ambient-flower" style="left:12%;top:24%">✿</span><span class="ambient-flower" style="right:12%;top:48%;animation-delay:-2s">✿</span><span class="ambient-flower" style="left:24%;bottom:12%;animation-delay:-4s">✿</span></div>
 
 <div id="wave-band" aria-hidden="true">
   <svg class="ws w1" viewBox="0 0 1440 64" preserveAspectRatio="none">
@@ -109,26 +116,10 @@ html, body {
   <div id="header">
     <div id="drum-wrap">
       <div id="drum-spin-ring"></div>
-      <svg id="drum-svg" width="100%" viewBox="0 0 148 148" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="74" cy="74" r="70" fill="rgba(255,255,255,.07)" stroke="rgba(255,255,255,.18)" stroke-width="1.5"/>
-        <rect x="16" y="26" width="116" height="106" rx="18" fill="rgba(255,255,255,.14)" stroke="rgba(255,255,255,.35)" stroke-width="1.8"/>
-        <rect x="16" y="26" width="116" height="30" rx="16" fill="rgba(255,255,255,.2)"/>
-        <circle cx="36" cy="41" r="7" fill="#FF6B35"/>
-        <circle cx="56" cy="41" r="7" fill="#00C48C"/>
-        <circle cx="112" cy="41" r="5" fill="rgba(255,255,255,.45)"/>
-        <circle cx="124" cy="41" r="5" fill="rgba(255,255,255,.28)"/>
-        <circle cx="74" cy="90" r="38" fill="rgba(0,100,160,.55)" stroke="rgba(255,255,255,.45)" stroke-width="2.5"/>
-        <circle cx="74" cy="90" r="31" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" stroke-dasharray="6 5"/>
-        <circle cx="74" cy="90" r="22" fill="rgba(255,255,255,.16)" stroke="rgba(255,255,255,.6)" stroke-width="2.5"/>
-        <path d="M63 88 Q74 78 85 88 L82 100 H66Z" fill="white" opacity=".9"/>
-        <path d="M63 88 L57 80 L66 75 L71 82" fill="white" opacity=".9"/>
-        <path d="M85 88 L91 80 L82 75 L77 82" fill="white" opacity=".9"/>
-        <circle cx="90" cy="70" r="6" fill="#FF6B35"/>
-        <circle cx="80" cy="62" r="4.5" fill="#00A8E8" opacity=".85"/>
-      </svg>
+      <img id="brand-logo" src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt="Logo Berkah Kreatif" style="width:100%;height:100%;object-fit:contain;border-radius:50%;background:white">
     </div>
-    <div class="wm-name">Azka Laundry</div>
-    <div class="wm-sub">LAUNDRY&nbsp;&nbsp;•&nbsp;&nbsp;SIMALUN</div>
+    <div class="wm-name">Berkah Kreatif</div>
+    <div class="wm-sub">PAPAN BUNGA&nbsp;&nbsp;•&nbsp;&nbsp;BERKAH KREATIF</div>
     <div class="wm-bar"></div>
   </div>
 
@@ -229,43 +220,13 @@ html, body {
   </div>
 
   <div id="footer">
-    &copy; {{ date('Y') }} Azka Laundry · SIMALUN · v1.0
+    &copy; {{ date('Y') }} Berkah Kreatif · Papan Bunga
   </div>
 
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-
-  /* ── WAVES ── */
-  document.querySelectorAll('.ws').forEach((w,i)=>{
-    gsap.fromTo(w,{x:'0%'},{x:'-50%',duration:14+i*4,ease:'none',repeat:-1});
-    gsap.to(w,{y:i%2?5:-5,duration:3+i*1.5,ease:'sine.inOut',yoyo:true,repeat:-1});
-  });
-
-  /* ── DRUM SPIN ── */
-  gsap.to('#drum-svg',{rotation:'+=360',duration:18,ease:'none',repeat:-1,transformOrigin:'50% 50%'});
-
-  /* ── AMBIENT BUBBLES ── */
-  (function(){
-    const amb = document.getElementById('ambient');
-    const VH  = window.innerHeight;
-    const cfg = [[8,.7],[14,.5],[6,.8],[20,.42],[10,.65],[5,.85],[16,.5],[9,.72],[24,.38],[7,.78],[12,.6],[18,.46],[5,.88],[11,.68],[22,.4],[6,.82]];
-    cfg.forEach(([base,al],i)=>{
-      const sz = base+Math.random()*6;
-      const el = document.createElement('div');
-      el.style.cssText=['position:absolute',`width:${sz}px`,`height:${sz}px`,'border-radius:50%','background:radial-gradient(circle at 30% 28%,rgba(255,255,255,.88),rgba(255,255,255,.1))','border:1.5px solid rgba(255,255,255,.4)',`left:${3+Math.random()*93}%`,`top:${VH+sz+10}px`,'opacity:0','pointer-events:none'].join(';');
-      amb.appendChild(el);
-      const rise=10+Math.random()*14, delay=.5+i*.1+Math.random()*3;
-      gsap.to(el,{opacity:al,duration:.5,delay});
-      gsap.fromTo(el,{y:0},{y:-(VH*1.3),x:(Math.random()-.5)*50,duration:rise,ease:'none',repeat:-1,delay,onRepeat(){gsap.set(el,{y:0,x:0,left:(3+Math.random()*93)+'%'});}});
-    });
-  })();
-
-  /* ── INTRO ANIMATION ── */
-  const tl = gsap.timeline();
-  tl.to('#header', {opacity:1, y:0, duration:.9, ease:'elastic.out(.75,.65)'}, .2)
-    .to('#card',   {opacity:1, y:0, duration:.6, ease:'back.out(1.6)'}, .55);
 
   /* ── IDENTIFIER TYPE DETECTION (auto switch inputmode) ── */
   const identEl = document.getElementById('identifier');
@@ -299,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function showErr(el, msg){ el.textContent=msg; el.classList.add('show'); }
   function clearErr(el) { el.textContent=''; el.classList.remove('show'); }
   function isValidEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
-  function isValidPhone(v){ return /^(\+62|62|0)8[0-9]{7,12}$/.test(v.replace(/[\s-]/g,'')); }
+  function isValidPhone(v){ return /^(\+62|62|0)?8[0-9]{8,12}$/.test(v.replace(/[\s-]/g,'')); }
 
   form.addEventListener('submit', function(e){
     let valid = true;
@@ -318,11 +279,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if(!pw){
       showErr(errPw, 'Password wajib diisi'); pwInput.classList.add('error'); valid=false;
-    } else if(pw.length < 6){
-      showErr(errPw, 'Password minimal 6 karakter'); pwInput.classList.add('error'); valid=false;
     }
 
-    if(!valid){ e.preventDefault(); gsap.fromTo(form,{x:-6},{x:0,duration:.4,ease:'elastic.out(1,.4)'}); return; }
+    if(!valid){ e.preventDefault(); return; }
 
     /* show loading state */
     btnLogin.classList.add('loading');
