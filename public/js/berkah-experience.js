@@ -29,7 +29,7 @@
         if (!dialog || dialog.open || document.querySelector('.bk-dialog[open]')) return;
         dialog.dataset.returnFocus = trigger?.dataset.openDialog || '';
         dialog.showModal();
-        (dialog.querySelector('[data-filter-form] input') || dialog.querySelector('[data-close-dialog]')).focus();
+        (dialog.querySelector('[data-filter-form] [aria-invalid="true"]') || dialog.querySelector('[data-filter-form] input') || dialog.querySelector('[data-close-dialog]'))?.focus();
     }
     triggers.forEach(button => button.addEventListener('click', () => openDialog(document.getElementById(button.dataset.openDialog), button)));
     document.querySelectorAll('.bk-dialog').forEach(dialog => {
@@ -37,5 +37,6 @@
         dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
         dialog.addEventListener('close', () => { const trigger = document.querySelector(`[data-open-dialog="${dialog.dataset.returnFocus}"]`); if (trigger && (!header.contains(trigger) || !header.classList.contains('is-compact'))) trigger.focus(); else expand.focus(); });
     });
+    if (filterForm?.dataset.filterErrors === '1') openDialog(document.getElementById('bk-filter'), document.querySelector('[data-open-dialog="bk-filter"]'));
     updateHeader();
 })();
