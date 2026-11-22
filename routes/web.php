@@ -28,6 +28,7 @@ use App\Http\Controllers\RentalUniversityController;
 use App\Http\Controllers\RentalCashBookController;
 use App\Http\Controllers\RentalPaymentSettingController;
 use App\Http\Controllers\RentalScheduleController;
+use App\Http\Controllers\RentalReceiptController;
 use App\Http\Controllers\ServiceCategoryController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\VoucherController;
@@ -109,6 +110,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders/{order}/receipt/pdf', [OrderController::class, 'receiptPdf'])
         ->name('orders.receipt.pdf');
 
+    Route::get('/ringkasan-sewa/{order}', [RentalReceiptController::class, 'show'])->name('rental.receipt');
     Route::get('/pembayaran-sewa/{payment}/bukti', [RentalPaymentController::class, 'proof'])->name('rental.payment.proof');
     Route::get('/preview-desain/{preview}/gambar', [RentalDesignController::class, 'image'])->name('rental.design.image');
 
