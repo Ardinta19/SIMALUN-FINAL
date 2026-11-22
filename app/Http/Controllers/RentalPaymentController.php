@@ -65,6 +65,31 @@ class RentalPaymentController extends Controller
         return back()->with('success', 'Pembayaran diverifikasi dan dicatat dalam buku kas.');
     }
 
+    public function correct(Request $request, RentalPayment $payment)
+    {
+        $data = $request->validate(['expected_amount' => ['required', 'integer', 'min:1'], 'amount' => ['required', 'integer', 'min:1', 'max:100000000'], 'reason' => ['required', 'string', 'max:500']]);
+        DB::transaction(function () use ($request, $payment, $data) {
+            $unit = RentalOrderUnit::lockForUpdate()->findOrFail($payment->rental_order_unit_id);
+            $payment = RentalPayment::lockForUpdate()->findOrFail($payment->id);
+            if ($payment->status !== 'verified' || ! $payment->finance_entry_id || (int) $payment->amount !== (int) $data['expected_amount']) {
+                throw ValidationException::withMessages(['payment' => 'Pembayaran berubah atau tidak dapat dikoreksi. Muat ulang halaman.']);
+            }
+            $entry = FinanceEntry::lockForUpdate()->findOrFail($payment->finance_entry_id);
+            if ($entry->source_type !== 'rental_payment' || (int) $entry->source_id !== $payment->id || $entry->entry_type !== 'income' || (int) $entry->amount !== (int) $payment->amount) {
+                throw ValidationException::withMessages(['payment' => 'Catatan kas tidak cocok. Perlu pemeriksaan manual.']);
+            }
+            $new = (int) $data['amount'];
+            if ($new < $payment->refunds()->sum('amount')) throw ValidationException::withMessages(['payment' => 'Nominal tidak boleh kurang dari jumlah yang telah dikembalikan.']);
+            $total = $unit->payableAmount();
+            if ($total === null || $unit->allocatedNet() - $payment->amount + $new > $total) throw ValidationException::withMessages(['payment' => 'Koreksi melebihi tagihan dengan memperhitungkan bukti yang menunggu verifikasi.']);
+            if ($new === (int) $payment->amount) throw ValidationException::withMessages(['payment' => 'Nominal koreksi sama dengan nominal sebelumnya.']);
+            $payment->corrections()->create(['old_amount' => $payment->amount, 'new_amount' => $new, 'reason' => $data['reason'], 'recorded_by' => $request->user()->id]);
+            $payment->update(['amount' => $new]);
+            $entry->update(['amount' => $new]);
+        }, 3);
+        return back()->with('success', 'Nominal pembayaran dan catatan kas terkait diperbaiki.');
+    }
+
     public function refund(Request $request, RentalPayment $payment)
     {
         $data = $request->validate(['amount' => ['required', 'integer', 'min:1', 'max:100000000'], 'reason' => ['required', 'string', 'max:500'], 'request_key' => ['required', 'uuid'], 'confirmed' => ['accepted']]);

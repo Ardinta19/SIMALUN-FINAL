@@ -158,6 +158,7 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::post('/pembayaran-sewa/{payment}/koreksi', [RentalPaymentController::class, 'correct'])->name('rental.payment.correct');
         Route::post('/pembayaran-sewa/{payment}/pengembalian', [RentalPaymentController::class, 'refund'])->name('rental.payment.refund');
         Route::post('/pembayaran-sewa/{payment}/verifikasi', [RentalPaymentController::class, 'verify'])->name('rental.payment.verify');
         Route::post('/pembayaran-sewa/{payment}/tolak', [RentalPaymentController::class, 'reject'])->name('rental.payment.reject');
