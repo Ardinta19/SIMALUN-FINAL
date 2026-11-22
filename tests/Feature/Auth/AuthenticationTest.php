@@ -68,4 +68,23 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
         $response->assertRedirect('/');
     }
+    public function test_an_existing_session_is_revoked_when_account_is_disabled(): void
+    {
+        $user = User::factory()->create(['role' => 'customer', 'is_active' => true]);
+        $this->actingAs($user)->get(route('customer.dashboard'))->assertOk();
+        $user->forceFill(['is_active' => false])->save();
+        // Profile is auth-only rather than role-scoped, so this also verifies
+        // that the check isn't limited to role middleware.
+        $this->get(route('profile.edit'))->assertRedirect(route('login'))->assertSessionHasErrors('identifier');
+        $this->assertGuest();
+    }
+
+    public function test_inactive_session_is_revoked_before_public_or_json_requests(): void
+    {
+        $user = User::factory()->create(['is_active' => false]);
+        $this->actingAs($user)->get(route('welcome'))->assertRedirect(route('login'));
+        $this->assertGuest();
+        $this->actingAs($user)->getJson(route('profile.edit'))->assertUnauthorized();
+        $this->assertGuest();
+    }
 }

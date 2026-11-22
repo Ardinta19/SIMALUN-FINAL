@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\RoleMiddleware;
+use App\Http\Middleware\EnsureActiveAccount;
 use App\Http\Middleware\SanitizeInput;
 use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
@@ -23,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             SanitizeInput::class,
             SecurityHeaders::class,
+            EnsureActiveAccount::class,
         ]);
 
         // Percayai header proxy (X-Forwarded-*) dari reverse proxy /
