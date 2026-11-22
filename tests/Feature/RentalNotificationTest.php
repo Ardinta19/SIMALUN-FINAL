@@ -28,9 +28,11 @@ class RentalNotificationTest extends TestCase
         $notification = $customer->notifications()->firstOrFail();
         $this->assertSame($order->id, $notification->data['rental_order_id']);
         $this->actingAs($other)->get(route('customer.notifications.open', $notification->id))->assertNotFound();
-        $this->actingAs($customer)->get(route('customer.notifications'))->assertOk()->assertSee('Unit dikonfirmasi');
+        $this->actingAs($customer)->get(route('customer.notifications'))->assertOk()->assertSee('Unit dikonfirmasi')
+            ->assertSee('Belum dibaca')->assertSee('Tandai semua dibaca')->assertSee(route('customer.notifications.open', $notification->id));
         $this->get(route('customer.notifications.open', $notification->id))->assertRedirect(route('rental.orders.show', $order));
         $this->assertNotNull($notification->fresh()->read_at);
+        $this->get(route('customer.notifications'))->assertOk()->assertDontSee('Belum dibaca');
         $this->actingAs($admin)->get(route('admin.notifications'))->assertOk();
     }
     public function test_admin_can_review_notifications_individually_and_open_the_related_order(): void

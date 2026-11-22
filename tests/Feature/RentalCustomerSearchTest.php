@@ -29,7 +29,7 @@ class RentalCustomerSearchTest extends TestCase
         $second->units()->create(array_merge($base, ['recipient_name' => 'Lain', 'status' => 'cancelled']));
         $private->units()->create($base + ['status' => 'pending']);
         $url = route('rental.orders.index');
-        $this->actingAs($customer)->get($url.'?q=Penerima+unik&status=confirmed')->assertOk()->assertSee($first->reference)->assertDontSee($second->reference)->assertDontSee($private->reference)->assertSee('Menunggu: 1')->assertSee('Dikonfirmasi: 1');
+        $this->actingAs($customer)->get($url.'?q=Penerima+unik&status=confirmed')->assertOk()->assertSee($first->reference)->assertDontSee($second->reference)->assertDontSee($private->reference)->assertSee('Menunggu: 1')->assertSee('Dikonfirmasi: 1')->assertSee('Filter aktif')->assertSee(route('rental.orders.show', $first));
         $this->get($url.'?status=cancelled')->assertOk()->assertSee($second->reference)->assertDontSee($first->reference);
         $this->get($url.'?q=tidak-ada')->assertOk()->assertSee('Tidak ada pesanan yang cocok');
         $this->from($url)->get($url.'?status=invalid')->assertRedirect($url)->assertSessionHasErrors('status');
