@@ -17,7 +17,7 @@ class ExpireRentalConfirmations
                     $changed = DB::transaction(function () use ($candidate) {
                         $unit = RentalOrderUnit::lockForUpdate()->find($candidate->id);
                         if (! $unit || $unit->status !== 'pending' || $unit->order->confirmation_deadline->isFuture()) return false;
-                        $unit->update(['status' => 'cancelled', 'cancel_reason' => 'Dibatalkan otomatis karena batas konfirmasi admin 24 jam terlewati.']);
+                        $unit->update(['status' => 'cancelled', 'cancel_reason' => 'Dibatalkan otomatis karena batas konfirmasi admin 24 jam terlewati.', 'cancel_responsibility' => 'seller', 'cancelled_at' => now()]);
                         return true;
                     }, 3);
                     if ($changed) $count++;

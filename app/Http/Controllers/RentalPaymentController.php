@@ -50,7 +50,7 @@ class RentalPaymentController extends Controller
         DB::transaction(function () use ($request, $payment) {
             $unit = RentalOrderUnit::lockForUpdate()->findOrFail($payment->rental_order_unit_id);
             $payment = RentalPayment::lockForUpdate()->findOrFail($payment->id);
-            if ($payment->status !== 'pending' || $unit->status !== 'confirmed') throw ValidationException::withMessages(['payment' => 'Pembayaran tidak lagi dapat diverifikasi.']);
+            if ($payment->status !== 'pending' || ! in_array($unit->status, ['confirmed', 'cancelled'], true)) throw ValidationException::withMessages(['payment' => 'Pembayaran tidak lagi dapat diverifikasi.']);
             $verified = $unit->verifiedNet();
             if ($unit->payableAmount() === null || $verified + $payment->amount > $unit->payableAmount()) throw ValidationException::withMessages(['payment' => 'Nominal melebihi sisa tagihan.']);
             $time = now('Asia/Jakarta');

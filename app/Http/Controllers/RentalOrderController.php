@@ -177,14 +177,13 @@ class RentalOrderController extends Controller
 
     public function cancel(Request $request, RentalOrderUnit $unit)
     {
-        $data = $request->validate(['reason' => ['required', 'string', 'max:500']]);
-        DB::transaction(function () use ($unit, $data) {
+        $data = $request->validate(['reason' => ['required', 'string', 'max:500'], 'responsibility' => ['required', Rule::in(['seller', 'customer', 'other'])]]);
+        DB::transaction(function () use ($unit, $data, $request) {
             RentalProduct::lockForUpdate()->findOrFail($unit->rental_product_id);
             $unit = RentalOrderUnit::lockForUpdate()->findOrFail($unit->id);
             if ($unit->status === 'cancelled') throw ValidationException::withMessages(['unit' => 'Unit sudah dibatalkan.']);
-            if (($unit->payments()->where('status', 'pending')->exists() || $unit->verifiedNet() > 0)) throw ValidationException::withMessages(['unit' => 'Selesaikan bukti menunggu verifikasi dan kembalikan pembayaran yang harus dikembalikan sebelum membatalkan unit.']);
-            $unit->update(['status' => 'cancelled', 'cancel_reason' => $data['reason']]);
+            $unit->update(['status' => 'cancelled', 'cancel_reason' => $data['reason'], 'cancel_responsibility' => $data['responsibility'], 'cancelled_at' => now(), 'cancelled_by' => $request->user()->id]);
         });
-        return back()->with('success', 'Unit dibatalkan dan reservasi dilepas.');
+        return back()->with('success', 'Unit dibatalkan dan reservasi dilepas. Tindak lanjuti pembayaran dan kewajiban pengembalian jika ada.');
     }
 }
