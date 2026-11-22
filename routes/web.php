@@ -19,6 +19,7 @@ use App\Http\Controllers\OrderRatingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RentalCatalogController;
+use App\Http\Controllers\RentalCartController;
 use App\Http\Controllers\ServiceCategoryController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\VoucherController;
@@ -26,6 +27,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [RentalCatalogController::class, 'index'])->name('welcome');
 Route::get('/katalog/{product}', [RentalCatalogController::class, 'show'])->name('catalog.show');
+Route::get('/keranjang', [RentalCartController::class, 'index'])->name('cart.index');
+Route::post('/keranjang/{product}', [RentalCartController::class, 'store'])->middleware('throttle:30,1')->name('cart.store');
+Route::delete('/keranjang/{item}', [RentalCartController::class, 'destroy'])->name('cart.destroy');
 
 Route::middleware('guest')->group(function () {
 
