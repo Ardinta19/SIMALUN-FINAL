@@ -18,11 +18,13 @@ class RentalCatalogController extends Controller
 {
     public function index(Request $request, RentalAvailability $availability)
     {
-        $this->flattenDateFilters($request);
         $filters = $request->validate([
             'q' => ['nullable', 'string', 'max:160'], 'category' => ['nullable', 'integer', 'min:1'],
+            // `after_or_equal` tidak dipakai: bila salah satu tanggal dikirim
+            // sebagai array, Laravel melempar TypeError saat membandingkan.
+            // Urutan tanggal diperiksa di validateRentalPeriod().
             'starts_on' => ['nullable', 'required_with:ends_on', 'date_format:Y-m-d'],
-            'ends_on' => ['nullable', 'required_with:starts_on', 'date_format:Y-m-d', 'after_or_equal:starts_on'],
+            'ends_on' => ['nullable', 'required_with:starts_on', 'date_format:Y-m-d'],
         ]);
         $dates = ! empty($filters['starts_on']) ? ['starts_on' => $filters['starts_on'], 'ends_on' => $filters['ends_on']] : null;
         if ($dates) $this->validateRentalPeriod($dates);
@@ -50,25 +52,13 @@ class RentalCatalogController extends Controller
         return view('catalog.index', compact('products', 'categories', 'dates'));
     }
 
-    /**
-     * Input tanggal yang dikirim sebagai array (mis. ?starts_on[]=x) tidak
-     * boleh sampai ke aturan `after_or_equal` karena Laravel membandingkan
-     * nilainya sebagai string dan melempar TypeError. Ubah menjadi string
-     * kosong agar aturan `required` yang memberi pesan kesalahan.
-     */
-    private function flattenDateFilters(Request $request): void
-    {
-        foreach (['starts_on', 'ends_on'] as $field) {
-            if ($request->has($field) && ! is_scalar($request->input($field))) {
-                $request->merge([$field => '']);
-            }
-        }
-    }
-
     private function validateRentalPeriod(array $data): void
     {
         $start = CarbonImmutable::createFromFormat('!Y-m-d', $data['starts_on'], 'Asia/Jakarta');
         $end = CarbonImmutable::createFromFormat('!Y-m-d', $data['ends_on'], 'Asia/Jakarta');
+        if ($end->lt($start)) {
+            throw ValidationException::withMessages(['ends_on' => 'Tanggal pengembalian tidak boleh sebelum tanggal acara dan penerimaan.']);
+        }
         if ($start->isBefore(CarbonImmutable::now('Asia/Jakarta')->startOfDay()) || $start->diffInDays($end) >= 366) {
             throw ValidationException::withMessages(['starts_on' => 'Tanggal acara tidak boleh di masa lalu dan periode maksimal 366 hari.']);
         }
@@ -81,9 +71,8 @@ class RentalCatalogController extends Controller
         if ($request->user()?->role === 'customer') $product->loadExists(['likes as liked_by_customer' => fn ($likes) => $likes->where('user_id', $request->user()->id)]);
         $product->load(['packages' => fn ($query) => $query->where('is_active', true)]);
         $available = null;
-        $this->flattenDateFilters($request);
         if ($request->has('starts_on') || $request->has('ends_on')) {
-            $data = $request->validate(['starts_on' => ['required', 'date_format:Y-m-d'], 'ends_on' => ['required', 'date_format:Y-m-d', 'after_or_equal:starts_on']]);
+            $data = $request->validate(['starts_on' => ['required', 'date_format:Y-m-d'], 'ends_on' => ['required', 'date_format:Y-m-d']]);
             $this->validateRentalPeriod($data);
             $available = $availability->minimumAvailable($product, $data['starts_on'], $data['ends_on']);
         }
