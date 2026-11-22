@@ -51,6 +51,37 @@ class RentalAvailability
         return max(0, (int) $product->stock - $maximum);
     }
 
+    /**
+     * Tanggal yang stoknya sudah habis (seluruh unit terpakai) dalam rentang
+     * tertentu. Dipakai kalender pemesanan agar tanggal yang sudah dibooking
+     * tidak bisa dipilih, bukan hanya ditolak saat dikirim.
+     *
+     * @return array<int, string> daftar tanggal Y-m-d yang tidak tersedia
+     */
+    public function fullyBookedDates(RentalProduct $product, int $days = 120): array
+    {
+        $stock = (int) $product->stock;
+        if ($stock < 1) return [];
+        $from = CarbonImmutable::now('Asia/Jakarta')->startOfDay();
+        $to = $from->addDays(max(1, $days) - 1);
+        $units = RentalOrderUnit::where('rental_product_id', $product->id)->where('status', 'confirmed')
+            ->whereDate('starts_on', '<=', $to->toDateString())->whereDate('ends_on', '>=', $from->toDateString())
+            ->get(['starts_on', 'ends_on']);
+        $counts = [];
+        foreach ($units as $unit) {
+            $cursor = CarbonImmutable::parse(max($unit->starts_on->toDateString(), $from->toDateString()));
+            $last = CarbonImmutable::parse(min($unit->ends_on->toDateString(), $to->toDateString()));
+            while ($cursor->lessThanOrEqualTo($last)) {
+                $key = $cursor->toDateString();
+                $counts[$key] = ($counts[$key] ?? 0) + 1;
+                $cursor = $cursor->addDay();
+            }
+        }
+        $full = array_keys(array_filter($counts, fn (int $used): bool => $used >= $stock));
+        sort($full);
+        return $full;
+    }
+
     /** Periksa seluruh unit pada satu produk, termasuk overlap antarunit sendiri. */
     public function canFitRequested(RentalProduct $product, array $ranges, bool $lock = false): bool
     {

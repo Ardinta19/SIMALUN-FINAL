@@ -39,6 +39,19 @@ class RentalFeedbackTest extends TestCase
         $this->assertDatabaseCount('rental_product_likes', 0);
     }
 
+    public function test_product_like_answers_json_so_the_heart_does_not_reload_the_page(): void
+    {
+        [$customer, , $product] = $this->setupOrder();
+
+        $this->actingAs($customer)->postJson(route('rental.product.like', $product), ['liked' => 1])
+            ->assertOk()->assertJson(['liked' => true, 'count' => 1]);
+
+        $this->actingAs($customer)->postJson(route('rental.product.like', $product), ['liked' => 0])
+            ->assertOk()->assertJson(['liked' => false, 'count' => 0]);
+
+        $this->assertDatabaseCount('rental_product_likes', 0);
+    }
+
     public function test_only_owner_can_rate_returned_units_and_completed_orders_once(): void
     {
         [$customer, $other, $product, $order, $unit] = $this->setupOrder();

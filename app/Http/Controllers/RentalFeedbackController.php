@@ -24,6 +24,12 @@ class RentalFeedbackController extends Controller
                 if (! $likes->exists()) DB::table('rental_product_likes')->insert(['rental_product_id' => $product->id, 'user_id' => $request->user()->id, 'created_at' => now(), 'updated_at' => now()]);
             } else $likes->delete();
         }, 3);
+        $liked = $request->boolean('liked');
+        $count = DB::table('rental_product_likes')->where('rental_product_id', $product->id)->count();
+        // Tombol suka di katalog memakai fetch: halaman tidak boleh di-reset.
+        if ($request->expectsJson()) {
+            return response()->json(['liked' => $liked, 'count' => $count]);
+        }
         return back();
     }
 

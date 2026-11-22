@@ -295,18 +295,131 @@
     }, true);
 
     /* ============================================================
-       5. Suka (hati)
+       5. Suka (hati) — tanpa memuat ulang halaman
        ============================================================ */
+
+    const likeScope = (button) => button.closest('[data-bk-feedback]') || document;
+
+    const announceLike = (button, text) => {
+        const status = likeScope(button).querySelector('[data-bk-like-status]');
+        if (status) status.textContent = text;
+    };
 
     document.addEventListener('click', (event) => {
         const button = event.target.closest('.bk-heart');
         if (!button) return;
-        const pressed = button.getAttribute('aria-pressed') === 'true' ? 'false' : 'true';
-        button.setAttribute('aria-pressed', pressed);
-        if (!prefersReduced()) {
-            button.classList.add('is-celebrating');
-            window.setTimeout(() => button.classList.remove('is-celebrating'), 650);
-        }
-        // Form tetap dikirim apa adanya; input `liked` tidak diubah.
+        const form = button.closest('form');
+
+        // Tanpa fetch/FormData, biarkan form terkirim seperti biasa.
+        if (!form || typeof window.fetch !== 'function' || typeof window.FormData !== 'function') return;
+
+        event.preventDefault();
+        if (button.dataset.bkBusy === '1') return;
+
+        const nowLiked = button.dataset.bkLiked === '1';
+        const next = nowLiked ? '0' : '1';
+        const body = new FormData(form);
+        // Nilai untuk klik berikutnya dikirim eksplisit; input `liked` milik
+        // form tidak diubah supaya perilaku tanpa JavaScript tetap sama.
+        body.set('liked', next);
+
+        button.dataset.bkBusy = '1';
+        button.classList.add('is-pending');
+
+        fetch(form.action, {
+            method: 'POST',
+            body,
+            credentials: 'same-origin',
+            headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        }).then((response) => {
+            if (!response.ok) throw new Error('like');
+            return response.json();
+        }).then((data) => {
+            const liked = !!data.liked;
+            button.dataset.bkLiked = liked ? '1' : '0';
+            button.setAttribute('aria-pressed', liked ? 'true' : 'false');
+            button.setAttribute('aria-label', liked ? (button.dataset.bkLabelOn || 'Batalkan suka') : (button.dataset.bkLabelOff || 'Suka'));
+            button.classList.toggle('is-liked', liked);
+            const sr = button.querySelector('.bk-sr-only');
+            if (sr) sr.textContent = liked ? '♥ Disukai' : '♡ Suka';
+            const total = likeScope(button).querySelector('[data-bk-like-total]');
+            if (total && typeof data.count === 'number') total.textContent = '♡ ' + data.count + ' suka';
+            announceLike(button, liked ? 'Ditambahkan ke daftar suka' : 'Suka dibatalkan');
+            if (liked && !prefersReduced()) {
+                button.classList.add('is-celebrating');
+                window.setTimeout(() => button.classList.remove('is-celebrating'), 650);
+            }
+        }).catch(() => {
+            // Gagal jaringan atau sesi kedaluwarsa: kirim lewat form agar
+            // pengguna tetap mendapat umpan balik dari server.
+            form.submit();
+        }).finally(() => {
+            button.dataset.bkBusy = '0';
+            button.classList.remove('is-pending');
+        });
+    }, true);
+
+    /* ============================================================
+       6. Jumlah unit (− / +)
+       ============================================================ */
+
+    const qtyInput = (wrap) => wrap.querySelector('.bk-qty__input') || wrap.querySelector('input[type="number"]');
+    const qtyBounds = (input) => ({
+        min: Number.isFinite(Number(input.min)) && input.min !== '' ? Number(input.min) : 1,
+        max: Number.isFinite(Number(input.max)) && input.max !== '' ? Number(input.max) : 20,
+    });
+
+    const syncQty = (wrap) => {
+        const input = qtyInput(wrap);
+        if (!input) return;
+        const { min, max } = qtyBounds(input);
+        const value = Number(input.value);
+        const current = Number.isFinite(value) ? value : min;
+        wrap.querySelectorAll('[data-bk-qty-step]').forEach((btn) => {
+            const dir = Number(btn.dataset.bkQtyStep) || 1;
+            const blocked = (dir < 0 && current <= min) || (dir > 0 && current >= max);
+            btn.disabled = blocked;
+            btn.setAttribute('aria-disabled', blocked ? 'true' : 'false');
+        });
+    };
+
+    const clampQty = (wrap) => {
+        const input = qtyInput(wrap);
+        if (!input) return;
+        const { min, max } = qtyBounds(input);
+        let value = Math.round(Number(input.value));
+        if (!Number.isFinite(value)) value = min;
+        value = Math.min(max, Math.max(min, value));
+        if (String(value) !== input.value) input.value = String(value);
+        syncQty(wrap);
+    };
+
+    document.querySelectorAll('[data-bk-qty]').forEach(clampQty);
+
+    document.addEventListener('input', (event) => {
+        const wrap = event.target.closest && event.target.closest('[data-bk-qty]');
+        if (wrap) syncQty(wrap);
+    });
+
+    document.addEventListener('change', (event) => {
+        const wrap = event.target.closest && event.target.closest('[data-bk-qty]');
+        if (wrap) clampQty(wrap);
+    });
+
+    document.addEventListener('click', (event) => {
+        const step = event.target.closest && event.target.closest('[data-bk-qty-step]');
+        if (!step) return;
+        const wrap = step.closest('[data-bk-qty]');
+        const input = wrap && qtyInput(wrap);
+        if (!wrap || !input) return;
+        event.preventDefault();
+        const { min, max } = qtyBounds(input);
+        const dir = Number(step.dataset.bkQtyStep) || 1;
+        const value = Number(input.value);
+        const current = Number.isFinite(value) ? value : min;
+        input.value = String(Math.min(max, Math.max(min, current + dir)));
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        syncQty(wrap);
     }, true);
 })();

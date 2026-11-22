@@ -974,9 +974,21 @@
         return DOW_FULL[date.getDay()] + ', ' + date.getDate() + ' ' + MONTHS_ID[date.getMonth()] + ' ' + date.getFullYear();
     }
 
+    // Daftar tanggal yang sudah dibooking: data-fc-disabled='["2026-12-01", ...]'
+    function parseBlockedDates(raw) {
+        if (!raw) return null;
+        var list;
+        try { list = JSON.parse(raw); } catch (e) { return null; }
+        if (!list || !list.length) return null;
+        var map = Object.create(null);
+        list.forEach(function (iso) { if (typeof iso === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(iso)) map[iso] = true; });
+        return Object.keys(map).length ? map : null;
+    }
+
     function enhanceDate(input) {
         if (!input || input.getAttribute('data-fc-enhanced') === '1') return;
 
+        var blocked = parseBlockedDates(input.getAttribute('data-fc-disabled'));
         var title = resolveTitle(input, 'Pilih tanggal');
         var placeholder = (input.getAttribute('data-fc-placeholder') || '').trim() || 'Pilih tanggal';
         var trigger = el('button', 'fc-trigger', {
@@ -999,6 +1011,15 @@
                 trigger.classList.add('is-placeholder');
             }
         }
+
+        // Jaring pengaman: nilai terblokir (mis. diisi lewat jalur lain) ditolak.
+        input.addEventListener('change', function () {
+            if (!blocked) return;
+            var picked = parseISO(input.value);
+            if (picked && blocked[isoOf(picked)] && input.__fcSetError) {
+                input.__fcSetError('Tanggal ini sudah dibooking. Silakan pilih tanggal lain.');
+            }
+        });
 
         function setDate(date) {
             try {
@@ -1026,6 +1047,7 @@
                 var day = stripTime(date);
                 if (min && day.getTime() < stripTime(min).getTime()) return true;
                 if (max && day.getTime() > stripTime(max).getTime()) return true;
+                if (blocked && blocked[isoOf(day)]) return true;
                 return false;
             }
 
@@ -1094,6 +1116,11 @@
                         if (dayDisabled(date)) {
                             cell.disabled = true;
                             cell.setAttribute('aria-disabled', 'true');
+                            if (blocked && blocked[isoOf(date)]) {
+                                cell.classList.add('is-blocked');
+                                cell.setAttribute('aria-label', fullDate(date) + ', sudah dibooking');
+                                cell.setAttribute('title', 'Sudah dibooking');
+                            }
                         } else {
                             cell.addEventListener('click', function () {
                                 setDate(date);
@@ -1177,6 +1204,7 @@
                 var notes = [];
                 if (min && min.getTime() > today.getTime()) notes.push('Tanggal paling awal ' + friendly(min) + '.');
                 if (max) notes.push('Tanggal paling akhir ' + friendly(max) + '.');
+                if (blocked) notes.push('Tanggal bergaris sudah dibooking dan tidak bisa dipilih.');
                 if (notes.length) {
                     var note = el('p', 'fc-cal__note');
                     note.textContent = notes.join(' ');

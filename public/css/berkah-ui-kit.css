@@ -31,6 +31,12 @@
     --bk-theme-dialog-line: #eadbd6;
     --bk-theme-svg-panel: #ffffff;
     --bk-theme-svg-track: #f0e3dd;
+    --bk-qty-bg: #fffaf8;
+    --bk-qty-btn: #f6e7e9;
+    --bk-qty-btn-hover: #f1dade;
+    --bk-qty-ink: #85092d;
+    --bk-unit-chip-bg: #f6ecec;
+    --bk-unit-chip-ink: #6f5a63;
 }
 
 .bk-sr-only {
@@ -975,6 +981,158 @@ html[data-theme="dark"] .bk-theme-btn__moon {
     }
 }
 
+
+/* ================================================================
+   7. Stepper jumlah unit (− / +)
+   ================================================================ */
+
+.bk-qty {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    width: fit-content;
+    max-width: 100%;
+    padding: 4px;
+    border: 1px solid var(--bk-atc-line);
+    border-radius: 14px;
+    background: var(--bk-qty-bg);
+}
+
+.bk-qty__btn {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    background: var(--bk-qty-btn);
+    color: var(--bk-qty-ink);
+    font: inherit;
+    font-size: 1.15rem;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.16s ease, opacity 0.16s ease;
+}
+
+.bk-qty__btn:hover:not(:disabled) {
+    background: var(--bk-qty-btn-hover);
+}
+
+.bk-qty__btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.bk-qty__btn:focus-visible {
+    outline: 3px solid #bc5b75;
+    outline-offset: 2px;
+}
+
+.bk-qty__input {
+    width: 3.4ch;
+    min-width: 2.6rem;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-weight: 800;
+    text-align: center;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.bk-qty__input::-webkit-outer-spin-button,
+.bk-qty__input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.bk-qty__input:focus-visible {
+    outline: 3px solid #bc5b75;
+    outline-offset: 2px;
+    border-radius: 8px;
+}
+
+/* Kartu katalog: stepper dan tombol berbagi satu baris, membungkus bila sempit. */
+.bk-product-add {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.bk-product-add .bk-qty {
+    flex: 0 0 auto;
+}
+
+.bk-product-add .bk-atc {
+    flex: 1 1 132px;
+    width: auto;
+    min-width: 0;
+}
+
+/* Keranjang: jumlah unit untuk produk yang sama dalam satu pesanan. */
+.bk-unit-count {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: var(--bk-unit-chip-bg);
+    color: var(--bk-unit-chip-ink);
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.bk-unit-count strong {
+    margin-right: 0.28em;
+    color: var(--bk-qty-ink);
+}
+
+/* Tombol suka sedang mengirim permintaan. */
+.bk-heart.is-pending {
+    opacity: 0.65;
+    pointer-events: none;
+}
+
+/* Ringkasan suka + tombol hati dalam satu baris yang boleh membungkus. */
+.bk-feedback {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px 12px;
+}
+
+.bk-feedback .bk-feedback-summary {
+    margin: 6px 0;
+}
+
+.bk-feedback .bk-like-form {
+    margin: 0;
+}
+
+.bk-like-total {
+    white-space: nowrap;
+}
+
+/* Keterangan tanggal yang sudah dibooking. */
+.bk-cal-hint {
+    margin: 8px 0 0;
+    padding: 8px 10px;
+    border: 1px solid #f0dcb5;
+    border-radius: 10px;
+    background: #fdf4e3;
+    color: #8a6a3f;
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.45;
+}
 
 /* ================================================================
    8. Penyesuaian integrasi halaman

@@ -33,7 +33,7 @@
             @else
                 <button type="button" class="bk-menu-trigger" data-open-dialog="bk-menu" hidden aria-label="Buka menu navigasi"><span aria-hidden="true">☰</span></button>
             @endif
-            <button type="button" class="bk-expand" data-bk-expand hidden aria-label="Buka navigasi"><img src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt=""></button>
+            <button type="button" class="bk-expand" data-bk-expand hidden aria-label="Kembali ke atas"><img src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt=""></button>
         </div>
     </header>
 </div>

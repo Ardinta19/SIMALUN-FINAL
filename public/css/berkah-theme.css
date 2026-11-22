@@ -453,6 +453,12 @@ html[data-theme="dark"] :is(.driver-nav__item.is-active) {
     color: var(--theme-accent-text);
 }
 
+html[data-theme="dark"] .bk-cal-hint {
+    border-color: #5a4a2a;
+    background: var(--theme-warning-soft);
+    color: var(--theme-warning-ink);
+}
+
 html[data-theme="dark"] :is(.confirm-icon.type-success) {
     color: var(--theme-success-ink);
 }
@@ -549,6 +555,12 @@ html[data-theme="dark"] {
     --bk-theme-dialog-bg: var(--theme-surface);
     --bk-theme-svg-panel: #2a2028;
     --bk-theme-svg-track: #3a2730;
+    --bk-qty-bg: var(--theme-surface);
+    --bk-qty-btn: #3a2630;
+    --bk-qty-btn-hover: #472e38;
+    --bk-qty-ink: #ffd9e3;
+    --bk-unit-chip-bg: #2e2229;
+    --bk-unit-chip-ink: var(--theme-ink-mid);
 }
 
 /* ================================================================

@@ -39,6 +39,29 @@ class RentalDateFilteringTest extends TestCase
         } finally { Carbon::setTestNow(); }
     }
 
+    public function test_fully_booked_dates_are_disabled_in_detail_and_checkout_calendars(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-12-01 10:00:00', 'Asia/Jakarta'));
+        try {
+            $category = RentalCategory::create(['name' => 'Wisuda']);
+            $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan Tunggal', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 1]);
+            $customer = User::factory()->create(['role' => 'customer']);
+            $order = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $customer->id, 'confirmation_deadline' => now()->addDay()]);
+            $order->units()->create(['rental_product_id' => $product->id, 'product_name' => 'Papan Tunggal', 'unit_price' => 100, 'price_unit' => 'day', 'rental_amount' => 100, 'starts_on' => '2026-12-05', 'event_on' => '2026-12-05', 'ends_on' => '2026-12-06', 'recipient_name' => 'Nama', 'greeting' => 'Selamat', 'delivery_method' => 'pickup', 'return_method' => 'dropoff', 'status' => 'confirmed']);
+
+            $this->actingAs($customer)->get(route('catalog.show', $product))->assertOk()
+                ->assertSee('data-fc-disabled=\'["2026-12-05","2026-12-06"]\'', false)
+                ->assertSee('max="2027-03-30"', false)
+                ->assertSee('id="detail-booked-hint"', false);
+
+            $this->post(route('cart.store', $product), ['quantity' => 1]);
+            $this->get(route('rental.checkout'))->assertOk()
+                ->assertSee('data-fc-disabled=\'["2026-12-05","2026-12-06"]\'', false)
+                ->assertSee('max="2027-03-30"', false)
+                ->assertSee('Tanggal yang sudah dibooking tidak bisa dipilih', false);
+        } finally { Carbon::setTestNow(); }
+    }
+
     public function test_invalid_catalog_dates_are_preserved_and_attached_to_filter_fields(): void
     {
         $start = now('Asia/Jakarta')->addDays(3)->toDateString();

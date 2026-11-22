@@ -20,7 +20,7 @@ use Illuminate\Validation\ValidationException;
 
 class RentalOrderController extends Controller
 {
-    public function create(Request $request)
+    public function create(Request $request, RentalAvailability $availability)
     {
         $cart = $request->session()->get('rental_cart', []);
         if (! $cart) return redirect()->route('cart.index')->withErrors(['cart' => 'Keranjang masih kosong.']);
@@ -34,7 +34,9 @@ class RentalOrderController extends Controller
         $universities = RentalUniversity::where('is_active', true)->orderBy('name')->get();
         $savedAddresses = $request->user()->customerAddresses()->orderByDesc('is_primary')->orderBy('label')->get()
             ->filter(fn ($address) => mb_strlen($address->full_address) <= 1000);
-        return view('rental.checkout', compact('cart', 'products', 'universities', 'savedAddresses'));
+        // Tanggal yang sudah penuh per produk, agar kalender unit menolaknya.
+        $bookedDates = $products->mapWithKeys(fn ($product) => [$product->id => $availability->fullyBookedDates($product)])->all();
+        return view('rental.checkout', compact('cart', 'products', 'universities', 'savedAddresses', 'bookedDates'));
     }
 
     public function store(Request $request)

@@ -231,6 +231,10 @@ class UiKitTest extends TestCase
         $catalog = File::get(resource_path('views/catalog/index.blade.php'));
         $this->assertStringContainsString('class="bk-atc"', $catalog);
         $this->assertStringContainsString('name="quantity"', $catalog);
+        $this->assertStringContainsString('class="bk-qty" data-bk-qty', $catalog);
+        $this->assertStringContainsString('data-bk-qty-step="-1"', $catalog);
+        $this->assertStringContainsString('data-bk-qty-step="1"', $catalog);
+        $this->assertStringContainsString('class="bk-qty__input"', $catalog);
         $this->assertStringContainsString('name="starts_on"', $catalog);
         $this->assertStringContainsString('name="ends_on"', $catalog);
         $this->assertStringContainsString("route('cart.store', \$product)", $catalog);
@@ -240,9 +244,15 @@ class UiKitTest extends TestCase
         $this->assertStringContainsString('name="next" value="cart"', $show);
         $this->assertStringContainsString('name="next" value="checkout"', $show);
         $this->assertStringContainsString('name="quantity"', $show);
+        $this->assertStringContainsString('class="bk-qty" data-bk-qty', $show);
+        $this->assertStringContainsString("data-fc-disabled='@json(\$bookedDates)'", $show);
+        $this->assertStringContainsString('id="detail-booked-hint"', $show);
+        $this->assertStringContainsString("addDays(119)", $show);
 
         $cart = File::get(resource_path('views/catalog/cart.blade.php'));
         $this->assertStringContainsString('bk-del', $cart);
+        $this->assertStringContainsString('class="bk-unit-count"', $cart);
+        $this->assertStringContainsString('+ Tambah unit', $cart);
         $this->assertStringContainsString("route('cart.destroy'", $cart);
         $this->assertStringContainsString("@method('DELETE')", $cart);
         $this->assertStringContainsString('aria-label="Hapus unit', $cart);
@@ -254,6 +264,9 @@ class UiKitTest extends TestCase
 
         $feedback = File::get(resource_path('views/catalog/product-feedback.blade.php'));
         $this->assertStringContainsString('bk-heart', $feedback);
+        $this->assertStringContainsString('data-bk-feedback', $feedback);
+        $this->assertStringContainsString('data-bk-like-total', $feedback);
+        $this->assertStringContainsString('data-bk-like-status', $feedback);
         $this->assertStringContainsString('name="liked"', $feedback);
         $this->assertStringContainsString('aria-pressed', $feedback);
         $this->assertStringContainsString("route('rental.product.like'", $feedback);
@@ -285,5 +298,30 @@ class UiKitTest extends TestCase
         // Heart tidak boleh mengubah nilai input `liked`.
         $this->assertStringNotContainsString('name="liked"', $js);
         $this->assertStringNotContainsString("querySelector('[name=\"liked\"]')", $js);
+
+        // Suka dikirim lewat fetch: halaman tidak dimuat ulang.
+        $this->assertStringContainsString("closest('.bk-heart')", $js);
+        $this->assertStringContainsString("headers: { Accept: 'application/json'", $js);
+        $this->assertStringContainsString('event.preventDefault()', $js);
+        $this->assertStringContainsString("[data-bk-like-total]", $js);
+        $this->assertStringContainsString('form.submit()', $js);
+
+        // Stepper jumlah unit: menambah/mengurangi tanpa melewati stok.
+        $this->assertStringContainsString('[data-bk-qty]', $js);
+        $this->assertStringContainsString('[data-bk-qty-step]', $js);
+        $this->assertStringContainsString('aria-disabled', $js);
+    }
+
+    public function test_date_picker_disables_fully_booked_dates(): void
+    {
+        $js = File::get(public_path('js/berkah-controls.js'));
+
+        $this->assertStringContainsString('data-fc-disabled', $js);
+        $this->assertStringContainsString('parseBlockedDates', $js);
+        $this->assertStringContainsString('is-blocked', $js);
+        $this->assertStringContainsString('sudah dibooking', $js);
+
+        $css = File::get(public_path('css/berkah-controls.css'));
+        $this->assertStringContainsString('.fc-cal__day.is-blocked', $css);
     }
 }

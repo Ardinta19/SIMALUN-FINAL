@@ -707,6 +707,33 @@ html.fc-ui input[type="file"]::file-selector-button:hover {
     text-decoration: line-through;
 }
 
+/* Tanggal yang sudah dibooking (stok habis): garis miring + garis bawah tegas. */
+.fc-cal__day.is-blocked {
+    color: #b0727f;
+    background-image: linear-gradient(
+        to top right,
+        transparent calc(50% - 1px),
+        #c98b8b calc(50% - 1px),
+        #c98b8b calc(50% + 1px),
+        transparent calc(50% + 1px)
+    );
+}
+
+html[data-theme="dark"] .fc-cal__day:disabled {
+    color: #7a6b72;
+}
+
+html[data-theme="dark"] .fc-cal__day.is-blocked {
+    color: #c98b9a;
+    background-image: linear-gradient(
+        to top right,
+        transparent calc(50% - 1px),
+        #8d5b68 calc(50% - 1px),
+        #8d5b68 calc(50% + 1px),
+        transparent calc(50% + 1px)
+    );
+}
+
 .fc-months {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));

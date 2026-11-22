@@ -76,7 +76,9 @@ class RentalCatalogController extends Controller
             $this->validateRentalPeriod($data);
             $available = $availability->minimumAvailable($product, $data['starts_on'], $data['ends_on']);
         }
-        return view('catalog.show', compact('product', 'available'));
+        // Tanggal yang sudah dibooking tidak boleh dipilih lagi di kalender.
+        $bookedDates = $availability->fullyBookedDates($product);
+        return view('catalog.show', compact('product', 'available', 'bookedDates'));
     }
 
     public function admin()

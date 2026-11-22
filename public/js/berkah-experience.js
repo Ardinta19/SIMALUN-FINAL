@@ -12,6 +12,25 @@
     document.addEventListener('click', event => { const link = event.target.closest('a[href^="#"]'); if (link && link.hash === location.hash) revealHash(); });
     revealHash();
     const header = document.querySelector('[data-bk-header]');
+    // Logo ringkas berfungsi sebagai "kembali ke atas" dan tetap hidup walau
+    // dukungan <dialog> tidak tersedia, jadi dipasang sebelum pengecekan itu.
+    const compactLogo = header && header.querySelector('[data-bk-expand]');
+    if (compactLogo) {
+        compactLogo.addEventListener('click', event => {
+            event.preventDefault();
+            let reduce = false;
+            try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { reduce = false; }
+            try {
+                window.scrollTo({ top: 0, left: 0, behavior: reduce ? 'auto' : 'smooth' });
+            } catch {
+                window.scrollTo(0, 0);
+            }
+            const topLink = header.querySelector('.bk-logo');
+            if (topLink) {
+                window.setTimeout(() => { try { topLink.focus({ preventScroll: true }); } catch { topLink.focus(); } }, reduce ? 0 : 320);
+            }
+        });
+    }
     if (!header || typeof HTMLDialogElement === 'undefined' || !HTMLDialogElement.prototype.showModal) return;
     document.documentElement.classList.add('bk-enhanced');
     const expand = header.querySelector('[data-bk-expand]');
@@ -24,7 +43,6 @@
     // Tidak ada flag buka-tahan permanen: header tidak boleh menghilang setelah
     // logo ringkas diketuk lalu halaman digulir lagi.
     const radialMenu = header.querySelector('.bk-header-radial');
-    const menuButton = header.querySelector('[data-open-dialog="bk-menu"]');
     const menuOpen = () => !!document.querySelector('.bk-dialog[open], .bk-header-radial[open]');
     const focusWithoutScroll = element => { if (!element) return; try { element.focus({ preventScroll: true }); } catch { element.focus(); } };
     // `:focus-visible` tidak konsisten di WebView lama; lacak modalitas input.
@@ -58,7 +76,9 @@
     const updateHeader = syncHeader;
     window.addEventListener('scroll', syncHeader, { passive: true });
     if (radialMenu) {
-        radialMenu.addEventListener('toggle', () => { if (!radialMenu.open) syncHeader(); });
+        // Sinkronkan dua arah: membuka menu harus langsung memin header, dan
+        // menutupnya harus mengembalikan mode ringkas.
+        radialMenu.addEventListener('toggle', syncHeader);
     }
     header.addEventListener('focusout', () => { window.setTimeout(syncHeader, 0); });
     // Disclosure native tidak menutup saat klik di luar/Escape; tambahkan agar
@@ -75,33 +95,6 @@
         focusWithoutScroll(radialMenu.querySelector('summary'));
     });
     if (expand) expand.hidden = false;
-    if (expand) {
-        expand.addEventListener('click', () => {
-            if (!header.classList.contains('is-compact')) return;
-            // Jangan membuka header absolut di luar layar: pin ke viewport
-            // lalu langsung tampilkan menu yang dituju.
-            pinned = true;
-            header.classList.remove('is-compact');
-            header.classList.add('is-pinned');
-            const compactViewport = window.matchMedia('(max-width: 700px)').matches;
-            if (compactViewport && radialMenu) {
-                const summary = radialMenu.querySelector('summary');
-                if (summary && !radialMenu.open) {
-                    summary.click();
-                    radialMenu.open = true;
-                }
-                focusWithoutScroll(summary);
-                syncHeader();
-                return;
-            }
-            if (compactViewport && menuButton) {
-                menuButton.click();
-                return;
-            }
-            focusWithoutScroll(header.querySelector('.bk-desktop-nav a') || expand);
-            syncHeader();
-        });
-    }
     function openDialog(dialog, trigger) {
         if (!dialog || dialog.open || document.querySelector('.bk-dialog[open]')) return;
         dialog.dataset.returnFocus = trigger?.dataset.openDialog || '';
