@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Daftar Pesanan – Azka Laundry</title>
+<title>Daftar Pesanan – Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <style>
@@ -437,8 +437,9 @@ body {
         </a>
         <div>
             <div class="header-title">Pesanan Saya</div>
-            <div class="header-sub">AZKA LAUNDRY • SIMALUN</div>
+            <div class="header-sub">BERKAH KREATIF • SIMALUN</div>
         </div>
+        @include('layouts.component.customer._radial_header', ['inline' => true])
     </div>
 </header>
 

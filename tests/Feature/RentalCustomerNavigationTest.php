@@ -52,6 +52,18 @@ class RentalCustomerNavigationTest extends TestCase
         $this->get($url)->assertOk()->assertSee('id="order-search-error"', false);
     }
 
+    public function test_legacy_customer_pages_keep_cart_in_tab_bar_and_menu_above_the_content(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer']);
+        $response = $this->actingAs($customer)->get(route('customer.orders'));
+        $response->assertOk()->assertSee('id="customer-nav"', false)
+            ->assertSee('customer-nav__label">Keranjang', false)
+            ->assertSee('href="'.route('cart.index').'" class="customer-nav__item', false)
+            ->assertSee('bk-top-menu', false)->assertSee('data-customer-radial', false);
+        $html = $response->getContent();
+        $this->assertLessThan(strpos($html, 'id="customer-nav"'), strpos($html, 'data-customer-radial'), 'Menu pelanggan harus berada di atas, bukan menggantikan keranjang di tab bawah.');
+    }
+
     public function test_guest_and_customer_have_accessible_catalog_navigation_without_admin_links(): void
     {
         $this->get(route('welcome'))->assertOk()

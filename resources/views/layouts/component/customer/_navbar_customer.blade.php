@@ -16,13 +16,9 @@
         <a href="{{ route('welcome') }}" class="customer-nav__item {{ $navActive === 'katalog' ? 'is-active' : '' }}" @if($navActive === 'katalog') aria-current="page" @endif>
             <span class="customer-nav__icon">@include('layouts.component._icon', ['name' => 'search', 'size' => 24])</span><span class="customer-nav__label">Katalog</span>
         </a>
-        @if(request()->routeIs('customer.orders', 'customer.order.*', 'customer.tracking'))
-            @include('layouts.component.customer._radial_customer', ['inHeader' => false])
-        @else
         <a href="{{ route('cart.index') }}" class="customer-nav__item {{ $navActive === 'keranjang' ? 'is-active' : '' }}" @if($navActive === 'keranjang') aria-current="page" @endif aria-label="Keranjang{{ $cartCount ? ', '.$cartCount.' unit' : '' }}">
             <span class="customer-nav__icon">@include('layouts.component._icon', ['name' => 'shopping-bag', 'size' => 24]) @if($cartCount)<span class="customer-nav__badge" aria-hidden="true">{{ $cartCount > 99 ? '99+' : $cartCount }}</span>@endif</span><span class="customer-nav__label">Keranjang</span>
         </a>
-        @endif
         <a href="{{ route('customer.profile') }}" class="customer-nav__item {{ $navActive === 'profil' ? 'is-active' : '' }}" @if($navActive === 'profil') aria-current="page" @endif>
             <span class="customer-nav__icon">@include('layouts.component._icon', ['name' => 'user', 'size' => 24])</span><span class="customer-nav__label">Profil</span>
         </a>

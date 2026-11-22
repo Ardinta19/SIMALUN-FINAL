@@ -1,5 +1,5 @@
 @php
-    $code = 403; $emoji = '🔒'; $title = 'Akses Ditolak'; $accent = '#FF6B35';
+    $code = 403; $emoji = '🌹'; $title = 'Akses Ditolak'; $accent = '#b6435e';
     $message = $exception?->getMessage() ?: 'Halaman ini bukan untuk akun kamu. Silakan kembali ke area yang sesuai.';
     $primary = auth()->check() ? ['url' => route('dashboard'), 'label' => 'Ke Dashboard', 'icon' => '🏠'] : ['url' => route('login'), 'label' => 'Masuk Dulu', 'icon' => '🔑'];
     $secondary = ['url' => 'javascript:history.back()', 'label' => 'Kembali', 'icon' => '↩️'];

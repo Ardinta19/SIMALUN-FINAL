@@ -66,3 +66,5 @@ Pola di bawah adalah pilihan default yang diterapkan jika sesuai konteks, bukan 
 - Form profil dan alamat pelanggan memakai pembantu tampilan yang hanya mencetak isian skalar, sehingga percobaan ulang dengan data tak terduga tetap menampilkan galat, bukan halaman rusak.
 - Halaman masuk, daftar, lupa kata sandi, dan edit alamat memakai pembantu isian skalar yang sama; percobaan ulang selalu menampilkan pesan galat dan tidak pernah mencetak larik ke atribut.
 - Form katalog admin, pengaturan pembayaran, dan kartu ulasan pelanggan ikut memakai aturan yang sama agar percobaan ulang tidak pernah menggagalkan render halaman.
+- Aturan navigasi pelanggan tetap: keranjang selalu ada di tab bawah, menu pelanggan berada di header. Halaman pesanan lama memakai menu inline di header (daftar pesanan) atau tombol menu melayang di kanan atas (detail pesanan) tanpa menggeser keranjang.
+- Halaman galat memakai identitas Berkah Kreatif (marun, krem, logo) dengan aksi utama yang jelas, `noindex`, dan tanpa animasi saat pengguna meminta gerak minimal. Merek laundry lama tidak boleh muncul di halaman yang dilihat pelanggan.

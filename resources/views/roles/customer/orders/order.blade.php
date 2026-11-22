@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Detail Pesanan #{{ strtoupper($order->order_code ?? 'N/A') }} – Azka Laundry</title>
+<title>Detail Pesanan #{{ strtoupper($order->order_code ?? 'N/A') }} – Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <style>
@@ -520,6 +520,7 @@ body {
 <link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}"><script src="{{ asset('js/page-transitions.js') }}" defer></script>
 </head>
 <body>
+@include('layouts.component.customer._radial_header')
 
 {{-- HERO HEADER --}}
 @php
@@ -639,7 +640,7 @@ body {
              class="driver-avatar" alt="{{ $order->driver->name }}">
         <div class="driver-info">
             <div class="driver-name">{{ $order->driver->name }}</div>
-            <div class="driver-meta">Kurir Azka Laundry</div>
+            <div class="driver-meta">Kurir Berkah Kreatif</div>
         </div>
         <div class="driver-actions">
             @php

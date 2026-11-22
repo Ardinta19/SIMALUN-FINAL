@@ -1,5 +1,5 @@
 @php
-    $code = 404; $emoji = '🧦'; $title = 'Halaman Tidak Ditemukan'; $accent = '#0077b6';
+    $code = 404; $emoji = '💐'; $title = 'Halaman Tidak Ditemukan'; $accent = '#85092d';
     $message = 'Halaman yang kamu cari tidak ada. Mungkin URL-nya salah atau sudah dipindahkan.';
     $primary = auth()->check() ? ['url' => route('dashboard'), 'label' => 'Ke Dashboard', 'icon' => '🏠'] : ['url' => url('/'), 'label' => 'Kembali ke Beranda', 'icon' => '🏠'];
     $secondary = ['url' => 'javascript:history.back()', 'label' => 'Halaman Sebelumnya', 'icon' => '↩️'];

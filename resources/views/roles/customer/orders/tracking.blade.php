@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>Lacak Pesanan – Azka Laundry</title>
+<title>Lacak Pesanan – Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -317,7 +317,7 @@ body {
                  class="driver-avatar" alt="{{ $driver->name }}">
             <div class="driver-info">
                 <div class="driver-name">{{ $driver->name }}</div>
-                <div class="driver-meta">Kurir Azka Laundry</div>
+                <div class="driver-meta">Kurir Berkah Kreatif</div>
                 <span class="driver-rating">⭐ 4.9 • Terpercaya</span>
             </div>
             <div class="driver-actions">
@@ -503,7 +503,7 @@ body {
             if (!driverMarker) {
                 driverMarker = L.marker(latlng, { icon: driverIcon })
                     .addTo(map)
-                    .bindPopup(driverName ? ('Kurir ' + driverName) : 'Kurir Azka Laundry');
+                    .bindPopup(driverName ? ('Kurir ' + driverName) : 'Kurir Berkah Kreatif');
                 routeLine = L.polyline([latlng, [customerLat, customerLng]], {
                     color: '#0077b6',
                     weight: 3,
