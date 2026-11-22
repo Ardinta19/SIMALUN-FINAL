@@ -64,6 +64,22 @@ class RentalCheckoutTest extends TestCase
             ->assertSee('menyetujui ketentuan penyewaan');
     }
 
+    public function test_checkout_survives_non_scalar_old_input_and_shows_field_errors(): void
+    {
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 2]);
+        $customer = User::factory()->create(); $customer->forceFill(['role' => 'customer'])->save();
+        $this->actingAs($customer)->post(route('cart.store', $product), ['quantity' => 1]);
+        $key = array_key_first(session('rental_cart'));
+        $date = now('Asia/Jakarta')->addDays(3)->toDateString();
+        $payload = ['event_on' => ['x'], 'ends_on' => $date, 'recipient_name' => ['x'], 'greeting' => ['x'], 'design_notes' => ['x'], 'delivery_method' => 'pickup', 'return_method' => 'dropoff'];
+        $this->from(route('rental.checkout'))->post(route('rental.checkout.store'), ['terms' => 1, 'units' => [$key => $payload]])
+            ->assertRedirect(route('rental.checkout'))->assertSessionHasErrors(['units.'.$key.'.event_on', 'units.'.$key.'.recipient_name']);
+        $this->get(route('rental.checkout'))->assertOk()->assertSee('Periksa isian unit 1')
+            ->assertSee('id="checkout-1-event_on"', false)->assertSee('id="checkout-1-recipient_name"', false)
+            ->assertDontSee('Array')->assertSee('value=""', false);
+    }
+
     public function test_checkout_displays_current_price_and_returns_unavailable_units_to_cart(): void
     {
         $category = RentalCategory::create(['name' => 'Wisuda']);
