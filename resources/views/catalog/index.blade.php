@@ -18,6 +18,7 @@
     <p class="muted">Tanggal bersifat opsional. Isi keduanya untuk menyaring papan yang diperkirakan tersedia selama seluruh periode. Untuk sewa satu hari, pilih tanggal yang sama.</p>
     <p><button class="btn" type="submit">Cari papan</button> <a href="{{ route('welcome') }}">Hapus filter</a></p>
 </form>
+@if($errors->hasAny(['q', 'category', 'starts_on', 'ends_on']))<p class="notice">Pencarian belum diterapkan. Daftar di bawah masih mengikuti filter sebelumnya; perbaiki isian dan cari lagi.</p>@endif
 @if(request()->filled('q') || request()->filled('category') || $dates)
 <div class="bk-applied-filters" aria-label="Filter yang digunakan"><span>Filter aktif</span>
     @if(request()->filled('q'))<a href="{{ route('welcome', request()->only(['category', 'starts_on', 'ends_on'])) }}" aria-label="Hapus pencarian {{ request('q') }}">{{ request('q') }} <b aria-hidden="true">×</b></a>@endif
@@ -43,7 +44,9 @@
     <p class="price">Rp {{ number_format($product->base_price, 0, ',', '.') }} <span class="muted">/ {{ $product->price_unit === 'day' ? 'hari' : 'acara' }}</span></p>
     @include('catalog.product-feedback', ['product' => $product])
     @if($dates)<p class="muted">Perkiraan {{ $product->available_for_period }} unit tersedia</p>@elseif($product->stock < 1)<p class="muted">Belum tersedia</p>@endif
-    @if($product->stock > 0)
+    @if($errors->hasAny(['starts_on', 'ends_on']))
+    <p class="muted">Perbaiki tanggal dan cari kembali sebelum menambahkan papan.</p>
+    @elseif($product->stock > 0)
     <form method="post" action="{{ route('cart.store', $product) }}" class="bk-product-add">@csrf<input type="hidden" name="quantity" value="1">@if($dates)<input type="hidden" name="starts_on" value="{{ $dates['starts_on'] }}"><input type="hidden" name="ends_on" value="{{ $dates['ends_on'] }}">@endif<button class="btn secondary" type="submit" aria-label="Tambah {{ $product->name }} ke keranjang">Tambah ke keranjang</button></form>
     @else<p class="bk-product-unavailable">Belum tersedia untuk dipesan</p>@endif</div>
 </article>

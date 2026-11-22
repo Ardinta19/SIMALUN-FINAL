@@ -62,6 +62,22 @@ class RentalDateFilteringTest extends TestCase
             ->assertSee('aria-describedby="detail-end-error"', false);
     }
 
+    public function test_failed_date_search_does_not_offer_to_add_using_previous_dates(): void
+    {
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 2]);
+        $previous = now('Asia/Jakarta')->addDays(3)->toDateString();
+        $start = now('Asia/Jakarta')->addDays(5)->toDateString();
+        $end = now('Asia/Jakarta')->addDays(4)->toDateString();
+        $catalog = route('welcome', ['starts_on' => $previous, 'ends_on' => $previous]);
+        $this->from($catalog)->get(route('welcome', ['starts_on' => $start, 'ends_on' => $end]))->assertSessionHasErrors('ends_on');
+        $this->get($catalog)->assertOk()->assertSee('Pencarian belum diterapkan')->assertSee('Perbaiki tanggal dan cari kembali')->assertDontSee(route('cart.store', $product));
+        $detail = route('catalog.show', ['product' => $product->id, 'starts_on' => $previous, 'ends_on' => $previous]);
+        $this->from($detail)->get(route('catalog.show', ['product' => $product->id, 'starts_on' => $start, 'ends_on' => $end]))->assertSessionHasErrors('ends_on');
+        $this->get($detail)->assertOk()->assertSee('agar tanggal sebelumnya tidak ikut digunakan')->assertDontSee(route('cart.store', $product));
+        $this->get($detail)->assertSee(route('cart.store', $product));
+    }
+
     public function test_catalog_cards_link_to_details_and_add_one_unit_with_selected_dates(): void
     {
         $category = RentalCategory::create(['name' => 'Katalog']);
