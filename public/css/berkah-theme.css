@@ -631,6 +631,16 @@ html[data-theme="dark"] .bk-theme-dialog__eyebrow {
     opacity: 1;
 }
 
+/* Garis panggung sakelar: garis maroon tua nyaris hilang di atas panel gelap. */
+html[data-theme="dark"] #bk-theme-switch .bk-theme-svg__panel {
+    stroke: #6f4954;
+}
+
+html[data-theme="dark"] #bk-theme-switch .bk-theme-svg__knob-ring {
+    stroke: #f7dde3;
+    opacity: 0.5;
+}
+
 /* ================================================================
    9. Cetak: selalu terang agar hemat tinta
    ================================================================ */
