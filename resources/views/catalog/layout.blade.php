@@ -30,8 +30,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .cart-item .cart-placeholder{display:grid;place-items:center;color:#a46272;font-size:2rem}
 .cart-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .cart-item .cart-number{font-size:.78rem;font-weight:700;color:#765f69;margin:0 0 4px}
-.cart-item form{margin-top:12px}
-.checkout-form{max-width:820px;margin-inline:auto}
+.cart-item form{margin-top:12px}.cart-unit-actions{display:flex;flex-wrap:wrap;gap:8px}.cart-unit-actions .btn{min-height:44px}
+.quantity-picker{display:flex;align-items:center;gap:8px}.quantity-picker input{width:84px;text-align:center}.quantity-picker button{min-width:48px;min-height:48px;border:1px solid #e8d6dc;border-radius:12px;background:#f8e9ed;color:#85092d;font-size:1.2rem;font-weight:800;cursor:pointer}.checkout-form{max-width:820px;margin-inline:auto}
 .checkout-form [data-checkout-unit]{padding:clamp(18px,3vw,28px)}
 .checkout-form [data-checkout-unit] h3{padding-top:18px;border-top:1px solid var(--line)}
 .checkout-terms ul{padding-left:1.3em}.checkout-terms li{margin:.7em 0;line-height:1.65}

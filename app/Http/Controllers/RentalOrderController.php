@@ -93,7 +93,19 @@ class RentalOrderController extends Controller
                 }
                 return [$existing, false];
             }
-            $products = RentalProduct::with('category')->whereIn('id', array_column($cart, 'product_id'))->get()->keyBy('id');
+            // Mengunci produk dalam urutan konsisten dengan konfirmasi stok.
+            // Ini hanya pemeriksaan saat ini; unit pending belum mencadangkan stok.
+            $products = RentalProduct::with('category')->whereIn('id', array_column($cart, 'product_id'))->orderBy('id')->lockForUpdate()->get()->keyBy('id');
+            $rangesByProduct = [];
+            foreach ($cart as $key => $entry) {
+                $rangesByProduct[$entry['product_id']][] = ['starts_on' => $data['units'][$key]['starts_on'], 'ends_on' => $data['units'][$key]['ends_on']];
+            }
+            foreach ($rangesByProduct as $productId => $ranges) {
+                $product = $products->get($productId);
+                if (! $product || ! $product->is_active || ! $product->category?->is_active || ! app(RentalAvailability::class)->canFitRequested($product, $ranges, true)) {
+                    throw ValidationException::withMessages(['cart' => 'Jumlah papan '.($product?->name ?? 'yang dipilih').' tidak tersedia untuk tanggal tersebut. Ubah tanggal atau kurangi unit, lalu coba lagi.']);
+                }
+            }
             $order = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $request->user()->id, 'confirmation_deadline' => now()->addHours(24), 'checkout_key' => $checkoutKey, 'checkout_payload_hash' => $payloadHash]);
             foreach ($cart as $key => $entry) {
                 $product = $products->get($entry['product_id']);

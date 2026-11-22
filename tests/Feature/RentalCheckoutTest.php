@@ -16,7 +16,7 @@ class RentalCheckoutTest extends TestCase
     public function test_checkout_creates_separate_units_and_confirmation_respects_stock(): void
     {
         $category = RentalCategory::create(['name' => 'Wisuda']);
-        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100000, 'price_unit' => 'day', 'stock' => 1]);
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100000, 'price_unit' => 'day', 'stock' => 2]);
         $customer = User::factory()->create();
         $customer->forceFill(['role' => 'customer'])->save();
         $admin = User::factory()->create();
@@ -31,6 +31,8 @@ class RentalCheckoutTest extends TestCase
         $order = RentalOrder::with('units')->firstOrFail();
         $this->assertCount(2, $order->units);
         $this->assertSame(200000, (int) $order->units[0]->rental_amount);
+        // Stok dapat berubah setelah checkout; konfirmasi harus memeriksa lagi.
+        $product->update(['stock' => 1]);
         $this->actingAs($admin)->post(route('admin.rental.confirm', $order->units[0]))->assertSessionHasNoErrors();
         $this->post(route('admin.rental.confirm', $order->units[1]))->assertSessionHasErrors('unit');
         $this->assertSame('pending', $order->units[1]->fresh()->status);

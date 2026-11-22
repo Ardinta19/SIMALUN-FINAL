@@ -8,6 +8,7 @@ use App\Services\RentalAvailability;
 use App\Support\Audit;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -15,15 +16,44 @@ use Illuminate\Validation\Rule;
 
 class RentalCatalogController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, RentalAvailability $availability)
     {
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:160'], 'category' => ['nullable', 'integer', 'min:1'],
+            'starts_on' => ['nullable', 'required_with:ends_on', 'date_format:Y-m-d'],
+            'ends_on' => ['nullable', 'required_with:starts_on', 'date_format:Y-m-d', 'after_or_equal:starts_on'],
+        ]);
+        $dates = ! empty($filters['starts_on']) ? ['starts_on' => $filters['starts_on'], 'ends_on' => $filters['ends_on']] : null;
+        if ($dates) $this->validateRentalPeriod($dates);
         $categories = RentalCategory::where('is_active', true)->orderBy('name')->get();
-        $products = RentalProduct::with('category')->where('is_active', true)
+        $query = RentalProduct::with('category')->where('is_active', true)
             ->whereHas('category', fn ($q) => $q->where('is_active', true))
-            ->when($request->filled('q'), fn ($q) => $q->where('name', 'like', '%'.$request->string('q')->toString().'%'))
-            ->when($request->filled('category'), fn ($q) => $q->where('rental_category_id', $request->input('category')))
-            ->latest()->paginate(12)->withQueryString();
-        return view('catalog.index', compact('products', 'categories'));
+            ->when(! empty($filters['q']), fn ($q) => $q->where('name', 'like', '%'.$filters['q'].'%'))
+            ->when(! empty($filters['category']), fn ($q) => $q->where('rental_category_id', $filters['category']))
+            ->latest()->orderByDesc('id');
+        if (! $dates) {
+            $products = $query->paginate(12)->withQueryString();
+        } else {
+            // Filter before pagination so full pages never hide available items.
+            $candidates = $query->where('stock', '>', 0)->get();
+            $available = $availability->minimumAvailableForProducts($candidates, $dates['starts_on'], $dates['ends_on']);
+            $matching = $candidates->filter(function ($product) use ($available) {
+                $product->available_for_period = $available[$product->id];
+                return $product->available_for_period > 0;
+            })->values();
+            $page = max(1, (int) LengthAwarePaginator::resolveCurrentPage());
+            $products = new LengthAwarePaginator($matching->forPage($page, 12)->values(), $matching->count(), 12, $page, ['path' => $request->url(), 'query' => $request->query()]);
+        }
+        return view('catalog.index', compact('products', 'categories', 'dates'));
+    }
+
+    private function validateRentalPeriod(array $data): void
+    {
+        $start = CarbonImmutable::createFromFormat('!Y-m-d', $data['starts_on'], 'Asia/Jakarta');
+        $end = CarbonImmutable::createFromFormat('!Y-m-d', $data['ends_on'], 'Asia/Jakarta');
+        if ($start->isBefore(CarbonImmutable::now('Asia/Jakarta')->startOfDay()) || $start->diffInDays($end) >= 366) {
+            throw ValidationException::withMessages(['starts_on' => 'Tanggal acara tidak boleh di masa lalu dan periode maksimal 366 hari.']);
+        }
     }
 
     public function show(Request $request, RentalProduct $product, RentalAvailability $availability)
@@ -33,11 +63,7 @@ class RentalCatalogController extends Controller
         $available = null;
         if ($request->has('starts_on') || $request->has('ends_on')) {
             $data = $request->validate(['starts_on' => ['required', 'date_format:Y-m-d'], 'ends_on' => ['required', 'date_format:Y-m-d', 'after_or_equal:starts_on']]);
-            $start = CarbonImmutable::createFromFormat('!Y-m-d', $data['starts_on'], 'Asia/Jakarta');
-            $end = CarbonImmutable::createFromFormat('!Y-m-d', $data['ends_on'], 'Asia/Jakarta');
-            if ($start->isBefore(CarbonImmutable::now('Asia/Jakarta')->startOfDay()) || $start->diffInDays($end) >= 366) {
-                throw ValidationException::withMessages(['starts_on' => 'Tanggal mulai tidak boleh di masa lalu dan periode maksimal 366 hari.']);
-            }
+            $this->validateRentalPeriod($data);
             $available = $availability->minimumAvailable($product, $data['starts_on'], $data['ends_on']);
         }
         return view('catalog.show', compact('product', 'available'));
