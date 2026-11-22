@@ -6,7 +6,12 @@
 </div>
 @endsection
 @section('content')
-@php $filterValue = fn ($key) => is_scalar(old($key, request($key))) ? (string) old($key, request($key)) : ''; @endphp
+@php
+    $filterValue = fn ($key) => is_scalar(old($key, request($key))) ? (string) old($key, request($key)) : '';
+    $queryValue = fn ($key) => is_scalar(request($key)) ? (string) request($key) : '';
+    $queryQ = $queryValue('q');
+    $queryCategory = $queryValue('category');
+@endphp
 <div class="bk-how" aria-label="Cara memesan"><div><span>01</span><p><strong>Pilih papan</strong><small>Temukan bentuk yang cocok</small></p></div><div><span>02</span><p><strong>Tulis ceritamu</strong><small>Atur tanggal dan ucapan</small></p></div><div><span>03</span><p><strong>Pantau pesanan</strong><small>Tunggu konfirmasi admin</small></p></div></div>
 <div id="koleksi" class="bk-filter-bar"><div><span class="bk-kicker">Temukan yang tepat</span><h2>Papan untuk momenmu</h2><p class="muted">Cari berdasarkan nama, kategori, atau tanggal.</p></div></div>
 <dialog class="bk-dialog bk-filter-sheet" id="bk-filter" aria-labelledby="bk-filter-title"><div class="bk-dialog-head"><div><span class="bk-eyebrow">PILIHAN KATALOG</span><h2 id="bk-filter-title">Cari papan</h2></div><button type="button" data-close-dialog aria-label="Tutup pencarian">×</button></div><div data-filter-slot></div></dialog>
@@ -20,10 +25,10 @@
     <p><button class="btn" type="submit">Cari papan</button> <a href="{{ route('welcome') }}">Hapus filter</a></p>
 </form>
 @if($errors->hasAny(['q', 'category', 'starts_on', 'ends_on']))<p class="notice">Pencarian belum diterapkan. Daftar di bawah masih mengikuti filter sebelumnya; perbaiki isian dan cari lagi.</p>@endif
-@if(request()->filled('q') || request()->filled('category') || $dates)
+@if($queryQ !== '' || $queryCategory !== '' || $dates)
 <div class="bk-applied-filters" aria-label="Filter yang digunakan"><span>Filter aktif</span>
-    @if(request()->filled('q'))<a href="{{ route('welcome', request()->only(['category', 'starts_on', 'ends_on'])) }}" aria-label="Hapus pencarian {{ request('q') }}">{{ request('q') }} <b aria-hidden="true">×</b></a>@endif
-    @if(request()->filled('category'))<a href="{{ route('welcome', request()->only(['q', 'starts_on', 'ends_on'])) }}" aria-label="Hapus filter kategori">{{ $categories->firstWhere('id', (int) request('category'))?->name ?? 'Kategori dipilih' }} <b aria-hidden="true">×</b></a>@endif
+    @if($queryQ !== '')<a href="{{ route('welcome', array_filter(['category' => $queryCategory, 'starts_on' => $dates['starts_on'] ?? null, 'ends_on' => $dates['ends_on'] ?? null])) }}" aria-label="Hapus pencarian {{ $queryQ }}">{{ $queryQ }} <b aria-hidden="true">×</b></a>@endif
+    @if($queryCategory !== '')<a href="{{ route('welcome', array_filter(['q' => $queryQ, 'starts_on' => $dates['starts_on'] ?? null, 'ends_on' => $dates['ends_on'] ?? null])) }}" aria-label="Hapus filter kategori">{{ $categories->firstWhere('id', (int) $queryCategory)?->name ?? 'Kategori dipilih' }} <b aria-hidden="true">×</b></a>@endif
     @if($dates)<a href="{{ route('welcome', request()->only(['q', 'category'])) }}" aria-label="Hapus filter tanggal">{{ \Carbon\Carbon::parse($dates['starts_on'])->format('d/m') }}–{{ \Carbon\Carbon::parse($dates['ends_on'])->format('d/m/Y') }} <b aria-hidden="true">×</b></a>@endif
     <a class="bk-filter-clear" href="{{ route('welcome') }}">Hapus semua</a>
 </div>

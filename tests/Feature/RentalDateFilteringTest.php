@@ -114,6 +114,17 @@ class RentalDateFilteringTest extends TestCase
         $this->get($url)->assertOk()->assertSee('id="quantity-error"', false)->assertSee('Jumlah papan tidak tersedia')->assertSee('Tambah ke keranjang');
     }
 
+    public function test_catalog_filter_chips_remove_one_condition_and_keep_the_others(): void
+    {
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan Wisuda', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 1]);
+        $this->get(route('welcome', ['q' => 'Papan', 'category' => $category->id]))->assertOk()
+            ->assertSee('Filter aktif')->assertSee('Hapus semua')
+            ->assertSee('href="'.route('welcome', ['category' => $category->id]).'"', false)
+            ->assertSee('href="'.route('welcome', ['q' => 'Papan']).'"', false)
+            ->assertSee('aria-label="Hapus pencarian Papan"', false);
+    }
+
     public function test_expired_cart_dates_link_to_an_undated_detail_and_can_be_changed_at_checkout(): void
     {
         Carbon::setTestNow(Carbon::parse('2026-12-01 10:00:00', 'Asia/Jakarta'));
