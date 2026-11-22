@@ -13,6 +13,41 @@ class RentalCashBookController extends Controller
 {
     public function index(Request $request)
     {
+        [$period, $date, $start, $end, $previousStart, $previousEnd] = $this->periodBounds($request);
+        $summary = fn ($from, $to) => $this->entriesBetween($from, $to)->selectRaw('entry_type, SUM(amount) as total')->groupBy('entry_type')->pluck('total', 'entry_type');
+        $current = $summary($start, $end); $previous = $summary($previousStart, $previousEnd);
+        $entries = $this->entriesBetween($start, $end)->orderByDesc('entry_date')->orderByDesc('id')->paginate(20)->withQueryString();
+        return view('rental.cashbook', compact('period', 'date', 'start', 'end', 'previousStart', 'previousEnd', 'current', 'previous', 'entries'));
+    }
+
+    public function export(Request $request)
+    {
+        [, , $start, $end] = $this->periodBounds($request);
+        $filename = 'buku-kas-'.$start->toDateString().'-'.$end->toDateString().'.csv';
+        return response()->streamDownload(function () use ($start, $end) {
+            $out = fopen('php://output', 'wb');
+            fwrite($out, "\xEF\xBB\xBF");
+            fputcsv($out, ['Tanggal', 'Jenis', 'Kategori', 'Nominal', 'Sumber', 'Catatan'], ',', '"', '');
+            foreach ($this->entriesBetween($start, $end)->orderBy('entry_date')->orderBy('id')->cursor() as $entry) {
+                fputcsv($out, [$entry->entry_date->toDateString(), $entry->entry_type === 'income' ? 'Pemasukan' : 'Pengeluaran', $this->csvText($entry->category), $entry->amount, $this->csvText($entry->source_type), $this->csvText($entry->notes)], ',', '"', '');
+            }
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8', 'Cache-Control' => 'private, no-store']);
+    }
+
+    private function csvText(?string $value): string
+    {
+        $value = $value ?? '';
+        return preg_match('/^[\s\x00-\x1f]*[=+@-]/u', $value) ? "'".$value : $value;
+    }
+
+    private function entriesBetween(CarbonImmutable $start, CarbonImmutable $end)
+    {
+        return FinanceEntry::query()->whereDate('entry_date', '>=', $start->toDateString())->whereDate('entry_date', '<=', $end->toDateString());
+    }
+
+    private function periodBounds(Request $request): array
+    {
         $data = $request->validate(['period' => ['nullable', Rule::in(['day', 'week', 'month', 'year'])], 'date' => ['nullable', 'date_format:Y-m-d']]);
         $period = $data['period'] ?? 'month';
         $date = isset($data['date']) ? CarbonImmutable::createFromFormat('!Y-m-d', $data['date'], 'Asia/Jakarta') : CarbonImmutable::now('Asia/Jakarta')->startOfDay();
@@ -22,10 +57,7 @@ class RentalCashBookController extends Controller
             'year' => [$date->startOfYear(), $date->endOfYear(), $date->subYear()->startOfYear(), $date->subYear()->endOfYear()],
             default => [$date->startOfMonth(), $date->endOfMonth(), $date->subMonthNoOverflow()->startOfMonth(), $date->subMonthNoOverflow()->endOfMonth()],
         };
-        $summary = fn ($from, $to) => FinanceEntry::whereBetween('entry_date', [$from->toDateString(), $to->toDateString()])->selectRaw('entry_type, SUM(amount) as total')->groupBy('entry_type')->pluck('total', 'entry_type');
-        $current = $summary($start, $end); $previous = $summary($previousStart, $previousEnd);
-        $entries = FinanceEntry::whereBetween('entry_date', [$start->toDateString(), $end->toDateString()])->orderByDesc('entry_date')->orderByDesc('id')->paginate(20)->withQueryString();
-        return view('rental.cashbook', compact('period', 'date', 'start', 'end', 'previousStart', 'previousEnd', 'current', 'previous', 'entries'));
+        return [$period, $date, $start, $end, $previousStart, $previousEnd];
     }
 
     public function store(Request $request)

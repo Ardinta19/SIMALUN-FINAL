@@ -198,6 +198,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/pengaturan-pembayaran-sewa', [RentalPaymentSettingController::class, 'edit'])->name('rental.payment-settings.edit');
         Route::put('/pengaturan-pembayaran-sewa', [RentalPaymentSettingController::class, 'update'])->name('rental.payment-settings.update');
         Route::get('/buku-kas', [RentalCashBookController::class, 'index'])->name('rental.cashbook.index');
+        Route::get('/buku-kas/ekspor', [RentalCashBookController::class, 'export'])->name('rental.cashbook.export');
         Route::post('/buku-kas', [RentalCashBookController::class, 'store'])->name('rental.cashbook.store');
         Route::put('/buku-kas/{entry}', [RentalCashBookController::class, 'update'])->name('rental.cashbook.update');
         Route::get('/finance', [FinanceController::class, 'index'])->name('finance.index');

@@ -27,4 +27,21 @@ class RentalCashBookTest extends TestCase
         $this->put(route('admin.rental.cashbook.update', $payment), $data)->assertForbidden();
         $this->get(route('admin.rental.cashbook.index', ['period' => 'month', 'date' => '2026-11-15']))->assertOk()->assertSee('12.000')->assertSee('4.000')->assertSee('16.000');
     }
+    public function test_day_and_month_include_boundary_dates_and_csv_escapes_formulas(): void
+    {
+        $admin = User::factory()->create(); $admin->forceFill(['role' => 'admin'])->save();
+        $customer = User::factory()->create(); $customer->forceFill(['role' => 'customer'])->save();
+        FinanceEntry::create(['entry_date' => '2026-11-30', 'period_key' => '2026-11', 'entry_type' => 'income', 'category' => '=1+1', 'amount' => 12500, 'source_type' => 'manual', 'notes' => '@contoh']);
+        FinanceEntry::create(['entry_date' => '2026-12-01', 'period_key' => '2026-12', 'entry_type' => 'expense', 'category' => 'Operasional', 'amount' => 3500, 'source_type' => 'manual', 'notes' => 'Bulan berikut']);
+        $this->actingAs($admin)->get(route('admin.rental.cashbook.index', ['period' => 'day', 'date' => '2026-11-30']))->assertOk()->assertSee('12.500')->assertDontSee('Bulan berikut');
+        $this->get(route('admin.rental.cashbook.index', ['period' => 'month', 'date' => '2026-11-15']))->assertOk()->assertSee('12.500')->assertDontSee('Bulan berikut');
+        $url = route('admin.rental.cashbook.export', ['period' => 'month', 'date' => '2026-11-15']);
+        $this->actingAs($customer)->get($url)->assertRedirect(route('customer.dashboard'));
+        $response = $this->actingAs($admin)->get($url)->assertOk();
+        $csv = $response->streamedContent();
+        $this->assertStringContainsString("'=1+1", $csv);
+        $this->assertStringContainsString("'@contoh", $csv);
+        $this->assertStringContainsString('2026-11-30', $csv);
+        $this->assertStringNotContainsString('Bulan berikut', $csv);
+    }
 }
