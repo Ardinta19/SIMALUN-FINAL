@@ -19,6 +19,7 @@ use App\Http\Controllers\OrderRatingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RentalCatalogController;
+use App\Http\Controllers\RentalFeedbackController;
 use App\Http\Controllers\RentalCartController;
 use App\Http\Controllers\RentalOrderController;
 use App\Http\Controllers\RentalDesignController;
@@ -36,6 +37,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [RentalCatalogController::class, 'index'])->name('welcome');
 Route::get('/katalog/{product}', [RentalCatalogController::class, 'show'])->name('catalog.show');
+Route::get('/apresiasi/{token}', [RentalFeedbackController::class, 'publicShare'])->where('token', '[A-Za-z0-9]{64}')->middleware('throttle:60,1')->name('rental.likes.public');
 Route::get('/keranjang', [RentalCartController::class, 'index'])->name('cart.index');
 Route::post('/keranjang/{product}', [RentalCartController::class, 'store'])->middleware('throttle:30,1')->name('cart.store');
 Route::post('/keranjang/unit/{item}/tambah', [RentalCartController::class, 'duplicate'])->middleware('throttle:30,1')->name('cart.duplicate');
@@ -117,6 +119,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/preview-desain/{preview}/gambar', [RentalDesignController::class, 'image'])->name('rental.design.image');
 
     Route::middleware('role:customer')->group(function () {
+        Route::post('/katalog/{product}/suka', [RentalFeedbackController::class, 'productLike'])->middleware('throttle:30,1')->name('rental.product.like');
+        Route::post('/sewa/{order}/unit/{unit}/rating', [RentalFeedbackController::class, 'productRating'])->middleware('throttle:10,1')->name('rental.product.rating');
+        Route::post('/sewa/{order}/rating', [RentalFeedbackController::class, 'orderRating'])->middleware('throttle:10,1')->name('rental.order.rating');
+        Route::post('/sewa/{order}/bagikan-suka', [RentalFeedbackController::class, 'share'])->middleware('throttle:10,1')->name('rental.order.share');
+        Route::post('/apresiasi/{token}/suka', [RentalFeedbackController::class, 'orderLike'])->where('token', '[A-Za-z0-9]{64}')->middleware('throttle:30,1')->name('rental.order.like');
         Route::post('/sewa/unit/{unit}/setujui-ongkos', [RentalOrderController::class, 'approveTransport'])->name('rental.transport.approve');
         Route::post('/sewa/unit/{unit}/pembayaran', [RentalPaymentController::class, 'store'])->middleware('throttle:10,1')->name('rental.payment.store');
         Route::post('/preview-desain/{preview}/respons', [RentalDesignController::class, 'respond'])->name('rental.design.respond');

@@ -146,7 +146,10 @@ class RentalOrderController extends Controller
     {
         abort_unless($order->customer_id === $request->user()->id, 403);
         $order->load(['units' => fn ($query) => $query->orderBy('id'), 'units.previews', 'units.payments']);
-        return view('rental.show', compact('order'));
+        $rating = DB::table('rental_order_reviews')->where('rental_order_id', $order->id)->value('rating');
+        $likeShare = DB::table('rental_order_like_shares')->where('rental_order_id', $order->id)->first();
+        $likeCount = DB::table('rental_order_likes')->where('rental_order_id', $order->id)->count();
+        return view('rental.show', compact('order', 'rating', 'likeShare', 'likeCount'));
     }
 
     public function customerUnit(Request $request, RentalOrder $order, RentalOrderUnit $unit)
@@ -156,7 +159,8 @@ class RentalOrderController extends Controller
         $unit->load('previews', 'payments.refunds', 'payments.corrections', 'progressEvents', 'cancellationEvents');
         $paymentSettings = RentalPaymentSetting::find(1);
         $unitNumber = $order->units()->where('id', '<=', $unit->id)->count();
-        return view('rental.unit', compact('order', 'unit', 'paymentSettings', 'unitNumber'));
+        $productRating = DB::table('rental_product_reviews')->where('rental_order_unit_id', $unit->id)->value('rating');
+        return view('rental.unit', compact('order', 'unit', 'paymentSettings', 'unitNumber', 'productRating'));
     }
 
     public function index(Request $request)

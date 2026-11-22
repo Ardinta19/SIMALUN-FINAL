@@ -41,6 +41,7 @@
     @if($product->image_path)<img loading="lazy" decoding="async" class="photo" src="{{ asset('storage/'.$product->image_path) }}" alt="">@else<div class="photo placeholder" aria-hidden="true">✿</div>@endif</a>
     <div class="body"><p class="muted">{{ $product->category->name }}</p><h3><a class="bk-product-name" href="{{ route('catalog.show', array_merge(['product' => $product->id], $dates ?? [])) }}">{{ $product->name }}</a></h3>
     <p class="price">Rp {{ number_format($product->base_price, 0, ',', '.') }} <span class="muted">/ {{ $product->price_unit === 'day' ? 'hari' : 'acara' }}</span></p>
+    @include('catalog.product-feedback', ['product' => $product])
     @if($dates)<p class="muted">Perkiraan {{ $product->available_for_period }} unit tersedia</p>@elseif($product->stock < 1)<p class="muted">Belum tersedia</p>@endif
     @if($product->stock > 0)
     <form method="post" action="{{ route('cart.store', $product) }}" class="bk-product-add">@csrf<input type="hidden" name="quantity" value="1">@if($dates)<input type="hidden" name="starts_on" value="{{ $dates['starts_on'] }}"><input type="hidden" name="ends_on" value="{{ $dates['ends_on'] }}">@endif<button class="btn secondary" type="submit" aria-label="Tambah {{ $product->name }} ke keranjang">Tambah ke keranjang</button></form>

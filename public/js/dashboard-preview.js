@@ -5,11 +5,13 @@
     window.addEventListener('pageshow', event => {
         if (event.persisted && location.pathname === new URL(catalog, location.href).pathname) location.replace(catalog + '#koleksi');
     });
-    fetch(catalog, { credentials: 'same-origin', headers: { 'Accept': 'text/html' } })
-        .then(response => { if (!response.ok) throw new Error('Catalog unavailable'); return response.text(); })
+    fetch(catalog, { cache: 'no-store', credentials: 'same-origin', headers: { 'Accept': 'text/html' } })
+        .then(response => { if (!response.ok || response.redirected) throw new Error('Catalog unavailable'); return response.text(); })
         .then(html => {
             const page = new DOMParser().parseFromString(html, 'text/html');
-            const cards = [...page.querySelectorAll('[data-catalog-products] .bk-product-card')].slice(0, 4);
+            const products = page.querySelector('[data-catalog-products]');
+            if (!products) throw new Error('Catalog markup unavailable');
+            const cards = [...products.querySelectorAll('.bk-product-card')].slice(0, 4);
             if (!cards.length) { preview.querySelector('p').textContent = 'Belum ada papan di katalog saat ini.'; return; }
             preview.replaceChildren(...cards.map(card => document.importNode(card, true)));
             preview.addEventListener('click', event => {

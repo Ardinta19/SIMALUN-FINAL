@@ -47,3 +47,8 @@ Pola di bawah adalah pilihan default yang diterapkan jika sesuai konteks, bukan 
 - Cari dan filter katalog berada di header pada halaman katalog, dengan formulir inline sebagai fallback tanpa JavaScript. Header ringkas tetap menyediakan tombol pencarian.
 - Tautan kembali utama ditampilkan seperti tombol berukuran sentuh, tetap menggunakan tautan tujuan yang jelas (bukan history.back). Tombol ikon saja harus memiliki label aksesibel yang menyebut tujuannya.
 - Perpindahan halaman menggunakan View Transitions lintas dokumen secara progresif dengan slide push/pull ringan; arah riwayat balik dipakai bila API browser menyediakan indeksnya. Jangan mencegat navigasi atau formulir; browser yang belum mendukung tetap berpindah normal, dan reduced motion mematikan animasi. Periksa di browser nyata, termasuk kembali/maju dan halaman cache.
+
+### Rating dan suka penyewaan
+- Suka produk dan rating bintang produk ditampilkan di katalog/detail; pelanggan yang masuk dapat menyukai atau membatalkan. Rating diberikan satu kali per unit setelah dikembalikan, tanpa komentar atau identitas publik.
+- Rating pesanan diberikan pemilik satu kali setelah seluruh unit selesai/dibatalkan dan minimal satu telah dikembalikan. Rating pesanan bersifat privat, terpisah dari rating produk.
+- Suka publik pesanan memakai tautan acak yang dibuat secara sukarela oleh pemilik; halaman publik hanya berisi jumlah suka, bukan rincian pesanan atau identitas. Pelanggan yang masuk dapat menyukai. Pemilik dapat menonaktifkan tautan; suka tetap tersimpan dan tautan lama tidak dapat digunakan. Perlakukan tautan sebagai rahasia; jangan klaim konten anonim sepenuhnya karena pengguna harus masuk untuk menyukai.

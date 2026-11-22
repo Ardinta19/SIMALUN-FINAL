@@ -7,6 +7,14 @@
 <p class="muted">Batas konfirmasi: {{ $order->confirmation_deadline->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB</p>
 <p><a class="btn secondary" href="{{ route('rental.receipt', $order) }}">Ringkasan cetak</a></p>
 <div class="notice">Pilih unit untuk memeriksa ongkos, desain, pembayaran, dan perkembangannya. Stok dicadangkan setelah admin mengonfirmasi.</div>
+<section class="card body bk-feedback-card"><h2>Rating pesanan</h2>
+@if($rating)<p>Rating kamu: {{ $rating }} dari 5 bintang.</p>@elseif($order->units->contains(fn ($u) => $u->status === 'confirmed' && $u->progress === 'returned') && !$order->units->contains(fn ($u) => $u->status !== 'cancelled' && !($u->status === 'confirmed' && $u->progress === 'returned')))
+<form method="post" action="{{ route('rental.order.rating', $order) }}">@csrf<label for="order-rating">Nilai pengalaman pesanan (1–5 bintang)</label><select id="order-rating" name="rating" required><option value="">Pilih rating</option>@for($i = 1; $i <= 5; $i++)<option value="{{ $i }}">{{ $i }} bintang</option>@endfor</select><p><button class="btn secondary">Simpan rating pesanan</button></p></form>
+@else<p class="muted">Rating tersedia setelah semua unit selesai atau dibatalkan, dan setidaknya satu unit telah dikembalikan.</p>@endif
+</section>
+<section class="card body bk-feedback-card"><h2>Suka publik</h2><p>{{ $likeCount }} suka. Tautan hanya menampilkan jumlah suka, tanpa data pesanan atau identitasmu.</p>
+@if($likeShare)<p><label for="share-link">Tautan untuk dibagikan</label><input id="share-link" readonly value="{{ route('rental.likes.public', $likeShare->token) }}"></p><p class="muted">Siapa pun yang memiliki tautan dapat melihat jumlah suka. Pelanggan yang masuk dapat memberi atau membatalkan suka.</p><form method="post" action="{{ route('rental.order.share', $order) }}">@csrf<input type="hidden" name="enabled" value="0"><button class="btn secondary">Nonaktifkan tautan</button></form>
+@else<p class="muted">Tautan belum aktif. Kamu dapat menonaktifkannya kapan saja. Jumlah suka tetap tersimpan jika tautan dinonaktifkan.</p><form method="post" action="{{ route('rental.order.share', $order) }}">@csrf<input type="hidden" name="enabled" value="1"><button class="btn secondary">Buat tautan suka</button></form>@endif</section>
 <div class="items">
 @forelse($order->units as $unit)
 <article class="card body">

@@ -14,6 +14,10 @@
     $latestPreview = $unit->previews->first();
 @endphp
 <nav class="bk-jump bk-unit-jump" aria-label="Lompat ke bagian unit"><strong>Lihat bagian</strong><div><a href="#unit-info-{{ $unit->id }}">Jadwal &amp; ucapan</a>@if($unit->transportRequired())<a href="#transport-{{ $unit->id }}">Ongkos</a>@endif<a href="#unit-progress-{{ $unit->id }}">Perkembangan</a><a href="#payment-{{ $unit->id }}">Pembayaran</a><a href="#design-{{ $unit->id }}">Desain</a></div></nav>
+<section class="card body bk-feedback-card"><h2>Rating produk</h2>
+@if($productRating)<p>Rating kamu untuk unit ini: {{ $productRating }} dari 5 bintang.</p>
+@elseif($unit->status === 'confirmed' && $unit->progress === 'returned')<form method="post" action="{{ route('rental.product.rating', [$order, $unit]) }}">@csrf<label for="product-rating">Nilai produk ini (1–5 bintang)</label><select id="product-rating" name="rating" required><option value="">Pilih rating</option>@for($i = 1; $i <= 5; $i++)<option value="{{ $i }}">{{ $i }} bintang</option>@endfor</select><p><button class="btn secondary">Simpan rating produk</button></p></form>
+@else<p class="muted">Rating tersedia setelah unit selesai dan dikembalikan.</p>@endif</section>
 <article class="card body"><h2>Unit {{ $unitNumber }} · {{ $unit->product_name }}</h2>
 <section class="notice" aria-label="Langkah berikutnya untuk unit {{ $unitNumber }}"><strong>Langkah berikutnya</strong>
 @if($unit->status === 'pending')<p>Menunggu konfirmasi admin. Stok belum dicadangkan.</p>

@@ -26,7 +26,9 @@ class RentalCatalogController extends Controller
         $dates = ! empty($filters['starts_on']) ? ['starts_on' => $filters['starts_on'], 'ends_on' => $filters['ends_on']] : null;
         if ($dates) $this->validateRentalPeriod($dates);
         $categories = RentalCategory::where('is_active', true)->orderBy('name')->get();
-        $query = RentalProduct::with('category')->where('is_active', true)
+        $query = RentalProduct::with('category')->withCount(['likes', 'reviews'])->withAvg('reviews', 'rating')
+            ->when($request->user()?->role === 'customer', fn ($q) => $q->withExists(['likes as liked_by_customer' => fn ($likes) => $likes->where('user_id', $request->user()->id)]))
+            ->where('is_active', true)
             ->whereHas('category', fn ($q) => $q->where('is_active', true))
             ->when(! empty($filters['q']), fn ($q) => $q->where('name', 'like', '%'.$filters['q'].'%'))
             ->when(! empty($filters['category']), fn ($q) => $q->where('rental_category_id', $filters['category']))
@@ -59,6 +61,8 @@ class RentalCatalogController extends Controller
     public function show(Request $request, RentalProduct $product, RentalAvailability $availability)
     {
         abort_unless($product->is_active && $product->category->is_active, 404);
+        $product->loadCount(['likes', 'reviews'])->loadAvg('reviews', 'rating');
+        if ($request->user()?->role === 'customer') $product->loadExists(['likes as liked_by_customer' => fn ($likes) => $likes->where('user_id', $request->user()->id)]);
         $product->load(['packages' => fn ($query) => $query->where('is_active', true)]);
         $available = null;
         if ($request->has('starts_on') || $request->has('ends_on')) {
