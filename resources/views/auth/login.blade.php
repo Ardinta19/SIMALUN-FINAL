@@ -90,7 +90,11 @@ html, body {
 .ambient-flower{position:absolute;color:rgba(255,255,255,.35);font-size:28px;animation:flower-float 5s ease-in-out infinite alternate}
 @keyframes brand-intro{from{transform:rotate(-120deg) scale(.85)}to{transform:rotate(0) scale(1)}}
 @keyframes flower-float{from{transform:translateY(0) rotate(0)}to{transform:translateY(-14px) rotate(20deg)}}
-@media(prefers-reduced-motion:reduce){#brand-logo,.ambient-flower,#drum-spin-ring,#drum-wrap::after{animation:none!important}}
+#btn-back,.pw-toggle,#btn-login,.btn-google{min-width:44px;min-height:44px}
+.pw-toggle[hidden]{display:none}
+#password{padding-right:3.5rem}
+:focus-visible{outline:3px solid #fff;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){#brand-logo,.ambient-flower,#drum-spin-ring,#drum-wrap::after,#btn-login::before{animation:none!important}}
 </style>
 <link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}"><script src="{{ asset('js/page-transitions.js') }}" defer></script>
 </head>
@@ -112,7 +116,7 @@ html, body {
 
 <a href="{{ url('/') }}" id="btn-back" title="Kembali ke katalog" aria-label="Kembali ke katalog">&#8592;</a>
 
-<div id="page">
+<main id="page">
 
   <div id="header">
     <div id="drum-wrap">
@@ -126,15 +130,15 @@ html, body {
 
   <div id="card">
 
-    <div class="card-title">Selamat Datang</div>
-    <div class="card-sub">Masuk ke akun SIMALUN kamu</div>
+    <h1 class="card-title">Selamat Datang</h1>
+    <div class="card-sub">Masuk ke akun Berkah Kreatif kamu</div>
 
     @if(session('error'))
-      <div class="alert alert-error">⚠️ {{ session('error') }}</div>
+      <div class="alert alert-error" role="alert">⚠️ {{ session('error') }}</div>
     @endif
     
     @if(session('success'))
-      <div class="alert alert-success">✅ {{ session('success') }}</div>
+      <div class="alert alert-success" role="status">✅ {{ session('success') }}</div>
     @endif
 
     <form method="POST" action="{{ route('login.post') }}" id="login-form" novalidate>
@@ -150,16 +154,18 @@ html, body {
             type="text"
             id="identifier"
             name="identifier"
+            aria-describedby="err-identifier @error('identifier') server-identifier-error @enderror"
+            @error('identifier') aria-invalid="true" @enderror
             placeholder="email@contoh.com atau 08xxxxxxxxxx"
             value="{{ old('identifier') }}"
             autocomplete="username"
-            inputmode="email"
+            inputmode="text"
           >
         </div>
         @error('identifier')
-          <div class="error-msg">{{ $message }}</div>
+          <div class="error-msg" id="server-identifier-error" role="alert">{{ $message }}</div>
         @enderror
-        <div class="form-error" id="err-identifier"></div>
+        <div class="form-error" id="err-identifier" aria-live="polite"></div>
       </div>
 
       {{-- Password Field --}}
@@ -172,15 +178,17 @@ html, body {
             type="password"
             id="password"
             name="password"
+            aria-describedby="err-password @error('password') server-password-error @enderror"
+            @error('password') aria-invalid="true" @enderror
             placeholder="Masukkan password"
             autocomplete="current-password"
           >
-          <button type="button" class="pw-toggle" id="pw-toggle" title="Tampilkan password" aria-label="Tampilkan password" aria-pressed="false">👁️</button>
+          <button type="button" class="pw-toggle" id="pw-toggle" hidden title="Tampilkan password" aria-label="Tampilkan password" aria-pressed="false">👁️</button>
         </div>
         @error('password')
-          <div class="error-msg">{{ $message }}</div>
+          <div class="error-msg" id="server-password-error" role="alert">{{ $message }}</div>
         @enderror
-        <div class="form-error" id="err-password"></div>
+        <div class="form-error" id="err-password" aria-live="polite"></div>
       </div>
 
       {{-- Remember + Forgot --}}
@@ -224,21 +232,19 @@ html, body {
     &copy; {{ date('Y') }} Berkah Kreatif · Papan Bunga
   </div>
 
-</div>
+</main>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-  /* ── IDENTIFIER TYPE DETECTION (auto switch inputmode) ── */
+  /* The icon is decorative; keep a text keyboard for emails beginning with digits. */
   const identEl = document.getElementById('identifier');
   const identIcon = document.getElementById('identifier-icon');
   identEl.addEventListener('input', function(){
     const v = this.value.trim();
     if(/^[0-9+]/.test(v)){
-      this.inputMode = 'tel';
       identIcon.textContent = '📱';
     } else {
-      this.inputMode = 'email';
       identIcon.textContent = '📧';
     }
   });
@@ -255,6 +261,8 @@ document.addEventListener('DOMContentLoaded', function () {
     this.title = show ? 'Sembunyikan password' : 'Tampilkan password';
   });
 
+  pwToggle.hidden = false;
+
   /* ── CLIENT-SIDE VALIDATION ── */
   const form = document.getElementById('login-form');
   const btnLogin = document.getElementById('btn-login');
@@ -263,8 +271,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function showErr(el, msg){ el.textContent=msg; el.classList.add('show'); }
   function clearErr(el) { el.textContent=''; el.classList.remove('show'); }
-  function isValidEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
-  function isValidPhone(v){ return /^(\+62|62|0)?8[0-9]{8,12}$/.test(v.replace(/[\s-]/g,'')); }
 
   form.addEventListener('submit', function(e){
     let valid = true;
@@ -276,16 +282,14 @@ document.addEventListener('DOMContentLoaded', function () {
     pwInput.classList.remove('error');
 
     if(!ident){
-      showErr(errIdent, 'Email atau No. HP wajib diisi'); identEl.classList.add('error'); valid=false;
-    } else if(!isValidEmail(ident) && !isValidPhone(ident)){
-      showErr(errIdent, 'Format email atau No. HP tidak valid'); identEl.classList.add('error'); valid=false;
+      showErr(errIdent, 'Email atau No. HP wajib diisi'); identEl.classList.add('error'); identEl.setAttribute('aria-invalid', 'true'); valid=false;
     }
 
     if(!pw){
-      showErr(errPw, 'Password wajib diisi'); pwInput.classList.add('error'); valid=false;
+      showErr(errPw, 'Password wajib diisi'); pwInput.classList.add('error'); pwInput.setAttribute('aria-invalid', 'true'); valid=false;
     }
 
-    if(!valid){ e.preventDefault(); return; }
+    if(!valid){ e.preventDefault(); (!ident ? identEl : pwInput).focus(); return; }
 
     /* show loading state */
     btnLogin.classList.add('loading');
@@ -295,8 +299,8 @@ document.addEventListener('DOMContentLoaded', function () {
   window.addEventListener('pageshow', () => { btnLogin.disabled = false; btnLogin.classList.remove('loading'); });
 
   /* remove error on input */
-  identEl.addEventListener('input', ()=>{ clearErr(errIdent); identEl.classList.remove('error'); });
-  pwInput.addEventListener('input', ()=>{ clearErr(errPw); pwInput.classList.remove('error'); });
+  identEl.addEventListener('input', ()=>{ clearErr(errIdent); identEl.classList.remove('error'); identEl.removeAttribute('aria-invalid'); });
+  pwInput.addEventListener('input', ()=>{ clearErr(errPw); pwInput.classList.remove('error'); pwInput.removeAttribute('aria-invalid'); });
 
 });
 </script>

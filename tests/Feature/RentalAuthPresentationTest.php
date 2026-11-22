@@ -14,6 +14,16 @@ class RentalAuthPresentationTest extends TestCase
         $this->get(route('login'))->assertOk()->assertSee('Berkah Kreatif')->assertSee('berkah-kreatif-logo.jpeg')->assertDontSee('cdnjs.cloudflare.com')->assertDontSee('Azka Laundry');
         $this->get(route('register'))->assertOk()->assertSee('Berkah Kreatif')->assertSee('berkah-kreatif-logo.jpeg')->assertSee('Notifikasi pesanan tersedia di dalam aplikasi')->assertDontSee('cdnjs.cloudflare.com')->assertDontSee('Azka Laundry');
     }
+    public function test_login_is_accessible_and_does_not_require_javascript_to_submit(): void
+    {
+        $this->get(route('login'))->assertOk()->assertSee('<main id="page">', false)
+            ->assertSee('name="identifier"', false)->assertSee('id="pw-toggle" hidden', false)
+            ->assertSee('aria-live="polite"', false)->assertDontSee('Masuk ke akun SIMALUN kamu');
+        $this->from(route('login'))->post(route('login.post'), ['identifier' => 'invalid@example.test', 'password' => 'invalid'])
+            ->assertRedirect(route('login'))->assertSessionHasErrors('identifier');
+        $this->get(route('login'))->assertOk()->assertSee('id="server-identifier-error"', false)->assertSee('aria-invalid="true"', false);
+    }
+
     public function test_registration_form_has_progressive_and_accessible_controls(): void
     {
         $this->get(route('register'))->assertOk()
