@@ -104,8 +104,22 @@ class RentalOrderController extends Controller
 
     public function index(Request $request)
     {
-        $orders = RentalOrder::where('customer_id', $request->user()->id)->withCount('units')->latest()->paginate(20);
-        return view('rental.index', compact('orders'));
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:160'],
+            'status' => ['nullable', Rule::in(['pending', 'confirmed', 'cancelled'])],
+        ]);
+        $orders = RentalOrder::where('customer_id', $request->user()->id)
+            ->when(! empty($filters['q']), function ($query) use ($filters) {
+                $term = trim($filters['q']);
+                $query->where(function ($query) use ($term) {
+                    $query->where('reference', 'like', '%'.$term.'%')
+                        ->orWhereHas('units', fn ($units) => $units->where('product_name', 'like', '%'.$term.'%')->orWhere('recipient_name', 'like', '%'.$term.'%'));
+                });
+            })
+            ->when(! empty($filters['status']), fn ($query) => $query->whereHas('units', fn ($units) => $units->where('status', $filters['status'])))
+            ->withCount(['units', 'units as pending_units_count' => fn ($q) => $q->where('status', 'pending'), 'units as confirmed_units_count' => fn ($q) => $q->where('status', 'confirmed'), 'units as cancelled_units_count' => fn ($q) => $q->where('status', 'cancelled')])
+            ->latest()->orderByDesc('id')->paginate(20)->withQueryString();
+        return view('rental.index', compact('orders', 'filters'));
     }
 
     public function adminIndex(Request $request)
