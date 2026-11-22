@@ -78,6 +78,17 @@ class RentalDateFilteringTest extends TestCase
         $this->get($detail)->assertSee(route('cart.store', $product));
     }
 
+    public function test_non_scalar_filter_inputs_do_not_break_the_retry_page(): void
+    {
+        $this->from(route('welcome'))->get(route('welcome', ['q' => ['bad'], 'starts_on' => ['bad']]))->assertSessionHasErrors(['q', 'starts_on']);
+        $this->get(route('welcome'))->assertOk()->assertSee('id="catalog-search-error"', false)->assertSee('id="catalog-start-error"', false);
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 2]);
+        $url = route('catalog.show', $product);
+        $this->from($url)->get(route('catalog.show', ['product' => $product->id, 'starts_on' => ['bad'], 'ends_on' => '2026-12-01']))->assertSessionHasErrors('starts_on');
+        $this->get($url)->assertOk()->assertSee('id="detail-start-error"', false);
+    }
+
     public function test_catalog_cards_link_to_details_and_add_one_unit_with_selected_dates(): void
     {
         $category = RentalCategory::create(['name' => 'Katalog']);

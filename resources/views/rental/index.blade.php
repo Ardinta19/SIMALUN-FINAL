@@ -1,17 +1,19 @@
 @extends('catalog.layout')
 @section('title', 'Pesanan saya')
 @section('content')
+@php $orderFilterValue = fn ($key) => is_scalar(old($key, $filters[$key] ?? '')) ? (string) old($key, $filters[$key] ?? '') : ''; @endphp
 <div class="bk-orders">
     <a class="bk-back" href="{{ route('customer.dashboard') }}">← Kembali ke beranda</a>
     <div class="bk-page-heading"><div><span class="bk-kicker">RUANG PELANGGAN</span><h1>Pesanan sewa</h1><p class="muted">Lihat status dan langkah berikutnya untuk setiap pesanan.</p></div><a href="{{ route('welcome') }}" class="btn secondary">Jelajahi katalog ↗</a></div>
-    <details class="bk-order-filter" @if(!empty($filters['q']) || !empty($filters['status']) || $errors->any()) open @endif>
+    <details class="bk-order-filter" @if(!empty($filters['q']) || !empty($filters['status']) || $errors->hasAny(['q', 'status'])) open @endif>
         <summary><span>⌕ &nbsp; Cari dan filter pesanan</span><span class="bk-order-filter__hint">{{ !empty($filters['q']) || !empty($filters['status']) ? 'Filter aktif' : 'Nama, referensi, status' }}</span></summary>
         <form class="stack" method="get" action="{{ route('rental.orders.index') }}">
-            <div class="row"><label>Cari referensi, nama papan, atau penerima<input name="q" maxlength="160" value="{{ $filters['q'] ?? '' }}"></label>
-            <label>Status unit<select name="status"><option value="">Semua status</option>@foreach(['pending' => 'Menunggu konfirmasi', 'confirmed' => 'Dikonfirmasi', 'cancelled' => 'Dibatalkan'] as $value => $label)<option value="{{ $value }}" @selected(($filters['status'] ?? '') === $value)>{{ $label }}</option>@endforeach</select></label></div>
+            <div class="row"><div><label for="order-search">Cari referensi, nama papan, atau penerima</label><input id="order-search" name="q" maxlength="160" value="{{ $orderFilterValue('q') }}" @error('q') aria-invalid="true" aria-describedby="order-search-error" @enderror>@error('q')<p class="bk-field-error" id="order-search-error">{{ $message }}</p>@enderror</div>
+            <div><label for="order-status">Status unit</label><select id="order-status" name="status" @error('status') aria-invalid="true" aria-describedby="order-status-error" @enderror><option value="">Semua status</option>@foreach(['pending' => 'Menunggu konfirmasi', 'confirmed' => 'Dikonfirmasi', 'cancelled' => 'Dibatalkan'] as $value => $label)<option value="{{ $value }}" @selected($orderFilterValue('status') === $value)>{{ $label }}</option>@endforeach</select>@error('status')<p class="bk-field-error" id="order-status-error">{{ $message }}</p>@enderror</div></div>
             <p class="muted">Filter status menampilkan pesanan yang memiliki setidaknya satu unit dengan status tersebut.</p><div class="row bk-filter-actions"><button class="btn" type="submit">Cari pesanan</button><a class="btn secondary" href="{{ route('rental.orders.index') }}">Reset filter</a></div>
         </form>
     </details>
+    @if($errors->hasAny(['q', 'status']))<p class="notice">Pencarian belum diterapkan. Daftar berikut masih mengikuti filter sebelumnya.</p>@endif
     <div class="bk-section-heading"><h2>Daftar pesanan</h2><span class="muted">{{ $orders->total() }} pesanan</span></div>
     <div class="bk-order-cards">
     @forelse($orders as $order)

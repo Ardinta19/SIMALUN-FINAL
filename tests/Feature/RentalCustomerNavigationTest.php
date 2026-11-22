@@ -42,6 +42,16 @@ class RentalCustomerNavigationTest extends TestCase
                 ->assertSee('env(safe-area-inset-bottom, 0px)', false);
         }
     }
+    public function test_order_filter_retains_safe_inputs_and_identifies_invalid_fields(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer']);
+        $url = route('rental.orders.index');
+        $this->actingAs($customer)->from($url)->get(route('rental.orders.index', ['q' => 'Mawar', 'status' => 'invalid']))->assertRedirect($url)->assertSessionHasErrors('status');
+        $this->get($url)->assertOk()->assertSee('value="Mawar"', false)->assertSee('aria-describedby="order-status-error"', false)->assertSee('Pencarian belum diterapkan');
+        $this->from($url)->get(route('rental.orders.index', ['q' => ['bad']]))->assertSessionHasErrors('q');
+        $this->get($url)->assertOk()->assertSee('id="order-search-error"', false);
+    }
+
     public function test_guest_and_customer_have_accessible_catalog_navigation_without_admin_links(): void
     {
         $this->get(route('welcome'))->assertOk()
