@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class RentalOrderUnit extends Model
 {
-    protected $fillable = ['rental_order_id', 'rental_product_id', 'product_name', 'unit_price', 'price_unit', 'rental_amount', 'starts_on', 'event_on', 'ends_on', 'recipient_name', 'greeting', 'design_notes', 'delivery_method', 'delivery_address', 'return_method', 'return_address', 'status', 'progress', 'cancel_reason', 'cancel_responsibility', 'cancelled_at', 'cancelled_by', 'confirmed_at', 'special_confirmation', 'rental_duration_package_id', 'package_name', 'package_days', 'delivery_university', 'delivery_university_fee', 'return_university', 'return_university_fee', 'transport_quote', 'transport_quote_version', 'transport_quote_note', 'transport_approved_at'];
+    protected $fillable = ['rental_order_id', 'rental_product_id', 'product_name', 'unit_price', 'price_unit', 'rental_amount', 'starts_on', 'event_on', 'ends_on', 'recipient_name', 'greeting', 'design_notes', 'delivery_method', 'delivery_address', 'return_method', 'return_address', 'status', 'status_before_cancel', 'progress', 'cancel_reason', 'cancel_responsibility', 'cancelled_at', 'cancelled_by', 'confirmed_at', 'special_confirmation', 'rental_duration_package_id', 'package_name', 'package_days', 'delivery_university', 'delivery_university_fee', 'return_university', 'return_university_fee', 'transport_quote', 'transport_quote_version', 'transport_quote_note', 'transport_approved_at'];
     protected $casts = ['starts_on' => 'date', 'event_on' => 'date', 'ends_on' => 'date', 'cancelled_at' => 'datetime', 'special_confirmation' => 'boolean', 'confirmed_at' => 'datetime', 'transport_approved_at' => 'datetime'];
     public function needsSpecialConfirmation(): bool
     {
@@ -28,6 +28,7 @@ class RentalOrderUnit extends Model
     }
     public function order(): BelongsTo { return $this->belongsTo(RentalOrder::class, 'rental_order_id'); }
     public function product(): BelongsTo { return $this->belongsTo(RentalProduct::class, 'rental_product_id'); }
+    public function cancellationEvents(): HasMany { return $this->hasMany(RentalUnitCancellationEvent::class)->orderBy('id'); }
     public function progressEvents(): HasMany { return $this->hasMany(RentalUnitProgressEvent::class)->orderBy('id'); }
     public function refunds(): HasManyThrough { return $this->hasManyThrough(RentalPaymentRefund::class, RentalPayment::class, 'rental_order_unit_id', 'rental_payment_id'); }
     public function verifiedNet(): int { return (int) $this->payments()->where('status', 'verified')->sum('amount') - (int) $this->refunds()->sum('rental_payment_refunds.amount'); }

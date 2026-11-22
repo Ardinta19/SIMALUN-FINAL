@@ -166,6 +166,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/sewa/unit/{unit}/perkembangan', [RentalProgressController::class, 'advance'])->name('rental.progress.advance');
         Route::post('/sewa/unit/{unit}/ongkos', [RentalOrderController::class, 'quoteTransport'])->name('rental.transport.quote');
         Route::post('/sewa/unit/{unit}/confirm', [RentalOrderController::class, 'confirm'])->name('rental.confirm');
+        Route::post('/sewa/unit/{unit}/lanjutkan', [RentalOrderController::class, 'resume'])->name('rental.resume');
         Route::post('/sewa/unit/{unit}/cancel', [RentalOrderController::class, 'cancel'])->name('rental.cancel');
         Route::get('/universitas', [RentalUniversityController::class, 'index'])->name('rental.universities.index');
         Route::post('/universitas', [RentalUniversityController::class, 'store'])->name('rental.universities.store');
