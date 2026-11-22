@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\RentalOrder;
 use App\Models\RentalOrderUnit;
 use App\Models\RentalProduct;
+use App\Models\RentalDurationPackage;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +18,7 @@ class RentalOrderController extends Controller
     {
         $cart = $request->session()->get('rental_cart', []);
         if (! $cart) return redirect()->route('cart.index')->withErrors(['cart' => 'Keranjang masih kosong.']);
-        $products = RentalProduct::with('category')->whereIn('id', array_column($cart, 'product_id'))->get()->keyBy('id');
+        $products = RentalProduct::with(['category', 'packages' => fn ($query) => $query->where('is_active', true)])->whereIn('id', array_column($cart, 'product_id'))->get()->keyBy('id');
         return view('rental.checkout', compact('cart', 'products'));
     }
 
@@ -27,6 +28,7 @@ class RentalOrderController extends Controller
         if (! $cart) throw ValidationException::withMessages(['cart' => 'Keranjang kosong.']);
         $data = $request->validate([
             'units' => ['required', 'array'], 'terms' => ['accepted'],
+            'units.*.package_id' => ['nullable', 'integer', 'min:1'],
             'units.*.starts_on' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
             'units.*.event_on' => ['required', 'date_format:Y-m-d'],
             'units.*.ends_on' => ['required', 'date_format:Y-m-d'],
@@ -55,7 +57,14 @@ class RentalOrderController extends Controller
                 $unit = $data['units'][$key];
                 $days = (int) Carbon::parse($unit['starts_on'])->diffInDays(Carbon::parse($unit['ends_on'])) + 1;
                 if ($days > 366) throw ValidationException::withMessages(['units' => 'Periode sewa maksimal 366 hari.']);
-                $order->units()->create(array_merge($unit, ['rental_product_id' => $product->id, 'product_name' => $product->name, 'unit_price' => $product->base_price, 'price_unit' => $product->price_unit, 'rental_amount' => $product->base_price * ($product->price_unit === 'day' ? $days : 1)]));
+                $package = null;
+                if (! empty($unit['package_id'])) {
+                    $package = RentalDurationPackage::where('rental_product_id', $product->id)->where('is_active', true)->lockForUpdate()->find($unit['package_id']);
+                    if (! $package || (int) $package->days !== $days) throw ValidationException::withMessages(['units' => 'Paket tidak tersedia atau durasi sewa tidak sesuai. Periksa kembali paket dan tanggal.']);
+                }
+                $amount = $package ? (int) $package->price : $product->base_price * ($product->price_unit === 'day' ? $days : 1);
+                if ($amount > 4294967295) throw ValidationException::withMessages(['units' => 'Jumlah biaya sewa melebihi batas sistem.']);
+                $order->units()->create(array_merge($unit, ['rental_product_id' => $product->id, 'product_name' => $product->name, 'unit_price' => $product->base_price, 'price_unit' => $product->price_unit, 'rental_amount' => $amount, 'rental_duration_package_id' => $package?->id, 'package_name' => $package?->name, 'package_days' => $package?->days]));
             }
             return $order;
         });

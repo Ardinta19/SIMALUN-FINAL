@@ -165,6 +165,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/katalog/kategori', [RentalCatalogController::class, 'categoryStore'])->name('catalog.categories.store');
         Route::put('/katalog/kategori/{category}', [RentalCatalogController::class, 'categoryUpdate'])->name('catalog.categories.update');
         Route::patch('/katalog/kategori/{category}/status', [RentalCatalogController::class, 'categoryToggle'])->name('catalog.categories.toggle');
+        Route::post('/katalog/{product}/paket', [RentalCatalogController::class, 'packageStore'])->name('catalog.packages.store');
+        Route::put('/katalog/paket/{package}', [RentalCatalogController::class, 'packageUpdate'])->name('catalog.packages.update');
+        Route::patch('/katalog/paket/{package}/status', [RentalCatalogController::class, 'packageToggle'])->name('catalog.packages.toggle');
         Route::post('/katalog', [RentalCatalogController::class, 'productStore'])->name('catalog.store');
         Route::put('/katalog/{product}', [RentalCatalogController::class, 'productUpdate'])->name('catalog.update');
         Route::patch('/katalog/{product}/toggle', [RentalCatalogController::class, 'toggle'])->name('catalog.toggle');

@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\RentalCategory;
 use App\Models\RentalProduct;
+use App\Models\RentalDurationPackage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -29,7 +30,7 @@ class RentalCatalogController extends Controller
 
     public function admin()
     {
-        return view('catalog.admin', ['categories' => RentalCategory::orderBy('name')->get(), 'products' => RentalProduct::with('category')->latest()->paginate(20)]);
+        return view('catalog.admin', ['categories' => RentalCategory::orderBy('name')->get(), 'products' => RentalProduct::with(['category', 'packages'])->latest()->paginate(20)]);
     }
 
     public function categoryStore(Request $request)
@@ -53,6 +54,29 @@ class RentalCatalogController extends Controller
             $locked->update(['is_active' => ! $locked->is_active]);
         });
         return back()->with('success', 'Status kategori diperbarui.');
+    }
+
+    public function packageStore(Request $request, RentalProduct $product)
+    {
+        $data = $request->validate(['name' => ['required', 'string', 'max:120'], 'days' => ['required', 'integer', 'min:1', 'max:366'], 'price' => ['required', 'integer', 'min:0', 'max:100000000']]);
+        $product->packages()->create($data);
+        return back()->with('success', 'Paket durasi ditambahkan.');
+    }
+
+    public function packageUpdate(Request $request, RentalDurationPackage $package)
+    {
+        $data = $request->validate(['name' => ['required', 'string', 'max:120'], 'days' => ['required', 'integer', 'min:1', 'max:366'], 'price' => ['required', 'integer', 'min:0', 'max:100000000']]);
+        $package->update($data);
+        return back()->with('success', 'Paket durasi diperbarui; harga pesanan lama tidak berubah.');
+    }
+
+    public function packageToggle(RentalDurationPackage $package)
+    {
+        DB::transaction(function () use ($package) {
+            $locked = RentalDurationPackage::lockForUpdate()->findOrFail($package->id);
+            $locked->update(['is_active' => ! $locked->is_active]);
+        });
+        return back()->with('success', 'Status paket diperbarui.');
     }
 
     public function productStore(Request $request)
