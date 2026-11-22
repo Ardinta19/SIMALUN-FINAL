@@ -161,6 +161,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/sewa/unit/{unit}/cancel', [RentalOrderController::class, 'cancel'])->name('rental.cancel');
         Route::get('/katalog', [RentalCatalogController::class, 'admin'])->name('catalog.index');
         Route::post('/katalog/kategori', [RentalCatalogController::class, 'categoryStore'])->name('catalog.categories.store');
+        Route::put('/katalog/kategori/{category}', [RentalCatalogController::class, 'categoryUpdate'])->name('catalog.categories.update');
+        Route::patch('/katalog/kategori/{category}/status', [RentalCatalogController::class, 'categoryToggle'])->name('catalog.categories.toggle');
         Route::post('/katalog', [RentalCatalogController::class, 'productStore'])->name('catalog.store');
         Route::put('/katalog/{product}', [RentalCatalogController::class, 'productUpdate'])->name('catalog.update');
         Route::patch('/katalog/{product}/toggle', [RentalCatalogController::class, 'toggle'])->name('catalog.toggle');

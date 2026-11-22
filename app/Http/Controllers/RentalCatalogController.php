@@ -39,6 +39,22 @@ class RentalCatalogController extends Controller
         return back()->with('success', 'Kategori berhasil ditambahkan.');
     }
 
+    public function categoryUpdate(Request $request, RentalCategory $category)
+    {
+        $data = $request->validate(['name' => ['required', 'string', 'max:120', Rule::unique('rental_categories', 'name')->ignore($category->id)]]);
+        $category->update($data);
+        return back()->with('success', 'Kategori berhasil diperbarui.');
+    }
+
+    public function categoryToggle(RentalCategory $category)
+    {
+        DB::transaction(function () use ($category) {
+            $locked = RentalCategory::lockForUpdate()->findOrFail($category->id);
+            $locked->update(['is_active' => ! $locked->is_active]);
+        });
+        return back()->with('success', 'Status kategori diperbarui.');
+    }
+
     public function productStore(Request $request)
     {
         $data = $this->validateProduct($request);

@@ -41,4 +41,22 @@ class RentalCatalogTest extends TestCase
         $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 1, 'is_active' => false]);
         $this->get(route('catalog.show', $product))->assertNotFound();
     }
+    public function test_admin_can_manage_categories_and_inactive_category_hides_products(): void
+    {
+        $admin = User::factory()->create(); $admin->forceFill(['role' => 'admin'])->save();
+        $customer = User::factory()->create(); $customer->forceFill(['role' => 'customer'])->save();
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        RentalCategory::create(['name' => 'Pernikahan']);
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan Wisuda', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 1]);
+        $this->actingAs($customer)->put(route('admin.catalog.categories.update', $category), ['name' => 'Lain'])->assertRedirect(route('customer.dashboard'));
+        $this->assertDatabaseHas('rental_categories', ['id' => $category->id, 'name' => 'Wisuda']);
+        $this->actingAs($admin)->put(route('admin.catalog.categories.update', $category), ['name' => 'Pernikahan'])->assertSessionHasErrors('name');
+        $this->put(route('admin.catalog.categories.update', $category), ['name' => 'Kelulusan'])->assertSessionHasNoErrors();
+        $this->patch(route('admin.catalog.categories.toggle', $category))->assertSessionHasNoErrors();
+        $this->get('/')->assertDontSee('Papan Wisuda');
+        $this->get(route('catalog.show', $product))->assertNotFound();
+        $this->patch(route('admin.catalog.categories.toggle', $category))->assertSessionHasNoErrors();
+        $this->get('/')->assertSee('Papan Wisuda');
+        $this->assertDatabaseHas('rental_categories', ['id' => $category->id, 'name' => 'Kelulusan', 'is_active' => true]);
+    }
 }

@@ -1,4 +1,4 @@
-<label>Kategori<select name="rental_category_id" required><option value="">Pilih kategori</option>@foreach($categories as $category)<option value="{{ $category->id }}" @selected((string) old('rental_category_id', $product?->rental_category_id) === (string) $category->id)>{{ $category->name }}</option>@endforeach</select></label>
+<label>Kategori<select name="rental_category_id" required><option value="">Pilih kategori</option>@foreach($categories as $category)<option value="{{ $category->id }}" @disabled(! $category->is_active) @selected((string) old('rental_category_id', $product?->rental_category_id) === (string) $category->id)>{{ $category->name }}{{ $category->is_active ? '' : ' (nonaktif)' }}</option>@endforeach</select></label>
 <label>Nama papan<input name="name" value="{{ old('name', $product?->name) }}" maxlength="160" required></label>
 <label>Ukuran<input name="size" value="{{ old('size', $product?->size) }}" maxlength="100"></label>
 <label>Deskripsi<textarea name="description" maxlength="3000">{{ old('description', $product?->description) }}</textarea></label>
