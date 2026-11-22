@@ -45,13 +45,13 @@ class RegisterController extends Controller
                 'required',
                 'string',
                 'regex:/^8[0-9]{8,12}$/',
-                Rule::unique('users', 'phone')->whereNull('deleted_at'),
+                Rule::unique('users', 'phone'),
             ],
             'email' => [
                 'nullable',
                 'email:rfc',
                 'max:150',
-                Rule::unique('users', 'email')->whereNull('deleted_at'),
+                Rule::unique('users', 'email'),
             ],
             'password' => ['required', 'confirmed', Password::min(8)],
             'address' => ['required', 'string', 'min:10', 'max:300'],
@@ -60,8 +60,8 @@ class RegisterController extends Controller
         ], [
             'phone.required' => 'Nomor HP wajib diisi.',
             'phone.regex' => 'Format nomor HP tidak valid (contoh: 81234567890).',
-            'phone.unique' => 'Nomor HP sudah terdaftar. Silakan login.',
-            'email.unique' => 'Email sudah terdaftar. Silakan pakai email lain atau kosongkan.',
+            'phone.unique' => 'Nomor HP tidak tersedia. Silakan masuk atau hubungi admin jika memerlukan bantuan akun.',
+            'email.unique' => 'Email tidak tersedia. Silakan gunakan email lain atau hubungi admin.',
             'terms.accepted' => 'Kamu harus menyetujui syarat & ketentuan.',
         ]);
 

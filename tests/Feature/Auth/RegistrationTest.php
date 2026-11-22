@@ -3,6 +3,7 @@
 namespace Tests\Feature\Auth;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\User;
 use Tests\TestCase;
 
 class RegistrationTest extends TestCase
@@ -52,6 +53,17 @@ class RegistrationTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors(['phone', 'terms']);
+        $this->assertGuest();
+    }
+    public function test_soft_deleted_account_identifiers_cannot_cause_a_database_error_on_registration(): void
+    {
+        $old = User::factory()->create(['phone' => '81234567890', 'email' => 'old@example.com']);
+        $old->delete();
+        $this->from('/register')->post('/register', [
+            'name' => 'Pengguna Tes', 'gender' => 'L', 'phone' => '081234567890',
+            'email' => 'old@example.com', 'password' => 'rahasia12345', 'password_confirmation' => 'rahasia12345',
+            'address' => 'Jl. Mawar No. 7, Jambi', 'terms' => true,
+        ])->assertRedirect('/register')->assertSessionHasErrors(['phone', 'email']);
         $this->assertGuest();
     }
 }

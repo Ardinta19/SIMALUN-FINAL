@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ProfileTest extends TestCase
@@ -116,5 +118,26 @@ class ProfileTest extends TestCase
         $this->get(route('profile.edit'))->assertOk()->assertSee('Data pesanan dan catatan transaksi dapat tetap tersimpan')->assertDontSee('Semua data pesanan akan ikut terhapus')->assertDontSee('ui-avatars.com');
         $this->actingAs($admin)->get(route('admin.profile'))->assertOk()->assertSee('Berkah Kreatif')->assertSee('Menunggu konfirmasi')->assertSee('Unit aktif')->assertSee(route('admin.rental.orders'))->assertSee(route('admin.rental.cashbook.index'))->assertDontSee('Tugaskan kurir')->assertDontSee('ui-avatars.com');
         $this->get(route('profile.edit'))->assertOk()->assertSee('Berkah Kreatif')->assertDontSee('ui-avatars.com');
+    }
+    public function test_phone_uniqueness_is_checked_after_normalization(): void
+    {
+        $owner = User::factory()->create(['phone' => '81234567890']);
+        $other = User::factory()->create(['phone' => '81399990000']);
+        $this->actingAs($other)->from('/profile/edit')->patch('/profile', ['name' => $other->name, 'email' => $other->email, 'phone' => '+62 812-3456-7890'])
+            ->assertSessionHasErrors('phone');
+        $this->assertSame('81399990000', $other->fresh()->phone);
+        $this->actingAs($owner)->patch('/profile', ['name' => $owner->name, 'email' => $owner->email, 'phone' => '0812-3456-7890'])
+            ->assertSessionHasNoErrors();
+        $this->assertSame('81234567890', $owner->fresh()->phone);
+    }
+
+    public function test_new_avatar_is_saved_before_the_old_avatar_is_removed(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('avatars/old.jpg', 'old');
+        $user = User::factory()->create(['phone' => '81234567890', 'avatar' => 'avatars/old.jpg']);
+        $this->actingAs($user)->patch('/profile', ['name' => $user->name, 'email' => $user->email, 'phone' => $user->phone, 'avatar' => UploadedFile::fake()->image('new.png')])->assertSessionHasNoErrors();
+        Storage::disk('public')->assertMissing('avatars/old.jpg');
+        Storage::disk('public')->assertExists($user->fresh()->avatar);
     }
 }

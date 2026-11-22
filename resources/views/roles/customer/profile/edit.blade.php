@@ -297,11 +297,12 @@
                 </div>
 
                 <div>
-                    <div class="field-label">Nomor HP / WhatsApp <span class="req">*</span></div>
-                    <input type="text" name="phone"
+                    <label class="field-label" for="profile-phone">Nomor HP / WhatsApp <span class="req">*</span></label>
+                    <input type="tel" id="profile-phone" name="phone"
                            class="field-input"
                            value="{{ old('phone', $user->phone) }}"
                            placeholder="08xxxxxxxxxx" required>
+                    @error('phone') <div class="field-error">{{ $message }}</div> @enderror
                 </div>
 
                 <button type="submit" class="btn-submit">Simpan Data Pribadi</button>

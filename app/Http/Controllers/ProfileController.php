@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\CustomerAddress;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
@@ -41,13 +43,20 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
 
+        // Validasi keunikan harus menggunakan format yang benar-benar disimpan.
+        $phone = $request->input('phone');
+        if (is_string($phone)) {
+            $phone = preg_replace('/[\s\-\.]/', '', $phone);
+            $request->merge(['phone' => preg_replace('/^(\+?62|0)/', '', $phone)]);
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'phone' => [
                 'required',
                 'string',
-                'regex:/^(?:\+?62|0)?8[0-9]{8,12}$/',
+                'regex:/^8[0-9]{8,12}$/',
                 Rule::unique('users')->ignore($user->id),
             ],
             'avatar' => ['nullable', 'image', 'mimetypes:image/jpeg,image/png,image/webp', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
@@ -57,34 +66,29 @@ class ProfileController extends Controller
             'phone.unique' => 'Nomor HP sudah dipakai akun lain.',
         ]);
 
-        // Normalisasi nomor HP ke kanonik 8xxxxxxxxxx
-        if (! empty($validated['phone'])) {
-            $normalized = preg_replace('/[\s\-\.]/', '', $validated['phone']);
-            $validated['phone'] = preg_replace('/^(\+?62|0)/', '', $normalized);
-        }
-
+        $newAvatar = null;
         if ($request->hasFile('avatar')) {
-            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
-                Storage::disk('public')->delete($user->avatar);
-            }
-            $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
+            $newAvatar = $request->file('avatar')->store('avatars', 'public');
+            if (! $newAvatar) throw ValidationException::withMessages(['avatar' => 'Foto tidak dapat disimpan. Silakan coba lagi.']);
+            $validated['avatar'] = $newAvatar;
         }
 
-        // Normalisasi email: string kosong → null supaya tidak menabrak unique constraint.
-        if (array_key_exists('email', $validated) && $validated['email'] === '') {
-            $validated['email'] = null;
+        $oldAvatar = $user->avatar;
+        $emailChanged = array_key_exists('email', $validated) && $validated['email'] !== $user->email;
+        try {
+            DB::transaction(function () use ($user, $validated, $emailChanged) {
+                $user->fill($validated);
+                if ($emailChanged) $user->email_verified_at = null;
+                $user->save();
+            });
+        } catch (\Throwable $e) {
+            if ($newAvatar) Storage::disk('public')->delete($newAvatar);
+            throw $e;
         }
-
-        $emailChanged = ($validated['email'] ?? null) !== $user->email;
-
-        $user->fill($validated)->save();
-
-        // email_verified_at tidak di-fillable (sensitive). Reset lewat
-        // property assignment kalau email berubah — supaya user wajib
-        // verifikasi ulang alamat baru.
-        if ($emailChanged) {
-            $user->email_verified_at = null;
-            $user->save();
+        if ($newAvatar && $oldAvatar && $oldAvatar !== $newAvatar
+            && preg_match('~^avatars/[A-Za-z0-9_-]+\.(?:jpg|jpeg|png|webp)$~i', $oldAvatar)
+            && ! \App\Models\User::withTrashed()->where('avatar', $oldAvatar)->exists()) {
+            Storage::disk('public')->delete($oldAvatar);
         }
 
         return back()->with('status', 'profile-updated');
