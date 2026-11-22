@@ -78,9 +78,10 @@ class RentalFeedbackTest extends TestCase
         $this->actingAs($other)->post($shareUrl, ['enabled' => 1])->assertForbidden();
         $this->actingAs($customer)->post($shareUrl, ['enabled' => 1])->assertSessionHasNoErrors();
         $token = DB::table('rental_order_like_shares')->where('rental_order_id', $order->id)->value('token');
+        $this->get(route('rental.orders.show', $order))->assertOk()->assertSee('data-copy-share', false)->assertSee('Salin tautan secara manual');
         $url = route('rental.likes.public', $token);
         $this->get($url)->assertOk()->assertHeader('Referrer-Policy', 'no-referrer')->assertSee('0 suka')
-            ->assertDontSee($order->reference)->assertDontSee('Rahasia Penerima')->assertDontSee('Ucapan rahasia')->assertDontSee('Alamat rahasia')->assertDontSee('Melati')->assertDontSee($customer->name);
+            ->assertSee('name="referrer" content="no-referrer"', false)->assertDontSee($order->reference)->assertDontSee('Rahasia Penerima')->assertDontSee('Ucapan rahasia')->assertDontSee('Alamat rahasia')->assertDontSee('Melati')->assertDontSee($customer->name);
         $this->actingAs($other)->post(route('rental.order.like', $token), ['liked' => 1])->assertSessionHasNoErrors();
         $this->post(route('rental.order.like', $token), ['liked' => 1])->assertSessionHasNoErrors();
         $this->get($url)->assertSee('1 suka');
