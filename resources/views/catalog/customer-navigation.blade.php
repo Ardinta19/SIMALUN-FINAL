@@ -14,7 +14,7 @@
                 @if($isCustomer)<a href="{{ route('rental.orders.index') }}">Pesanan saya</a><a href="{{ route('customer.dashboard') }}">Beranda</a><a href="{{ route('customer.notifications') }}">Notifikasi</a><a href="{{ route('customer.profile') }}">Profil</a>@else<a href="{{ route('login') }}">Masuk</a>@endif
             </nav>
             <button type="button" class="bk-command-trigger" data-open-dialog="bk-command" hidden aria-label="Buka navigasi cepat">Cari halaman <kbd>Ctrl K</kbd></button>
-            <button type="button" class="bk-menu-trigger" data-open-dialog="bk-menu" hidden aria-label="Buka menu navigasi"><span aria-hidden="true">☰</span></button>
+            <button type="button" class="bk-menu-trigger" @if($isCustomer) data-open-radial aria-controls="customer-nav" @else data-open-dialog="bk-menu" @endif hidden aria-label="Buka menu navigasi"><span aria-hidden="true">☰</span></button>
             <button type="button" class="bk-expand" data-bk-expand hidden aria-label="Buka navigasi"><img src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt=""></button>
         </div>
     </header>

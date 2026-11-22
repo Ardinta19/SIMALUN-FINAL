@@ -18,6 +18,14 @@
     <p class="muted">Tanggal bersifat opsional. Isi keduanya untuk menyaring papan yang diperkirakan tersedia selama seluruh periode. Untuk sewa satu hari, pilih tanggal yang sama.</p>
     <p><button class="btn" type="submit">Cari papan</button> <a href="{{ route('welcome') }}">Hapus filter</a></p>
 </form>
+@if(request()->filled('q') || request()->filled('category') || $dates)
+<div class="bk-applied-filters" aria-label="Filter yang digunakan"><span>Filter aktif</span>
+    @if(request()->filled('q'))<a href="{{ route('welcome', request()->only(['category', 'starts_on', 'ends_on'])) }}" aria-label="Hapus pencarian {{ request('q') }}">{{ request('q') }} <b aria-hidden="true">×</b></a>@endif
+    @if(request()->filled('category'))<a href="{{ route('welcome', request()->only(['q', 'starts_on', 'ends_on'])) }}" aria-label="Hapus filter kategori">{{ $categories->firstWhere('id', (int) request('category'))?->name ?? 'Kategori dipilih' }} <b aria-hidden="true">×</b></a>@endif
+    @if($dates)<a href="{{ route('welcome', request()->only(['q', 'category'])) }}" aria-label="Hapus filter tanggal">{{ \Carbon\Carbon::parse($dates['starts_on'])->format('d/m') }}–{{ \Carbon\Carbon::parse($dates['ends_on'])->format('d/m/Y') }} <b aria-hidden="true">×</b></a>@endif
+    <a class="bk-filter-clear" href="{{ route('welcome') }}">Hapus semua</a>
+</div>
+@endif
 @if($categories->isNotEmpty())
 <nav class="bk-category-strip" aria-label="Kategori papan bunga">
     <a href="{{ route('welcome', request()->only(['q', 'starts_on', 'ends_on'])) }}" @if(!request('category')) aria-current="page" @endif>Semua</a>

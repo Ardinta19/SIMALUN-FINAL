@@ -50,7 +50,7 @@ class RentalCustomerNavigationTest extends TestCase
         $customer = User::factory()->create(['role' => 'customer']);
         $this->actingAs($customer)->get(route('welcome'))->assertOk()
             ->assertSee(route('rental.orders.index'))->assertSee(route('customer.help'))
-            ->assertSee('id="customer-nav"', false)->assertDontSee(route('admin.rental.orders'));
+            ->assertSee('id="customer-nav"', false)->assertSee('data-open-radial', false)->assertDontSee(route('admin.rental.orders'));
         $admin = User::factory()->create(['role' => 'admin']);
         $this->actingAs($admin)->get(route('welcome'))->assertOk()
             ->assertSee(route('admin.rental.orders'))->assertDontSee('id="bk-command"', false);
