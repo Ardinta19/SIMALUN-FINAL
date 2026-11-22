@@ -35,3 +35,14 @@ Lampiran laporan baru disimpan pada disk lokal privat dan ditampilkan melalui ru
 ## Hasil tes pengguna terbaru
 
 Pada commit `4870668`, pengguna menjalankan `php artisan test` di Windows: **230 passed, 1469 assertions**, 8,01 detik. Hasil ini mencakup tes fitur rating dan suka serta kebijakan referrer tautan publik. Perubahan setelah commit tersebut belum termasuk hasil ini. Tes otomatis tersebut bukan pengganti uji visual browser, uji konkurensi MySQL, atau pemeriksaan kesiapan produksi.
+
+### Perubahan setelah `4870668` yang belum diuji di Windows
+
+Commit `7a2c10e` (registrasi progresif), `5f5ff85` (login aksesibel), `3eb81e1` (galat checkout per unit), `58ebb76` (detail unit), `74a25aa` (filter tanggal gagal), `9a8e90d` (tanggal lama tidak dipakai), `0a6b07b` (filter pesanan), `af3e863` (tanggal keranjang lewat), `a57d07d` (checkout dengan isian tak wajar), `9e9cc96` (profil dan alamat), `cbad96c` (masuk, daftar, lupa sandi, edit alamat), dan `e56018c` (katalog admin, pengaturan pembayaran, kartu ulasan) belum dijalankan dengan `php artisan test` maupun browser nyata.
+
+Langkah pemeriksaan yang disarankan:
+
+1. `php artisan test` lalu catat jumlah lulus/gagal.
+2. Buka keranjang berisi unit bertanggal kemarin: pastikan muncul peringatan, tautan detail tanpa tanggal, dan tombol tambah unit hilang; ubah tanggal di checkout.
+3. Kirim form dengan nilai berbentuk larik (alat pengembang peramban) pada checkout, profil, alamat, masuk, daftar, lupa sandi, dan katalog admin; halaman harus kembali dengan pesan galat, bukan halaman error 500.
+4. Periksa pesan galat jumlah di detail papan tampil tepat di bawah pemilih jumlah.
