@@ -58,3 +58,9 @@ Audit ini membandingkan kode yang ada dengan kebutuhan penyewaan yang disepakati
 - Uji browser mobile/tablet/desktop termasuk keyboard, zoom, foto, navigasi kembali setelah login/registrasi, dan layar dengan konten panjang.
 - Tes lokal 146 lulus memverifikasi suite yang ada, bukan fitur penyewaan yang belum dibangun atau keamanan produksi. Audit npm melaporkan 13 vulnerability pada instalasi pengguna; periksa `npm audit` dan jalur dependensi sebelum memutuskan upgrade, tanpa otomatis menjalankan perubahan breaking.
 - Jangan menghapus tabel atau data SIMALUN tanpa keputusan pemilik dan backup; buat perubahan skema bertahap. Push hanya branch sesi; jangan merge ke main.
+
+## Audit dependency npm (22 November 2026)
+
+- `npm audit` terhadap lockfile melaporkan 13 paket terdampak: 1 low, 2 moderate, 8 high, 2 critical. Nama langsung yang dilaporkan termasuk axios, concurrently, postcss dan vite; severity adalah klasifikasi advisory, bukan bukti eksploitasi aplikasi. Detail dan relevansinya perlu dikaji menurut jalur pemakaian masing-masing.
+- `npm audit --omit=dev` melaporkan 0 paket terdampak menurut klasifikasi dependency npm. Ini **tidak** membuktikan aset produksi aman: axios tercantum sebagai devDependency tetapi diimpor `resources/js/bootstrap.js` dan mungkin ikut dibundel untuk browser. Analisis bundle dan advisory tetap dibutuhkan.
+- Jangan jalankan `npm audit fix --force` tanpa memeriksa perubahan lockfile, kompatibilitas PHP/Node, build dan tes. Jangan mengekspos Vite dev server ke jaringan publik; ada advisory terkait tooling Windows. `composer audit` belum dapat dijalankan di lingkungan audit karena Composer/PHP tidak terpasang.
