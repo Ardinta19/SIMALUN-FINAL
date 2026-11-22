@@ -185,6 +185,7 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
     font-size:.82rem; font-weight:700; color:var(--red);
     margin-bottom:14px;
 }
+.map-hint[hidden]{display:none}
 </style>
 <link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
 </head>
@@ -258,7 +259,7 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
                 <div>
                     <div class="field-label">Titik Lokasi di Peta (Opsional)</div>
                     <div id="addr-map" hidden></div><p class="field-hint" id="map-fallback">Peta bersifat opsional. Jika tidak tampil, isi alamat lengkap secara manual.</p>
-                    <div class="map-hint">
+                    <div class="map-hint" hidden>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                         Tap atau geser pin untuk menentukan titik akurat
                     </div>
@@ -330,6 +331,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const hasCoordinates = latitude.value.trim() !== '' && longitude.value.trim() !== '' && Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180;
     const point = hasCoordinates ? [lat, lng] : [-1.6101, 103.6131];
     const map = L.map('addr-map').setView(point, hasCoordinates ? 15 : 13);
+    document.querySelector('.map-hint').hidden = false;
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
     let marker = hasCoordinates ? L.marker(point, { draggable: true }).addTo(map) : null;
     if (marker) marker.on('dragend', function () { save(marker.getLatLng()); });

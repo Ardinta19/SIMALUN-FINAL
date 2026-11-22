@@ -281,16 +281,16 @@
                 @endif
 
                 <div>
-                    <div class="field-label">Nama Lengkap <span class="req">*</span></div>
-                    <input type="text" name="name"
+                    <label class="field-label" for="profile-name">Nama Lengkap <span class="req">*</span></label>
+                    <input type="text" id="profile-name" name="name"
                            class="field-input {{ $errors->has('name') ? 'is-error' : '' }}"
                            value="{{ old('name', $user->name) }}" required>
                     @error('name') <div class="field-error">{{ $message }}</div> @enderror
                 </div>
 
                 <div>
-                    <div class="field-label">Email <span style="font-weight:600;color:var(--ink-lt)">(opsional)</span></div>
-                    <input type="email" name="email"
+                    <label class="field-label" for="profile-email">Email <span style="font-weight:600;color:var(--ink-lt)">(opsional)</span></label>
+                    <input type="email" id="profile-email" name="email"
                            class="field-input {{ $errors->has('email') ? 'is-error' : '' }}"
                            value="{{ old('email', $user->email) }}"
                            placeholder="Boleh dikosongkan">
@@ -322,8 +322,8 @@
             <div class="section-body">
 
                 <div>
-                    <div class="field-label">Label <span class="req">*</span></div>
-                    <input type="text" name="label"
+                    <label class="field-label" for="profile-address-label">Label <span class="req">*</span></label>
+                    <input type="text" id="profile-address-label" name="label"
                            class="field-input {{ $errors->has('label') ? 'is-error' : '' }}"
                            value="{{ old('label', $primaryAddress->label ?? 'Rumah') }}"
                            placeholder="Rumah, Kantor, Kos..."
@@ -331,32 +331,32 @@
                 </div>
 
                 <div>
-                    <div class="field-label">Nama Penerima <span class="req">*</span></div>
-                    <input type="text" name="recipient_name"
+                    <label class="field-label" for="profile-address-recipient">Nama Penerima <span class="req">*</span></label>
+                    <input type="text" id="profile-address-recipient" name="recipient_name"
                            class="field-input {{ $errors->has('recipient_name') ? 'is-error' : '' }}"
                            value="{{ old('recipient_name', $primaryAddress->recipient_name ?? $user->name) }}"
                            required>
                 </div>
 
                 <div>
-                    <div class="field-label">No. HP Penerima</div>
-                    <input type="text" name="phone"
+                    <label class="field-label" for="profile-address-phone">No. HP Penerima</label>
+                    <input type="text" id="profile-address-phone" name="phone"
                            class="field-input"
                            value="{{ old('phone', $primaryAddress->phone ?? $user->phone) }}"
                            placeholder="08xxxxxxxxxx">
                 </div>
 
                 <div>
-                    <div class="field-label">Alamat Lengkap <span class="req">*</span></div>
-                    <textarea name="full_address"
+                    <label class="field-label" for="profile-address-full">Alamat Lengkap <span class="req">*</span></label>
+                    <textarea id="profile-address-full" name="full_address"
                               class="field-input {{ $errors->has('full_address') ? 'is-error' : '' }}"
                               placeholder="Jalan, nomor rumah, RT/RW, kelurahan, kecamatan"
                               required>{{ old('full_address', $primaryAddress->full_address ?? '') }}</textarea>
                 </div>
 
                 <div>
-                    <div class="field-label">Catatan (opsional)</div>
-                    <input type="text" name="notes"
+                    <label class="field-label" for="profile-address-notes">Catatan (opsional)</label>
+                    <input type="text" id="profile-address-notes" name="notes"
                            class="field-input"
                            value="{{ old('notes', $primaryAddress->notes ?? '') }}"
                            placeholder="Patokan, warna pagar, lantai">
@@ -380,20 +380,20 @@
             </div>
             <div class="section-body">
                 <div>
-                    <div class="field-label">Password Saat Ini</div>
-                    <input type="password" name="current_password" class="field-input" autocomplete="current-password" placeholder="••••••••">
+                    <label class="field-label" for="profile-current-password">Password Saat Ini</label>
+                    <input type="password" id="profile-current-password" name="current_password" class="field-input" autocomplete="current-password" placeholder="••••••••">
                     @error('current_password', 'updatePassword') <div class="field-error">{{ $message }}</div> @enderror
                 </div>
 
                 <div>
-                    <div class="field-label">Password Baru</div>
-                    <input type="password" name="password" class="field-input" autocomplete="new-password" placeholder="Minimal 8 karakter">
+                    <label class="field-label" for="profile-new-password">Password Baru</label>
+                    <input type="password" id="profile-new-password" name="password" class="field-input" autocomplete="new-password" placeholder="Minimal 8 karakter">
                     @error('password', 'updatePassword') <div class="field-error">{{ $message }}</div> @enderror
                 </div>
 
                 <div>
-                    <div class="field-label">Konfirmasi Password Baru</div>
-                    <input type="password" name="password_confirmation" class="field-input" autocomplete="new-password" placeholder="Ulangi password baru">
+                    <label class="field-label" for="profile-confirm-password">Konfirmasi Password Baru</label>
+                    <input type="password" id="profile-confirm-password" name="password_confirmation" class="field-input" autocomplete="new-password" placeholder="Ulangi password baru">
                 </div>
 
                 <button type="submit" class="btn-submit secondary">Perbarui Password</button>
@@ -415,8 +415,8 @@
                     @csrf
                     @method('delete')
                     <div>
-                        <div class="field-label">Konfirmasi Password <span class="req">*</span></div>
-                        <input type="password" name="password" class="field-input" required placeholder="Masukkan password Anda">
+                        <label class="field-label" for="profile-delete-password">Konfirmasi Password <span class="req">*</span></label>
+                        <input type="password" id="profile-delete-password" name="password" class="field-input" required placeholder="Masukkan password Anda">
                         @error('password') <div class="field-error">{{ $message }}</div> @enderror
                     </div>
                     <button type="button" class="btn-danger" style="margin-top:12px;" id="btn-delete-account">Nonaktifkan Akun</button>
