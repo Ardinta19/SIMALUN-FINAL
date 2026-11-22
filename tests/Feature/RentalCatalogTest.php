@@ -95,4 +95,24 @@ class RentalCatalogTest extends TestCase
         $this->actingAs($admin)->put(route('admin.catalog.update', $product), $data + ['image' => UploadedFile::fake()->image('baru.png')])->assertSessionHasNoErrors();
         Storage::disk('public')->assertExists('catalog/shared.jpg');
     }
+    public function test_category_and_package_changes_are_audited(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($admin)->post(route('admin.catalog.categories.store'), ['name' => 'Wisuda'])->assertSessionHasNoErrors();
+        $category = RentalCategory::where('name', 'Wisuda')->firstOrFail();
+        $this->put(route('admin.catalog.categories.update', $category), ['name' => 'Kelulusan'])->assertSessionHasNoErrors();
+        $this->patch(route('admin.catalog.categories.toggle', $category))->assertSessionHasNoErrors();
+        $this->patch(route('admin.catalog.categories.toggle', $category))->assertSessionHasNoErrors();
+        foreach (['create', 'update', 'toggle'] as $action) {
+            $this->assertDatabaseHas('audit_logs', ['actor_id' => $admin->id, 'action' => 'rental.catalog.category.'.$action, 'auditable_id' => $category->id]);
+        }
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 1]);
+        $this->post(route('admin.catalog.packages.store', $product), ['name' => 'Paket', 'days' => 2, 'price' => 150])->assertSessionHasNoErrors();
+        $package = $product->packages()->firstOrFail();
+        $this->put(route('admin.catalog.packages.update', $package), ['name' => 'Paket baru', 'days' => 3, 'price' => 200])->assertSessionHasNoErrors();
+        $this->patch(route('admin.catalog.packages.toggle', $package))->assertSessionHasNoErrors();
+        foreach (['create', 'update', 'toggle'] as $action) {
+            $this->assertDatabaseHas('audit_logs', ['actor_id' => $admin->id, 'action' => 'rental.catalog.package.'.$action, 'auditable_id' => $package->id]);
+        }
+    }
 }

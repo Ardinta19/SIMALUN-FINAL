@@ -51,14 +51,22 @@ class RentalCatalogController extends Controller
     public function categoryStore(Request $request)
     {
         $data = $request->validate(['name' => ['required', 'string', 'max:120', 'unique:rental_categories,name']]);
-        RentalCategory::create($data);
+        DB::transaction(function () use ($data) {
+            $category = RentalCategory::create($data);
+            Audit::log('rental.catalog.category.create', $category, after: $category->refresh()->only(['name', 'is_active']));
+        });
         return back()->with('success', 'Kategori berhasil ditambahkan.');
     }
 
     public function categoryUpdate(Request $request, RentalCategory $category)
     {
         $data = $request->validate(['name' => ['required', 'string', 'max:120', Rule::unique('rental_categories', 'name')->ignore($category->id)]]);
-        $category->update($data);
+        DB::transaction(function () use ($category, $data) {
+            $locked = RentalCategory::lockForUpdate()->findOrFail($category->id);
+            $before = $locked->only(['name', 'is_active']);
+            $locked->update($data);
+            Audit::log('rental.catalog.category.update', $locked, before: $before, after: $locked->only(['name', 'is_active']));
+        });
         return back()->with('success', 'Kategori berhasil diperbarui.');
     }
 
@@ -66,7 +74,9 @@ class RentalCatalogController extends Controller
     {
         DB::transaction(function () use ($category) {
             $locked = RentalCategory::lockForUpdate()->findOrFail($category->id);
+            $before = $locked->only(['name', 'is_active']);
             $locked->update(['is_active' => ! $locked->is_active]);
+            Audit::log('rental.catalog.category.toggle', $locked, before: $before, after: $locked->only(['name', 'is_active']));
         });
         return back()->with('success', 'Status kategori diperbarui.');
     }
@@ -74,14 +84,22 @@ class RentalCatalogController extends Controller
     public function packageStore(Request $request, RentalProduct $product)
     {
         $data = $request->validate(['name' => ['required', 'string', 'max:120'], 'days' => ['required', 'integer', 'min:1', 'max:366'], 'price' => ['required', 'integer', 'min:0', 'max:100000000']]);
-        $product->packages()->create($data);
+        DB::transaction(function () use ($product, $data) {
+            $package = $product->packages()->create($data);
+            Audit::log('rental.catalog.package.create', $package, after: $package->refresh()->only(['rental_product_id', 'name', 'days', 'price', 'is_active']));
+        });
         return back()->with('success', 'Paket durasi ditambahkan.');
     }
 
     public function packageUpdate(Request $request, RentalDurationPackage $package)
     {
         $data = $request->validate(['name' => ['required', 'string', 'max:120'], 'days' => ['required', 'integer', 'min:1', 'max:366'], 'price' => ['required', 'integer', 'min:0', 'max:100000000']]);
-        $package->update($data);
+        DB::transaction(function () use ($package, $data) {
+            $locked = RentalDurationPackage::lockForUpdate()->findOrFail($package->id);
+            $before = $locked->only(['rental_product_id', 'name', 'days', 'price', 'is_active']);
+            $locked->update($data);
+            Audit::log('rental.catalog.package.update', $locked, before: $before, after: $locked->only(['rental_product_id', 'name', 'days', 'price', 'is_active']));
+        });
         return back()->with('success', 'Paket durasi diperbarui; harga pesanan lama tidak berubah.');
     }
 
@@ -89,7 +107,9 @@ class RentalCatalogController extends Controller
     {
         DB::transaction(function () use ($package) {
             $locked = RentalDurationPackage::lockForUpdate()->findOrFail($package->id);
+            $before = $locked->only(['rental_product_id', 'name', 'days', 'price', 'is_active']);
             $locked->update(['is_active' => ! $locked->is_active]);
+            Audit::log('rental.catalog.package.toggle', $locked, before: $before, after: $locked->only(['rental_product_id', 'name', 'days', 'price', 'is_active']));
         });
         return back()->with('success', 'Status paket diperbarui.');
     }
@@ -103,7 +123,7 @@ class RentalCatalogController extends Controller
         try {
             DB::transaction(function () use ($data) {
                 $product = RentalProduct::create($data);
-                Audit::log('rental.catalog.product.create', $product, after: $this->productSnapshot($product));
+                Audit::log('rental.catalog.product.create', $product, after: $this->productSnapshot($product->refresh()));
             });
         } catch (\Throwable $e) {
             if ($path) Storage::disk('public')->delete($path);
