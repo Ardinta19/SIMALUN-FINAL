@@ -208,11 +208,34 @@ html[data-theme="dark"] :is(.bk-dialog-head button, .bk-menu-trigger, .bk-comman
 }
 
 html[data-theme="dark"] :is(.bk-menu-links a, .bk-command-links a) {
+    background: var(--theme-surface-2);
+    border-color: var(--theme-line);
     color: var(--theme-ink);
 }
 
+/* Nomor urut di kartu menu tetap terbaca di atas permukaan gelap. */
+html[data-theme="dark"] :is(.bk-menu-links a span, .bk-command-links a span) {
+    color: var(--theme-accent-text);
+}
+
 html[data-theme="dark"] :is(.bk-menu-links a:hover, .bk-command-links a:hover, .bk-command-links a[aria-selected="true"]) {
+    background: var(--theme-surface-3);
+}
+
+/* Panel sambutan dashboard tetap terang tanpa aturan ini, sehingga judul
+   "Halo, ..." yang mengikuti warna teks tema gelap jadi tak terbaca. */
+html[data-theme="dark"] .bk-dashboard-welcome {
     background: var(--theme-surface-2);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] .bk-dashboard-welcome p {
+    color: var(--theme-ink-mid);
+}
+
+html[data-theme="dark"] .bk-dashboard-flower {
+    background: var(--theme-surface-3);
+    color: var(--theme-accent-text);
 }
 
 html[data-theme="dark"] :is(.bk-dialog input, .bk-dialog select, .bk-dialog textarea) {
@@ -511,7 +534,32 @@ html[data-theme="dark"] :is(.bk-eyebrow, .bk-kicker) {
 }
 
 html[data-theme="dark"] :is(.bk-like) {
+    background: var(--theme-surface-2);
+    border-color: var(--theme-line);
     color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(.bk-like[aria-pressed="true"], .bk-like:hover) {
+    background: var(--theme-surface-3);
+}
+
+/* Bintang rating: keping putih + bintang pucat nyaris hilang di tema gelap. */
+html[data-theme="dark"] :is(.bk-star-rating__options label) {
+    background: var(--theme-surface-2);
+    border-color: var(--theme-line);
+    color: var(--theme-ink-lt);
+}
+
+html[data-theme="dark"] :is(.bk-star-rating__options label:hover, .bk-star-rating__options input:checked ~ label) {
+    background: var(--theme-surface-3);
+    border-color: var(--theme-brand-strong);
+    color: var(--theme-accent-text);
+}
+
+/* Kotak catatan bantuan: latar krem tetap terang padahal teksnya sudah krem terang. */
+html[data-theme="dark"] :is(.help-notice) {
+    background: var(--theme-warning-soft);
+    border-color: var(--theme-line);
 }
 
 html[data-theme="dark"] :is(.bk-feedback-summary) {

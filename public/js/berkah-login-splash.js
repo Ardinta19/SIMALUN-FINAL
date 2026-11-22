@@ -6,8 +6,8 @@
  *
  * Aturan main:
  *  - Hanya tampil bila markup #bk-splash sudah dibuka oleh inline guard
- *    (tanpa galat validasi, bukan prefers-reduced-motion, maksimal sekali
- *    per 30 menit per sesi).
+ *    (setiap kunjungan ke /login, kecuali ada galat validasi, pengguna
+ *    memakai prefers-reduced-motion, atau meminta `?splash=0`).
  *  - Bisa dilewati: klik di mana saja, tombol "Lewati", atau Escape.
  *  - Bila GSAP tidak termuat, overlay tetap ditutup dengan transisi CSS.
  */
@@ -141,7 +141,9 @@
     });
 
     timeline
-        .from(logo, { scale: 0.72, rotate: -80, opacity: 0, duration: 0.78, ease: 'back.out(1.5)' })
+        // Satu putaran penuh: logo adalah tanda bulat, jadi 360° terasa wajar
+        // dan menegaskan "kedatangan" tanpa terlihat seperti spinner.
+        .from(logo, { scale: 0.6, rotate: -360, opacity: 0, duration: 1.05, ease: 'power3.out' })
         .from(petals, { scale: 0.4, opacity: 0, duration: 0.62, stagger: 0.075 }, '-=0.46')
         .from(eyebrow, { y: 12, opacity: 0, duration: 0.34 }, '-=0.34')
         .from(brand, { y: 20, opacity: 0, duration: 0.46 }, '-=0.22')

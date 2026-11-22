@@ -124,7 +124,11 @@ class UiDefaultsTest extends TestCase
         $this->assertStringContainsString('berkah-login-splash.css', $login);
         $this->assertStringContainsString('berkah-login-splash.js', $login);
         $this->assertStringContainsString('data-no-splash', $login);
-        $this->assertStringContainsString('bk-login-splash-at', $login);
+
+        // Splash tampil di setiap kunjungan: tidak ada pembatas waktu per sesi.
+        $this->assertStringNotContainsString('bk-login-splash-at', $login);
+        $this->assertStringNotContainsString('sessionStorage', $login);
+        $this->assertStringContainsString("get('splash')", $login);
         $this->assertStringContainsString('role="dialog"', $login);
 
         // Splash tidak boleh muncul ulang setelah galat validasi.
@@ -135,6 +139,8 @@ class UiDefaultsTest extends TestCase
         $this->assertStringContainsString('timeline', $splashJs);
         $this->assertStringContainsString('inert', $splashJs);
         $this->assertStringContainsString("'Escape'", $splashJs);
+        // Logo splash berputar satu putaran penuh.
+        $this->assertStringContainsString('rotate: -360', $splashJs);
     }
 
     public function test_animation_library_is_served_locally_everywhere(): void

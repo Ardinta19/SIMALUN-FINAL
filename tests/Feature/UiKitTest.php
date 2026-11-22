@@ -226,6 +226,33 @@ class UiKitTest extends TestCase
         return (bool) preg_match($pattern, $css);
     }
 
+    public function test_dark_theme_replaces_light_page_surfaces(): void
+    {
+        $theme = File::get(public_path('css/berkah-theme.css'));
+
+        // Panel sambutan dashboard: judulnya ikut warna teks tema gelap, jadi
+        // latarnya wajib ikut gelap (dulu putih krem -> teks tak terbaca).
+        $this->assertMatchesRegularExpression(
+            '/html\[data-theme="dark"\] \.bk-dashboard-welcome \{[^}]*background:/s',
+            $theme
+        );
+        $this->assertMatchesRegularExpression(
+            '/html\[data-theme="dark"\] \.bk-dashboard-flower \{[^}]*background:/s',
+            $theme
+        );
+
+        // Kartu menu "Jelajahi": teksnya sudah terang, latarnya harus ikut gelap.
+        $this->assertMatchesRegularExpression(
+            '/html\[data-theme="dark"\] :is\(\.bk-menu-links a, \.bk-command-links a\) \{[^}]*background:/s',
+            $theme
+        );
+
+        // Tombol suka, bintang rating, dan kotak catatan bantuan.
+        $this->assertMatchesRegularExpression('/html\[data-theme="dark"\] :is\(\.bk-like\) \{[^}]*background:/s', $theme);
+        $this->assertMatchesRegularExpression('/html\[data-theme="dark"\] :is\(\.bk-star-rating__options label\) \{[^}]*background:/s', $theme);
+        $this->assertMatchesRegularExpression('/html\[data-theme="dark"\] :is\(\.help-notice\) \{[^}]*background:/s', $theme);
+    }
+
     public function test_components_are_wired_without_changing_form_contracts(): void
     {
         $catalog = File::get(resource_path('views/catalog/index.blade.php'));

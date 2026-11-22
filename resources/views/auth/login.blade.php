@@ -86,9 +86,9 @@ html, body {
 </style>
 <style>
 #header{opacity:1!important} #card{opacity:1!important;transform:none!important}
-#brand-logo{animation:brand-intro .7s ease-out both}
+#brand-logo{animation:brand-intro .95s cubic-bezier(.22,.9,.28,1) both}
 .ambient-flower{position:absolute;color:rgba(255,255,255,.35);font-size:28px;animation:flower-float 5s ease-in-out infinite alternate}
-@keyframes brand-intro{from{transform:rotate(-120deg) scale(.85)}to{transform:rotate(0) scale(1)}}
+@keyframes brand-intro{from{transform:rotate(-360deg) scale(.72);opacity:.4}to{transform:rotate(0) scale(1);opacity:1}}
 @keyframes flower-float{from{transform:translateY(0) rotate(0)}to{transform:translateY(-14px) rotate(20deg)}}
 #btn-back,.pw-toggle,#btn-login,.btn-google{min-width:44px;min-height:44px}
 .pw-toggle[hidden]{display:none}
@@ -121,7 +121,9 @@ $oldText = function (string $key, $fallback = '') {
   <button class="bk-splash__skip" type="button">Lewati</button>
 </div>
 <script>
-/* Tampilkan splash sedini mungkin (sebelum form terlihat) hanya bila layak. */
+/* Tampilkan splash sedini mungkin (sebelum form terlihat) pada setiap kunjungan
+   ke halaman login. Hanya dilewati bila: pengguna minta `?splash=0`, memakai
+   prefers-reduced-motion, atau halaman ini hasil kiriman form (ada galat/notifikasi). */
 (function () {
   try {
     var node = document.getElementById('bk-splash');
@@ -129,11 +131,8 @@ $oldText = function (string $key, $fallback = '') {
     var mode = new URLSearchParams(window.location.search).get('splash');
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (mode === '0' || reduce || document.body.hasAttribute('data-no-splash')) return;
-    var last = parseInt(window.sessionStorage.getItem('bk-login-splash-at') || '0', 10) || 0;
-    if (mode !== '1' && last && Date.now() - last < 1800000) return;
-    window.sessionStorage.setItem('bk-login-splash-at', String(Date.now()));
     node.hidden = false;
-  } catch (error) { /* tanpa storage pun splash tetap boleh tampil */ }
+  } catch (error) { /* biarkan: markup splash tetap tersembunyi */ }
 })();
 </script>
 
