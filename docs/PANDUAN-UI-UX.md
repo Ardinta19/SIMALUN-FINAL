@@ -68,3 +68,4 @@ Pola di bawah adalah pilihan default yang diterapkan jika sesuai konteks, bukan 
 - Form katalog admin, pengaturan pembayaran, dan kartu ulasan pelanggan ikut memakai aturan yang sama agar percobaan ulang tidak pernah menggagalkan render halaman.
 - Aturan navigasi pelanggan tetap: keranjang selalu ada di tab bawah, menu pelanggan berada di header. Halaman pesanan lama memakai menu inline di header (daftar pesanan) atau tombol menu melayang di kanan atas (detail pesanan) tanpa menggeser keranjang.
 - Halaman galat memakai identitas Berkah Kreatif (marun, krem, logo) dengan aksi utama yang jelas, `noindex`, dan tanpa animasi saat pengguna meminta gerak minimal. Merek laundry lama tidak boleh muncul di halaman yang dilihat pelanggan.
+- FAQ pelanggan menjelaskan bahwa keranjang bisa diisi sebelum masuk, beberapa unit boleh berbeda tanggal, serta cara rating dan suka bekerja; sesuaikan bila aturan berubah.

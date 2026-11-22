@@ -15,7 +15,9 @@ class RentalHelpTest extends TestCase
     {
         $customer = User::factory()->create(['role' => 'customer']);
         $admin = User::factory()->create(['role' => 'admin']);
-        $this->actingAs($customer)->get(route('customer.help'))->assertOk()->assertSee('Pusat bantuan')->assertSee('Lompat ke bagian bantuan')->assertSee('aria-label="Navigasi utama"', false)->assertSee('Nomor WhatsApp belum diatur')->assertSee('QRIS')->assertDontSee('Azka Laundry')->assertDontSee('6281234567890');
+        $this->actingAs($customer)->get(route('customer.help'))->assertOk()->assertSee('Pusat bantuan')->assertSee('Lompat ke bagian bantuan')->assertSee('aria-label="Navigasi utama"', false)->assertSee('Nomor WhatsApp belum diatur')->assertSee('QRIS')->assertDontSee('Azka Laundry')->assertDontSee('6281234567890')
+            ->assertSee('Apakah harus punya akun untuk memesan?')->assertSee('Bisakah beberapa papan dalam satu pesanan memiliki tanggal berbeda?')
+            ->assertSee('Bagaimana rating dan suka bekerja?')->assertSee('keranjang tetap tersimpan');
         RentalPaymentSetting::create(['id' => 1, 'whatsapp_number' => '6289876543210']);
         $this->get(route('customer.help'))->assertOk()->assertSee('https://wa.me/6289876543210', false)->assertSee('Buka WhatsApp');
         $this->get(route('admin.help'))->assertRedirect(route('customer.dashboard'));

@@ -7,7 +7,7 @@
 <div class="help-card help-notice"><strong>Masih dalam pengujian.</strong> Jangan melakukan transaksi atau pembayaran nyata.</div>
 <section class="help-card" id="mulai-pesanan"><h2>Mulai pesanan</h2><ol>
 <li>Pilih papan di <a href="{{ route('welcome') }}">katalog</a> dan tambahkan ke keranjang. Stok belum dicadangkan pada tahap ini.</li>
-<li>Masuk atau daftar, lalu lengkapi tanggal, ucapan, desain dan serah terima untuk setiap unit di checkout.</li>
+<li>Kamu bisa mengisi keranjang lebih dulu tanpa akun. Saat siap, masuk atau daftar di perangkat yang sama — keranjang tetap tersimpan — lalu lengkapi tanggal, ucapan, desain dan serah terima untuk setiap unit di checkout.</li>
 <li>Kirim pesanan dan tunggu konfirmasi admin. Periksa halaman <a href="{{ route('rental.orders.index') }}">Pesanan saya</a> untuk melihat langkah berikutnya.</li>
 </ol></section>
 <section class="help-card" id="pertanyaan-umum"><h2>Pertanyaan umum</h2>
@@ -17,6 +17,9 @@
 <details><summary>Kapan batas pelunasan?</summary><p>DP tidak memiliki minimum atau tenggat awal. Setiap unit harus lunas paling lambat H-1 pukul 23.59 WIB sebelum penerimaan. Bukti pelunasan yang dikirim tepat waktu menahan pembatalan selama menunggu verifikasi. Rincian dan ketentuan lengkap tersedia di checkout dan detail pesanan.</p></details>
 <details><summary>Bagaimana ongkos dan serah terima ditentukan?</summary><p>Pilih diantar atau ambil di outlet untuk penerimaan, serta dijemput penjual atau kembalikan ke outlet untuk pengembalian. Tarif universitas mengikuti pilihan saat checkout; lokasi lain memerlukan penawaran admin. Setujui ongkos di detail unit.</p></details>
 <details><summary>Bagaimana jika unit dibatalkan?</summary><p>Periksa alasan dan tindak lanjut pada detail unit. Jika kesalahan penjual menyebabkan pembatalan, pengembalian pembayaran ditindaklanjuti secara manual. Untuk pembatalan karena tenggat pembayaran, pelanjutan pada hari penerimaan memerlukan verifikasi pembayaran dan pemeriksaan stok; ada risiko terlambat.</p></details>
+<details><summary>Apakah harus punya akun untuk memesan?</summary><p>Kamu dapat melihat katalog, menambah keranjang, dan menekan Pesan langsung tanpa akun. Untuk mengirim pesanan kamu perlu masuk atau daftar sebagai pelanggan. Keranjang tersimpan di peramban yang sama dan tetap ada setelah masuk; keranjang tidak tersinkron ke perangkat lain.</p></details>
+<details><summary>Bisakah beberapa papan dalam satu pesanan memiliki tanggal berbeda?</summary><p>Bisa. Setiap unit memiliki tanggal acara dan penerimaan, tanggal pengembalian, penerima, ucapan, permintaan desain, serta cara serah terima sendiri. Stok diperiksa per tanggal, termasuk irisan antarunit dalam pesanan yang sama.</p></details>
+<details><summary>Bagaimana rating dan suka bekerja?</summary><p>Rating produk 1–5 dapat diberikan sekali untuk unit yang sudah dikembalikan. Rating pesanan tersedia setelah semua unit selesai atau dibatalkan dan setidaknya satu unit kembali. Tombol suka produk dapat ditekan ulang untuk membatalkan. Membagikan suka pesanan bersifat pilihan dan hanya menampilkan jumlah suka, bukan rincian pesanan.</p></details>
 </section>
 <section class="help-card" id="hubungi-admin"><h2>Hubungi admin</h2>
 @if($settings?->whatsapp_number)<p>Untuk pertanyaan atau metode pembayaran lain, hubungi admin melalui WhatsApp.</p><a class="help-button" href="https://wa.me/{{ $settings->whatsapp_number }}?text={{ rawurlencode('Halo Berkah Kreatif, saya ingin bertanya tentang penyewaan papan bunga.') }}" target="_blank" rel="noopener noreferrer">Buka WhatsApp</a>@else<p class="help-muted">Nomor WhatsApp belum diatur oleh admin.</p>@endif

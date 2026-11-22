@@ -46,3 +46,7 @@ Langkah pemeriksaan yang disarankan:
 2. Buka keranjang berisi unit bertanggal kemarin: pastikan muncul peringatan, tautan detail tanpa tanggal, dan tombol tambah unit hilang; ubah tanggal di checkout.
 3. Kirim form dengan nilai berbentuk larik (alat pengembang peramban) pada checkout, profil, alamat, masuk, daftar, lupa sandi, dan katalog admin; halaman harus kembali dengan pesan galat, bukan halaman error 500.
 4. Periksa pesan galat jumlah di detail papan tampil tepat di bawah pemilih jumlah.
+
+### Merek pada email dan konfigurasi
+
+Email transaksi (termasuk reset kata sandi) masih mengambil nama usaha dari `Laundry::name()` yang membaca `LAUNDRY_NAME` di `.env`, dengan nilai bawaan "Azka Laundry". Ubah nilai berikut pada `.env` produksi sebelum dipakai pelanggan: `APP_NAME`, `LAUNDRY_NAME="Berkah Kreatif"`, `LAUNDRY_TAGLINE`, `LAUNDRY_ADDRESS`, `LAUNDRY_PHONE`, `LAUNDRY_PHONE_DISPLAY`, `LAUNDRY_WA`, serta `MAIL_FROM_ADDRESS`. Ini perubahan konfigurasi, bukan kode; nilai alamat dan nomor harus berasal dari pemilik usaha, jangan dikarang.
