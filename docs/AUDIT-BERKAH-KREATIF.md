@@ -70,3 +70,9 @@ Audit ini membandingkan kode yang ada dengan kebutuhan penyewaan yang disepakati
 - `npm ci --no-audit --no-fund` dan `npm run build` berhasil di lingkungan audit dengan Node 22; output memperingatkan data Browserslist berusia sekitar enam bulan. Ini bukan pengujian browser, responsivitas, atau pengujian PHP.
 - Meskipun `/public/build` tercantum di `.gitignore`, sebagian output build sudah telanjur terlacak. Build menghasilkan manifest/CSS berbeda dari versi terlacak; deployment perlu strategi yang konsisten (build di deployment atau sengaja mengelola artefak), agar manifest tidak menunjuk file yang tidak diunggah. Jangan commit artefak build secara tidak sengaja.
 - Lockfile mencantumkan Vite 7.3.3, axios 1.16.0, dan concurrently 9.2.1; ketiganya termasuk paket yang dilaporkan pada audit npm saat pemeriksaan. Tidak otomatis berarti seluruh advisory dapat dieksploitasi pada aplikasi ini.
+
+## Audit Composer dari preview pengguna (22 November 2026)
+
+`composer audit` pada salinan preview pengguna melaporkan 47 advisory pada 12 paket, termasuk advisory critical untuk `laravel/framework` dan high untuk Guzzle, CommonMark, Symfony HTTP Foundation dan YAML. Paket lain yang dilaporkan mencakup Dompdf, guzzlehttp/psr7, Flysystem, phpseclib, Symfony HTTP Kernel, MIME dan Routing. Severity advisory bukan bukti bahwa jalur yang terdampak dapat dieksploitasi pada aplikasi ini; periksa konfigurasi, penggunaan dan advisories satu per satu.
+
+Tindakan: jangan deploy atau mempublikasikan preview; rencanakan pembaruan versi yang diperbaiki sesuai constraint Composer dan versi PHP, tinjau perubahan lockfile, jalankan `composer audit` ulang, suite pengujian, build dan pengujian MySQL/browser. Periksa `trustProxies('*')`, konfigurasi trusted hosts dan paparan fitur PDF secara khusus. Jangan menjalankan `composer update` secara membabi buta atau menganggap tes lama sebagai bukti semua advisory tidak relevan.
