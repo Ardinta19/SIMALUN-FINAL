@@ -11,5 +11,6 @@ class RentalOrderUnit extends Model
     protected $casts = ['starts_on' => 'date', 'event_on' => 'date', 'ends_on' => 'date', 'confirmed_at' => 'datetime'];
     public function order(): BelongsTo { return $this->belongsTo(RentalOrder::class, 'rental_order_id'); }
     public function product(): BelongsTo { return $this->belongsTo(RentalProduct::class, 'rental_product_id'); }
+    public function payments(): HasMany { return $this->hasMany(RentalPayment::class)->latest('id'); }
     public function previews(): HasMany { return $this->hasMany(RentalDesignPreview::class)->orderByDesc('version'); }
 }

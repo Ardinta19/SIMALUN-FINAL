@@ -22,6 +22,7 @@ use App\Http\Controllers\RentalCatalogController;
 use App\Http\Controllers\RentalCartController;
 use App\Http\Controllers\RentalOrderController;
 use App\Http\Controllers\RentalDesignController;
+use App\Http\Controllers\RentalPaymentController;
 use App\Http\Controllers\ServiceCategoryController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\VoucherController;
@@ -103,9 +104,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders/{order}/receipt/pdf', [OrderController::class, 'receiptPdf'])
         ->name('orders.receipt.pdf');
 
+    Route::get('/pembayaran-sewa/{payment}/bukti', [RentalPaymentController::class, 'proof'])->name('rental.payment.proof');
     Route::get('/preview-desain/{preview}/gambar', [RentalDesignController::class, 'image'])->name('rental.design.image');
 
     Route::middleware('role:customer')->group(function () {
+        Route::post('/sewa/unit/{unit}/pembayaran', [RentalPaymentController::class, 'store'])->middleware('throttle:10,1')->name('rental.payment.store');
         Route::post('/preview-desain/{preview}/respons', [RentalDesignController::class, 'respond'])->name('rental.design.respond');
         Route::get('/checkout', [RentalOrderController::class, 'create'])->name('rental.checkout');
         Route::post('/checkout', [RentalOrderController::class, 'store'])->middleware('throttle:6,1')->name('rental.checkout.store');
@@ -150,6 +153,8 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::post('/pembayaran-sewa/{payment}/verifikasi', [RentalPaymentController::class, 'verify'])->name('rental.payment.verify');
+        Route::post('/pembayaran-sewa/{payment}/tolak', [RentalPaymentController::class, 'reject'])->name('rental.payment.reject');
         Route::post('/sewa/unit/{unit}/preview', [RentalDesignController::class, 'store'])->name('rental.design.store');
         Route::get('/sewa', [RentalOrderController::class, 'adminIndex'])->name('rental.orders');
         Route::post('/sewa/unit/{unit}/confirm', [RentalOrderController::class, 'confirm'])->name('rental.confirm');
