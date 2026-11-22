@@ -21,10 +21,10 @@
     const triggers = document.querySelectorAll('[data-open-dialog]');
     triggers.forEach(button => { button.hidden = false; });
     let holdOpen = false;
-    const updateHeader = () => { if (!header.contains(document.activeElement) && !document.querySelector('.bk-dialog[open]')) header.classList.toggle('is-compact', window.scrollY > 180 && !holdOpen); };
+    const updateHeader = () => { if (!header.contains(document.activeElement) && !document.querySelector('.bk-dialog[open], .bk-header-radial[open]')) header.classList.toggle('is-compact', window.scrollY > 180 && !holdOpen); };
     window.addEventListener('scroll', () => { if (window.scrollY < 80) holdOpen = false; updateHeader(); }, { passive: true });
     expand.hidden = false;
-    expand.addEventListener('click', () => { holdOpen = true; header.classList.remove('is-compact'); (window.matchMedia('(max-width: 700px)').matches ? (header.querySelector('.bk-menu-trigger') || header.querySelector('.bk-header-cart')) : header.querySelector('.bk-command-trigger'))?.focus(); });
+    expand.addEventListener('click', () => { holdOpen = true; header.classList.remove('is-compact'); (window.matchMedia('(max-width: 700px)').matches ? (header.querySelector('.bk-menu-trigger') || header.querySelector('.bk-header-radial summary')) : header.querySelector('.bk-command-trigger'))?.focus(); });
     function openDialog(dialog, trigger) {
         if (!dialog || dialog.open || document.querySelector('.bk-dialog[open]')) return;
         dialog.dataset.returnFocus = trigger?.dataset.openDialog || '';

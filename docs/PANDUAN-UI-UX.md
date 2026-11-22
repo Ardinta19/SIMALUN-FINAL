@@ -40,7 +40,7 @@ Pola di bawah adalah pilihan default yang diterapkan jika sesuai konteks, bukan 
 5. Jalankan build dan tes terkait; pisahkan hasil pemeriksaan otomatis dari pengujian browser nyata. Jangan menyatakan sempurna atau siap produksi sebelum terbukti.
 
 ### Beranda pelanggan dan navigasi mobile
-- Hindari dua tombol yang membuka menu yang sama: menu radial tetap di tab bawah; pintasan di header membuka keranjang. Navigasi desktop tetap tersedia.
+- Hindari dua tombol yang membuka menu yang sama: menu radial berada di header; tab bawah membuka keranjang secara langsung. Navigasi desktop tetap tersedia.
 - Beranda menampilkan pratinjau hingga empat papan dari katalog publik, bukan daftar aktivitas dan statistik pesanan. Pesanan tetap dapat diakses dari menu pelanggan.
 - Pratinjau memakai katalog yang sudah ada sebagai progressive enhancement; bila JavaScript atau pemuatan gagal, tautan katalog tetap tersedia. Detail papan memiliki tautan kembali ke katalog; tombol kembali browser dari pratinjau diarahkan ke katalog juga. Uji alur ini di browser nyata, termasuk back/forward cache.
 - Di katalog publik, gambar dan nama kartu membuka detail papan; tombol menambahkan satu unit ke keranjang melalui formulir biasa. Pertahankan tanggal filter saat menambahkan, serta status stok dan pesan kesalahan server.

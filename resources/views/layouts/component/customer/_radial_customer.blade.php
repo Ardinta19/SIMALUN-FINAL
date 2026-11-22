@@ -1,0 +1,15 @@
+        <details class="customer-radial {{ $inHeader ? 'bk-header-radial' : '' }}" data-customer-radial>
+            <summary class="customer-nav__item {{ in_array($navActive, ['keranjang', 'pesanan', 'notif'], true) || request()->routeIs('customer.help') ? 'is-active' : '' }}" aria-label="Menu: keranjang, pesanan, notifikasi, dan bantuan{{ $unreadNotif ? ', '.$unreadNotif.' notifikasi belum dibaca' : '' }}">
+                <span class="customer-nav__icon">@include('layouts.component._icon', ['name' => 'menu', 'size' => 24]) @if($unreadNotif)<span class="customer-nav__badge" aria-hidden="true">{{ $unreadNotif > 99 ? '99+' : $unreadNotif }}</span>@endif</span><span class="customer-nav__label">Menu</span>
+            </summary>
+            <div class="customer-radial__panel" aria-label="Menu pelanggan">
+                <div class="customer-radial__heading"><strong>Menu pelanggan</strong><span>Pilih tujuan</span></div>
+                <div class="customer-radial__links">
+                    <svg class="customer-radial__goo" viewBox="0 0 320 150" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs><filter id="bk-menu-goo" x="-20%" y="-30%" width="140%" height="160%"><feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/><feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 14 -5"/></filter></defs><g filter="url(#bk-menu-goo)" fill="#ead4d4"><circle cx="42" cy="86" r="26"/><circle cx="118" cy="36" r="26"/><circle cx="202" cy="36" r="26"/><circle cx="278" cy="86" r="26"/><path d="M42 86 Q160 8 278 86 L160 125 Z"/></g></svg>
+                    <a href="{{ route('cart.index') }}" @if($navActive === 'keranjang') aria-current="page" @endif aria-label="Keranjang{{ $cartCount ? ', '.$cartCount.' unit' : '' }}"><span class="customer-radial__glyph">@include('layouts.component._icon', ['name' => 'shopping-bag', 'size' => 20])</span><span>Keranjang @if($cartCount)<small>{{ $cartCount }} unit</small>@endif</span></a>
+                    <a href="{{ route('rental.orders.index') }}" @if($navActive === 'pesanan') aria-current="page" @endif><span class="customer-radial__glyph">@include('layouts.component._icon', ['name' => 'clipboard-list', 'size' => 20])</span><span>Pesanan</span></a>
+                    <a href="{{ route('customer.notifications') }}" @if($navActive === 'notif') aria-current="page" @endif aria-label="Notifikasi{{ $unreadNotif ? ', '.$unreadNotif.' belum dibaca' : '' }}"><span class="customer-radial__glyph">@include('layouts.component._icon', ['name' => 'bell', 'size' => 20])</span><span>Notifikasi @if($unreadNotif)<small>{{ $unreadNotif }} baru</small>@endif</span></a>
+                    <a href="{{ route('customer.help') }}" @if(request()->routeIs('customer.help')) aria-current="page" @endif><span class="customer-radial__glyph">@include('layouts.component._icon', ['name' => 'help-circle', 'size' => 20])</span><span>Bantuan / FAQ</span></a>
+                </div>
+            </div>
+        </details>

@@ -1,6 +1,9 @@
 @php
     $isCustomer = auth()->check() && auth()->user()->role === 'customer';
     $cartCount = count(session('rental_cart', []));
+    $navActive = request()->routeIs('rental.orders.*') ? 'pesanan' : (request()->routeIs('customer.notifications*') ? 'notif' : '');
+    $unreadNotif = 0;
+    if ($isCustomer) { try { $unreadNotif = auth()->user()->unreadNotifications()->count(); } catch (\Exception $e) {} }
 @endphp
 <a class="bk-skip" href="#main-content">Langsung ke isi</a>
 <div class="bk-header-space">
@@ -18,7 +21,11 @@
             <a class="bk-header-filter bk-filter-fallback" href="#catalog-filter" aria-label="Cari dan filter katalog">@include('layouts.component._icon', ['name' => 'search', 'size' => 21]) <span>Cari &amp; filter</span></a>
             <button type="button" class="bk-header-filter" data-open-dialog="bk-filter" hidden aria-label="Cari dan filter katalog">@include('layouts.component._icon', ['name' => 'search', 'size' => 21]) <span>Cari &amp; filter</span></button>
             @endif
-            @if($isCustomer)<a class="bk-header-cart" href="{{ route('cart.index') }}" aria-label="Keranjang{{ $cartCount ? ', '.$cartCount.' unit' : '' }}">@include('layouts.component._icon', ['name' => 'shopping-bag', 'size' => 22]) @if($cartCount)<span>{{ $cartCount }}</span>@endif</a>@else<button type="button" class="bk-menu-trigger" data-open-dialog="bk-menu" hidden aria-label="Buka menu navigasi"><span aria-hidden="true">☰</span></button>@endif
+            @if($isCustomer)
+                @include('layouts.component.customer._radial_customer', ['inHeader' => true])
+            @else
+                <button type="button" class="bk-menu-trigger" data-open-dialog="bk-menu" hidden aria-label="Buka menu navigasi"><span aria-hidden="true">☰</span></button>
+            @endif
             <button type="button" class="bk-expand" data-bk-expand hidden aria-label="Buka navigasi"><img src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt=""></button>
         </div>
     </header>

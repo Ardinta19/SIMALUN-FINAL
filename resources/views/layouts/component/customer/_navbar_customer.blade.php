@@ -16,21 +16,13 @@
         <a href="{{ route('welcome') }}" class="customer-nav__item {{ $navActive === 'katalog' ? 'is-active' : '' }}" @if($navActive === 'katalog') aria-current="page" @endif>
             <span class="customer-nav__icon">@include('layouts.component._icon', ['name' => 'search', 'size' => 24])</span><span class="customer-nav__label">Katalog</span>
         </a>
-        <details class="customer-radial" data-customer-radial>
-            <summary class="customer-nav__item {{ in_array($navActive, ['keranjang', 'pesanan', 'notif'], true) || request()->routeIs('customer.help') ? 'is-active' : '' }}" aria-label="Menu: keranjang, pesanan, notifikasi, dan bantuan{{ $unreadNotif ? ', '.$unreadNotif.' notifikasi belum dibaca' : '' }}">
-                <span class="customer-nav__icon">@include('layouts.component._icon', ['name' => 'menu', 'size' => 24]) @if($unreadNotif)<span class="customer-nav__badge" aria-hidden="true">{{ $unreadNotif > 99 ? '99+' : $unreadNotif }}</span>@endif</span><span class="customer-nav__label">Menu</span>
-            </summary>
-            <div class="customer-radial__panel" aria-label="Menu pelanggan">
-                <div class="customer-radial__heading"><strong>Menu pelanggan</strong><span>Pilih tujuan</span></div>
-                <div class="customer-radial__links">
-                    <svg class="customer-radial__goo" viewBox="0 0 320 150" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs><filter id="bk-menu-goo" x="-20%" y="-30%" width="140%" height="160%"><feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/><feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 14 -5"/></filter></defs><g filter="url(#bk-menu-goo)" fill="#ead4d4"><circle cx="42" cy="86" r="26"/><circle cx="118" cy="36" r="26"/><circle cx="202" cy="36" r="26"/><circle cx="278" cy="86" r="26"/><path d="M42 86 Q160 8 278 86 L160 125 Z"/></g></svg>
-                    <a href="{{ route('cart.index') }}" @if($navActive === 'keranjang') aria-current="page" @endif aria-label="Keranjang{{ $cartCount ? ', '.$cartCount.' unit' : '' }}"><span class="customer-radial__glyph">@include('layouts.component._icon', ['name' => 'shopping-bag', 'size' => 20])</span><span>Keranjang @if($cartCount)<small>{{ $cartCount }} unit</small>@endif</span></a>
-                    <a href="{{ route('rental.orders.index') }}" @if($navActive === 'pesanan') aria-current="page" @endif><span class="customer-radial__glyph">@include('layouts.component._icon', ['name' => 'clipboard-list', 'size' => 20])</span><span>Pesanan</span></a>
-                    <a href="{{ route('customer.notifications') }}" @if($navActive === 'notif') aria-current="page" @endif aria-label="Notifikasi{{ $unreadNotif ? ', '.$unreadNotif.' belum dibaca' : '' }}"><span class="customer-radial__glyph">@include('layouts.component._icon', ['name' => 'bell', 'size' => 20])</span><span>Notifikasi @if($unreadNotif)<small>{{ $unreadNotif }} baru</small>@endif</span></a>
-                    <a href="{{ route('customer.help') }}" @if(request()->routeIs('customer.help')) aria-current="page" @endif><span class="customer-radial__glyph">@include('layouts.component._icon', ['name' => 'help-circle', 'size' => 20])</span><span>Bantuan / FAQ</span></a>
-                </div>
-            </div>
-        </details>
+        @if(request()->routeIs('customer.orders', 'customer.order.*', 'customer.tracking'))
+            @include('layouts.component.customer._radial_customer', ['inHeader' => false])
+        @else
+        <a href="{{ route('cart.index') }}" class="customer-nav__item {{ $navActive === 'keranjang' ? 'is-active' : '' }}" @if($navActive === 'keranjang') aria-current="page" @endif aria-label="Keranjang{{ $cartCount ? ', '.$cartCount.' unit' : '' }}">
+            <span class="customer-nav__icon">@include('layouts.component._icon', ['name' => 'shopping-bag', 'size' => 24]) @if($cartCount)<span class="customer-nav__badge" aria-hidden="true">{{ $cartCount > 99 ? '99+' : $cartCount }}</span>@endif</span><span class="customer-nav__label">Keranjang</span>
+        </a>
+        @endif
         <a href="{{ route('customer.profile') }}" class="customer-nav__item {{ $navActive === 'profil' ? 'is-active' : '' }}" @if($navActive === 'profil') aria-current="page" @endif>
             <span class="customer-nav__icon">@include('layouts.component._icon', ['name' => 'user', 'size' => 24])</span><span class="customer-nav__label">Profil</span>
         </a>
@@ -47,8 +39,12 @@
 (() => {
     const menu = document.querySelector('[data-customer-radial]');
     if (!menu) return;
-    document.addEventListener('click', event => { if (menu.open && !menu.contains(event.target) && !event.target.closest('[data-open-radial]')) menu.open = false; });
+    document.addEventListener('click', event => { if (menu.open && !menu.contains(event.target)) menu.open = false; });
     document.addEventListener('keydown', event => { if (event.key === 'Escape' && menu.open) { menu.open = false; menu.querySelector('summary').focus(); } });
 })();
 </script>
 <style>@media(max-height:440px) and (prefers-reduced-motion:reduce){.customer-radial__links a:active{transform:none}}</style>
+<style>
+/* Header menu is a native disclosure: it also works if JavaScript cannot load. */
+.bk-header-radial{display:none;position:relative;flex:none}.bk-header-radial>summary{width:48px;height:48px;padding:0;border-radius:16px;background:#f4e8e4;color:#75102e}.bk-header-radial>summary .customer-nav__icon{width:48px;height:48px}.bk-header-radial>summary .customer-nav__label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}.bk-header-radial .customer-radial__panel{position:absolute;top:calc(100% + 10px);bottom:auto;left:auto;right:0;transform:none;width:min(360px,calc(100vw - 32px));max-height:calc(100dvh - 100px);overflow:auto}.bk-header-radial[open] .customer-radial__panel{animation:bk-header-menu-enter .2s ease-out}@keyframes bk-header-menu-enter{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}.bk-header.is-compact .bk-header-radial{display:none!important}@media(max-width:700px){.bk-header-radial{display:block}body.bk-customer .bk-desktop-nav,html:not(.bk-enhanced) body.bk-customer .bk-desktop-nav{display:none}html:not(.bk-enhanced) body.bk-customer .bk-header-inner{flex-wrap:nowrap}html:not(.bk-enhanced) body.bk-customer .bk-header-space{height:80px}}@media(max-height:440px){.bk-header-radial .customer-radial__panel{max-height:calc(100dvh - 100px)}}@media(prefers-reduced-motion:reduce){.bk-header-radial[open] .customer-radial__panel{animation:none}}
+</style>
