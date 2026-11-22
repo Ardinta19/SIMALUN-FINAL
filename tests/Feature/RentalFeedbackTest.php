@@ -54,6 +54,8 @@ class RentalFeedbackTest extends TestCase
         $this->post($productUrl, ['rating' => 6])->assertSessionHasErrors('rating');
         $this->post($productUrl, ['rating' => 4])->assertSessionHasNoErrors();
         $this->post($productUrl, ['rating' => 5])->assertSessionHasErrors('rating');
+        $this->get(route('rental.orders.show', $order))->assertOk()->assertSee('Nilai pengalaman pesanan')
+            ->assertSee('order-rating-5', false)->assertSee('Simpan rating pesanan');
         $this->post($orderUrl, ['rating' => 5])->assertSessionHasNoErrors();
         $this->post($orderUrl, ['rating' => 3])->assertSessionHasErrors('rating');
         $this->assertDatabaseCount('rental_product_reviews', 1);
