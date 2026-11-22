@@ -328,6 +328,12 @@ html:not(.register-enhanced) #registration-progress{display:none}
 <link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}"><script src="{{ asset('js/page-transitions.js') }}" defer></script>
 </head>
 <body>
+@php
+$oldText = function (string $key, $fallback = '') {
+    $value = old($key, $fallback);
+    return is_scalar($value) ? (string) $value : '';
+};
+@endphp
 
 <div id="ambient" aria-hidden="true"><span class="ambient-flower" style="left:12%;top:24%">✿</span><span class="ambient-flower" style="right:12%;top:48%;animation-delay:-2s">✿</span><span class="ambient-flower" style="left:24%;bottom:12%;animation-delay:-4s">✿</span></div>
 <div id="wave-band" aria-hidden="true">
@@ -386,7 +392,7 @@ html:not(.register-enhanced) #registration-progress{display:none}
             <input class="form-input @error('name') error @enderror"
               type="text" id="name" name="name" aria-describedby="err-name"
               placeholder="Nama sesuai identitas"
-              value="{{ old('name') }}" autocomplete="name">
+              value="{{ $oldText('name') }}" autocomplete="name">
           </div>
           @error('name')<div class="form-error show">{{ $message }}</div>@enderror
           <div class="form-error" aria-live="polite" id="err-name"></div>
@@ -395,11 +401,11 @@ html:not(.register-enhanced) #registration-progress{display:none}
         <div class="form-group">
           <div class="form-label" id="gender-label">Jenis Kelamin</div>
           <div class="gender-row" role="radiogroup" aria-labelledby="gender-label" aria-describedby="err-gender">
-            <input type="radio" class="gender-opt" name="gender" id="g-male" value="L" {{ old('gender')=='L' ? 'checked' : '' }}>
+            <input type="radio" class="gender-opt" name="gender" id="g-male" value="L" {{ $oldText('gender')=='L' ? 'checked' : '' }}>
             <label class="gender-label" for="g-male">
               <span>👨</span><span>Laki-laki</span>
             </label>
-            <input type="radio" class="gender-opt" name="gender" id="g-female" value="P" {{ old('gender')=='P' ? 'checked' : '' }}>
+            <input type="radio" class="gender-opt" name="gender" id="g-female" value="P" {{ $oldText('gender')=='P' ? 'checked' : '' }}>
             <label class="gender-label" for="g-female">
               <span>👩</span><span>Perempuan</span>
             </label>
@@ -416,7 +422,7 @@ html:not(.register-enhanced) #registration-progress{display:none}
               <input class="form-input @error('phone') error @enderror"
                 type="tel" id="phone" name="phone" aria-describedby="err-phone"
                 placeholder="8xxxxxxxxxx"
-                value="{{ old('phone') }}" inputmode="tel" autocomplete="tel">
+                value="{{ $oldText('phone') }}" inputmode="tel" autocomplete="tel">
             </div>
           </div>
           @error('phone')<div class="form-error show">{{ $message }}</div>@enderror
@@ -441,7 +447,7 @@ html:not(.register-enhanced) #registration-progress{display:none}
             <input class="form-input @error('email') error @enderror"
               type="email" id="email" name="email" aria-describedby="err-email"
               placeholder="Boleh dikosongkan"
-              value="{{ old('email') }}" autocomplete="email" inputmode="email">
+              value="{{ $oldText('email') }}" autocomplete="email" inputmode="email">
           </div>
           @error('email')<div class="form-error show">{{ $message }}</div>@enderror
           <div class="form-error" aria-live="polite" id="err-email"></div>
@@ -500,7 +506,7 @@ html:not(.register-enhanced) #registration-progress{display:none}
             <span class="input-icon" style="top:14px;transform:none;">🏠</span>
             <textarea class="form-input" id="address" name="address" aria-describedby="err-address"
               placeholder="Nama jalan, nomor rumah, RT/RW, kelurahan..."
-              rows="3" style="padding-left:2.65rem;resize:none;">{{ old('address') }}</textarea>
+              rows="3" style="padding-left:2.65rem;resize:none;">{{ $oldText('address') }}</textarea>
           </div>
           @error('address')<div class="form-error show">{{ $message }}</div>@enderror
           <div class="form-error" aria-live="polite" id="err-address"></div>
@@ -512,12 +518,12 @@ html:not(.register-enhanced) #registration-progress{display:none}
             <span class="input-icon">📝</span>
             <input class="form-input" type="text" id="address_note" name="address_note"
               placeholder="Warna pagar, patokan, dll."
-              value="{{ old('address_note') }}">
+              value="{{ $oldText('address_note') }}">
           </div>
         </div>
 
         <div class="terms-row">
-          <input type="checkbox" class="terms-cb" id="terms" name="terms" aria-describedby="err-terms" value="1" @checked(old('terms')) required>
+          <input type="checkbox" class="terms-cb" id="terms" name="terms" aria-describedby="err-terms" value="1" @checked($oldText('terms')) required>
           <label class="terms-txt" for="terms">
             Saya menyetujui penggunaan data saya untuk pengelolaan akun dan pesanan Berkah Kreatif.
           </label>

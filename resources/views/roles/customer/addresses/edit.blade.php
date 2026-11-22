@@ -75,6 +75,12 @@ textarea.field-input{resize:none;min-height:80px;line-height:1.5;}
 <link rel="stylesheet" href="{{ asset('css/berkah-experience.css') }}">
 </head>
 <body class="bk-experience bk-customer bk-standalone">
+@php
+$oldText = function (string $key, $fallback = '') {
+    $value = old($key, $fallback);
+    return is_scalar($value) ? (string) $value : '';
+};
+@endphp
 @include('catalog.customer-navigation')
 
 <header class="page-header">
@@ -114,19 +120,19 @@ textarea.field-input{resize:none;min-height:80px;line-height:1.5;}
                     <label class="field-label" for="address-label">Label Alamat <span class="required">*</span></label>
                     <input type="text" name="label" id="address-label" class="field-input {{ $errors->has('label') ? 'is-error' : '' }}"
                         placeholder="Rumah, Kantor, Kos, dll."
-                        value="{{ old('label', $address->label) }}" required>
+                        value="{{ $oldText('label', $address->label) }}" required>
                     @error('label') <div class="field-error">{{ $message }}</div> @enderror
                 </div>
                 <div>
                     <label class="field-label" for="address-recipient_name">Nama Penerima <span class="required">*</span></label>
                     <input type="text" name="recipient_name" id="address-recipient_name" class="field-input {{ $errors->has('recipient_name') ? 'is-error' : '' }}"
-                        value="{{ old('recipient_name', $address->recipient_name) }}" required>
+                        value="{{ $oldText('recipient_name', $address->recipient_name) }}" required>
                     @error('recipient_name') <div class="field-error">{{ $message }}</div> @enderror
                 </div>
                 <div>
                     <label class="field-label" for="address-phone">No. HP / WhatsApp</label>
                     <input type="text" name="phone" id="address-phone" class="field-input"
-                        value="{{ old('phone', $address->phone) }}" placeholder="08xxxxxxxxxx">
+                        value="{{ $oldText('phone', $address->phone) }}" placeholder="08xxxxxxxxxx">
                 </div>
             </div>
         </div>
@@ -145,20 +151,20 @@ textarea.field-input{resize:none;min-height:80px;line-height:1.5;}
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                         Tap atau geser pin untuk memperbarui titik
                     </div>
-                    <input type="hidden" name="latitude" id="map-lat" value="{{ old('latitude', $address->latitude) }}">
-                    <input type="hidden" name="longitude" id="map-lng" value="{{ old('longitude', $address->longitude) }}">
+                    <input type="hidden" name="latitude" id="map-lat" value="{{ $oldText('latitude', $address->latitude) }}">
+                    <input type="hidden" name="longitude" id="map-lng" value="{{ $oldText('longitude', $address->longitude) }}">
                 </div>
                 <div>
                     <label class="field-label" for="address-full_address">Alamat Lengkap <span class="required">*</span></label>
                     <textarea name="full_address" id="address-full_address" class="field-input {{ $errors->has('full_address') ? 'is-error' : '' }}"
-                        required>{{ old('full_address', $address->full_address) }}</textarea>
+                        required>{{ $oldText('full_address', $address->full_address) }}</textarea>
                     @error('full_address') <div class="field-error">{{ $message }}</div> @enderror
                 </div>
                 <div>
                     <label class="field-label" for="address-notes">Catatan Tambahan</label>
                     <input type="text" name="notes" id="address-notes" class="field-input"
                         placeholder="Warna pagar, patokan, dll."
-                        value="{{ old('notes', $address->notes) }}">
+                        value="{{ $oldText('notes', $address->notes) }}">
                 </div>
             </div>
         </div>
@@ -176,7 +182,7 @@ textarea.field-input{resize:none;min-height:80px;line-height:1.5;}
                             <div class="toggle-label">Jadikan Alamat Utama</div>
                             <div class="toggle-sub">Ditampilkan sebagai alamat utama dan dapat dipilih saat checkout</div>
                         </div>
-                        @if($address->is_primary)<span>Alamat utama saat ini</span>@else<label><input type="checkbox" name="is_primary" value="1" @checked(old('is_primary'))> Jadikan utama</label>@endif
+                        @if($address->is_primary)<span>Alamat utama saat ini</span>@else<label><input type="checkbox" name="is_primary" value="1" @checked($oldText('is_primary'))> Jadikan utama</label>@endif
                     </div>
                 </div>
             </div>

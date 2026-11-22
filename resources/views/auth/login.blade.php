@@ -99,6 +99,12 @@ html, body {
 <link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}"><script src="{{ asset('js/page-transitions.js') }}" defer></script>
 </head>
 <body>
+@php
+$oldText = function (string $key, $fallback = '') {
+    $value = old($key, $fallback);
+    return is_scalar($value) ? (string) $value : '';
+};
+@endphp
 
 <div id="ambient" aria-hidden="true"><span class="ambient-flower" style="left:12%;top:24%">✿</span><span class="ambient-flower" style="right:12%;top:48%;animation-delay:-2s">✿</span><span class="ambient-flower" style="left:24%;bottom:12%;animation-delay:-4s">✿</span></div>
 
@@ -157,7 +163,7 @@ html, body {
             aria-describedby="err-identifier @error('identifier') server-identifier-error @enderror"
             @error('identifier') aria-invalid="true" @enderror
             placeholder="email@contoh.com atau 08xxxxxxxxxx"
-            value="{{ old('identifier') }}"
+            value="{{ $oldText('identifier') }}"
             autocomplete="username"
             inputmode="text"
           >
@@ -194,7 +200,7 @@ html, body {
       {{-- Remember + Forgot --}}
       <div class="form-row">
         <label class="remember-label">
-          <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}>
+          <input type="checkbox" name="remember" {{ $oldText('remember') ? 'checked' : '' }}>
           Ingat saya
         </label>
         <a href="{{ route('password.request') }}" class="forgot-link">Lupa password?</a>

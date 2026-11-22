@@ -34,6 +34,21 @@ class RentalAuthPresentationTest extends TestCase
             ->assertSee('name="terms"', false)->assertDontSee('Daftar sebagai pelanggan SIMALUN');
     }
 
+    public function test_auth_forms_render_safely_after_non_scalar_retry(): void
+    {
+        $this->from(route('login'))->post(route('login.post'), ['identifier' => ['a@b.test'], 'password' => 'x'])
+            ->assertRedirect(route('login'))->assertSessionHasErrors('identifier');
+        $this->get(route('login'))->assertOk()->assertDontSee('Array')->assertSee('name="identifier"', false);
+
+        $this->from(route('register'))->post(route('register.post'), ['name' => ['Budi'], 'phone' => ['81234567890'], 'email' => ['a@b.test'], 'terms' => '1'])
+            ->assertRedirect(route('register'))->assertSessionHasErrors(['name', 'phone']);
+        $this->get(route('register'))->assertOk()->assertDontSee('Array')->assertSee('name="name"', false);
+
+        $this->from(route('password.request'))->post(route('password.email'), ['email' => ['a@b.test']])
+            ->assertRedirect(route('password.request'))->assertSessionHasErrors('email');
+        $this->get(route('password.request'))->assertOk()->assertDontSee('Array');
+    }
+
     public function test_password_recovery_uses_brand_and_surfaces_status_without_animation_dependencies(): void
     {
         $this->get(route('password.request'))->assertOk()->assertSee('Berkah Kreatif')->assertSee('Lupa kata sandi?')

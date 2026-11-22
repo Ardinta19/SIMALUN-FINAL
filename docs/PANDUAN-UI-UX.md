@@ -64,3 +64,4 @@ Pola di bawah adalah pilihan default yang diterapkan jika sesuai konteks, bukan 
 - Unit keranjang dengan tanggal yang sudah lewat ditandai jelas: detail papan dibuka tanpa tanggal lama, tombol tambah unit disembunyikan, dan tanggal baru dipilih saat checkout. Galat jumlah dari detail papan muncul di dekat pemilih jumlah, bukan sebagai pesan umum.
 - Checkout menampilkan kembali hanya isian skalar. Kiriman berbentuk larik tetap memunculkan ringkasan galat per unit tanpa membuat halaman gagal dirender, sehingga pelanggan dapat memperbaiki isian dari tempat yang sama.
 - Form profil dan alamat pelanggan memakai pembantu tampilan yang hanya mencetak isian skalar, sehingga percobaan ulang dengan data tak terduga tetap menampilkan galat, bukan halaman rusak.
+- Halaman masuk, daftar, lupa kata sandi, dan edit alamat memakai pembantu isian skalar yang sama; percobaan ulang selalu menampilkan pesan galat dan tidak pernah mencetak larik ke atribut.
