@@ -45,6 +45,31 @@ class RentalCheckoutTest extends TestCase
         $this->get(route('rental.checkout'))->assertOk()->assertSee('Unit 1')->assertSee('Unit 2')->assertSee('Salin detail dari unit sebelumnya')->assertSee('pilihan paket tidak disalin');
     }
 
+    public function test_checkout_displays_current_price_and_returns_unavailable_units_to_cart(): void
+    {
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 125000, 'price_unit' => 'day', 'stock' => 1]);
+        $customer = User::factory()->create(); $customer->forceFill(['role' => 'customer'])->save();
+        $this->actingAs($customer)->post(route('cart.store', $product), ['quantity' => 1]);
+        $this->get(route('rental.checkout'))->assertOk()->assertSee('Unit 1 dari 1')->assertSee('125.000')->assertSee('Periksa perkiraan ketersediaan');
+        $category->update(['is_active' => false]);
+        $this->get(route('rental.checkout'))->assertRedirect(route('cart.index'))->assertSessionHasErrors('cart');
+        $this->get(route('cart.index'))->assertOk()->assertSee('Papan tidak tersedia')->assertSee('Hapus unit');
+        $this->assertCount(1, session('rental_cart'));
+    }
+
+    public function test_checkout_identifies_the_unit_with_incomplete_delivery_information(): void
+    {
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 2]);
+        $customer = User::factory()->create(); $customer->forceFill(['role' => 'customer'])->save();
+        $this->actingAs($customer)->post(route('cart.store', $product), ['quantity' => 2]);
+        $keys = array_keys(session('rental_cart'));
+        $base = ['starts_on' => now()->addDays(3)->toDateString(), 'event_on' => now()->addDays(3)->toDateString(), 'ends_on' => now()->addDays(3)->toDateString(), 'recipient_name' => 'Penerima', 'greeting' => 'Selamat', 'delivery_method' => 'pickup', 'return_method' => 'dropoff'];
+        $this->from(route('rental.checkout'))->post(route('rental.checkout.store'), ['terms' => 1, 'units' => [$keys[0] => $base, $keys[1] => array_merge($base, ['delivery_method' => 'delivery'])]])->assertRedirect(route('rental.checkout'))->assertSessionHasErrors(['units' => 'Unit 2: alamat pengantaran wajib diisi.']);
+        $this->assertDatabaseCount('rental_orders', 0);
+    }
+
     public function test_customer_cannot_view_another_customers_order(): void
     {
         $owner = User::factory()->create();

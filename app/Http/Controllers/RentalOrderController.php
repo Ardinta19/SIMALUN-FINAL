@@ -24,6 +24,12 @@ class RentalOrderController extends Controller
         $cart = $request->session()->get('rental_cart', []);
         if (! $cart) return redirect()->route('cart.index')->withErrors(['cart' => 'Keranjang masih kosong.']);
         $products = RentalProduct::with(['category', 'packages' => fn ($query) => $query->where('is_active', true)])->whereIn('id', array_column($cart, 'product_id'))->get()->keyBy('id');
+        foreach ($cart as $entry) {
+            $product = $products->get($entry['product_id']);
+            if (! $product || ! $product->is_active || ! $product->category?->is_active || $product->stock < 1) {
+                return redirect()->route('cart.index')->withErrors(['cart' => 'Ada papan yang tidak lagi tersedia. Hapus unit tersebut dari keranjang sebelum checkout.']);
+            }
+        }
         $universities = RentalUniversity::where('is_active', true)->orderBy('name')->get();
         return view('rental.checkout', compact('cart', 'products', 'universities'));
     }
@@ -51,10 +57,12 @@ class RentalOrderController extends Controller
         if (count($cart) !== count($data['units']) || array_diff(array_keys($cart), array_keys($data['units']))) {
             throw ValidationException::withMessages(['cart' => 'Keranjang berubah. Periksa kembali sebelum mengirim.']);
         }
-        foreach ($data['units'] as $unit) {
-            if ($unit['event_on'] < $unit['starts_on'] || $unit['ends_on'] < $unit['event_on']) throw ValidationException::withMessages(['units' => 'Tanggal acara harus berada dalam periode sewa.']);
-            if ($unit['delivery_method'] === 'delivery' && empty($unit['delivery_address'])) throw ValidationException::withMessages(['units' => 'Alamat pengantaran wajib diisi.']);
-            if ($unit['return_method'] === 'collection' && empty($unit['return_address'])) throw ValidationException::withMessages(['units' => 'Alamat pengambilan kembali wajib diisi.']);
+        foreach (array_keys($cart) as $index => $key) {
+            $unit = $data['units'][$key];
+            $label = 'Unit '.($index + 1).': ';
+            if ($unit['event_on'] < $unit['starts_on'] || $unit['ends_on'] < $unit['event_on']) throw ValidationException::withMessages(['units' => $label.'tanggal acara harus berada dalam periode sewa.']);
+            if ($unit['delivery_method'] === 'delivery' && empty($unit['delivery_address'])) throw ValidationException::withMessages(['units' => $label.'alamat pengantaran wajib diisi.']);
+            if ($unit['return_method'] === 'collection' && empty($unit['return_address'])) throw ValidationException::withMessages(['units' => $label.'alamat pengambilan kembali wajib diisi.']);
         }
         $order = DB::transaction(function () use ($request, $cart, $data) {
             $products = RentalProduct::with('category')->whereIn('id', array_column($cart, 'product_id'))->get()->keyBy('id');
