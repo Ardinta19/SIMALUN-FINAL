@@ -19,7 +19,7 @@ class RentalCartController extends Controller
     public function store(Request $request, RentalProduct $product)
     {
         abort_unless($product->is_active && $product->category->is_active && $product->stock > 0, 404);
-        $data = $request->validate(['quantity' => ['required', 'integer', 'min:1', 'max:20']]);
+        $data = $request->validate(['quantity' => ['required', 'integer', 'min:1', 'max:20'], 'next' => ['nullable', 'in:cart,checkout']]);
         $cart = $request->session()->get('rental_cart', []);
         if (count($cart) + $data['quantity'] > 50) {
             return back()->withErrors(['quantity' => 'Keranjang maksimal 50 unit.']);
@@ -30,7 +30,7 @@ class RentalCartController extends Controller
         }
         $request->session()->put('rental_cart', $cart);
 
-        return redirect()->route('cart.index')->with('success', 'Papan ditambahkan ke keranjang.');
+        return redirect()->route(($data['next'] ?? 'cart') === 'checkout' ? 'rental.checkout' : 'cart.index')->with('success', 'Papan ditambahkan ke keranjang.');
     }
 
     public function destroy(Request $request, string $item)

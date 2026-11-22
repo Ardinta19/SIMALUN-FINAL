@@ -108,10 +108,34 @@ class RentalOrderController extends Controller
         return view('rental.index', compact('orders'));
     }
 
-    public function adminIndex()
+    public function adminIndex(Request $request)
     {
-        $orders = RentalOrder::with(['customer', 'units.previews', 'units.payments.refunds', 'units.payments.corrections', 'units.progressEvents.recorder', 'units.cancellationEvents'])->latest()->paginate(20);
-        return view('rental.admin', compact('orders'));
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:160'],
+            'status' => ['nullable', Rule::in(['pending', 'confirmed', 'cancelled', 'payment_pending', 'design_pending', 'review'])],
+            'from' => ['nullable', 'date_format:Y-m-d'],
+            'to' => ['nullable', 'date_format:Y-m-d'],
+        ]);
+        if (! empty($filters['from']) && ! empty($filters['to']) && $filters['to'] < $filters['from']) throw ValidationException::withMessages(['to' => 'Tanggal akhir tidak boleh sebelum tanggal mulai.']);
+        $orders = RentalOrder::with(['customer', 'units.previews', 'units.payments.refunds', 'units.payments.corrections', 'units.progressEvents.recorder', 'units.cancellationEvents'])
+            ->when(! empty($filters['q']), function ($query) use ($filters) {
+                $term = '%'.$filters['q'].'%';
+                $query->where(fn ($q) => $q->where('reference', 'like', $term)
+                    ->orWhereHas('customer', fn ($customer) => $customer->where('name', 'like', $term)->orWhere('phone', 'like', $term))
+                    ->orWhereHas('units', fn ($unit) => $unit->where('product_name', 'like', $term)->orWhere('recipient_name', 'like', $term)));
+            })
+            ->when(! empty($filters['status']) || ! empty($filters['from']) || ! empty($filters['to']), function ($query) use ($filters) {
+                $query->whereHas('units', function ($unit) use ($filters) {
+                    $status = $filters['status'] ?? null;
+                    if (in_array($status, ['pending', 'confirmed', 'cancelled'], true)) $unit->where('status', $status);
+                    if ($status === 'review') $unit->where('status', 'confirmed')->where('payment_review_hold', true);
+                    if ($status === 'payment_pending') $unit->whereHas('payments', fn ($payment) => $payment->where('status', 'pending'));
+                    if ($status === 'design_pending') $unit->where('status', 'confirmed')->whereHas('previews', fn ($preview) => $preview->where('status', 'pending'));
+                    if (! empty($filters['from'])) $unit->whereDate('event_on', '>=', $filters['from']);
+                    if (! empty($filters['to'])) $unit->whereDate('event_on', '<=', $filters['to']);
+                });
+            })->latest()->paginate(20)->withQueryString();
+        return view('rental.admin', compact('orders', 'filters'));
     }
 
     public function confirm(Request $request, RentalOrderUnit $unit)

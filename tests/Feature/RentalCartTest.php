@@ -30,4 +30,17 @@ class RentalCartTest extends TestCase
         $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 1, 'price_unit' => 'day', 'stock' => 1, 'is_active' => false]);
         $this->post(route('cart.store', $product), ['quantity' => 1])->assertNotFound();
     }
+    public function test_guest_can_order_directly_and_continue_checkout_after_login(): void
+    {
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100000, 'price_unit' => 'day', 'stock' => 2]);
+        $this->post(route('cart.store', $product), ['quantity' => 1])->assertRedirect(route('cart.index'));
+        $this->post(route('cart.store', $product), ['quantity' => 1, 'next' => 'checkout'])->assertRedirect(route('rental.checkout'));
+        $this->get(route('rental.checkout'))->assertRedirect(route('login'));
+        $customer = User::factory()->create(['password' => bcrypt('password123')]);
+        $customer->forceFill(['role' => 'customer'])->save();
+        $this->post(route('login.post'), ['identifier' => $customer->email, 'password' => 'password123'])->assertRedirect(route('rental.checkout'));
+        $this->assertCount(2, session('rental_cart'));
+        $this->get(route('rental.checkout'))->assertOk()->assertSee('Detail penyewaan');
+    }
 }
