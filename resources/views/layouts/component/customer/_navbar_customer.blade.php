@@ -20,24 +20,17 @@
         </a>
 
         {{-- Pesanan --}}
-        <a href="{{ route('customer.orders') }}"
+        <a href="{{ route('rental.orders.index') }}"
            class="customer-nav__item {{ $navActive === 'pesanan' ? 'is-active' : '' }}"
            aria-label="Pesanan">
             <span class="customer-nav__icon">
-                @php
-                    $unreadOrders = 0;
-                    try { $unreadOrders = auth()->user()?->customerOrders()->whereIn('status', ['siap', 'dikirim', 'selesai'])->where('updated_at', '>=', now()->subHours(24))->count() ?? 0; } catch (\Exception $e) {}
-                @endphp
-                @if($unreadOrders > 0)
-                    <span class="customer-nav__badge">{{ $unreadOrders > 9 ? '9+' : $unreadOrders }}</span>
-                @endif
                 @include('layouts.component._icon', ['name' => 'pesanan', 'size' => 24])
             </span>
             <span class="customer-nav__label">Pesanan</span>
         </a>
 
         {{-- FAB: Pesan Baru --}}
-        <a href="{{ route('order.create') }}"
+        <a href="{{ route('welcome') }}"
            class="customer-nav__fab"
            aria-label="Buat Pesanan Baru">
             <span class="customer-nav__fab-btn">
@@ -117,7 +110,7 @@
     -webkit-tap-highlight-color: transparent;
 }
 .customer-nav__item.is-active {
-    color: #0077b6;
+    color: #85092d;
 }
 .customer-nav__item.is-active .customer-nav__icon svg {
     stroke-width: 2.6;
@@ -132,7 +125,7 @@
     position: absolute;
     top: -6px;
     right: -8px;
-    background: #FF6B35;
+    background: #85092d;
     color: white;
     font-size: 0.55rem;
     font-weight: 900;
@@ -168,12 +161,12 @@
     width: 52px;
     height: 52px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #FF6B35 0%, #ff8c5a 100%);
+    background: linear-gradient(135deg, #85092d 0%, #b63050 100%);
     color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 6px 20px rgba(255,107,53,0.45);
+    box-shadow: 0 6px 20px rgba(133,9,45,0.3);
     margin-top: -22px;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
@@ -182,12 +175,12 @@
 }
 .customer-nav__fab:active .customer-nav__fab-btn {
     transform: scale(0.94);
-    box-shadow: 0 3px 10px rgba(255,107,53,0.3);
+    box-shadow: 0 3px 10px rgba(133,9,45,0.2);
 }
 .customer-nav__fab-label {
     font-size: 0.6rem;
     font-weight: 800;
-    color: #FF6B35;
+    color: #85092d;
     text-transform: uppercase;
     letter-spacing: 0.4px;
     font-family: 'Plus Jakarta Sans', sans-serif;
@@ -200,7 +193,7 @@
     bottom: -2px;
     width: 4px;
     height: 4px;
-    background: #0077b6;
+    background: #85092d;
     border-radius: 50%;
 }
 /* Body padding so content isn't hidden behind nav */

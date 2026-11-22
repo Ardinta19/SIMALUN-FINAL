@@ -2,32 +2,31 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Dashboard – Azka Laundry SIMALUN</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Dashboard – Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 
 <style>
 /* ═══════════════════════════════════════════════
    TOKENS
 ═══════════════════════════════════════════════ */
 :root {
-  --c-ocean-deep:  #002f5c;
-  --c-ocean-mid:   #0077b6;
-  --c-ocean-light: #00b4d8;
-  --c-ocean-sky:   #48cae4;
-  --c-fire:        #FF6B35;
-  --c-fire-soft:   #ff8c5a;
+  --c-ocean-deep:  #54051f;
+  --c-ocean-mid:   #85092d;
+  --c-ocean-light: #a52b4e;
+  --c-ocean-sky:   #cf7488;
+  --c-fire:        #85092d;
+  --c-fire-soft:   #b63050;
   --c-mint:        #00C48C;
-  --c-surface:     #f2f8fd;
+  --c-surface:     #faf4f3;
   --c-card:        #ffffff;
   --c-ink:         #0d2137;
   --c-ink-mid:     #3a546b;
   --c-ink-soft:    #7a9ab0;
-  --c-line:        #daedf8;
-  --c-line-soft:   #eef6fb;
+  --c-line:        #f0dfe1;
+  --c-line-soft:   #fcf1f3;
   --nav-h:         68px;
   --r-card:        20px;
   --r-pill:        99px;
@@ -737,34 +736,21 @@ body {
 ══════════════════════════════════════ --}}
 <header class="hd" aria-label="Header dashboard">
 
-  {{-- Gelembung dekoratif ambient --}}
-  <div class="hd-bubble" style="width:100px;height:100px;top:-40px;right:24px;opacity:.45;"></div>
-  <div class="hd-bubble" style="width:48px;height:48px;top:22px;right:140px;opacity:.3;"></div>
-  <div class="hd-bubble" style="width:28px;height:28px;top:60px;left:80px;opacity:.25;"></div>
-
+  <span class="floral-deco" style="top:18px;right:8%;font-size:34px" aria-hidden="true">✿</span>
+  <span class="floral-deco" style="top:90px;left:8%;font-size:24px" aria-hidden="true">✿</span>
   <div class="hd-inner">
     {{-- Topbar --}}
     <div class="hd-topbar">
       <div class="hd-logo">
-        {{-- Drum SVG mini --}}
-        <svg width="32" height="32" viewBox="0 0 148 148" fill="none" aria-hidden="true">
-          <circle cx="74" cy="74" r="70" fill="rgba(255,255,255,.07)" stroke="rgba(255,255,255,.18)" stroke-width="1.5"/>
-          <rect x="16" y="26" width="116" height="106" rx="18" fill="rgba(255,255,255,.14)" stroke="rgba(255,255,255,.35)" stroke-width="1.8"/>
-          <rect x="16" y="26" width="116" height="30" rx="16" fill="rgba(255,255,255,.2)"/>
-          <circle cx="36" cy="41" r="7" fill="#FF6B35"/>
-          <circle cx="56" cy="41" r="7" fill="#00C48C"/>
-          <circle cx="74" cy="90" r="32" fill="rgba(0,100,160,.55)" stroke="rgba(255,255,255,.45)" stroke-width="2.5"/>
-          <circle cx="74" cy="90" r="22" fill="rgba(255,255,255,.16)" stroke="rgba(255,255,255,.6)" stroke-width="2.5"/>
-          <path d="M64 88 Q74 78 84 88 L81 100 H67Z" fill="white" opacity=".9"/>
-        </svg>
+        <img src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt="" width="40" height="40" style="object-fit:contain;border-radius:12px;background:white">
         <div>
-          <span class="hd-logo-text">Azka Laundry</span>
-          <span class="hd-logo-sub">SIMALUN</span>
+          <span class="hd-logo-text">Berkah Kreatif</span>
+          <span class="hd-logo-sub">Papan bunga</span>
         </div>
       </div>
 
       <div class="hd-icons">
-        <a href="{{ route('order.create') }}" class="hd-icon-btn" title="Pesan baru" aria-label="Buat pesanan baru">
+        <a href="{{ route('welcome') }}" class="hd-icon-btn" title="Pesan baru" aria-label="Buat pesanan baru">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
@@ -783,12 +769,12 @@ body {
     {{-- Greeting --}}
     <p class="hd-greet">Selamat datang kembali</p>
     <h1 class="hd-name">Halo, {{ explode(' ', auth()->user()->name)[0] }}!</h1>
-    <p class="hd-slogan">"Budayakan malas nyuci, itu pekerjaan kami."</p>
+    <p class="hd-slogan">Bunga untuk setiap momen berharga.</p>
   </div>
 
   {{-- Wave SVG — menyambung ke konten --}}
   <svg class="hd-wave" viewBox="0 0 414 52" preserveAspectRatio="none" aria-hidden="true">
-    <path fill="#f2f8fd"
+    <path fill="#faf4f3"
       d="M0,28 C80,52 160,8 240,28 C300,44 360,12 414,24 L414,52 L0,52Z"/>
   </svg>
 </header>
@@ -797,336 +783,31 @@ body {
      PAGE BODY
 ══════════════════════════════════════ --}}
 <main class="page-body" role="main">
-
-  {{-- ── CTA JEMPUT (hero utama — 80% pelanggan jemput antar!) ── --}}
-  <a href="{{ route('order.create') }}" class="cta-jemput js-reveal" aria-label="Pesan jemput sekarang">
-    <div class="cta-drum" aria-hidden="true">
-      <svg width="28" height="28" viewBox="0 0 148 148" fill="none">
-        <rect x="16" y="26" width="116" height="106" rx="18" fill="rgba(255,255,255,.25)" stroke="rgba(255,255,255,.5)" stroke-width="2"/>
-        <rect x="16" y="26" width="116" height="30" rx="16" fill="rgba(255,255,255,.3)"/>
-        <circle cx="74" cy="90" r="30" fill="rgba(255,255,255,.2)" stroke="rgba(255,255,255,.6)" stroke-width="2.5"/>
-        <path d="M64 88 Q74 78 84 88 L81 100 H67Z" fill="white" opacity=".95"/>
-      </svg>
-    </div>
-    <div class="cta-texts">
-      <span class="cta-label">Pesan Jemput Sekarang</span>
-      <span class="cta-sub">Driver kami langsung ke depan pintumu</span>
-    </div>
-    <div class="cta-arr" aria-hidden="true">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M5 12h14M12 5l7 7-7 7"/>
-      </svg>
-    </div>
+  <a href="{{ route('welcome') }}" class="cta-jemput js-reveal" aria-label="Jelajahi katalog papan bunga">
+    <div class="cta-drum" aria-hidden="true" style="font-size:28px">🌸</div>
+    <div class="cta-texts"><span class="cta-label">Pilih papan bunga</span><span class="cta-sub">Temukan bentuk yang cocok untuk momenmu</span></div>
+    <div class="cta-arr" aria-hidden="true">→</div>
   </a>
-
-  {{-- ── PESANAN AKTIF ── --}}
-  @if(isset($pesananAktif) && $pesananAktif)
-  @php
-    $statusCfg = [
-      'menunggu'   => ['class'=>'sp-pickup',  'label'=>'Menunggu Kurir',    'dot'=>true],
-      'dijemput'   => ['class'=>'sp-pickup',  'label'=>'Kurir Menjemput',   'dot'=>true],
-      'dicuci'     => ['class'=>'sp-washing', 'label'=>'Sedang Dicuci',     'dot'=>true],
-      'disetrika'  => ['class'=>'sp-washing', 'label'=>'Sedang Disetrika',  'dot'=>true],
-      'siap'       => ['class'=>'sp-ready',   'label'=>'Siap Diantar',      'dot'=>true],
-      'dikirim'    => ['class'=>'sp-ready',   'label'=>'Kurir Mengantar',   'dot'=>true],
-      'selesai'    => ['class'=>'sp-done',    'label'=>'Selesai',           'dot'=>false],
-    ];
-    $st    = $statusCfg[$pesananAktif->status] ?? ['class'=>'sp-washing','label'=>ucfirst($pesananAktif->status),'dot'=>true];
-    $steps = [
-      ['key'=>'dijemput',   'icon'=>'📦', 'label'=>"Dijemput"],
-      ['key'=>'dicuci',     'icon'=>'🫧', 'label'=>"Dicuci"],
-      ['key'=>'siap',       'icon'=>'✅', 'label'=>"Siap"],
-      ['key'=>'dikirim',    'icon'=>'🛵', 'label'=>"Diantar"],
-      ['key'=>'selesai',    'icon'=>'🎉', 'label'=>"Selesai"],
-    ];
-    $statusOrder = ['menunggu','dijemput','dicuci','disetrika','siap','dikirim','selesai'];
-    $curIdx = array_search($pesananAktif->status, $statusOrder) ?: 0;
-  @endphp
-
-  <div class="js-reveal">
-    <div class="sec-label">
-      <span class="sec-title">Pesanan Aktif</span>
-      <a href="{{ route('customer.orders') }}" class="sec-link">Lihat semua →</a>
-    </div>
-
-    <div class="active-hero" role="region" aria-label="Status pesanan aktif">
-      <div class="ah-top">
-        <div>
-          <div class="ah-order-id">#{{ strtoupper($pesananAktif->order_code) }}</div>
-          <div class="ah-service">
-            {{ $pesananAktif->service->name ?? 'Cuci Kiloan' }}
-            · {{ $pesananAktif->weight_estimate ?? '-' }} kg
-          </div>
-        </div>
-        <span class="status-pill {{ $st['class'] }}" role="status">
-          @if($st['dot'])<span class="live-dot" aria-hidden="true"></span>@endif
-          {{ $st['label'] }}
-        </span>
-      </div>
-
-      {{-- Stepper --}}
-      <div class="stepper" role="list" aria-label="Progress status cucian">
-        @foreach($steps as $i => $step)
-          @php
-            $stepIdx  = array_search($step['key'], $statusOrder) ?: 0;
-            $isDone   = $curIdx > $stepIdx;
-            $isActive = $curIdx == $stepIdx;
-            $dotCls   = $isDone ? 'done' : ($isActive ? 'active' : '');
-            $lblCls   = $isDone ? 'done' : ($isActive ? 'active' : '');
-          @endphp
-          <div class="st-item" role="listitem">
-            <div class="st-dot {{ $dotCls }}" aria-label="{{ $step['label'] }}: {{ $isDone ? 'selesai' : ($isActive ? 'sedang berlangsung' : 'menunggu') }}">
-              @if($isDone)
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              @elseif($isActive)
-                <span style="font-size:.65rem">{{ $i+1 }}</span>
-              @else
-                <span style="font-size:.65rem">{{ $i+1 }}</span>
-              @endif
-            </div>
-            <div class="st-lbl {{ $lblCls }}">{{ $step['label'] }}</div>
-          </div>
-          @if(!$loop->last)
-            <div class="st-line {{ $isDone ? 'done' : '' }}" aria-hidden="true"></div>
-          @endif
-        @endforeach
-      </div>
-
-      <div class="ah-footer">
-        <div class="ah-meta">
-          <div class="ah-meta-item">
-            <div class="ah-meta-lbl">Total</div>
-            <div class="ah-meta-val">Rp {{ number_format($pesananAktif->calculated_total ?? 0, 0, ',', '.') }}</div>
-          </div>
-          <div class="ah-meta-item">
-            <div class="ah-meta-lbl">Layanan</div>
-            <div class="ah-meta-val">
-              {{ $pesananAktif->service->name ?? 'Reguler' }}
-            </div>
-          </div>
-        </div>
-        <a href="{{ route('customer.order.detail', ['order' => $pesananAktif->id, 'back' => route('customer.dashboard')]) }}" class="btn-lacak" aria-label="Lacak pesanan {{ $pesananAktif->order_code }}">
-          Lacak
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
-        </a>
-      </div>
-    </div>
-  </div>
-
-  @else
-
-  {{-- Empty state --}}
-  <div class="js-reveal">
-    <div class="sec-label">
-      <span class="sec-title">Pesanan Aktif</span>
-    </div>
-    <div class="no-order" role="region" aria-label="Tidak ada pesanan aktif">
-      <span class="no-order-icon" aria-hidden="true">🧺</span>
-      <p class="no-order-txt">Belum ada pesanan aktif.<br>Buat pesanan baru kapan pun kamu butuh.</p>
-      <a href="{{ route('order.create') }}" class="btn-lacak" style="display:inline-flex;margin:0 auto;">
-        Pesan Sekarang
-      </a>
-    </div>
-  </div>
-  @endif
-
-  {{-- ── STATISTIK ── --}}
-  <div class="js-reveal">
-    <div class="stats-row">
-      <div class="stat-card">
-        <span class="stat-ico" aria-hidden="true">📦</span>
-        <div class="stat-num">{{ $totalPesanan ?? 0 }}</div>
-        <div class="stat-lbl">Total Pesanan</div>
-      </div>
-      <div class="stat-card">
-        <span class="stat-ico" aria-hidden="true">✅</span>
-        <div class="stat-num">{{ $totalSelesai ?? 0 }}</div>
-        <div class="stat-lbl">Selesai</div>
-      </div>
-    </div>
-  </div>
-
-  {{-- ── PROMO BANNER ── --}}
-  <a href="{{ route('customer.orders') }}" class="promo-banner js-reveal" aria-label="Promo diskon 20% member baru">
-    <div class="promo-tag" aria-hidden="true">20%</div>
-    <div class="promo-texts">
-      <div class="promo-title">Diskon Member Baru!</div>
-      <div class="promo-sub">Berlaku s/d 31 Mei 2026 · Kode: WELCOME20</div>
-    </div>
-    <div class="promo-arr" aria-hidden="true">›</div>
-  </a>
-
-  {{-- ── AKSI CEPAT ── --}}
-  <div class="js-reveal">
-    <div class="sec-label">
-      <span class="sec-title">Aksi Cepat</span>
-    </div>
-    <div class="quick-grid" role="navigation" aria-label="Menu aksi cepat">
-      <a href="{{ route('order.create') }}" class="quick-item" aria-label="Pesan baru">
-        <div class="quick-ico qi-orange" aria-hidden="true">🆕</div>
-        <span class="quick-lbl">Pesan Baru</span>
-      </a>
-      <a href="{{ route('customer.orders') }}" class="quick-item" aria-label="Riwayat pesanan">
-        <div class="quick-ico qi-blue" aria-hidden="true">📋</div>
-        <span class="quick-lbl">Riwayat</span>
-      </a>
-      <a href="{{ route('customer.addresses.index') }}" class="quick-item" aria-label="Alamat tersimpan">
-        <div class="quick-ico qi-green" aria-hidden="true">📍</div>
-        <span class="quick-lbl">Alamat</span>
-      </a>
-      <a href="{{ route('customer.help') }}" class="quick-item" aria-label="Pusat bantuan">
-        <div class="quick-ico qi-sky" aria-hidden="true">🆘</div>
-        <span class="quick-lbl">Bantuan</span>
-      </a>
-    </div>
-  </div>
-
-  {{-- ── RIWAYAT PESANAN ── --}}
-  <div class="js-reveal">
-    <div class="sec-label">
-      <span class="sec-title">Riwayat Pesanan</span>
-      <a href="{{ route('customer.orders') }}" class="sec-link">Semua →</a>
-    </div>
-    <div class="history-card">
-      @forelse(($riwayat ?? collect()) as $order)
-      @php
-        $svcSlug  = $order->service->slug ?? 'reguler';
-        $icons    = ['reguler'=>'🧺','express'=>'⚡','prioritas'=>'💎'];
-        $bgColors = ['reguler'=>'qi-blue','express'=>'qi-orange','prioritas'=>'qi-green'];
-        $ico      = $icons[$svcSlug] ?? '🫧';
-        $bgCls    = $bgColors[$svcSlug] ?? 'qi-blue';
-      @endphp
-      <a href="{{ route('customer.order.detail', ['order' => $order->id, 'back' => route('customer.dashboard')]) }}" class="hist-item" aria-label="Detail pesanan {{ $order->order_code }}">
-        <div class="hist-ico {{ $bgCls }}" aria-hidden="true">{{ $ico }}</div>
-        <div class="hist-texts">
-          <div class="hist-name">{{ $order->service->name ?? 'Cuci Kiloan' }}</div>
-          <div class="hist-code">#{{ strtoupper($order->order_code) }} · {{ $order->weight_actual ?? $order->weight_estimate }} kg</div>
-          <span class="hist-done-badge">✓ Selesai</span>
-        </div>
-        <div class="hist-right">
-          <div class="hist-price">Rp {{ number_format($order->calculated_total ?? 0, 0, ',', '.') }}</div>
-          <div class="hist-date">{{ \Carbon\Carbon::parse($order->created_at)->isoFormat('D MMM YY') }}</div>
-        </div>
-      </a>
-      @empty
-      <div class="hist-empty">Belum ada riwayat pesanan.</div>
-      @endforelse
-    </div>
-  </div>
-
+  <div class="js-reveal"><div class="stats-row"><div class="stat-card"><span class="stat-ico" aria-hidden="true">🌷</span><div class="stat-num">{{ $totalOrders }}</div><div class="stat-lbl">Pesanan</div></div><div class="stat-card"><span class="stat-ico" aria-hidden="true">📦</span><div class="stat-num">{{ $activeUnits }}</div><div class="stat-lbl">Unit aktif</div></div></div></div>
+  <div class="js-reveal"><div class="sec-label"><span class="sec-title">Aksi Cepat</span></div><div class="quick-grid" role="navigation" aria-label="Menu aksi cepat">
+    <a href="{{ route('welcome') }}" class="quick-item"><div class="quick-ico qi-orange" aria-hidden="true">🌸</div><span class="quick-lbl">Katalog</span></a>
+    <a href="{{ route('cart.index') }}" class="quick-item"><div class="quick-ico qi-blue" aria-hidden="true">🛒</div><span class="quick-lbl">Keranjang</span></a>
+    <a href="{{ route('rental.orders.index') }}" class="quick-item"><div class="quick-ico qi-green" aria-hidden="true">📋</div><span class="quick-lbl">Pesanan</span></a>
+    <a href="{{ route('customer.profile') }}" class="quick-item"><div class="quick-ico qi-sky" aria-hidden="true">👤</div><span class="quick-lbl">Profil</span></a>
+  </div></div>
+  <div class="js-reveal"><div class="sec-label"><span class="sec-title">Pesanan terbaru</span><a href="{{ route('rental.orders.index') }}" class="sec-link">Semua →</a></div><div class="history-card">
+  @forelse($orders as $order)
+    <a href="{{ route('rental.orders.show', $order) }}" class="hist-item"><div class="hist-ico qi-orange" aria-hidden="true">💐</div><div class="hist-texts"><div class="hist-name">{{ $order->units_count }} unit papan bunga</div><div class="hist-code">{{ $order->reference }}</div></div><div class="hist-right"><div class="hist-date">{{ $order->created_at->copy()->timezone('Asia/Jakarta')->format('d/m/Y') }}</div></div></a>
+  @empty
+    <div class="hist-empty">Belum ada pesanan papan bunga.</div>
+  @endforelse
+  </div></div>
+  <p style="font-size:.78rem;color:#806975;margin:16px 0">Sistem masih dalam pengujian dan belum untuk transaksi nyata.</p>
 </main>
 
 {{-- BOTTOM NAVIGATION (shared partial) --}}
 @include('layouts.component.customer._navbar_customer', ['active' => 'beranda'])
 
-{{-- ══════════════════════════════════════
-     JAVASCRIPT
-══════════════════════════════════════ --}}
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    if (typeof gsap === 'undefined') {
-        document.querySelectorAll('.js-reveal').forEach(function(el) {
-            el.style.opacity = '1';
-            el.style.transform = 'none';
-        });
-        return;
-    }
-
-    var reveals = document.querySelectorAll('.js-reveal');
-    if (reveals.length > 0) {
-        gsap.fromTo(reveals,
-            { opacity: 0, y: 28 },
-            {
-                opacity: 1, y: 0,
-                duration: .55,
-                stagger: .1,
-                ease: 'power3.out',
-                delay: .1,
-            }
-        );
-    }
-
-    (function spawnHeaderBubbles() {
-        const header = document.querySelector('.hd');
-        if (!header) return;
-
-        const deco = [
-            { w: 18, h: 18, top: '20%', right: '18%', delay: .6 },
-            { w: 10, h: 10, top: '55%', right: '35%', delay: 1.1 },
-            { w: 14, h: 14, top: '30%', left: '12%',  delay: .85 },
-        ];
-        deco.forEach(cfg => {
-            const b = document.createElement('div');
-            b.style.cssText = [
-                'position:absolute','border-radius:50%','pointer-events:none',
-                `width:${cfg.w}px`, `height:${cfg.h}px`,
-                'background:radial-gradient(circle at 30% 28%,rgba(255,255,255,.7),rgba(255,255,255,.06))',
-                'border:1px solid rgba(255,255,255,.3)',
-                cfg.top   ? `top:${cfg.top}`   : '',
-                cfg.right ? `right:${cfg.right}` : '',
-                cfg.left  ? `left:${cfg.left}`  : '',
-                'opacity:0',
-            ].join(';');
-            header.appendChild(b);
-            gsap.to(b, {
-                opacity: .7, y: -12,
-                duration: 2.5 + Math.random(),
-                ease: 'sine.inOut',
-                yoyo: true, repeat: -1,
-                delay: cfg.delay,
-            });
-            gsap.fromTo(b, { opacity: 0 }, { opacity: .7, duration: .5, delay: cfg.delay });
-        });
-    })();
-
-    const drumSvg = document.querySelector('.hd-logo svg');
-    if (drumSvg) {
-        gsap.to(drumSvg, {
-            rotation: 360,
-            duration: 24,
-            ease: 'none',
-            repeat: -1,
-            transformOrigin: '50% 50%',
-        });
-    }
-
-    const activeHero = document.querySelector('.active-hero');
-    if (activeHero) {
-        gsap.to(activeHero, {
-            boxShadow: '0 12px 36px rgba(0,119,182,.15), 0 2px 6px rgba(0,47,92,.06)',
-            duration: 2,
-            yoyo: true,
-            repeat: -1,
-            ease: 'sine.inOut',
-        });
-    }
-
-    const ctaBtn = document.querySelector('.cta-jemput');
-    if (ctaBtn) {
-        const ctaDrum = ctaBtn.querySelector('svg');
-        if (ctaDrum) {
-            ctaBtn.addEventListener('touchstart', function () {
-                gsap.to(ctaDrum, { rotation: '+=45', duration: .25, ease: 'power2.out' });
-            }, { passive: true });
-        }
-    }
-
-    const wave = document.querySelector('.hd-wave path');
-    if (wave) {
-        gsap.to(wave, {
-            attr: {
-                d: 'M0,20 C80,48 160,4 240,26 C300,42 360,8 414,22 L414,52 L0,52Z'
-            },
-            duration: 3.5,
-            ease: 'sine.inOut',
-            yoyo: true,
-            repeat: -1,
-        });
-    }
-});
-</script>
-
+<style>.floral-deco{position:absolute;color:rgba(255,255,255,.38);pointer-events:none}.hist-code{overflow-wrap:anywhere}.js-reveal{opacity:1!important;transform:none!important}</style>
 </body>
 </html>

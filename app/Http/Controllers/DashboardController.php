@@ -7,6 +7,8 @@ use App\Models\Order;
 use App\Models\OrderRating;
 use App\Models\User;
 use App\Models\Voucher;
+use App\Models\RentalOrder;
+use App\Models\RentalOrderUnit;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
@@ -26,42 +28,12 @@ class DashboardController extends Controller
     public function customer()
     {
         $user = Auth::user();
-
-        $pesananAktif = $user->customerOrders()
-            ->with(['service', 'driver', 'items'])
-            ->whereIn('status', Order::STATUS_AKTIF)
-            ->latest()
-            ->first();
-
-        $riwayat = $user->customerOrders()
-            ->with(['service', 'items'])
-            ->whereIn('status', Order::statusSelesaiSemua())
-            ->latest()
-            ->take(5)
-            ->get();
-
-        $totalPesanan = $user->customerOrders()->count();
-        $totalSelesai = $user->customerOrders()->where('status', 'selesai')->count();
-        $totalKg = (float) $user->customerOrders()
-            ->where('status', 'selesai')
-            ->sum('weight_actual');
-
-        $alamatUtama = $user->customerAddresses()
-            ->where('is_primary', true)
-            ->first();
-
-        $unreadNotif = $user->unreadNotifications->count();
-
-        return view('roles.customer.dashboard', compact(
-            'user',
-            'pesananAktif',
-            'riwayat',
-            'totalPesanan',
-            'totalSelesai',
-            'totalKg',
-            'alamatUtama',
-            'unreadNotif'
-        ));
+        $orders = RentalOrder::where('customer_id', $user->id)->withCount('units')->latest()->take(5)->get();
+        $totalOrders = RentalOrder::where('customer_id', $user->id)->count();
+        $activeUnits = RentalOrderUnit::whereHas('order', fn ($query) => $query->where('customer_id', $user->id))
+            ->whereIn('status', ['pending', 'confirmed'])->where('progress', '!=', 'returned')->count();
+        $unreadNotif = $user->unreadNotifications()->count();
+        return view('roles.customer.dashboard', compact('user', 'orders', 'totalOrders', 'activeUnits', 'unreadNotif'));
     }
 
     public function admin()
