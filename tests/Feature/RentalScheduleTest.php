@@ -28,4 +28,20 @@ class RentalScheduleTest extends TestCase
         $this->actingAs($customer)->get($url)->assertRedirect(route('customer.dashboard'));
         $this->actingAs($admin)->get($url)->assertOk()->assertSee('Papan Mawar')->assertSee('Dikonfirmasi · stok dicadangkan')->assertSee('Pengembalian hari ini')->assertDontSee('Papan Dibatalkan');
     }
+    public function test_activity_and_status_filters_show_the_correct_day_and_handoff_details(): void
+    {
+        $admin = User::factory()->create(); $admin->forceFill(['role' => 'admin'])->save();
+        $customer = User::factory()->create();
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 2]);
+        $order = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $customer->id, 'confirmation_deadline' => now()->addDay()]);
+        $base = ['rental_product_id' => $product->id, 'product_name' => 'Mawar unik', 'unit_price' => 100, 'price_unit' => 'day', 'rental_amount' => 100, 'starts_on' => '2026-12-01', 'event_on' => '2026-12-02', 'ends_on' => '2026-12-03', 'recipient_name' => 'Penerima', 'greeting' => 'Selamat', 'delivery_method' => 'delivery', 'delivery_address' => 'Alamat antar', 'return_method' => 'collection', 'return_address' => 'Alamat jemput'];
+        $order->units()->create($base + ['status' => 'confirmed']);
+        $order->units()->create(array_merge($base, ['product_name' => 'Menunggu unik', 'status' => 'pending']));
+        $url = route('admin.rental.schedule');
+        $response = $this->actingAs($admin)->get($url.'?month=2026-12&activity=receiving&status=confirmed')->assertOk()->assertSee('Alamat antar')->assertDontSee('Alamat jemput')->assertDontSee('Menunggu unik');
+        $this->assertSame(1, substr_count($response->getContent(), 'Mawar unik'));
+        $this->get($url.'?month=2026-12&activity=returning')->assertOk()->assertSee('Alamat jemput')->assertDontSee('Alamat antar');
+        $this->from($url)->get($url.'?activity=invalid')->assertRedirect($url)->assertSessionHasErrors('activity');
+    }
 }
