@@ -75,6 +75,9 @@
     const dialog = document.getElementById('bk-theme-dialog');
     const switchSvg = document.getElementById('bk-theme-switch');
     const knob = switchSvg ? switchSvg.querySelector('.bk-theme-svg__knob') : null;
+    // Cincin luar ikut bergerak bersama kenop supaya tidak tertinggal di sisi lain.
+    const knobRing = switchSvg ? switchSvg.querySelector('.bk-theme-svg__knob-ring') : null;
+    const knobNodes = [knob, knobRing].filter(Boolean);
 
     function syncThemeControls() {
         const dark = currentTheme() === 'dark';
@@ -96,17 +99,42 @@
         syncKnob(dark);
     }
 
+    // Arah sakelar: terang di kiri (matahari), gelap di kanan (bulan).
+    // Nilainya dibaca dari markup supaya geometri SVG jadi satu sumber kebenaran.
+    function knobOffset(dark) {
+        const raw = knob ? (dark ? knob.dataset.knobDark : knob.dataset.knobLight) : null;
+        const value = Number(raw);
+        if (raw !== null && raw !== undefined && raw !== '' && Number.isFinite(value)) return value;
+        return dark ? 0 : -152;
+    }
+
     function syncKnob(dark, animate = false) {
         if (!knob) return;
-        const BkKnobOffset = -152; const x = dark ? BkKnobOffset : 0;
+        const x = knobOffset(dark);
         const fill = dark ? '#F26B6B' : '#2BDB7F';
+        const duration = animate && !prefersReduced() ? 0.5 : 0;
         if (window.gsap) {
-            window.gsap.to(knob, { x, fill, duration: animate && !prefersReduced() ? 0.5 : 0, ease: 'expo.out', overwrite: 'auto' });
+            knobNodes.forEach((node) => {
+                const vars = { x, duration, ease: 'expo.out', overwrite: 'auto' };
+                if (node === knob) vars.fill = fill;
+                window.gsap.to(node, vars);
+            });
         } else {
-            knob.setAttribute('transform', dark ? 'translate(-152, 0)' : '');
+            const transform = x ? 'translate(' + x + ', 0)' : '';
+            knobNodes.forEach((node) => node.setAttribute('transform', transform));
             knob.style.fill = fill;
         }
     }
+
+    // Ujung jari pada koordinat #bk-theme-hand-wrap: tangan berhenti tepat di
+    // kenop pada sisi yang baru dipilih, bukan di posisi tetap.
+    const HAND_FINGER_TIP = 78;
+    function handTarget(dark) {
+        const base = knob ? Number(knob.getAttribute('cx')) : NaN;
+        const center = (Number.isFinite(base) ? base : 328) + knobOffset(dark);
+        return center - HAND_FINGER_TIP;
+    }
+    let handTargetX = handTarget(false);
 
     function placeToggle() {
         if (!toggleButton) return;
@@ -191,7 +219,7 @@
         const tl = window.gsap.timeline({ paused: true, defaults: { ease: 'expo.inOut' } });
         tl.set(handWrap, { x: 0, rotation: 0, opacity: 1 });
         tl.to(handWrap, { x: 40, duration: 0.4 });
-        tl.to(handWrap, { x: 196, duration: 0.55 }, '-=0.05');
+        tl.to(handWrap, { x: () => handTargetX, duration: 0.55 }, '-=0.05');
         if (thumb) {
             tl.fromTo(thumb, { rotation: 45 }, {
                 rotation: 0,
@@ -211,6 +239,7 @@
 
     function playRobotSwitch() {
         const next = toggleTheme();
+        handTargetX = handTarget(next === 'dark');
         syncKnob(next === 'dark', true);
         if (prefersReduced()) return;
         if (!robotTimeline) robotTimeline = buildRobotTimeline();

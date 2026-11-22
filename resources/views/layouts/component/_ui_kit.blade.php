@@ -47,16 +47,19 @@
                 <rect class="bk-theme-svg__panel" x="112" y="68" width="272" height="112" rx="56" stroke="#5b2330" stroke-width="4"></rect>
                 <rect class="bk-theme-svg__track" x="122" y="78" width="252" height="92" rx="46"></rect>
 
+                <!-- Terang di kiri (matahari), gelap di kanan (bulan). Ikon aktif
+                     sengaja lebih kecil dari kenop (r=38) supaya tertutup penuh. -->
                 <g opacity=".85">
-                    <path d="M186 100a22 22 0 1 0 0 44 19 19 0 1 1 0-44z" fill="#9c7b86"></path>
-                    <circle cx="316" cy="122" r="17" fill="#c98a3f"></circle>
-                    <g stroke="#c98a3f" stroke-width="3" stroke-linecap="round">
-                        <path d="M316 96v-7M316 155v-7M290 122h-7M349 122h-7M297 103l-5-5M340 146l-5-5M297 141l-5 5M340 98l-5 5"></path>
+                    <g fill="#c98a3f" stroke="#c98a3f" stroke-width="3" stroke-linecap="round">
+                        <circle cx="176" cy="124" r="12" stroke="none"></circle>
+                        <path d="M176 106V101M176 142V147M158 124h-5M194 124h5M163 111l-4-4M189 111l4-4M163 137l-4 4M189 137l4 4"></path>
                     </g>
+                    <circle cx="328" cy="124" r="17" fill="#9c7b86"></circle>
+                    <circle class="bk-theme-svg__cut" cx="334" cy="124" r="14"></circle>
                 </g>
 
-                <circle class="bk-theme-svg__knob" cx="328" cy="124" r="38"></circle>
-                <circle cx="328" cy="124" r="38" stroke="#5b2330" stroke-width="3" opacity=".35"></circle>
+                <circle class="bk-theme-svg__knob" cx="328" cy="124" r="38" data-knob-light="-152" data-knob-dark="0"></circle>
+                <circle class="bk-theme-svg__knob-ring" cx="328" cy="124" r="38" fill="none" stroke="#5b2330" stroke-width="3" opacity=".35"></circle>
 
                 <g id="bk-theme-hand-wrap" opacity="0" aria-hidden="true">
                     <rect x="-168" y="106" width="188" height="38" rx="19" fill="#e9c6cf" stroke="#5b2330" stroke-width="4"></rect>

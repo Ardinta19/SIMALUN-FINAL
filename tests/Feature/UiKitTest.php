@@ -312,6 +312,39 @@ class UiKitTest extends TestCase
         $this->assertStringContainsString('aria-disabled', $js);
     }
 
+    public function test_theme_switch_points_light_left_and_dark_right(): void
+    {
+        $kit = File::get(resource_path('views/layouts/component/_ui_kit.blade.php'));
+        $js = File::get(public_path('js/berkah-ui-kit.js'));
+
+        // Kenop beristirahat di kanan (gelap) dan bergeser 152px ke kiri untuk terang.
+        $this->assertStringContainsString('data-knob-light="-152"', $kit);
+        $this->assertStringContainsString('data-knob-dark="0"', $kit);
+
+        // Matahari di kiri, bulan sabit di kanan.
+        $sun = strpos($kit, 'cx="176" cy="124" r="12"');
+        $moon = strpos($kit, 'cx="328" cy="124" r="17"');
+        $this->assertNotFalse($sun);
+        $this->assertNotFalse($moon);
+        $this->assertLessThan($moon, $sun, 'Matahari harus berada di kiri bulan.');
+
+        // Ikon aktif lebih kecil dari kenop (r=38) supaya tertutup penuh.
+        $this->assertStringContainsString('class="bk-theme-svg__knob" cx="328" cy="124" r="38"', $kit);
+        $this->assertStringContainsString('M176 106V101', $kit);
+
+        // Arah dibaca dari markup, bukan angka tetap di skrip.
+        $this->assertStringContainsString('dataset.knobLight', $js);
+        $this->assertStringContainsString('dataset.knobDark', $js);
+        $this->assertStringNotContainsString('BkKnobOffset', $js);
+        $this->assertStringContainsString('handTarget', $js);
+
+        // Cincin luar ikut bergerak bersama kenop (dulu tertinggal di sisi lain).
+        $this->assertStringContainsString('class="bk-theme-svg__knob-ring" cx="328" cy="124" r="38" fill="none"', $kit);
+        $this->assertStringContainsString('class="bk-theme-svg__cut"', $kit);
+        $this->assertStringContainsString('knobNodes', $js);
+        $this->assertStringContainsString("window.gsap.to(node", $js);
+    }
+
     public function test_date_picker_disables_fully_booked_dates(): void
     {
         $js = File::get(public_path('js/berkah-controls.js'));

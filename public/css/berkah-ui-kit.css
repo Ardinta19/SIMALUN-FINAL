@@ -908,6 +908,16 @@ html[data-theme="dark"] .bk-theme-btn__moon {
     fill: #2bdb7f;
 }
 
+/* Cincin kenop hanya garis: tanpa fill agar tidak menutupi ikon di sisi lain. */
+#bk-theme-switch .bk-theme-svg__knob-ring {
+    fill: none;
+}
+
+/* Gigitan bulan memakai warna track agar sabit tetap terlihat di dua tema. */
+#bk-theme-switch .bk-theme-svg__cut {
+    fill: var(--bk-theme-svg-track);
+}
+
 #bk-theme-switch .bk-theme-svg__hand--2 {
     opacity: 0;
 }
