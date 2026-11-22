@@ -113,6 +113,33 @@ class RentalOrderController extends Controller
         return back()->with('success', 'Unit dikonfirmasi dan stok dicadangkan.');
     }
 
+    public function quoteTransport(Request $request, RentalOrderUnit $unit)
+    {
+        $data = $request->validate(['amount' => ['required', 'integer', 'min:0', 'max:100000000'], 'note' => ['nullable', 'string', 'max:1000']]);
+        DB::transaction(function () use ($unit, $data) {
+            $unit = RentalOrderUnit::lockForUpdate()->findOrFail($unit->id);
+            if (! $unit->transportRequired() || $unit->status === 'cancelled' || $unit->transport_approved_at || $unit->payments()->exists()) {
+                throw ValidationException::withMessages(['transport' => 'Ongkos tidak dapat diubah untuk unit ini.']);
+            }
+            $unit->update(['transport_quote' => $data['amount'], 'transport_quote_version' => $unit->transport_quote_version + 1, 'transport_quote_note' => $data['note'] ?? null]);
+        });
+        return back()->with('success', 'Penawaran ongkos dikirim kepada pelanggan.');
+    }
+
+    public function approveTransport(Request $request, RentalOrderUnit $unit)
+    {
+        abort_unless($unit->order->customer_id === $request->user()->id, 403);
+        $data = $request->validate(['version' => ['required', 'integer', 'min:1']]);
+        DB::transaction(function () use ($unit, $data) {
+            $unit = RentalOrderUnit::lockForUpdate()->findOrFail($unit->id);
+            if (! $unit->transportRequired() || $unit->status === 'cancelled' || $unit->transport_approved_at || $unit->transport_quote === null || (int) $unit->transport_quote_version !== (int) $data['version']) {
+                throw ValidationException::withMessages(['transport' => 'Penawaran berubah atau tidak lagi tersedia. Periksa kembali.']);
+            }
+            $unit->update(['transport_approved_at' => now()]);
+        });
+        return back()->with('success', 'Ongkos disetujui.');
+    }
+
     public function cancel(Request $request, RentalOrderUnit $unit)
     {
         $data = $request->validate(['reason' => ['required', 'string', 'max:500']]);

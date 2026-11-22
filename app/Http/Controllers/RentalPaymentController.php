@@ -22,10 +22,10 @@ class RentalPaymentController extends Controller
             DB::transaction(function () use ($unit, $data, $path) {
                 $unit = RentalOrderUnit::lockForUpdate()->findOrFail($unit->id);
                 if ($unit->status !== 'confirmed') throw ValidationException::withMessages(['payment' => 'Unit harus dikonfirmasi terlebih dahulu.']);
-                // Tarif pengantaran belum dibuat; hindari menyajikan total yang belum disepakati sebagai tagihan final.
-                if ($unit->delivery_method !== 'pickup' || $unit->return_method !== 'dropoff') throw ValidationException::withMessages(['payment' => 'Pembayaran untuk pengantaran belum tersedia sampai ongkos disepakati.']);
+                $total = $unit->payableAmount();
+                if ($total === null) throw ValidationException::withMessages(['payment' => 'Setujui penawaran ongkos terlebih dahulu.']);
                 $allocated = $unit->payments()->whereIn('status', ['pending', 'verified'])->sum('amount');
-                if ($allocated + $data['amount'] > $unit->rental_amount) throw ValidationException::withMessages(['amount' => 'Nominal melebihi sisa tagihan, termasuk bukti yang menunggu verifikasi.']);
+                if ($allocated + $data['amount'] > $total) throw ValidationException::withMessages(['amount' => 'Nominal melebihi sisa tagihan, termasuk bukti yang menunggu verifikasi.']);
                 $unit->payments()->create(['amount' => $data['amount'], 'proof_path' => $path, 'submitted_at' => now()]);
             });
         } catch (\Throwable $e) {
@@ -51,7 +51,7 @@ class RentalPaymentController extends Controller
             $payment = RentalPayment::lockForUpdate()->findOrFail($payment->id);
             if ($payment->status !== 'pending' || $unit->status !== 'confirmed') throw ValidationException::withMessages(['payment' => 'Pembayaran tidak lagi dapat diverifikasi.']);
             $verified = $unit->payments()->where('status', 'verified')->sum('amount');
-            if ($verified + $payment->amount > $unit->rental_amount) throw ValidationException::withMessages(['payment' => 'Nominal melebihi sisa tagihan.']);
+            if ($unit->payableAmount() === null || $verified + $payment->amount > $unit->payableAmount()) throw ValidationException::withMessages(['payment' => 'Nominal melebihi sisa tagihan.']);
             $entry = FinanceEntry::create(['entry_date' => today(), 'period_key' => now()->format('Y-m'), 'entry_type' => 'income', 'category' => 'income', 'amount' => $payment->amount, 'source_type' => 'rental_payment', 'source_id' => $payment->id, 'notes' => 'Pembayaran unit sewa #'.$unit->id, 'created_by' => $request->user()->id]);
             $payment->update(['status' => 'verified', 'verified_at' => now(), 'verified_by' => $request->user()->id, 'finance_entry_id' => $entry->id]);
         });

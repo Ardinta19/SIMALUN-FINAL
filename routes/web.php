@@ -108,6 +108,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/preview-desain/{preview}/gambar', [RentalDesignController::class, 'image'])->name('rental.design.image');
 
     Route::middleware('role:customer')->group(function () {
+        Route::post('/sewa/unit/{unit}/setujui-ongkos', [RentalOrderController::class, 'approveTransport'])->name('rental.transport.approve');
         Route::post('/sewa/unit/{unit}/pembayaran', [RentalPaymentController::class, 'store'])->middleware('throttle:10,1')->name('rental.payment.store');
         Route::post('/preview-desain/{preview}/respons', [RentalDesignController::class, 'respond'])->name('rental.design.respond');
         Route::get('/checkout', [RentalOrderController::class, 'create'])->name('rental.checkout');
@@ -157,6 +158,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/pembayaran-sewa/{payment}/tolak', [RentalPaymentController::class, 'reject'])->name('rental.payment.reject');
         Route::post('/sewa/unit/{unit}/preview', [RentalDesignController::class, 'store'])->name('rental.design.store');
         Route::get('/sewa', [RentalOrderController::class, 'adminIndex'])->name('rental.orders');
+        Route::post('/sewa/unit/{unit}/ongkos', [RentalOrderController::class, 'quoteTransport'])->name('rental.transport.quote');
         Route::post('/sewa/unit/{unit}/confirm', [RentalOrderController::class, 'confirm'])->name('rental.confirm');
         Route::post('/sewa/unit/{unit}/cancel', [RentalOrderController::class, 'cancel'])->name('rental.cancel');
         Route::get('/katalog', [RentalCatalogController::class, 'admin'])->name('catalog.index');
