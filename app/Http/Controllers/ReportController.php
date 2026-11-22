@@ -6,6 +6,8 @@ use App\Models\Report;
 use App\Models\RentalPaymentSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class ReportController extends Controller
 {
@@ -40,18 +42,42 @@ class ReportController extends Controller
 
         $screenshotPath = null;
         if ($request->hasFile('screenshot')) {
-            $screenshotPath = $request->file('screenshot')->store('reports', 'public');
+            $screenshotPath = $request->file('screenshot')->store('private-reports', 'local');
+            if (! $screenshotPath) {
+                throw ValidationException::withMessages(['screenshot' => 'Gambar tidak dapat disimpan. Silakan coba lagi.']);
+            }
         }
 
-        Report::create([
-            'user_id' => Auth::id(),
-            'category' => $request->category,
-            'description' => $request->description,
-            'screenshot_path' => $screenshotPath,
-            'status' => 'open',
-        ]);
+        try {
+            Report::create([
+                'user_id' => Auth::id(),
+                'category' => $request->category,
+                'description' => $request->description,
+                'screenshot_path' => $screenshotPath,
+                'status' => 'open',
+            ]);
+        } catch (\Throwable $e) {
+            if ($screenshotPath) Storage::disk('local')->delete($screenshotPath);
+            throw $e;
+        }
 
         return back()->with('success', 'Laporan berhasil dikirim. Terima kasih atas masukannya!');
+    }
+
+    /** Lampiran baru privat. Lampiran lama tetap tersedia dari lokasi lama untuk admin. */
+    public function screenshot(Report $report)
+    {
+        $path = $report->screenshot_path;
+        abort_unless(is_string($path), 404);
+        if (preg_match('~^private-reports/[A-Za-z0-9_-]+\.(?:jpg|jpeg|png|webp)$~i', $path)) {
+            $disk = 'local';
+        } elseif (preg_match('~^reports/[A-Za-z0-9_-]+\.(?:jpg|jpeg|png|webp)$~i', $path)) {
+            $disk = 'public';
+        } else {
+            abort(404);
+        }
+        abort_unless(Storage::disk($disk)->exists($path), 404);
+        return Storage::disk($disk)->response($path, null, ['Cache-Control' => 'private, no-store', 'X-Content-Type-Options' => 'nosniff']);
     }
 
     /**
@@ -99,8 +125,10 @@ class ReportController extends Controller
             $data['admin_notes'] = $request->admin_notes;
         }
 
-        if (in_array($request->status, ['resolved', 'closed']) && ! $report->resolved_at) {
-            $data['resolved_at'] = now();
+        if (in_array($request->status, ['resolved', 'closed'])) {
+            $data['resolved_at'] = $report->resolved_at ?? now();
+        } else {
+            $data['resolved_at'] = null;
         }
 
         $report->update($data);

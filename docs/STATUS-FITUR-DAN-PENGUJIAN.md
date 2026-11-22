@@ -1,6 +1,6 @@
 # Status fitur dan pemeriksaan Berkah Kreatif
 
-Snapshot setelah pengujian Windows pada commit `d9b1d0e`: **196 tes lulus, 1.063 assertion**. Perubahan setelah commit tersebut belum termasuk hasil itu. Ini adalah inventaris berdasarkan kode dan tes yang ada, bukan pernyataan bahwa seluruh kebutuhan sudah selesai, aman, atau siap produksi. Dokumen audit awal `AUDIT-BERKAH-KREATIF.md` adalah snapshot historis; status fitur di sana dapat sudah berubah.
+Snapshot setelah pengujian Windows pada commit `27ab7de`: **201 tes lulus, 1.122 assertion**. Perubahan setelah commit tersebut belum termasuk hasil itu. Ini adalah inventaris berdasarkan kode dan tes yang ada, bukan pernyataan bahwa seluruh kebutuhan sudah selesai, aman, atau siap produksi. Dokumen audit awal `AUDIT-BERKAH-KREATIF.md` adalah snapshot historis; status fitur di sana dapat sudah berubah.
 
 ## Inventaris alur sewa
 
@@ -27,3 +27,7 @@ Snapshot setelah pengujian Windows pada commit `d9b1d0e`: **196 tes lulus, 1.063
 6. Pastikan scheduler dan worker berjalan serta terpantau, pencadangan dan pemulihan diuji, konfigurasi produksi diamankan, akun demo tidak digunakan dan kredensial historis yang masih berlaku dirotasi.
 
 Jangan jalankan transaksi atau pembayaran nyata sebelum pemeriksaan dan keputusan tersebut selesai. Jangan menjalankan seeder atau migrasi destruktif terhadap database yang berisi data penting.
+
+## Lampiran laporan kendala
+
+Lampiran laporan baru disimpan pada disk lokal privat dan ditampilkan melalui rute admin terautentikasi. Lampiran historis pada `storage/app/public/reports` tetap berada di lokasi publik lama agar tidak rusak; tautan langsung lama masih dapat diakses jika `public/storage` tersedia. Untuk melindungi lampiran lama, cadangkan dan rencanakan migrasi berkas serta pembaruan jalurnya secara teruji; perubahan ini tidak memindahkan atau menghapus data lama. Bukti laundry lama juga perlu audit terpisah.

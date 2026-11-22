@@ -228,6 +228,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/services/{service}', [ServiceController::class, 'destroy'])->name('services.destroy');
 
         Route::get('/reports', [ReportController::class, 'adminIndex'])->name('reports');
+        Route::get('/reports/{report}/screenshot', [ReportController::class, 'screenshot'])->name('reports.screenshot');
         Route::patch('/reports/{report}/status', [ReportController::class, 'updateStatus'])->name('reports.update-status');
 
         Route::get('/audit', [AuditLogController::class, 'index'])->name('audit.index');

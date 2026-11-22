@@ -32,7 +32,7 @@ body {
 
 /* ── Entrance animation (pure CSS — transform/opacity only) ── */
 @keyframes riseIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-.reveal { opacity: 0; animation: riseIn .5s cubic-bezier(.22,.61,.36,1) forwards; }
+.reveal { animation: riseIn .5s cubic-bezier(.22,.61,.36,1) forwards; }
 .d1{animation-delay:.04s}.d2{animation-delay:.10s}.d3{animation-delay:.16s}
 .d4{animation-delay:.22s}.d5{animation-delay:.28s}
 @media (prefers-reduced-motion: reduce){ .reveal{opacity:1;animation:none} }
@@ -229,7 +229,7 @@ body {
             </div>
             <div class="report-card__desc">{{ $report->description }}</div>
             @if($report->screenshot_path)
-                <img src="{{ asset('storage/' . $report->screenshot_path) }}" class="report-card__img" alt="Screenshot laporan">
+                <img src="{{ route('admin.reports.screenshot', $report) }}" class="report-card__img" alt="Screenshot laporan">
             @endif
             <div class="report-card__time">{{ $report->created_at->translatedFormat('d M Y, H:i') }} — {{ $report->created_at->diffForHumans() }}</div>
         </div>
@@ -243,7 +243,7 @@ body {
                     <option value="resolved" {{ $report->status === 'resolved' ? 'selected' : '' }}>Selesai</option>
                     <option value="closed" {{ $report->status === 'closed' ? 'selected' : '' }}>Ditutup</option>
                 </select>
-                <button type="button" class="status-btn js-status-btn">
+                <button type="submit" class="status-btn">
                     @include('layouts.component._icon', ['name' => 'refresh', 'size' => 16])
                     Update
                 </button>
@@ -268,30 +268,9 @@ body {
 </main>
 
 @include('layouts.component.admin._navbar_admin', ['active' => ''])
-@include('layouts.component._confirm_modal')
 @include('layouts.component._form_controls')
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.js-status-btn').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            var form = btn.closest('form');
-            var statusLabel = form.querySelector('.status-select option:checked').textContent;
-            showConfirmModal({
-                title: 'Update Status Laporan?',
-                message: 'Status laporan akan diubah menjadi "' + statusLabel + '". Lanjutkan?',
-                confirmText: 'Ya, Update',
-                cancelText: 'Batal',
-                type: 'info',
-                onConfirm: function() {
-                    form.submit();
-                }
-            });
-        });
-    });
-});
-</script>
+
 
 </body>
 </html>
