@@ -13,3 +13,9 @@ Artisan::command('rental:expire-confirmations', function (\App\Services\ExpireRe
 })->purpose('Batalkan unit yang melewati batas konfirmasi admin');
 
 \Illuminate\Support\Facades\Schedule::command('rental:expire-confirmations')->everyMinute()->withoutOverlapping();
+
+Artisan::command('rental:expire-payments', function (\App\Services\ExpireRentalPayments $expiry) {
+    $result = $expiry->run();
+    $this->info('Unit dibatalkan: '.$result['cancelled'].'; masa kelanjutan berakhir: '.$result['forfeited']);
+})->purpose('Proses tenggat pelunasan sewa');
+\Illuminate\Support\Facades\Schedule::command('rental:expire-payments')->everyMinute()->withoutOverlapping();

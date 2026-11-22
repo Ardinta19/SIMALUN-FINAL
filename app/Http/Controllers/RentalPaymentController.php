@@ -6,6 +6,7 @@ use App\Models\FinanceEntry;
 use App\Models\RentalOrderUnit;
 use App\Models\RentalPayment;
 use App\Models\RentalPaymentRefund;
+use App\Services\RentalPaymentDeadline;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -16,18 +17,22 @@ class RentalPaymentController extends Controller
     public function store(Request $request, RentalOrderUnit $unit)
     {
         abort_unless($unit->order->customer_id === $request->user()->id, 403);
+        $submittedAt = now();
         $data = $request->validate(['amount' => ['required', 'integer', 'min:1', 'max:100000000'], 'proof' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120']]);
         $path = $request->file('proof')->store('rental-payment-proofs', 'local');
         if (! $path) throw ValidationException::withMessages(['proof' => 'Bukti tidak dapat disimpan.']);
         try {
-            DB::transaction(function () use ($unit, $data, $path) {
+            DB::transaction(function () use ($unit, $data, $path, $submittedAt) {
                 $unit = RentalOrderUnit::lockForUpdate()->findOrFail($unit->id);
-                if ($unit->status !== 'confirmed') throw ValidationException::withMessages(['payment' => 'Unit harus dikonfirmasi terlebih dahulu.']);
+                $policy = app(RentalPaymentDeadline::class);
+                $late = $policy->eligibleForLatePayment($unit);
+                if ($unit->status !== 'confirmed' && ! $late) throw ValidationException::withMessages(['payment' => 'Unit tidak dapat menerima bukti pembayaran saat ini.']);
+                if (! $late && $policy->isDue($unit) && ! $unit->payment_review_hold) throw ValidationException::withMessages(['payment' => 'Tenggat pelunasan telah lewat. Tunggu pembaruan status atau hubungi admin.']);
                 $total = $unit->payableAmount();
                 if ($total === null) throw ValidationException::withMessages(['payment' => 'Setujui penawaran ongkos terlebih dahulu.']);
                 $allocated = $unit->allocatedNet();
                 if ($allocated + $data['amount'] > $total) throw ValidationException::withMessages(['amount' => 'Nominal melebihi sisa tagihan, termasuk bukti yang menunggu verifikasi.']);
-                $unit->payments()->create(['amount' => $data['amount'], 'proof_path' => $path, 'submitted_at' => now()]);
+                $unit->payments()->create(['amount' => $data['amount'], 'proof_path' => $path, 'submitted_at' => $submittedAt]);
             });
         } catch (\Throwable $e) {
             Storage::disk('local')->delete($path);
@@ -82,6 +87,17 @@ class RentalPaymentController extends Controller
         return back()->with('success', 'Pengembalian dicatat dalam buku kas.');
     }
 
+    public function resolveReview(Request $request, RentalOrderUnit $unit)
+    {
+        $request->validate(['confirmed' => ['accepted']]);
+        DB::transaction(function () use ($unit) {
+            $unit = RentalOrderUnit::lockForUpdate()->findOrFail($unit->id);
+            if ($unit->status !== 'confirmed' || ! $unit->payment_review_hold || $unit->payableAmount() === null) throw ValidationException::withMessages(['payment' => 'Peninjauan belum dapat diselesaikan atau ongkos belum disetujui.']);
+            $unit->update(['payment_review_hold' => false, 'payment_review_resolved' => true]);
+        }, 3);
+        return back()->with('success', 'Peninjauan dilepas. Penjadwal akan memeriksa kembali bukti dan tenggat.');
+    }
+
     public function reject(Request $request, RentalPayment $payment)
     {
         $data = $request->validate(['reason' => ['required', 'string', 'max:500']]);
@@ -89,6 +105,10 @@ class RentalPaymentController extends Controller
             $unit = RentalOrderUnit::lockForUpdate()->findOrFail($payment->rental_order_unit_id);
             $payment = RentalPayment::lockForUpdate()->findOrFail($payment->id);
             if ($payment->status !== 'pending') throw ValidationException::withMessages(['payment' => 'Bukti tidak lagi menunggu verifikasi.']);
+            $policy = app(RentalPaymentDeadline::class);
+            if ($unit->status === 'confirmed' && $policy->isDue($unit) && $unit->payableAmount() !== null && $policy->timelyCoverage($unit) >= $unit->payableAmount()) {
+                $unit->update(['payment_review_hold' => true, 'payment_review_resolved' => false]);
+            }
             $payment->update(['status' => 'rejected', 'verified_at' => now(), 'verified_by' => $request->user()->id, 'admin_note' => $data['reason']]);
         });
         return back()->with('success', 'Bukti pembayaran ditolak dengan alasan.');

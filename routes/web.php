@@ -163,6 +163,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/pembayaran-sewa/{payment}/tolak', [RentalPaymentController::class, 'reject'])->name('rental.payment.reject');
         Route::post('/sewa/unit/{unit}/preview', [RentalDesignController::class, 'store'])->name('rental.design.store');
         Route::get('/sewa', [RentalOrderController::class, 'adminIndex'])->name('rental.orders');
+        Route::post('/sewa/unit/{unit}/selesai-tinjau-pembayaran', [RentalPaymentController::class, 'resolveReview'])->name('rental.payment.resolve-review');
         Route::post('/sewa/unit/{unit}/perkembangan', [RentalProgressController::class, 'advance'])->name('rental.progress.advance');
         Route::post('/sewa/unit/{unit}/ongkos', [RentalOrderController::class, 'quoteTransport'])->name('rental.transport.quote');
         Route::post('/sewa/unit/{unit}/confirm', [RentalOrderController::class, 'confirm'])->name('rental.confirm');

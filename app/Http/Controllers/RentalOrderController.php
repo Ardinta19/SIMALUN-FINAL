@@ -8,6 +8,7 @@ use App\Models\RentalDurationPackage;
 use App\Models\RentalUniversity;
 use App\Models\RentalPaymentSetting;
 use App\Services\RentalAvailability;
+use App\Services\RentalPaymentDeadline;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -122,7 +123,8 @@ class RentalOrderController extends Controller
             $special = $unit->needsSpecialConfirmation();
             if ($special && ! $request->boolean('special_confirmation')) throw ValidationException::withMessages(['unit' => 'Jadwal dekat memerlukan persetujuan khusus admin.']);
             app(RentalAvailability::class)->assertAvailable($product, $unit);
-            $unit->update(['status' => 'confirmed', 'confirmed_at' => now(), 'special_confirmation' => $special]);
+            $needsReview = $special && app(RentalPaymentDeadline::class)->isDue($unit);
+            $unit->update(['status' => 'confirmed', 'confirmed_at' => now(), 'special_confirmation' => $special, 'payment_review_hold' => $needsReview]);
         });
         return back()->with('success', 'Unit dikonfirmasi dan stok dicadangkan.');
     }
@@ -167,7 +169,7 @@ class RentalOrderController extends Controller
             $unit = RentalOrderUnit::lockForUpdate()->findOrFail($unit->id);
             if ($unit->status === 'cancelled') throw ValidationException::withMessages(['unit' => 'Unit sudah dibatalkan.']);
             $unit->cancellationEvents()->create(['action' => 'cancel', 'previous_status' => $unit->status, 'new_status' => 'cancelled', 'note' => $data['reason'], 'responsibility' => $data['responsibility'], 'recorded_by' => $request->user()->id]);
-            $unit->update(['status_before_cancel' => $unit->status, 'status' => 'cancelled', 'cancel_reason' => $data['reason'], 'cancel_responsibility' => $data['responsibility'], 'cancelled_at' => now(), 'cancelled_by' => $request->user()->id]);
+            $unit->update(['status_before_cancel' => $unit->status, 'cancel_code' => 'manual', 'status' => 'cancelled', 'cancel_reason' => $data['reason'], 'cancel_responsibility' => $data['responsibility'], 'cancelled_at' => now(), 'cancelled_by' => $request->user()->id]);
         });
         return back()->with('success', 'Unit dibatalkan dan reservasi dilepas. Tindak lanjuti pembayaran dan kewajiban pengembalian jika ada.');
     }
@@ -182,7 +184,7 @@ class RentalOrderController extends Controller
             }
             $today = now('Asia/Jakarta')->toDateString();
             $starts = $unit->starts_on->toDateString();
-            if ($today > $starts) throw ValidationException::withMessages(['unit' => 'Batas melanjutkan unit telah terlewati.']);
+            if ($unit->deposit_forfeited_at || $today > $starts) throw ValidationException::withMessages(['unit' => 'Batas melanjutkan unit telah terlewati.']);
             if ($unit->status_before_cancel === 'pending') {
                 if (! $unit->order->confirmation_deadline->isFuture()) throw ValidationException::withMessages(['unit' => 'Tenggat konfirmasi telah terlewati.']);
                 $next = 'pending';
@@ -193,8 +195,9 @@ class RentalOrderController extends Controller
                 app(RentalAvailability::class)->assertAvailable($product, $unit);
                 $next = 'confirmed';
             }
+            $lateResumedAt = $unit->cancel_code === 'payment_timeout' ? now() : $unit->payment_late_resumed_at;
             $unit->cancellationEvents()->create(['action' => 'resume', 'previous_status' => 'cancelled', 'new_status' => $next, 'note' => $data['reason'], 'recorded_by' => $request->user()->id]);
-            $unit->update(['status' => $next, 'status_before_cancel' => null, 'cancel_reason' => null, 'cancel_responsibility' => null, 'cancelled_at' => null, 'cancelled_by' => null]);
+            $unit->update(['status' => $next, 'payment_late_resumed_at' => $lateResumedAt, 'status_before_cancel' => null, 'cancel_code' => null, 'cancel_reason' => null, 'cancel_responsibility' => null, 'cancelled_at' => null, 'cancelled_by' => null]);
         }, 3);
         return back()->with('success', 'Unit dilanjutkan. Untuk unit terkonfirmasi, stok telah diperiksa kembali.');
     }
