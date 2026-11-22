@@ -189,8 +189,10 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
 </style>
 <link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
 <link rel="stylesheet" href="{{ asset('css/customer-forms.css') }}">
+<link rel="stylesheet" href="{{ asset('css/berkah-experience.css') }}">
 </head>
-<body>
+<body class="bk-experience bk-customer bk-standalone">
+@include('catalog.customer-navigation')
 
 <header class="page-header">
     <div class="header-row">
@@ -206,7 +208,7 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
     </div>
 </header>
 
-<div class="page-body">
+<main class="page-body" id="main-content" tabindex="-1">
 
     @if($errors->any())
     <div class="alert-error">
@@ -305,7 +307,7 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
         </div>
 
     </form>
-</div>
+</main>
 
 {{-- SUBMIT BUTTON --}}
 <div class="bottom-cta">
@@ -371,5 +373,6 @@ document.addEventListener('DOMContentLoaded', function () {
   window.addEventListener('load', syncChecked);
 })();
 </script>
+<script src="{{ asset('js/berkah-experience.js') }}" defer></script>
 </body>
 </html>

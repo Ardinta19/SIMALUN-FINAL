@@ -175,14 +175,16 @@ body {
 .field__error { font-size: 0.68rem; font-weight: 700; color: var(--red); margin-top: 4px; }
 </style>
 <link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
+@if(auth()->user()->role === 'customer')<link rel="stylesheet" href="{{ asset('css/berkah-experience.css') }}">@endif
 </head>
-<body>
+<body @if(auth()->user()->role === 'customer') class="bk-experience bk-customer bk-standalone-report" @endif>
+@if(auth()->user()->role === 'customer')@include('catalog.customer-navigation')@endif
 
 @if(session('success'))
 <div class="toast">{{ session('success') }}</div>
 @endif
 
-<main class="wrap">
+<main class="wrap" id="main-content" tabindex="-1">
 
     {{-- Header --}}
     <header class="page-header">
@@ -321,5 +323,6 @@ if (_fileInput) _fileInput.addEventListener('change', function() {
   window.addEventListener('load', syncChecked);
 })();
 </script>
+@if(auth()->user()->role === 'customer')<script src="{{ asset('js/berkah-experience.js') }}" defer></script>@endif
 </body>
 </html>

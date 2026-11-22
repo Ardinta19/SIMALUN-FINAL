@@ -219,9 +219,10 @@
     .btn-danger:hover { background:var(--red); color:#fff; }
 </style>
 <link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
-@if($user->role === 'customer')<link rel="stylesheet" href="{{ asset('css/customer-forms.css') }}">@endif
+@if($user->role === 'customer')<link rel="stylesheet" href="{{ asset('css/customer-forms.css') }}"><link rel="stylesheet" href="{{ asset('css/berkah-experience.css') }}">@endif
 </head>
-<body>
+<body @if($user->role === 'customer') class="bk-experience bk-customer bk-standalone" @endif>
+@if($user->role === 'customer')@include('catalog.customer-navigation')@endif
 
 <header class="page-header">
     <div class="header-row">
@@ -237,7 +238,7 @@
     </div>
 </header>
 
-<div class="page-body">
+<main class="page-body" id="main-content" tabindex="-1">
 
     @if(session('status') === 'profile-updated')
         <div class="alert alert-success">Profil berhasil diperbarui.</div>
@@ -426,7 +427,7 @@
         </div>
     @endif
 
-</div>
+</main>
 
 @include('layouts.component.customer._confirm_modal')
 
@@ -505,5 +506,6 @@
 
 @include('layouts.component.customer._navbar_customer', ['active' => 'profil'])
 
+@if($user->role === 'customer')<script src="{{ asset('js/berkah-experience.js') }}" defer></script>@endif
 </body>
 </html>

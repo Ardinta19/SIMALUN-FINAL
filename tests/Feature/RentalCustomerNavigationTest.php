@@ -70,7 +70,7 @@ class RentalCustomerNavigationTest extends TestCase
     {
         $customer = User::factory()->create(['role' => 'customer']);
         $address = $customer->customerAddresses()->create(['label' => "Rumah 'contoh'", 'recipient_name' => 'Nama', 'full_address' => 'Jalan Mawar nomor 10', 'latitude' => -1.6101, 'longitude' => 103.6131, 'is_primary' => true]);
-        $this->actingAs($customer)->get(route('customer.addresses.create'))->assertOk()->assertSee('Berkah Kreatif')->assertSee('Peta bersifat opsional')->assertSee('type="checkbox" name="is_primary"', false)->assertDontSee('gsap.min.js');
+        $this->actingAs($customer)->get(route('customer.addresses.create'))->assertOk()->assertSee('Berkah Kreatif')->assertSee('Peta bersifat opsional')->assertSee('id="bk-command"', false)->assertSee('type="checkbox" name="is_primary"', false)->assertDontSee('gsap.min.js');
         $this->get(route('customer.addresses.edit', $address))->assertOk()->assertSee('value="-1.6101000"', false)->assertSee('value="103.6131000"', false)->assertSee('Alamat utama saat ini')->assertDontSee('gsap.min.js');
         $this->get(route('customer.addresses.index'))->assertOk()->assertSee('Hapus alamat ini?')->assertSee('Alamat utama')
             ->assertSee(route('customer.addresses.edit', $address))->assertSee(route('customer.addresses.destroy', $address))
@@ -80,7 +80,7 @@ class RentalCustomerNavigationTest extends TestCase
     {
         $customer = User::factory()->create(['role' => 'customer']);
         $this->actingAs($customer)->get(route('customer.report'))->assertOk()
-            ->assertSee('Berkah Kreatif')->assertDontSee('Azka Laundry')->assertDontSee('wa.me/')->assertDontSee('1x24 jam');
+            ->assertSee('Berkah Kreatif')->assertSee('id="bk-command"', false)->assertDontSee('Azka Laundry')->assertDontSee('wa.me/')->assertDontSee('1x24 jam');
         RentalPaymentSetting::create(['id' => 1, 'whatsapp_number' => '6289876543210']);
         $this->get(route('customer.report'))->assertOk()->assertSee('https://wa.me/6289876543210', false);
     }
