@@ -1,7 +1,7 @@
 @extends('catalog.layout')
 @section('title', 'Checkout')
 @section('content')
-<p><a href="{{ route('cart.index') }}">← Kembali ke keranjang</a></p><h1>Detail penyewaan</h1><p class="notice">Langkah 1: isi detail setiap unit. Langkah 2: baca dan setujui ketentuan. Langkah 3: kirim pesanan dan tunggu konfirmasi admin.</p><p class="muted">Isi kebutuhan untuk setiap unit. Ketersediaan diperiksa saat pesanan dikirim, tetapi stok belum dicadangkan sampai admin mengonfirmasi dan dapat berubah. Ongkos lokasi lain ditawarkan admin; tarif universitas mengikuti daftar saat checkout.</p>
+<div class="bk-checkout-heading"><a class="bk-back" href="{{ route('cart.index') }}">← Kembali ke keranjang</a><span class="bk-kicker">DETAIL PESANAN</span><h1>Detail penyewaan</h1><p class="muted">Siapkan informasi untuk setiap papan, lalu periksa ketentuannya sebelum mengirim.</p><ol class="bk-checkout-steps" aria-label="Tahapan penyewaan"><li><span>1</span>Isi detail unit</li><li><span>2</span>Baca ketentuan</li><li><span>3</span>Kirim pesanan</li></ol></div><p class="muted">Isi kebutuhan untuk setiap unit. Ketersediaan diperiksa saat pesanan dikirim, tetapi stok belum dicadangkan sampai admin mengonfirmasi dan dapat berubah. Ongkos lokasi lain ditawarkan admin; tarif universitas mengikuti daftar saat checkout.</p>
 @if(count($cart) > 1)
 <nav class="bk-jump" aria-label="Lompat ke unit checkout"><strong>Langsung ke</strong><div>@foreach($cart as $key => $entry)<a href="#checkout-unit-{{ $loop->iteration }}">Unit {{ $loop->iteration }}</a>@endforeach <a href="#checkout-terms">Ketentuan</a></div></nav>
 @endif

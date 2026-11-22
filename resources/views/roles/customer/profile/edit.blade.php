@@ -219,6 +219,7 @@
     .btn-danger:hover { background:var(--red); color:#fff; }
 </style>
 <link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
+@if($user->role === 'customer')<link rel="stylesheet" href="{{ asset('css/customer-forms.css') }}">@endif
 </head>
 <body>
 

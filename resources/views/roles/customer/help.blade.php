@@ -1,16 +1,16 @@
-@extends('rental.help-layout')
+@extends('catalog.layout')
 @section('title', 'Pusat bantuan')
-@section('back', route('customer.dashboard'))
-@section('heading', 'Pusat bantuan')
-@section('subtitle', 'Panduan singkat menyewa papan bunga di Berkah Kreatif.')
 @section('content')
+<div class="bk-help"><a class="bk-back" href="{{ route('customer.dashboard') }}">← Kembali ke beranda</a>
+<div class="bk-page-heading"><div><span class="bk-kicker">KAMI SIAP MEMBANTU</span><h1>Pusat bantuan</h1><p class="muted">Panduan singkat menyewa papan bunga di Berkah Kreatif.</p></div></div>
+<nav class="bk-jump bk-help-jump" aria-label="Lompat ke bagian bantuan"><strong>Ke bagian</strong><div><a href="#mulai-pesanan">Mulai pesanan</a><a href="#pertanyaan-umum">Pertanyaan umum</a><a href="#hubungi-admin">Hubungi admin</a></div></nav>
 <div class="help-card help-notice"><strong>Masih dalam pengujian.</strong> Jangan melakukan transaksi atau pembayaran nyata.</div>
-<section class="help-card"><h2>Mulai pesanan</h2><ol>
+<section class="help-card" id="mulai-pesanan"><h2>Mulai pesanan</h2><ol>
 <li>Pilih papan di <a href="{{ route('welcome') }}">katalog</a> dan tambahkan ke keranjang. Stok belum dicadangkan pada tahap ini.</li>
 <li>Masuk atau daftar, lalu lengkapi tanggal, ucapan, desain dan serah terima untuk setiap unit di checkout.</li>
 <li>Kirim pesanan dan tunggu konfirmasi admin. Periksa halaman <a href="{{ route('rental.orders.index') }}">Pesanan saya</a> untuk melihat langkah berikutnya.</li>
 </ol></section>
-<section class="help-card"><h2>Pertanyaan umum</h2>
+<section class="help-card" id="pertanyaan-umum"><h2>Pertanyaan umum</h2>
 <details><summary>Kapan stok dicadangkan?</summary><p>Stok diperiksa dan dicadangkan saat admin mengonfirmasi unit. Unit yang belum dikonfirmasi setelah 24 jam dibatalkan jika penjadwal berjalan. Jadwal dekat memerlukan persetujuan khusus.</p></details>
 <details><summary>Bagaimana cara memilih desain?</summary><p>Isi nama penerima, ucapan dan permintaan desain untuk setiap unit saat checkout. Setelah admin mengirim preview, buka detail pesanan untuk menyetujui atau meminta revisi. Pengerjaan dimulai setelah preview terbaru disetujui.</p></details>
 <details><summary>Bagaimana cara membayar?</summary><p>Setelah unit dikonfirmasi dan ongkos disetujui jika diperlukan, buka bagian pembayaran pada unit. QRIS adalah pilihan utama; untuk metode lain gunakan WhatsApp jika sudah diatur admin. Kirim bukti pada unit terkait. Bukti diperiksa manual dan tidak otomatis menjadi pembayaran terverifikasi.</p></details>
@@ -18,8 +18,8 @@
 <details><summary>Bagaimana ongkos dan serah terima ditentukan?</summary><p>Pilih diantar atau ambil di outlet untuk penerimaan, serta dijemput penjual atau kembalikan ke outlet untuk pengembalian. Tarif universitas mengikuti pilihan saat checkout; lokasi lain memerlukan penawaran admin. Setujui ongkos di detail unit.</p></details>
 <details><summary>Bagaimana jika unit dibatalkan?</summary><p>Periksa alasan dan tindak lanjut pada detail unit. Jika kesalahan penjual menyebabkan pembatalan, pengembalian pembayaran ditindaklanjuti secara manual. Untuk pembatalan karena tenggat pembayaran, pelanjutan pada hari penerimaan memerlukan verifikasi pembayaran dan pemeriksaan stok; ada risiko terlambat.</p></details>
 </section>
-<section class="help-card"><h2>Hubungi admin</h2>
+<section class="help-card" id="hubungi-admin"><h2>Hubungi admin</h2>
 @if($settings?->whatsapp_number)<p>Untuk pertanyaan atau metode pembayaran lain, hubungi admin melalui WhatsApp.</p><a class="help-button" href="https://wa.me/{{ $settings->whatsapp_number }}?text={{ rawurlencode('Halo Berkah Kreatif, saya ingin bertanya tentang penyewaan papan bunga.') }}" target="_blank" rel="noopener noreferrer">Buka WhatsApp</a>@else<p class="help-muted">Nomor WhatsApp belum diatur oleh admin.</p>@endif
 </section>
+</div>
 @endsection
-@section('navigation')@include('layouts.component.customer._navbar_customer', ['active' => ''])@endsection

@@ -188,6 +188,7 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
 .map-hint[hidden]{display:none}
 </style>
 <link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
+<link rel="stylesheet" href="{{ asset('css/customer-forms.css') }}">
 </head>
 <body>
 

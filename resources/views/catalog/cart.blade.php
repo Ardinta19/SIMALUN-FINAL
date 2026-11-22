@@ -2,10 +2,10 @@
 @section('title', 'Keranjang')
 @section('content')
 <div class="cart-page">
-<p><a href="{{ route('welcome') }}">← Kembali ke katalog</a></p>
-<h1>Keranjang</h1>
+<a class="bk-back" href="{{ route('welcome') }}">← Kembali ke katalog</a>
+<div class="bk-cart-heading"><span class="bk-kicker">PILIHANMU</span><h1>Keranjang</h1></div>
 <p class="muted">Setiap unit dapat memiliki jadwal dan desain yang berbeda. Menambahkan papan ke keranjang belum mencadangkan stok.</p>
-@if(count($cart))<p><strong>{{ count($cart) }} unit</strong> di keranjang</p>@endif
+@if(count($cart))<div class="bk-cart-count"><strong>{{ count($cart) }} unit</strong><span>di keranjang</span><a href="#cart-next">Ke langkah berikutnya ↓</a></div>@endif
 <div class="items">
 @forelse($cart as $id => $item)
     @php
@@ -40,7 +40,7 @@
 @endforelse
 </div>
 @if(count($cart))
-    <div class="notice">Harga dasar belum termasuk durasi dan ongkos. Stok baru dicadangkan setelah admin mengonfirmasi.</div>
+    <div class="notice" id="cart-next">Harga dasar belum termasuk durasi dan ongkos. Stok baru dicadangkan setelah admin mengonfirmasi.</div>
     <div class="cart-actions">
     @if($unavailableCount)
         <p role="status">Hapus {{ $unavailableCount }} unit yang tidak tersedia sebelum melanjutkan.</p>
