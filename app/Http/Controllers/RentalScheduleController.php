@@ -40,4 +40,20 @@ class RentalScheduleController extends Controller
         }
         return view('rental.schedule', compact('month', 'days', 'input'));
     }
+    public function dailySheet(Request $request)
+    {
+        $input = $request->validate(['date' => ['required', 'date_format:Y-m-d']]);
+        $date = CarbonImmutable::createFromFormat('!Y-m-d', $input['date'], 'Asia/Jakarta');
+        $key = $date->toDateString();
+        $units = RentalOrderUnit::with('order.customer')
+            ->where('status', 'confirmed')
+            ->where(function ($query) use ($key) {
+                $query->whereDate('starts_on', $key)->orWhereDate('ends_on', $key);
+            })
+            ->orderBy('id')->get();
+        $receiving = $units->filter(fn ($unit) => $unit->starts_on->toDateString() === $key);
+        $returning = $units->filter(fn ($unit) => $unit->ends_on->toDateString() === $key);
+        return response()->view('rental.daily-sheet', compact('date', 'receiving', 'returning'))
+            ->header('Cache-Control', 'private, no-store');
+    }
 }

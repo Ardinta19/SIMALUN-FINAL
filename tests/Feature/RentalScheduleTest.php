@@ -44,4 +44,23 @@ class RentalScheduleTest extends TestCase
         $this->get($url.'?month=2026-12&activity=returning')->assertOk()->assertSee('Alamat jemput')->assertDontSee('Alamat antar');
         $this->from($url)->get($url.'?activity=invalid')->assertRedirect($url)->assertSessionHasErrors('activity');
     }
+    public function test_daily_sheet_is_admin_only_and_lists_only_confirmed_handoffs_for_the_date(): void
+    {
+        $admin = User::factory()->create(); $admin->forceFill(['role' => 'admin'])->save();
+        $customer = User::factory()->create(); $customer->forceFill(['role' => 'customer'])->save();
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 2]);
+        $order = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $customer->id, 'confirmation_deadline' => now()->addDay()]);
+        $base = ['rental_product_id' => $product->id, 'product_name' => 'Mawar terkonfirmasi', 'unit_price' => 100, 'price_unit' => 'day', 'rental_amount' => 100, 'starts_on' => '2026-12-01', 'event_on' => '2026-12-02', 'ends_on' => '2026-12-03', 'recipient_name' => 'Penerima', 'greeting' => 'Selamat', 'delivery_method' => 'delivery', 'delivery_address' => 'Alamat antar', 'return_method' => 'collection', 'return_address' => 'Alamat jemput'];
+        $order->units()->create($base + ['status' => 'confirmed']);
+        $order->units()->create(array_merge($base, ['product_name' => 'Belum dikonfirmasi', 'status' => 'pending']));
+        $url = route('admin.rental.schedule.daily-sheet', ['date' => '2026-12-01']);
+        $this->get($url)->assertRedirect(route('login'));
+        $this->actingAs($customer)->get($url)->assertRedirect(route('customer.dashboard'));
+        $response = $this->actingAs($admin)->get($url)->assertOk()->assertSee('Mawar terkonfirmasi')->assertSee('Alamat antar')->assertDontSee('Alamat jemput')->assertDontSee('Belum dikonfirmasi');
+        $this->assertStringContainsString('no-store', $response->headers->get('Cache-Control'));
+        $this->get(route('admin.rental.schedule.daily-sheet', ['date' => '2026-12-03']))->assertOk()->assertSee('Alamat jemput')->assertDontSee('Alamat antar');
+        $this->get(route('admin.rental.schedule.daily-sheet', ['date' => '2026-12-02']))->assertOk()->assertDontSee('Mawar terkonfirmasi');
+        $this->from(route('admin.rental.schedule'))->get(route('admin.rental.schedule.daily-sheet', ['date' => 'invalid']))->assertSessionHasErrors('date');
+    }
 }
