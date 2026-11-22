@@ -3,7 +3,6 @@
 namespace App\Support;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\URL;
 
 /**
  * Smart back-navigation helper.
@@ -25,16 +24,14 @@ class BackUrl
     public static function resolve(Request $request, string $fallbackRoute, array $fallbackParams = []): string
     {
         // 1. Explicit ?back= param
-        if ($back = $request->query('back')) {
-            $decoded = urldecode($back);
-            if (static::isSafeUrl($decoded)) {
-                return $decoded;
-            }
+        $back = $request->query('back');
+        if (is_string($back) && static::isSafeUrl($back, $request)) {
+            return $back;
         }
 
         // 2. HTTP Referer (same-host, bukan current URL)
         $referer = $request->headers->get('referer');
-        if ($referer && static::isSafeUrl($referer) && ! static::isSameAs($referer, $request->fullUrl())) {
+        if ($referer && static::isSafeUrl($referer, $request) && ! static::isSameAs($referer, $request->fullUrl())) {
             return $referer;
         }
 
@@ -58,16 +55,30 @@ class BackUrl
     /**
      * Cek apakah URL aman (same-host).
      */
-    protected static function isSafeUrl(string $url): bool
+    protected static function isSafeUrl(string $url, Request $request): bool
     {
-        $parsed = parse_url($url);
-
-        if (! isset($parsed['host'])) {
-            // Relative URL — aman
-            return str_starts_with($url, '/');
+        // Browser dapat menafsirkan backslash dan karakter kontrol secara
+        // berbeda dari parse_url. Jangan dekode ulang query yang sudah dibaca Laravel.
+        if ($url === '' || str_contains($url, '\\') || preg_match('/[\x00-\x20\x7f]/', $url)) {
+            return false;
         }
 
-        return $parsed['host'] === request()->getHost();
+        if (str_starts_with($url, '/')) {
+            return ! str_starts_with($url, '//');
+        }
+
+        $parsed = parse_url($url);
+        if ($parsed === false || ! isset($parsed['scheme'], $parsed['host']) || isset($parsed['user']) || isset($parsed['pass'])) {
+            return false;
+        }
+        $scheme = strtolower($parsed['scheme']);
+        if (! in_array($scheme, ['http', 'https'], true) || $scheme !== $request->getScheme()) {
+            return false;
+        }
+        $port = $parsed['port'] ?? ($scheme === 'https' ? 443 : 80);
+
+        return strtolower($parsed['host']) === strtolower($request->getHost())
+            && $port === $request->getPort();
     }
 
     /**

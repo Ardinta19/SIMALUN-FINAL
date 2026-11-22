@@ -1,6 +1,6 @@
 # Status fitur dan pemeriksaan Berkah Kreatif
 
-Snapshot setelah pengujian Windows pada commit `5318cfa`: **192 tes lulus, 960 assertion**. Perubahan setelah commit tersebut belum termasuk hasil itu. Ini adalah inventaris berdasarkan kode dan tes yang ada, bukan pernyataan bahwa seluruh kebutuhan sudah selesai, aman, atau siap produksi. Dokumen audit awal `AUDIT-BERKAH-KREATIF.md` adalah snapshot historis; status fitur di sana dapat sudah berubah.
+Snapshot setelah pengujian Windows pada commit `d9b1d0e`: **196 tes lulus, 1.063 assertion**. Perubahan setelah commit tersebut belum termasuk hasil itu. Ini adalah inventaris berdasarkan kode dan tes yang ada, bukan pernyataan bahwa seluruh kebutuhan sudah selesai, aman, atau siap produksi. Dokumen audit awal `AUDIT-BERKAH-KREATIF.md` adalah snapshot historis; status fitur di sana dapat sudah berubah.
 
 ## Inventaris alur sewa
 

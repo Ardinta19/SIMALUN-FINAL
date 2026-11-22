@@ -16,12 +16,12 @@ class GoogleLoginTest extends TestCase
     /**
      * Siapkan mock Socialite yang mengembalikan user Google tertentu.
      */
-    private function mockGoogleUser(string $id, string $email, bool $emailVerified = true): void
+    private function mockGoogleUser(string $id, string $email, ?bool $emailVerified = true): void
     {
         $abstractUser = Mockery::mock(\Laravel\Socialite\Two\User::class);
         $abstractUser->shouldReceive('getId')->andReturn($id);
         $abstractUser->shouldReceive('getEmail')->andReturn($email);
-        $abstractUser->user = ['email_verified' => $emailVerified];
+        $abstractUser->user = $emailVerified === null ? [] : ['email_verified' => $emailVerified];
 
         $provider = Mockery::mock(Provider::class);
         $provider->shouldReceive('user')->andReturn($abstractUser);
@@ -87,6 +87,32 @@ class GoogleLoginTest extends TestCase
 
         $this->assertGuest();
         $response->assertRedirect(route('login'));
+    }
+
+    public function test_google_login_rejects_missing_verification_or_subject(): void
+    {
+        User::factory()->create(['email' => 'pelanggan@gmail.com', 'is_active' => true]);
+        $this->mockGoogleUser('google-id', 'pelanggan@gmail.com', emailVerified: null);
+        $this->get(route('auth.google.callback'))->assertRedirect(route('login'))->assertSessionHasErrors('identifier');
+        $this->assertGuest();
+    }
+
+    public function test_google_login_rejects_a_different_google_id_for_an_already_linked_account(): void
+    {
+        $user = User::factory()->create(['email' => 'pelanggan@gmail.com', 'is_active' => true]);
+        $user->forceFill(['google_id' => 'existing-google-id'])->save();
+        $this->mockGoogleUser('different-google-id', 'pelanggan@gmail.com');
+        $this->get(route('auth.google.callback'))->assertRedirect(route('login'))->assertSessionHasErrors('identifier');
+        $this->assertGuest();
+        $this->assertSame('existing-google-id', $user->fresh()->google_id);
+    }
+
+    public function test_google_login_requires_a_google_subject(): void
+    {
+        User::factory()->create(['email' => 'pelanggan@gmail.com', 'is_active' => true]);
+        $this->mockGoogleUser('', 'pelanggan@gmail.com');
+        $this->get(route('auth.google.callback'))->assertRedirect(route('login'))->assertSessionHasErrors('identifier');
+        $this->assertGuest();
     }
 
     protected function tearDown(): void

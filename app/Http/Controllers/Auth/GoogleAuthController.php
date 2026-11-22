@@ -48,11 +48,11 @@ class GoogleAuthController extends Controller
         }
 
         $email = strtolower((string) $googleUser->getEmail());
-        $googleId = $googleUser->getId();
+        $googleId = (string) $googleUser->getId();
 
         // Hanya terima email yang sudah diverifikasi Google.
-        $emailVerified = $googleUser->user['email_verified'] ?? true;
-        if (! $email || ! $emailVerified) {
+        $emailVerified = $googleUser->user['email_verified'] ?? false;
+        if (! $email || $googleId === '' || $emailVerified !== true) {
             return redirect()->route('login')->withErrors([
                 'identifier' => 'Email Google kamu belum terverifikasi.',
             ]);
@@ -69,6 +69,14 @@ class GoogleAuthController extends Controller
             ]);
         }
 
+        // Email yang kini sama tidak boleh mengambil alih akun yang sudah
+        // ditautkan ke subjek Google lain.
+        if ($user->google_id !== null && $user->google_id !== $googleId) {
+            return redirect()->route('login')->withErrors([
+                'identifier' => 'Akun ini sudah terhubung dengan akun Google lain. Silakan masuk dengan metode yang sebelumnya digunakan.',
+            ]);
+        }
+
         // Akun nonaktif tidak boleh masuk (sama seperti login biasa).
         if (! $user->is_active) {
             return redirect()->route('login')->withErrors([
@@ -76,10 +84,16 @@ class GoogleAuthController extends Controller
             ]);
         }
 
-        // Tautkan google_id kalau belum (pertama kali login Google).
-        if (empty($user->google_id)) {
-            $user->google_id = $googleId;
-            $user->save();
+        // Tautkan hanya jika masih kosong. Callback lain tidak boleh menimpa
+        // tautan yang dibuat bersamaan oleh subjek Google yang berbeda.
+        if ($user->google_id === null) {
+            User::whereKey($user->id)->whereNull('google_id')->update(['google_id' => $googleId]);
+            $user->refresh();
+            if ($user->google_id !== $googleId || ! $user->is_active) {
+                return redirect()->route('login')->withErrors([
+                    'identifier' => 'Akun tidak dapat ditautkan. Silakan masuk dengan metode yang sebelumnya digunakan.',
+                ]);
+            }
         }
 
         Auth::login($user, remember: true);
