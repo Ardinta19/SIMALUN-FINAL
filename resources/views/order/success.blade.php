@@ -122,5 +122,6 @@ h1{font-weight:800;font-size:1.5rem;color:var(--blue-dark);margin-bottom:6px;}
   <a href="{{ route('customer.order.detail', ['order' => $order->id, 'back' => route('customer.orders')]) }}" class="btn-secondary">Lacak Pesanan →</a>
 </div>
 
+@include('layouts.component._form_controls')
 </body>
 </html>

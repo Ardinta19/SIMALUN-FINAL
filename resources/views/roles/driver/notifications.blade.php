@@ -192,5 +192,6 @@ body {
 
 @include('layouts.component.driver._navbar_driver', ['active' => ''])
 
+@include('layouts.component._form_controls')
 </body>
 </html>

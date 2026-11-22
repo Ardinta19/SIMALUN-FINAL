@@ -420,5 +420,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+@include('layouts.component._form_controls')
 </body>
 </html>

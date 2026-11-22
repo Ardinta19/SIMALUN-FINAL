@@ -514,5 +514,6 @@ $oldText = function (string $key, $fallback = '') {
 @include('layouts.component.customer._navbar_customer', ['active' => 'profil'])
 
 @if($user->role === 'customer')<script src="{{ $asset('js/berkah-experience.js') }}" defer></script>@endif
+@include('layouts.component._form_controls')
 </body>
 </html>

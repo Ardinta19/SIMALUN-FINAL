@@ -1,0 +1,891 @@
+/*!
+ * Berkah Kreatif — Form Controls (default UI kit)
+ * ------------------------------------------------------------------
+ * Sumber tunggal kontrol form kustom: select (listbox), segmented,
+ * stepper, date picker (kalender), bottom sheet / popover, dan
+ * normalisasi kontrol native yang tersisa.
+ *
+ * Dimuat oleh resources/views/layouts/component/_form_controls.blade.php.
+ * Semua kelas memakai awalan `fc-` agar tidak bertabrakan dengan CSS
+ * halaman. Token warna memakai awalan `--fc-` (wine/cream Berkah).
+ */
+
+:root {
+    --fc-ink: #301722;
+    --fc-ink-soft: #584049;
+    --fc-wine: #85092d;
+    --fc-wine-dark: #54051f;
+    --fc-wine-soft: #b6435e;
+    --fc-blush: #f7e7e9;
+    --fc-blush-strong: #f0d7db;
+    --fc-cream: #fffaf8;
+    --fc-cream-deep: #fdf3ef;
+    --fc-line: #eadbd6;
+    --fc-line-strong: #dcc4c9;
+    --fc-muted: #8a727a;
+    --fc-danger: #a11a32;
+    --fc-danger-soft: #fbe6ea;
+    --fc-focus: rgba(133, 9, 45, 0.32);
+    --fc-shadow: 0 18px 48px rgba(74, 23, 38, 0.18);
+    --fc-shadow-soft: 0 6px 18px rgba(74, 23, 38, 0.08);
+    --fc-radius: 14px;
+}
+
+/* ================================================================
+   1. Native fallback + normalisasi dasar
+   ================================================================ */
+
+/* Kontrol native yang sudah di-enhance tetap ada di DOM (nama/nilai/nilai
+   yang dikirim TIDAK berubah) tetapi tidak terlihat & tidak bisa diklik. */
+.fc-native-hidden {
+    position: absolute !important;
+    left: -9999px !important;
+    top: auto !important;
+    width: 1px !important;
+    height: 1px !important;
+    min-height: 0 !important;
+    max-height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Kunci scroll saat sheet terbuka. `position:fixed` + offset `top` dipakai
+   agar halaman TIDAK melompat ke atas saat sheet dibuka/ditutup. */
+body.fc-scroll-lock {
+    position: fixed !important;
+    left: 0;
+    right: 0;
+    width: 100%;
+    overflow: hidden !important;
+}
+
+/* Normalisasi kontrol yang belum punya gaya sendiri. `:where()` membuat
+   spesifisitas 0 sehingga desain halaman yang sudah ada selalu menang. */
+html.fc-ui :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="file"]), textarea) {
+    border-radius: 12px;
+    accent-color: var(--fc-wine);
+}
+
+html.fc-ui :where(input, textarea)::placeholder {
+    color: var(--fc-muted);
+    opacity: 1;
+}
+
+html.fc-ui :where(input[type="checkbox"], input[type="radio"]) {
+    accent-color: var(--fc-wine);
+}
+
+html.fc-ui input[type="file"]::file-selector-button {
+    margin-right: 10px;
+    padding: 9px 14px;
+    border: 1px solid var(--fc-line-strong);
+    border-radius: 10px;
+    background: var(--fc-blush);
+    color: var(--fc-wine-dark);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+html.fc-ui input[type="file"]::file-selector-button:hover {
+    background: var(--fc-blush-strong);
+    border-color: var(--fc-wine-soft);
+}
+
+/* ================================================================
+   2. Trigger (select & tanggal)
+   ================================================================ */
+
+.fc-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    min-height: 48px;
+    padding: 11px 14px;
+    border: 1px solid var(--fc-line);
+    border-radius: var(--fc-radius);
+    background: #fff;
+    color: var(--fc-ink);
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-align: left;
+    cursor: pointer;
+    box-shadow: var(--fc-shadow-soft);
+    transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.fc-trigger:hover {
+    border-color: var(--fc-line-strong);
+    background: var(--fc-cream);
+}
+
+.fc-trigger:focus-visible {
+    outline: none;
+    border-color: var(--fc-wine-soft);
+    box-shadow: 0 0 0 3px var(--fc-focus);
+}
+
+.fc-trigger[aria-expanded="true"] {
+    border-color: var(--fc-wine-soft);
+    box-shadow: 0 0 0 3px var(--fc-focus);
+    background: var(--fc-cream);
+}
+
+.fc-trigger:disabled,
+.fc-trigger[aria-disabled="true"] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    box-shadow: none;
+    background: var(--fc-cream-deep);
+}
+
+.fc-trigger__text {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fc-trigger.is-placeholder .fc-trigger__text {
+    color: var(--fc-muted);
+    font-weight: 500;
+}
+
+.fc-trigger__icon {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    color: var(--fc-wine);
+    transition: transform 0.2s ease;
+}
+
+.fc-trigger[aria-expanded="true"] .fc-trigger__icon {
+    transform: rotate(180deg);
+}
+
+.fc-trigger[aria-invalid="true"] {
+    border-color: var(--fc-danger);
+    box-shadow: 0 0 0 1px var(--fc-danger);
+}
+
+/* Pesan galat inline untuk kontrol yang required. */
+.fc-error {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin: 6px 0 0;
+    color: var(--fc-danger);
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.fc-error::before {
+    content: "!";
+    flex: 0 0 auto;
+    width: 15px;
+    height: 15px;
+    margin-top: 1px;
+    border-radius: 50%;
+    background: var(--fc-danger);
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 800;
+    line-height: 15px;
+    text-align: center;
+}
+
+.fc-error[hidden] {
+    display: none;
+}
+
+/* ================================================================
+   3. Layer: popover (desktop) & bottom sheet (mobile)
+   ================================================================ */
+
+.fc-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.fc-layer--pop {
+    display: block;
+    pointer-events: none;
+}
+
+.fc-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(48, 23, 34, 0.42);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+}
+
+.fc-layer--pop .fc-backdrop {
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    pointer-events: auto;
+}
+
+.fc-pop {
+    position: absolute;
+    z-index: 1;
+    width: 320px;
+    max-height: min(60vh, 440px);
+    padding: 8px;
+    border: 1px solid var(--fc-line);
+    border-radius: 18px;
+    background: var(--fc-cream);
+    box-shadow: var(--fc-shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    pointer-events: auto;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+.fc-sheet {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 560px;
+    max-height: 86vh;
+    margin: auto auto 0;
+    display: flex;
+    flex-direction: column;
+    border-radius: 24px 24px 0 0;
+    background: var(--fc-cream);
+    box-shadow: 0 -18px 48px rgba(48, 23, 34, 0.28);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    overflow: hidden;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+.fc-sheet__grip {
+    width: 44px;
+    height: 5px;
+    margin: 10px auto 0;
+    border-radius: 999px;
+    background: var(--fc-blush-strong);
+    flex: 0 0 auto;
+}
+
+.fc-layer__head {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 16px 12px;
+    flex: 0 0 auto;
+    border-bottom: 1px solid var(--fc-line);
+}
+
+.fc-layer--pop .fc-layer__head {
+    padding: 8px 8px 6px;
+    border-bottom: 0;
+}
+
+.fc-layer__heading {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.fc-layer__title {
+    margin: 0;
+    color: var(--fc-wine-dark);
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.3;
+}
+
+.fc-layer--pop .fc-layer__title {
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--fc-muted);
+}
+
+.fc-layer__sub {
+    margin: 3px 0 0;
+    color: var(--fc-muted);
+    font-size: 0.8rem;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.fc-layer__close {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--fc-line);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--fc-wine);
+    font-size: 1.15rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.fc-layer__close:hover {
+    background: var(--fc-blush);
+    border-color: var(--fc-line-strong);
+}
+
+.fc-layer__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 8px;
+}
+
+.fc-layer--pop .fc-layer__body {
+    padding: 2px 0 4px;
+}
+
+/* ================================================================
+   4. Daftar opsi (listbox)
+   ================================================================ */
+
+.fc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    outline: none;
+}
+
+.fc-group {
+    padding: 12px 12px 4px;
+    color: var(--fc-muted);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.fc-opt {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 46px;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--fc-ink);
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.fc-opt:hover,
+.fc-opt:focus-visible {
+    outline: none;
+    background: var(--fc-blush);
+}
+
+.fc-opt[aria-selected="true"] {
+    background: var(--fc-blush);
+    color: var(--fc-wine-dark);
+    font-weight: 800;
+}
+
+.fc-opt[aria-disabled="true"],
+.fc-opt:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    background: transparent;
+}
+
+.fc-opt__body {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.fc-opt__label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fc-opt__sub {
+    color: var(--fc-muted);
+    font-size: 0.76rem;
+    font-weight: 500;
+}
+
+.fc-opt__check {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    color: var(--fc-wine);
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.fc-opt[aria-selected="true"] .fc-opt__check {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* ================================================================
+   5. Stepper & segmented
+   ================================================================ */
+
+.fc-stepper {
+    display: inline-flex;
+    align-items: stretch;
+    max-width: 100%;
+    border: 1px solid var(--fc-line);
+    border-radius: var(--fc-radius);
+    background: #fff;
+    overflow: hidden;
+    box-shadow: var(--fc-shadow-soft);
+}
+
+.fc-stepper__btn {
+    flex: 0 0 auto;
+    width: 46px;
+    min-height: 46px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    background: var(--fc-cream-deep);
+    color: var(--fc-wine);
+    font-family: inherit;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.14s ease, color 0.14s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.fc-stepper__btn:hover:not(:disabled) {
+    background: var(--fc-blush);
+}
+
+.fc-stepper__btn:active:not(:disabled) {
+    background: var(--fc-blush-strong);
+}
+
+.fc-stepper__btn:disabled {
+    color: #c9b3b9;
+    cursor: not-allowed;
+}
+
+.fc-stepper__btn:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 2px var(--fc-wine-soft);
+}
+
+.fc-stepper input[type="number"] {
+    width: 68px;
+    min-width: 52px;
+    border: 0;
+    border-radius: 0;
+    background: #fff;
+    color: var(--fc-ink);
+    font-family: inherit;
+    font-size: 0.98rem;
+    font-weight: 800;
+    text-align: center;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.fc-stepper input[type="number"]::-webkit-outer-spin-button,
+.fc-stepper input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.fc-stepper input[type="number"]:focus {
+    outline: none;
+}
+
+.fc-stepper:focus-within {
+    border-color: var(--fc-wine-soft);
+    box-shadow: 0 0 0 3px var(--fc-focus);
+}
+
+.fc-segmented {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    gap: 4px;
+    max-width: 100%;
+    padding: 4px;
+    border-radius: var(--fc-radius);
+    background: var(--fc-cream-deep);
+    border: 1px solid var(--fc-line);
+}
+
+.fc-segmented__btn {
+    flex: 1 1 0;
+    min-height: 42px;
+    padding: 8px 14px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--fc-ink-soft);
+    font-family: inherit;
+    font-size: 0.86rem;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.fc-segmented__btn:hover {
+    color: var(--fc-wine-dark);
+}
+
+.fc-segmented__btn[aria-checked="true"] {
+    background: #fff;
+    color: var(--fc-wine);
+    box-shadow: 0 1px 4px rgba(84, 5, 31, 0.14);
+}
+
+.fc-segmented__btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--fc-wine-soft);
+}
+
+/* ================================================================
+   6. Kalender
+   ================================================================ */
+
+.fc-cal {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    padding: 2px;
+}
+
+.fc-cal__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 2px 2px 10px;
+}
+
+.fc-cal__navbtn {
+    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--fc-line);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--fc-wine);
+    cursor: pointer;
+    transition: background 0.14s ease, border-color 0.14s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.fc-cal__navbtn:hover {
+    background: var(--fc-blush);
+    border-color: var(--fc-line-strong);
+}
+
+.fc-cal__navbtn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.fc-cal__navbtn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--fc-focus);
+}
+
+.fc-cal__navbtn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.fc-cal__month {
+    margin: 0;
+    color: var(--fc-wine-dark);
+    font-size: 0.98rem;
+    font-weight: 800;
+    text-align: center;
+}
+
+.fc-cal__grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 3px;
+}
+
+.fc-cal__dow {
+    padding: 4px 0 6px;
+    color: var(--fc-muted);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.fc-cal__day {
+    aspect-ratio: 1 / 1;
+    min-height: 40px;
+    display: grid;
+    place-items: center;
+    border: 1px solid transparent;
+    border-radius: 11px;
+    background: transparent;
+    color: var(--fc-ink);
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.fc-cal__day:hover:not(:disabled) {
+    background: var(--fc-blush);
+}
+
+.fc-cal__day:focus-visible {
+    outline: none;
+    border-color: var(--fc-wine-soft);
+    box-shadow: 0 0 0 2px var(--fc-focus);
+}
+
+.fc-cal__day.is-today {
+    border-color: var(--fc-line-strong);
+    color: var(--fc-wine);
+    font-weight: 800;
+}
+
+.fc-cal__day.is-selected,
+.fc-cal__day[aria-selected="true"] {
+    background: var(--fc-wine);
+    border-color: var(--fc-wine);
+    color: #fff;
+    font-weight: 800;
+}
+
+.fc-cal__day:disabled {
+    color: #cbb7bd;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+
+.fc-months {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.fc-month {
+    min-height: 48px;
+    display: grid;
+    place-items: center;
+    padding: 8px 6px;
+    border: 1px solid var(--fc-line);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--fc-ink);
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: background 0.14s ease, border-color 0.14s ease, color 0.14s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.fc-month:hover:not(:disabled) {
+    background: var(--fc-blush);
+    border-color: var(--fc-line-strong);
+}
+
+.fc-month:focus-visible {
+    outline: none;
+    border-color: var(--fc-wine-soft);
+    box-shadow: 0 0 0 3px var(--fc-focus);
+}
+
+.fc-month.is-today {
+    border-color: var(--fc-line-strong);
+    color: var(--fc-wine);
+}
+
+.fc-month.is-selected,
+.fc-month[aria-selected="true"] {
+    background: var(--fc-wine);
+    border-color: var(--fc-wine);
+    color: #fff;
+}
+
+.fc-month:disabled {
+    opacity: 0.42;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+
+.fc-cal__day.is-empty {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.fc-cal__foot {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--fc-line);
+}
+
+.fc-cal__action {
+    flex: 1 1 auto;
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 1px solid var(--fc-line);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--fc-wine-dark);
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.14s ease, border-color 0.14s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.fc-cal__action:hover:not(:disabled) {
+    background: var(--fc-blush);
+    border-color: var(--fc-line-strong);
+}
+
+.fc-cal__action:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--fc-focus);
+}
+
+.fc-cal__action--clear {
+    color: var(--fc-danger);
+    border-color: #f2d3d9;
+    background: var(--fc-danger-soft);
+}
+
+.fc-cal__action:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.fc-cal__note {
+    margin: 10px 2px 0;
+    color: var(--fc-muted);
+    font-size: 0.74rem;
+    font-weight: 500;
+    line-height: 1.45;
+}
+
+/* ================================================================
+   7. Animasi fallback (dipakai bila GSAP tidak tersedia)
+   ================================================================ */
+
+@keyframes fc-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fc-sheet-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+@keyframes fc-pop-in {
+    from { opacity: 0; transform: translateY(8px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.fc-anim-backdrop {
+    animation: fc-fade-in 0.2s ease both;
+}
+
+.fc-layer--sheet .fc-sheet.fc-anim-panel {
+    animation: fc-sheet-up 0.34s cubic-bezier(0.22, 0.9, 0.24, 1) both;
+}
+
+.fc-layer--pop .fc-pop.fc-anim-panel {
+    animation: fc-pop-in 0.2s ease both;
+}
+
+/* ================================================================
+   8. Reduced motion & layar kecil
+   ================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    .fc-anim-backdrop,
+    .fc-layer--sheet .fc-sheet.fc-anim-panel,
+    .fc-layer--pop .fc-pop.fc-anim-panel {
+        animation: none !important;
+    }
+
+    .fc-trigger,
+    .fc-trigger__icon,
+    .fc-opt,
+    .fc-opt__check,
+    .fc-cal__day,
+    .fc-stepper__btn,
+    .fc-segmented__btn {
+        transition: none !important;
+    }
+}
+
+@media (max-width: 720px) {
+    .fc-layer__head {
+        padding: 14px 18px 12px;
+    }
+
+    .fc-layer__body {
+        padding: 10px 12px 18px;
+    }
+
+    .fc-opt {
+        min-height: 52px;
+        font-size: 0.95rem;
+    }
+
+    .fc-cal__day {
+        min-height: 44px;
+    }
+}

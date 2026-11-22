@@ -97,14 +97,44 @@ html, body {
 @media(prefers-reduced-motion:reduce){#brand-logo,.ambient-flower,#drum-spin-ring,#drum-wrap::after,#btn-login::before{animation:none!important}}
 </style>
 <link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}"><script src="{{ asset('js/page-transitions.js') }}" defer></script>
+<link rel="stylesheet" href="{{ asset('css/berkah-login-splash.css') }}?v={{ file_exists(public_path('css/berkah-login-splash.css')) ? filemtime(public_path('css/berkah-login-splash.css')) : '1' }}">
 </head>
-<body>
+<body@if($errors->any() || session('error') || session('success')) data-no-splash="1"@endif>
 @php
 $oldText = function (string $key, $fallback = '') {
     $value = old($key, $fallback);
     return is_scalar($value) ? (string) $value : '';
 };
 @endphp
+
+<div id="bk-splash" hidden role="dialog" aria-modal="true" aria-label="Membuka halaman masuk Berkah Kreatif">
+  <div class="bk-splash__petals" aria-hidden="true"><span>✿</span><span>✿</span><span>✿</span><span>✿</span></div>
+  <div class="bk-splash__center">
+    <div class="bk-splash__logo"><img src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt="Logo Berkah Kreatif"></div>
+    <p class="bk-splash__eyebrow">Papan Bunga &amp; Hadiah</p>
+    <p class="bk-splash__brand">Berkah Kreatif</p>
+    <div class="bk-splash__rule"></div>
+    <p class="bk-splash__tagline">Rangkaian bunga untuk momen yang kamu tunggu.</p>
+  </div>
+  <div class="bk-splash__bar" aria-hidden="true"><span></span></div>
+  <button class="bk-splash__skip" type="button">Lewati</button>
+</div>
+<script>
+/* Tampilkan splash sedini mungkin (sebelum form terlihat) hanya bila layak. */
+(function () {
+  try {
+    var node = document.getElementById('bk-splash');
+    if (!node) return;
+    var mode = new URLSearchParams(window.location.search).get('splash');
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (mode === '0' || reduce || document.body.hasAttribute('data-no-splash')) return;
+    var last = parseInt(window.sessionStorage.getItem('bk-login-splash-at') || '0', 10) || 0;
+    if (mode !== '1' && last && Date.now() - last < 1800000) return;
+    window.sessionStorage.setItem('bk-login-splash-at', String(Date.now()));
+    node.hidden = false;
+  } catch (error) { /* tanpa storage pun splash tetap boleh tampil */ }
+})();
+</script>
 
 <div id="ambient" aria-hidden="true"><span class="ambient-flower" style="left:12%;top:24%">✿</span><span class="ambient-flower" style="right:12%;top:48%;animation-delay:-2s">✿</span><span class="ambient-flower" style="left:24%;bottom:12%;animation-delay:-4s">✿</span></div>
 
@@ -310,5 +340,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 </script>
+@include('layouts.component._form_controls')
+<script src="{{ asset('js/berkah-login-splash.js') }}?v={{ file_exists(public_path('js/berkah-login-splash.js')) ? filemtime(public_path('js/berkah-login-splash.js')) : '1' }}"></script>
 </body>
 </html>

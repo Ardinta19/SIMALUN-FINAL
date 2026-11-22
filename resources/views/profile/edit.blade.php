@@ -92,5 +92,6 @@
     </form>
 
 </div>
+@include('layouts.component._form_controls')
 </body>
 </html>

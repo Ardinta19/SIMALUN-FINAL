@@ -409,7 +409,6 @@ body {
 
 @include('layouts.component.admin._navbar_admin', ['active' => 'pesanan'])
 @include('layouts.component._confirm_modal')
-@include('layouts.component._bottom_sheet_select')
 @include('layouts.component._form_loading')
 
 <script>
@@ -460,5 +459,6 @@ body {
 })();
 </script>
 
+@include('layouts.component._form_controls')
 </body>
 </html>

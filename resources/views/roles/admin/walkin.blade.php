@@ -377,7 +377,6 @@ body {
 
 @include('layouts.component.admin._navbar_admin', ['active' => 'pesanan'])
 @include('layouts.component._form_loading')
-@include('layouts.component._bottom_sheet_select')
 
 @php
     // Build picker data from the SAME source the native select used, so the
@@ -473,9 +472,12 @@ body {
     }
 
     serviceTrigger.addEventListener('click', function () {
-        window.showBottomSelect({
+        window.fcPick({
+            anchor: serviceTrigger,
             title: 'Pilih Layanan',
+            subtitle: 'Layanan utama untuk pesanan ini',
             options: MAIN_OPTIONS,
+            selected: serviceInput.value,
             onSelect: function (value) { applyMainService(value); }
         });
     });
@@ -595,8 +597,10 @@ body {
         var removeBtn = node.querySelector('[data-item-remove]');
 
         trigger.addEventListener('click', function () {
-            window.showBottomSelect({
+            window.fcPick({
+                anchor: trigger,
                 title: 'Pilih Item Satuan',
+                subtitle: 'Item dihitung per satuan',
                 options: visibleItemOptions(),
                 onSelect: function (value) { setItemRowService(row, value); }
             });
@@ -620,5 +624,6 @@ body {
 })();
 </script>
 
+@include('layouts.component._form_controls')
 </body>
 </html>

@@ -101,5 +101,6 @@ textarea.input{min-height:72px;resize:vertical}
   @endforeach
 </div>
 @include('layouts.component.customer._confirm_modal')
+@include('layouts.component._form_controls')
 </body>
 </html>

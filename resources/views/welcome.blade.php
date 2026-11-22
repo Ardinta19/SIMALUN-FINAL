@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <title>Azka Laundry – SIMALUN</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="{{ asset('vendor/gsap/gsap.min.js') }}?v={{ file_exists(public_path('vendor/gsap/gsap.min.js')) ? filemtime(public_path('vendor/gsap/gsap.min.js')) : '1' }}"></script>
 
 <style>
 *, *::before, *::after {

@@ -1207,5 +1207,6 @@ recalc();
   window.addEventListener('load', syncChecked);
 })();
 </script>
+@include('layouts.component._form_controls')
 </body>
 </html>

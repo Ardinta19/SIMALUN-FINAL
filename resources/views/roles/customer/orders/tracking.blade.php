@@ -8,7 +8,7 @@
 @include('layouts.component.customer._head_meta')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="{{ asset('vendor/gsap/gsap.min.js') }}?v={{ file_exists(public_path('vendor/gsap/gsap.min.js')) ? filemtime(public_path('vendor/gsap/gsap.min.js')) : '1' }}"></script>
 <style>
 :root {
     --blue-dark:  #002f5c;
@@ -558,5 +558,6 @@ body {
     });
 </script>
 
+@include('layouts.component._form_controls')
 </body>
 </html>

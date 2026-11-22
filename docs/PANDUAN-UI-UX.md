@@ -28,7 +28,7 @@ Pola di bawah adalah pilihan default yang diterapkan jika sesuai konteks, bukan 
 - Terapkan sistem konsisten untuk tipografi, jarak, warna, status, ikon, tombol, form dan kartu. Status harus menggunakan teks, bukan warna saja; form memiliki label, bantuan dan kesalahan yang jelas.
 - Gunakan foto produk nyata bila tersedia; hindari klaim dan data contoh yang dapat disalahartikan sebagai informasi usaha.
 - Animasi bersifat fungsional: umpan balik, transisi dan orientasi. Hindari gerak otomatis berlebihan; hormati `prefers-reduced-motion` dan berikan fallback jika skrip gagal.
-- GSAP digunakan bila benar-benar membantu. Pilih hanya plugin yang dibutuhkan, pastikan kompatibilitas dan lisensi, dan bersihkan listener/animasi. `@gsap/react` tidak diperlukan untuk Blade tanpa React.
+- GSAP (versi lokal `public/vendor/gsap/gsap.min.js`, bukan CDN) adalah standar animasi UI: splash login, sheet/popover form, dan transisi kecil yang membantu orientasi. Pilih hanya plugin yang dibutuhkan, hormati `prefers-reduced-motion`, dan bersihkan listener/animasi. `@gsap/react` tidak diperlukan untuk Blade tanpa React.
 - Pastikan akses keyboard, urutan fokus yang logis, indikator fokus terlihat, target sentuh memadai, kontras, nama aksesibel, pesan status, dan dukungan pembaca layar. Dialog harus mengelola fokus dengan benar.
 
 ## Pemeriksaan sebelum dianggap selesai
@@ -80,3 +80,34 @@ Pola di bawah adalah pilihan default yang diterapkan jika sesuai konteks, bukan 
 - Foto produk apa pun rasio dan ukurannya ditampilkan utuh (`object-fit:contain`) di dalam bingkai 4:3 yang seragam, dengan latar lembut dan padding. Efek hover tidak memperbesar foto sehingga tidak ada bagian yang terpotong. Detail produk dibatasi maksimal 72vh agar tetap proporsional.
 - Aset CSS/JS milik aplikasi memakai versi berdasarkan waktu ubah berkas (`?v=`) agar perbaikan langsung terpakai tanpa perlu hapus cache manual.
 - Halaman katalog admin menampilkan bingkai foto saat ini (atau "Belum ada foto") dengan aturan `contain` yang sama, agar penjual dapat memeriksa hasil unggahan sebelum pelanggan melihatnya.
+
+## Standar default kontrol form (wajib)
+
+Sejak revisi ini, kontrol form native tidak lagi ditampilkan apa adanya di halaman mana pun. Sumber tunggalnya adalah `resources/views/layouts/component/_form_controls.blade.php` dengan aset `public/css/berkah-controls.css` dan `public/js/berkah-controls.js`; komponen ini sudah di-`@include` di layout utama dan di setiap halaman yang punya dokumen HTML sendiri.
+
+- **Cakupan otomatis.** Semua `<select>`, `<input type="date">`, dan `<input type="month">` di-enhance tanpa atribut tambahan. Nama field, nilai, dan format kiriman tidak berubah (`select.value`, `YYYY-MM-DD`, `YYYY-MM`), sehingga validasi server dan skrip halaman tetap bekerja. Markup baru (baris form dinamis) ikut ter-enhance lewat `MutationObserver` atau panggilan `window.initFormControls(node)`.
+- **Tampilan.** Select memakai tombol trigger + daftar opsi; di layar ≥ 721 px menjadi popover yang menempel pada trigger dan otomatis membalik ke atas bila ruang bawah kurang. Di ponsel menjadi bottom sheet dengan latar gelap, judul, tombol tutup, dan target sentuh 52 px. Tanggal memakai kalender berbahasa Indonesia (nama bulan/hari, tombol “Hari ini”, “Hapus tanggal” bila opsional, batas `min`/`max` dinonaktifkan dan diberi catatan). Bulan memakai kisi 12 bulan dengan navigasi tahun.
+- **Opt-out.** `data-fc-native` mempertahankan kontrol native (mis. butuh pemilih bawaan perangkat); `data-fc-plain` hanya untuk select. Atribut opsional: `data-fc-segmented` (2–4 opsi), `data-fc-stepper` (input angka dengan tombol − / +), `data-fc-title`, `data-fc-placeholder`.
+- **Kunci scroll tanpa lompatan.** Sheet mengunci `body` dengan `position: fixed` + offset `top: -scrollY` dan memulihkan posisi baca tepat setelah ditutup. Fokus selalu dipindahkan dengan `preventScroll`, dikembalikan ke trigger, dan dikurung di dalam dialog (Tab/Escape).
+- **Validasi wajib.** Kontrol yang semula `required` tetap wajib: atribut native dilepas agar browser tidak memfokuskan elemen tersembunyi, lalu divalidasi pada fase capture sebelum handler submit halaman berjalan. Pesan galat muncul di bawah trigger dengan `role="alert"`, `aria-invalid`, dan fokus pindah ke kontrol pertama yang kosong. Jika JavaScript gagal dimuat, atribut `required` asli tetap berlaku.
+- **Normalisasi sisanya.** Radius dan `accent-color` (marun) untuk input/checkbox/radio yang belum bergaya, tombol unggah file marun, dan placeholder yang konsisten. Semua memakai `:where()` sehingga CSS halaman yang sudah ada selalu menang.
+
+### Splash halaman login
+
+- Halaman login menampilkan overlay brand (`#bk-splash`) sebelum form terlihat: logo dalam lingkaran krem, kelopak bunga, nama “Berkah Kreatif”, garis emas, dan bilah kemajuan, lalu overlay membuka form dengan GSAP (`public/js/berkah-login-splash.js`).
+- Splash **tidak** muncul saat `prefers-reduced-motion: reduce`, saat kembali dari galat validasi (`$errors`, `session('error')`, `session('success')`), atau bila sudah tampil dalam 30 menit terakhir pada sesi yang sama. `?splash=0` mematikan, `?splash=1` memaksa tampil untuk pengujian.
+- Halaman di belakang overlay diberi `inert` (fallback `aria-hidden` + `tabindex="-1"`), dan splash dapat dilewati dengan klik di mana saja, tombol “Lewati”, atau Escape.
+
+### Hasil audit kontrol default
+
+| Bagian | Sebelum | Sekarang |
+| --- | --- | --- |
+| Dropdown `<select>` | Dropdown bawaan browser, biru/abu sistem | Popover/sheet marun dengan pencarian posisi, grup opsi, dan tanda centang |
+| Tanggal `<input type="date">` | Kalender bawaan browser (format & bahasa mengikuti perangkat) | Kalender Indonesia dengan batas tanggal, tombol cepat, dan catatan |
+| Bulan `<input type="month">` | Pemilih bulan bawaan browser | Kisi 12 bulan dengan navigasi tahun |
+| Checkbox/radio | Biru sistem | Aksen marun merek (bentuk kustom dipertahankan bila halaman sudah punya) |
+| Unggah file | Tombol “Choose File” bawaan | Tombol unggah marun + label berkas |
+| Animasi GSAP | CDN `cdnjs` di 4 halaman | Berkas lokal `public/vendor/gsap/gsap.min.js` (tanpa CDN) |
+| Bottom sheet ganda | `_bottom_sheet_select` (navy) + `_form_controls` (biru) | Satu komponen, satu palet marun; komponen lama dihapus |
+
+Verifikasi yang sudah dilakukan: `node --check` untuk semua skrip, harness jsdom `form-controls.cjs` dan `login-splash.cjs`, tiga harness lama (filter/checkout/unit), pemeriksaan keseimbangan direktif Blade, serta `tests/Feature/UiDefaultsTest.php`. Pengujian di browser nyata (terutama keyboard ponsel, iOS Safari, dan dialog file) masih perlu dilakukan sebelum dinyatakan selesai.

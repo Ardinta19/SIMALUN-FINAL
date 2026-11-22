@@ -550,5 +550,6 @@ body {
     setInterval(poll, POLL_INTERVAL_MS);
 })();
 </script>
+@include('layouts.component._form_controls')
 </body>
 </html>

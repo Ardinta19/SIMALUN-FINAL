@@ -760,5 +760,6 @@ document.addEventListener('DOMContentLoaded', function () {
   document.documentElement.classList.add('register-enhanced');
 });
 </script>
+@include('layouts.component._form_controls')
 </body>
 </html>

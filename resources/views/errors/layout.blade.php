@@ -53,5 +53,6 @@ p.lead{font-size:.94rem;font-weight:600;color:#5b4149;line-height:1.6;margin-bot
     </div>
     <div class="brand"><span>Berkah Kreatif</span> &bull; <span>SIMALUN</span></div>
 </main>
+@include('layouts.component._form_controls')
 </body>
 </html>

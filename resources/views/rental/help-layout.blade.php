@@ -11,4 +11,5 @@
 <header class="help-hero"><div class="help-head"><a href="@yield('back')">← Kembali ke beranda</a><h1>@yield('heading')</h1><p>@yield('subtitle')</p></div></header>
 <main class="help-main">@yield('content')</main>
 @yield('navigation')
+@include('layouts.component._form_controls')
 </body></html>

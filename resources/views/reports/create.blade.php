@@ -325,5 +325,6 @@ if (_fileInput) _fileInput.addEventListener('change', function() {
 })();
 </script>
 @if(auth()->user()->role === 'customer')<script src="{{ $asset('js/berkah-experience.js') }}" defer></script>@endif
+@include('layouts.component._form_controls')
 </body>
 </html>

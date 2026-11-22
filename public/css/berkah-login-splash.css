@@ -1,0 +1,190 @@
+/*!
+ * Berkah Kreatif — Splash layar masuk (login)
+ * Overlay brand yang menutup halaman sebentar, lalu membuka form login
+ * dengan animasi GSAP. Tanpa dependensi; dimuat hanya di halaman login.
+ */
+
+#bk-splash[hidden] {
+    display: none !important;
+}
+
+#bk-splash {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    color: #fff6f0;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background:
+        radial-gradient(120% 90% at 50% 8%, rgba(255, 214, 196, 0.22) 0%, rgba(255, 214, 196, 0) 55%),
+        radial-gradient(90% 70% at 12% 92%, rgba(217, 166, 95, 0.28) 0%, rgba(217, 166, 95, 0) 60%),
+        linear-gradient(168deg, #3d0416 0%, #54051f 38%, #85092d 72%, #a92a4a 100%);
+    -webkit-tap-highlight-color: transparent;
+}
+
+#bk-splash::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+        repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 26px),
+        repeating-linear-gradient(25deg, rgba(0, 0, 0, 0.06) 0 1px, transparent 1px 32px);
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.bk-splash__petals {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.bk-splash__petals span {
+    position: absolute;
+    color: rgba(255, 232, 220, 0.5);
+    font-size: clamp(22px, 6vw, 44px);
+    line-height: 1;
+    filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.18));
+}
+
+.bk-splash__petals span:nth-child(1) { left: 12%; top: 18%; }
+.bk-splash__petals span:nth-child(2) { right: 14%; top: 26%; font-size: clamp(16px, 4vw, 30px); opacity: 0.75; }
+.bk-splash__petals span:nth-child(3) { left: 18%; bottom: 20%; font-size: clamp(14px, 3.6vw, 26px); opacity: 0.6; }
+.bk-splash__petals span:nth-child(4) { right: 18%; bottom: 14%; font-size: clamp(20px, 5vw, 36px); opacity: 0.5; }
+
+.bk-splash__center {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    padding: 0 24px;
+    text-align: center;
+    max-width: 460px;
+}
+
+.bk-splash__logo {
+    width: clamp(84px, 22vw, 108px);
+    height: clamp(84px, 22vw, 108px);
+    border-radius: 50%;
+    padding: 5px;
+    background: linear-gradient(160deg, #fffaf5, #f4dcc9);
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.35),
+        0 18px 42px rgba(0, 0, 0, 0.35),
+        0 0 0 12px rgba(255, 255, 255, 0.06);
+    display: grid;
+    place-items: center;
+}
+
+.bk-splash__logo img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: contain;
+    display: block;
+    background: #fff;
+}
+
+.bk-splash__eyebrow {
+    margin: 22px 0 0;
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: rgba(255, 238, 226, 0.72);
+}
+
+.bk-splash__brand {
+    margin: 8px 0 0;
+    font-size: clamp(1.8rem, 7vw, 2.5rem);
+    font-weight: 900;
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+    color: #fff8f2;
+    text-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+}
+
+.bk-splash__rule {
+    width: 74px;
+    height: 3px;
+    margin: 16px 0 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(217, 166, 95, 0.1), #d9a65f 45%, rgba(217, 166, 95, 0.1));
+}
+
+.bk-splash__tagline {
+    margin: 14px 0 0;
+    max-width: 30ch;
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.55;
+    color: rgba(255, 240, 231, 0.78);
+}
+
+.bk-splash__bar {
+    position: absolute;
+    left: 50%;
+    bottom: max(52px, calc(env(safe-area-inset-bottom) + 44px));
+    width: min(240px, 56vw);
+    height: 3px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.18);
+    overflow: hidden;
+    transform: translateX(-50%);
+}
+
+.bk-splash__bar span {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #f3dcc0, #d9a65f);
+    transform: scaleX(0);
+    transform-origin: left center;
+}
+
+.bk-splash__skip {
+    position: absolute;
+    right: max(16px, env(safe-area-inset-right));
+    bottom: max(14px, env(safe-area-inset-bottom));
+    z-index: 2;
+    min-height: 44px;
+    padding: 10px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 246, 240, 0.9);
+    font: inherit;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: background 0.16s ease, border-color 0.16s ease;
+}
+
+.bk-splash__skip:hover {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.45);
+}
+
+.bk-splash__skip:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.85);
+    outline-offset: 3px;
+}
+
+.bk-splash.is-leaving {
+    pointer-events: none;
+}
+
+@media (max-width: 420px) {
+    .bk-splash__tagline { font-size: 0.8rem; }
+    .bk-splash__bar { bottom: max(46px, calc(env(safe-area-inset-bottom) + 40px)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #bk-splash { display: none !important; }
+}

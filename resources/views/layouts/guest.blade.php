@@ -27,5 +27,6 @@
                 {{ $slot }}
             </div>
         </div>
-    </body>
+        @include('layouts.component._form_controls')
+</body>
 </html>

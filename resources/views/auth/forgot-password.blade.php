@@ -41,5 +41,6 @@ $oldText = function (string $key, $fallback = '') {
         @endif
     </div><p class="auth-foot">© {{ date('Y') }} Berkah Kreatif</p></section>
 </main>
+@include('layouts.component._form_controls')
 </body>
 </html>

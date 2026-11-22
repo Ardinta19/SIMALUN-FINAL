@@ -70,4 +70,5 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 @if(!auth()->check() || auth()->user()->role === 'customer')
 <script src="{{ $asset('js/berkah-experience.js') }}" defer></script>
 @endif
+@include('layouts.component._form_controls')
 </body></html>

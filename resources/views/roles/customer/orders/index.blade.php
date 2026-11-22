@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Daftar Pesanan – Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="{{ asset('vendor/gsap/gsap.min.js') }}?v={{ file_exists(public_path('vendor/gsap/gsap.min.js')) ? filemtime(public_path('vendor/gsap/gsap.min.js')) : '1' }}"></script>
 <style>
 /* ── CSS VARIABLES ─────────────────────── */
 :root {
@@ -669,5 +669,6 @@ body {
     });
 </script>
 
+@include('layouts.component._form_controls')
 </body>
 </html>

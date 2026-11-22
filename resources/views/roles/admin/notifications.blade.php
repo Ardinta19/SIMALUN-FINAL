@@ -215,5 +215,6 @@ body {
 
 @include('layouts.component.admin._navbar_admin', ['active' => ''])
 
+@include('layouts.component._form_controls')
 </body>
 </html>

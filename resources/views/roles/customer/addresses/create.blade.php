@@ -381,5 +381,6 @@ document.addEventListener('DOMContentLoaded', function () {
 })();
 </script>
 <script src="{{ $asset('js/berkah-experience.js') }}" defer></script>
+@include('layouts.component._form_controls')
 </body>
 </html>

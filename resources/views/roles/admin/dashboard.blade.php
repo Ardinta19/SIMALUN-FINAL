@@ -311,5 +311,6 @@ body {
     <div class="version-tag">Berkah Kreatif · Admin Panel</div>
 </main>
 @include('layouts.component.admin._navbar_admin', ['active' => 'beranda'])
+@include('layouts.component._form_controls')
 </body>
 </html>

@@ -265,5 +265,6 @@ body {
     @include('layouts.component._driver_geo', ['locationUrl' => route('driver.orders.location', $geoOrder)])
 @endif
 
+@include('layouts.component._form_controls')
 </body>
 </html>
