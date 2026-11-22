@@ -11,6 +11,8 @@
     @php
         $product = $products->get($item['product_id']);
         $available = $product && $product->is_active && $product->category && $product->category->is_active && $product->stock > 0;
+        $hasDates = !empty($item['starts_on']) && !empty($item['ends_on']);
+        $datesExpired = $hasDates && $item['starts_on'] < now('Asia/Jakarta')->toDateString();
     @endphp
     <article class="card body cart-item">
         @if($available && $product->image_path)
@@ -24,14 +26,15 @@
                 <h2>{{ $product->name }}</h2>
                 <p class="muted">{{ $product->category->name }} · {{ $product->size ?: 'Ukuran sesuai katalog' }}</p>
                 <p class="price">Harga dasar Rp {{ number_format($product->base_price, 0, ',', '.') }} / {{ $product->price_unit === 'day' ? 'hari' : 'acara' }}</p>
-                @if(!empty($item['starts_on']) && !empty($item['ends_on']))<p class="muted">Tanggal pilihan: {{ \Carbon\Carbon::parse($item['starts_on'])->format('d/m/Y') }}–{{ \Carbon\Carbon::parse($item['ends_on'])->format('d/m/Y') }}; dapat diubah saat checkout.</p>@endif
-                <a href="{{ route('catalog.show', array_merge(['product' => $product->id], !empty($item['starts_on']) && !empty($item['ends_on']) ? ['starts_on' => $item['starts_on'], 'ends_on' => $item['ends_on']] : [])) }}">Lihat detail papan</a>
+                @if($hasDates)<p class="muted">Tanggal pilihan: {{ \Carbon\Carbon::parse($item['starts_on'])->format('d/m/Y') }}–{{ \Carbon\Carbon::parse($item['ends_on'])->format('d/m/Y') }}; dapat diubah saat checkout.</p>@endif
+                @if($datesExpired)<p class="notice">Tanggal pilihan sudah lewat. Ubah tanggal unit ini saat checkout. Untuk menambah unit dengan tanggal baru, pilih tanggal di detail papan.</p>@endif
+                <a href="{{ route('catalog.show', array_merge(['product' => $product->id], $hasDates && !$datesExpired ? ['starts_on' => $item['starts_on'], 'ends_on' => $item['ends_on']] : [])) }}">Lihat detail papan</a>
             @else
                 <h2>Papan tidak tersedia</h2><p class="muted">Papan ini tidak lagi tersedia. Hapus unit ini sebelum melanjutkan.</p>
             @endif
             <div class="cart-unit-actions">
                 <form method="post" action="{{ route('cart.destroy', $id) }}">@csrf @method('DELETE')<button class="btn secondary" aria-label="Kurangi atau hapus unit {{ $loop->iteration }}{{ $available ? ' '.$product->name : ' yang tidak tersedia' }}">− Hapus unit</button></form>
-                @if($available)<form method="post" action="{{ route('cart.duplicate', $id) }}">@csrf<button class="btn secondary" aria-label="Tambah satu unit {{ $product->name }} dengan tanggal pilihan yang sama">+ Tambah unit</button></form>@endif
+                @if($available && !$datesExpired)<form method="post" action="{{ route('cart.duplicate', $id) }}">@csrf<button class="btn secondary" aria-label="Tambah satu unit {{ $product->name }} dengan tanggal pilihan yang sama">+ Tambah unit</button></form>@endif
             </div>
         </div>
     </article>

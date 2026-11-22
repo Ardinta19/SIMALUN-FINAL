@@ -103,6 +103,35 @@ class RentalDateFilteringTest extends TestCase
         $this->assertCount(1, session('rental_cart'));
     }
 
+    public function test_catalog_reports_cart_capacity_or_stock_errors_next_to_quantity(): void
+    {
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 1]);
+        $date = now('Asia/Jakarta')->addDays(3)->toDateString();
+        $url = route('catalog.show', $product);
+        $this->post(route('cart.store', $product), ['quantity' => 1, 'starts_on' => $date, 'ends_on' => $date])->assertSessionHasNoErrors();
+        $this->from($url)->post(route('cart.store', $product), ['quantity' => 1, 'starts_on' => $date, 'ends_on' => $date])->assertRedirect($url)->assertSessionHasErrors('quantity');
+        $this->get($url)->assertOk()->assertSee('id="quantity-error"', false)->assertSee('Jumlah papan tidak tersedia')->assertSee('Tambah ke keranjang');
+    }
+
+    public function test_expired_cart_dates_link_to_an_undated_detail_and_can_be_changed_at_checkout(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-12-01 10:00:00', 'Asia/Jakarta'));
+        try {
+            $category = RentalCategory::create(['name' => 'Wisuda']);
+            $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 2]);
+            $date = '2026-12-02';
+            $this->post(route('cart.store', $product), ['quantity' => 1, 'starts_on' => $date, 'ends_on' => $date])->assertSessionHasNoErrors();
+            $key = array_key_first(session('rental_cart'));
+            Carbon::setTestNow(Carbon::parse('2026-12-03 10:00:00', 'Asia/Jakarta'));
+            $this->get(route('cart.index'))->assertOk()->assertSee('Tanggal pilihan sudah lewat')
+                ->assertSee('href="'.route('catalog.show', $product).'"', false)->assertDontSee(route('cart.duplicate', $key));
+            $this->get(route('catalog.show', $product))->assertOk()->assertSee('Periksa perkiraan ketersediaan');
+            $customer = User::factory()->create(['role' => 'customer']);
+            $this->actingAs($customer)->get(route('rental.checkout'))->assertOk()->assertSee('value="'.$date.'"', false);
+        } finally { Carbon::setTestNow(); }
+    }
+
     public function test_cart_quantity_and_checkout_recheck_overlapping_units(): void
     {
         $category = RentalCategory::create(['name' => 'Wisuda']);
