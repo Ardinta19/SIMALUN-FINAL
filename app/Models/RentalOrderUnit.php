@@ -3,6 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class RentalOrderUnit extends Model
 {
@@ -10,4 +11,5 @@ class RentalOrderUnit extends Model
     protected $casts = ['starts_on' => 'date', 'event_on' => 'date', 'ends_on' => 'date', 'confirmed_at' => 'datetime'];
     public function order(): BelongsTo { return $this->belongsTo(RentalOrder::class, 'rental_order_id'); }
     public function product(): BelongsTo { return $this->belongsTo(RentalProduct::class, 'rental_product_id'); }
+    public function previews(): HasMany { return $this->hasMany(RentalDesignPreview::class)->orderByDesc('version'); }
 }

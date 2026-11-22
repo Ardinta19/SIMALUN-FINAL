@@ -66,7 +66,7 @@ class RentalOrderController extends Controller
     public function show(Request $request, RentalOrder $order)
     {
         abort_unless($order->customer_id === $request->user()->id, 403);
-        $order->load('units');
+        $order->load('units.previews');
         return view('rental.show', compact('order'));
     }
 
@@ -78,7 +78,7 @@ class RentalOrderController extends Controller
 
     public function adminIndex()
     {
-        $orders = RentalOrder::with(['customer', 'units'])->latest()->paginate(20);
+        $orders = RentalOrder::with(['customer', 'units.previews'])->latest()->paginate(20);
         return view('rental.admin', compact('orders'));
     }
 
