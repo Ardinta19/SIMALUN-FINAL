@@ -29,13 +29,19 @@ class RegisterController extends Controller
      */
     public function store(Request $request)
     {
+        // Input bisa datang sebagai array (mis. request yang diulang otomatis oleh
+        // browser/alat uji). Ambil hanya nilai skalar supaya tidak ada
+        // "Array to string conversion"; validasi di bawah yang menolaknya.
+        $phoneInput = $request->input('phone', '');
+        $emailInput = $request->input('email', '');
+
         // Normalisasi nomor HP: hilangkan spasi/strip, buang awalan +62 / 62 / 0 → kanonik 8xxxxxxxxxx
-        $phoneRaw = preg_replace('/[\s\-\.]/', '', (string) $request->input('phone', ''));
-        $phoneRaw = preg_replace('/^(\+?62|0)/', '', $phoneRaw);
+        $phoneRaw = is_scalar($phoneInput) ? preg_replace('/[\s\-\.]/', '', (string) $phoneInput) : '';
+        $phoneRaw = preg_replace('/^(\+?62|0)/', '', (string) $phoneRaw);
         $request->merge(['phone' => $phoneRaw]);
 
         // Email: kosongkan kalau memang tidak diisi (jangan paksa empty string masuk DB)
-        $email = trim((string) $request->input('email', ''));
+        $email = is_scalar($emailInput) ? trim((string) $emailInput) : '';
         $request->merge(['email' => $email !== '' ? strtolower($email) : null]);
 
         $validated = $request->validate([

@@ -162,9 +162,9 @@ class ProfileTest extends TestCase
             ->assertRedirect('/profile/edit')->assertSessionHasErrors('name');
         $this->get('/profile/edit')->assertOk()->assertDontSee('Array');
 
-        $this->actingAs($user)->from('/addresses/create')->post('/addresses', [
+        $this->actingAs($user)->from(route('customer.addresses.create'))->post(route('customer.addresses.store'), [
             'label' => ['Rumah'], 'recipient_name' => ['Budi'], 'full_address' => ['Jalan panjang nomor satu'], 'latitude' => ['-3.8'],
-        ])->assertRedirect('/addresses/create')->assertSessionHasErrors(['label', 'recipient_name', 'full_address']);
-        $this->get('/addresses/create')->assertOk()->assertDontSee('Array')->assertSee('name="label"', false);
+        ])->assertRedirect(route('customer.addresses.create'))->assertSessionHasErrors(['label', 'recipient_name', 'full_address']);
+        $this->get(route('customer.addresses.create'))->assertOk()->assertDontSee('Array')->assertSee('name="label"', false);
     }
 }
