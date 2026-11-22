@@ -25,6 +25,7 @@ use App\Http\Controllers\RentalDesignController;
 use App\Http\Controllers\RentalPaymentController;
 use App\Http\Controllers\RentalProgressController;
 use App\Http\Controllers\RentalUniversityController;
+use App\Http\Controllers\RentalCashBookController;
 use App\Http\Controllers\ServiceCategoryController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\VoucherController;
@@ -187,6 +188,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/walkin', [OrderController::class, 'walkinForm'])->name('walkin.form');
         Route::post('/walkin', [OrderController::class, 'walkinStore'])->name('orders.walk-in.store');
 
+        Route::get('/buku-kas', [RentalCashBookController::class, 'index'])->name('rental.cashbook.index');
+        Route::post('/buku-kas', [RentalCashBookController::class, 'store'])->name('rental.cashbook.store');
+        Route::put('/buku-kas/{entry}', [RentalCashBookController::class, 'update'])->name('rental.cashbook.update');
         Route::get('/finance', [FinanceController::class, 'index'])->name('finance.index');
         Route::post('/finance', [FinanceController::class, 'store'])->name('finance.store');
         Route::get('/finance/export', [FinanceController::class, 'export'])->name('finance.export');
