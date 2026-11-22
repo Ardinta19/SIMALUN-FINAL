@@ -47,6 +47,23 @@ class RentalCheckoutTest extends TestCase
         $this->get(route('rental.checkout'))->assertOk()->assertSee('Unit 1')->assertSee('Unit 2')->assertSee('Tahapan penyewaan')->assertSee('Salin detail dari unit sebelumnya')->assertSee('pilihan paket tidak disalin')->assertSee('data-checkout-submit', false)->assertSee('data-checkout-status', false)->assertSee('Ketentuan penyewaan')->assertSee('Konfirmasi dan stok.')->assertSee('DP dan pelunasan.')->assertSee('Jangan kirim pembayaran nyata.');
     }
 
+    public function test_checkout_errors_link_to_the_affected_unit_fields_and_preserve_other_input(): void
+    {
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 2]);
+        $customer = User::factory()->create(['role' => 'customer']);
+        $this->actingAs($customer)->post(route('cart.store', $product), ['quantity' => 2]);
+        $keys = array_keys(session('rental_cart'));
+        $date = now('Asia/Jakarta')->addDays(3)->toDateString();
+        $valid = ['event_on' => $date, 'ends_on' => $date, 'recipient_name' => 'Penerima pertama', 'greeting' => 'Selamat', 'delivery_method' => 'pickup', 'return_method' => 'dropoff'];
+        $this->from(route('rental.checkout'))->post(route('rental.checkout.store'), ['terms' => 1, 'units' => [$keys[0] => $valid, $keys[1] => array_merge($valid, ['recipient_name' => ''])]])
+            ->assertRedirect(route('rental.checkout'))->assertSessionHasErrors('units.'.$keys[1].'.recipient_name');
+        $this->get(route('rental.checkout'))->assertOk()->assertSee('Periksa isian unit 2:')
+            ->assertSee('href="#checkout-2-recipient_name"', false)->assertSee('id="checkout-2-recipient_name"', false)
+            ->assertSee('aria-describedby="checkout-errors-2"', false)->assertSee('Penerima pertama')
+            ->assertSee('menyetujui ketentuan penyewaan');
+    }
+
     public function test_checkout_displays_current_price_and_returns_unavailable_units_to_cart(): void
     {
         $category = RentalCategory::create(['name' => 'Wisuda']);
