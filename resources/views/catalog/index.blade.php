@@ -7,9 +7,9 @@
 @endsection
 @section('content')
 <div class="bk-how" aria-label="Cara memesan"><div><span>01</span><p><strong>Pilih papan</strong><small>Temukan bentuk yang cocok</small></p></div><div><span>02</span><p><strong>Tulis ceritamu</strong><small>Atur tanggal dan ucapan</small></p></div><div><span>03</span><p><strong>Pantau pesanan</strong><small>Tunggu konfirmasi admin</small></p></div></div>
-<div id="koleksi" class="bk-filter-bar"><div><span class="bk-kicker">Temukan yang tepat</span><h2>Papan untuk momenmu</h2><p class="muted">Cari berdasarkan nama, kategori, atau tanggal.</p></div><button class="btn secondary" type="button" data-open-dialog="bk-filter" hidden>⌕ &nbsp; Cari &amp; filter</button></div>
+<div id="koleksi" class="bk-filter-bar"><div><span class="bk-kicker">Temukan yang tepat</span><h2>Papan untuk momenmu</h2><p class="muted">Cari berdasarkan nama, kategori, atau tanggal.</p></div></div>
 <dialog class="bk-dialog bk-filter-sheet" id="bk-filter" aria-labelledby="bk-filter-title"><div class="bk-dialog-head"><div><span class="bk-eyebrow">PILIHAN KATALOG</span><h2 id="bk-filter-title">Cari papan</h2></div><button type="button" data-close-dialog aria-label="Tutup pencarian">×</button></div><div data-filter-slot></div></dialog>
-<form class="card body stack bk-filter-form" data-filter-form method="get" action="{{ route('welcome') }}">
+<form id="catalog-filter" class="card body stack bk-filter-form" data-filter-form method="get" action="{{ route('welcome') }}">
     <h2>Cari papan untuk tanggalmu</h2>
     <div class="row"><label>Cari papan<input type="search" name="q" maxlength="160" value="{{ request('q') }}" placeholder="Nama papan bunga"></label>
     <label>Kategori<select name="category"><option value="">Semua kategori</option>@foreach($categories as $category)<option value="{{ $category->id }}" @selected((string) request('category') === (string) $category->id)>{{ $category->name }}</option>@endforeach</select></label></div>
@@ -37,11 +37,14 @@
 <div class="grid" data-catalog-products>
 @forelse($products as $product)
 <article class="card bk-product-card">
-    @if($product->image_path)<img loading="lazy" decoding="async" class="photo" src="{{ asset('storage/'.$product->image_path) }}" alt="Contoh {{ $product->name }}">@else<div class="photo placeholder" aria-hidden="true">✿</div>@endif
-    <div class="body"><p class="muted">{{ $product->category->name }}</p><h3>{{ $product->name }}</h3>
+    <a class="bk-product-image-link" href="{{ route('catalog.show', array_merge(['product' => $product->id], $dates ?? [])) }}" aria-label="Lihat detail {{ $product->name }}">
+    @if($product->image_path)<img loading="lazy" decoding="async" class="photo" src="{{ asset('storage/'.$product->image_path) }}" alt="">@else<div class="photo placeholder" aria-hidden="true">✿</div>@endif</a>
+    <div class="body"><p class="muted">{{ $product->category->name }}</p><h3><a class="bk-product-name" href="{{ route('catalog.show', array_merge(['product' => $product->id], $dates ?? [])) }}">{{ $product->name }}</a></h3>
     <p class="price">Rp {{ number_format($product->base_price, 0, ',', '.') }} <span class="muted">/ {{ $product->price_unit === 'day' ? 'hari' : 'acara' }}</span></p>
     @if($dates)<p class="muted">Perkiraan {{ $product->available_for_period }} unit tersedia</p>@elseif($product->stock < 1)<p class="muted">Belum tersedia</p>@endif
-    <a class="btn secondary" href="{{ route('catalog.show', array_merge(['product' => $product->id], $dates ?? [])) }}">Lihat detail</a></div>
+    @if($product->stock > 0)
+    <form method="post" action="{{ route('cart.store', $product) }}" class="bk-product-add">@csrf<input type="hidden" name="quantity" value="1">@if($dates)<input type="hidden" name="starts_on" value="{{ $dates['starts_on'] }}"><input type="hidden" name="ends_on" value="{{ $dates['ends_on'] }}">@endif<button class="btn secondary" type="submit" aria-label="Tambah {{ $product->name }} ke keranjang">Tambah ke keranjang</button></form>
+    @else<p class="bk-product-unavailable">Belum tersedia untuk dipesan</p>@endif</div>
 </article>
 @empty<div class="card body"><p>Tidak ada papan yang cocok atau tersedia untuk pilihan ini.</p><a href="{{ route('welcome') }}">Lihat semua papan</a></div>@endforelse
 </div><div class="pagination">{{ $products->links() }}</div>

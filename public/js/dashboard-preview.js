@@ -14,7 +14,7 @@
             preview.replaceChildren(...cards.map(card => document.importNode(card, true)));
             preview.addEventListener('click', event => {
                 const link = event.target.closest('a');
-                if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || link.target || link.hasAttribute('download')) return;
+                if (!link || !link.closest('.bk-product-card') || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || link.target || link.hasAttribute('download')) return;
                 // Back from a previewed item returns to the full catalogue, rather than this preview.
                 try { history.replaceState(history.state, '', catalog + '#koleksi'); } catch (_) { /* The detail page also has an explicit catalogue link. */ }
             });

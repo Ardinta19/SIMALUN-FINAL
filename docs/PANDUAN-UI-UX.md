@@ -43,3 +43,5 @@ Pola di bawah adalah pilihan default yang diterapkan jika sesuai konteks, bukan 
 - Hindari dua tombol yang membuka menu yang sama: menu radial tetap di tab bawah; pintasan di header membuka keranjang. Navigasi desktop tetap tersedia.
 - Beranda menampilkan pratinjau hingga empat papan dari katalog publik, bukan daftar aktivitas dan statistik pesanan. Pesanan tetap dapat diakses dari menu pelanggan.
 - Pratinjau memakai katalog yang sudah ada sebagai progressive enhancement; bila JavaScript atau pemuatan gagal, tautan katalog tetap tersedia. Detail papan memiliki tautan kembali ke katalog; tombol kembali browser dari pratinjau diarahkan ke katalog juga. Uji alur ini di browser nyata, termasuk back/forward cache.
+- Di katalog publik, gambar dan nama kartu membuka detail papan; tombol menambahkan satu unit ke keranjang melalui formulir biasa. Pertahankan tanggal filter saat menambahkan, serta status stok dan pesan kesalahan server.
+- Cari dan filter katalog berada di header pada halaman katalog, dengan formulir inline sebagai fallback tanpa JavaScript. Header ringkas tetap menyediakan tombol pencarian.

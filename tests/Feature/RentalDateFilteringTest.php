@@ -38,6 +38,20 @@ class RentalDateFilteringTest extends TestCase
         } finally { Carbon::setTestNow(); }
     }
 
+    public function test_catalog_cards_link_to_details_and_add_one_unit_with_selected_dates(): void
+    {
+        $category = RentalCategory::create(['name' => 'Katalog']);
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan Melati', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 2]);
+        $date = now('Asia/Jakarta')->addDays(3)->toDateString();
+        $this->get(route('welcome', ['starts_on' => $date, 'ends_on' => $date]))->assertOk()
+            ->assertSee('data-open-dialog="bk-filter"', false)->assertSee('href="#catalog-filter"', false)
+            ->assertSee('Lihat detail Papan Melati')->assertSee('Tambah Papan Melati ke keranjang')
+            ->assertSee(route('cart.store', $product))->assertSee('name="quantity" value="1"', false)
+            ->assertSee('name="starts_on" value="'.$date.'"', false);
+        $this->post(route('cart.store', $product), ['quantity' => 1, 'starts_on' => $date, 'ends_on' => $date])->assertRedirect(route('cart.index'));
+        $this->assertCount(1, session('rental_cart'));
+    }
+
     public function test_cart_quantity_and_checkout_recheck_overlapping_units(): void
     {
         $category = RentalCategory::create(['name' => 'Wisuda']);
