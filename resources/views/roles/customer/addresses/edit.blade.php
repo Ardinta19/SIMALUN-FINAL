@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+@php $asset = fn (string $path) => asset($path).(file_exists(public_path($path)) ? '?v='.filemtime(public_path($path)) : ''); @endphp
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Edit Alamat – Berkah Kreatif</title>
@@ -70,9 +71,9 @@ textarea.field-input{resize:none;min-height:80px;line-height:1.5;}
 .alert-error{background:#fff1f1;border:1.5px solid #fecaca;border-radius:var(--radius-sm);padding:12px 14px;font-size:.82rem;font-weight:700;color:var(--red);margin-bottom:14px;}
 .map-hint[hidden]{display:none}
 </style>
-<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}"><script src="{{ asset('js/page-transitions.js') }}" defer></script>
-<link rel="stylesheet" href="{{ asset('css/customer-forms.css') }}">
-<link rel="stylesheet" href="{{ asset('css/berkah-experience.css') }}">
+<link rel="stylesheet" href="{{ $asset('css/page-transitions.css') }}"><script src="{{ $asset('js/page-transitions.js') }}" defer></script>
+<link rel="stylesheet" href="{{ $asset('css/customer-forms.css') }}">
+<link rel="stylesheet" href="{{ $asset('css/berkah-experience.css') }}">
 </head>
 <body class="bk-experience bk-customer bk-standalone">
 @php
@@ -251,6 +252,6 @@ document.addEventListener('DOMContentLoaded', function () {
   window.addEventListener('load', syncChecked);
 })();
 </script>
-<script src="{{ asset('js/berkah-experience.js') }}" defer></script>
+<script src="{{ $asset('js/berkah-experience.js') }}" defer></script>
 </body>
 </html>

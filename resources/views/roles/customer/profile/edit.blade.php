@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+@php $asset = fn (string $path) => asset($path).(file_exists(public_path($path)) ? '?v='.filemtime(public_path($path)) : ''); @endphp
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Edit Profil</title>
@@ -218,8 +219,8 @@
     }
     .btn-danger:hover { background:var(--red); color:#fff; }
 </style>
-<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}"><script src="{{ asset('js/page-transitions.js') }}" defer></script>
-@if($user->role === 'customer')<link rel="stylesheet" href="{{ asset('css/customer-forms.css') }}"><link rel="stylesheet" href="{{ asset('css/berkah-experience.css') }}">@endif
+<link rel="stylesheet" href="{{ $asset('css/page-transitions.css') }}"><script src="{{ $asset('js/page-transitions.js') }}" defer></script>
+@if($user->role === 'customer')<link rel="stylesheet" href="{{ $asset('css/customer-forms.css') }}"><link rel="stylesheet" href="{{ $asset('css/berkah-experience.css') }}">@endif
 </head>
 <body @if($user->role === 'customer') class="bk-experience bk-customer bk-standalone" @endif>
 @php
@@ -512,6 +513,6 @@ $oldText = function (string $key, $fallback = '') {
 
 @include('layouts.component.customer._navbar_customer', ['active' => 'profil'])
 
-@if($user->role === 'customer')<script src="{{ asset('js/berkah-experience.js') }}" defer></script>@endif
+@if($user->role === 'customer')<script src="{{ $asset('js/berkah-experience.js') }}" defer></script>@endif
 </body>
 </html>

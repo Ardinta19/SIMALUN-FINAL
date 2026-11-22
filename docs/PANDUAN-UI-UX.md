@@ -76,3 +76,6 @@ Pola di bawah adalah pilihan default yang diterapkan jika sesuai konteks, bukan 
 - Rating produk memakai grup bintang radio (44 px, dapat dijangkau keyboard) menggantikan menu pilihan, dengan teks pembaca layar per bintang.
 - Tamu diberi tahu bahwa keranjang tetap tersimpan dan mereka akan diminta masuk sebelum mengirim pesanan, baik dari keranjang maupun dari tombol "Pesan langsung" di detail papan.
 - Rating pesanan (setelah semua unit selesai) memakai grup bintang yang sama dengan rating produk sehingga konsisten dan mudah ditekan di ponsel.
+- Menutup lembar pencarian tidak boleh memindahkan posisi baca atau meninggalkan header dalam keadaan ringkas. Fokus dikembalikan tanpa menggulir, posisi baca dipulihkan bila halaman sempat melompat ke atas, dan header selalu melebar kembali saat berada di bagian atas halaman. Header ringkas memuat logo dan tombol pencarian tanpa terpotong.
+- Foto produk apa pun rasio dan ukurannya ditampilkan utuh (`object-fit:contain`) di dalam bingkai 4:3 yang seragam, dengan latar lembut dan padding. Efek hover tidak memperbesar foto sehingga tidak ada bagian yang terpotong. Detail produk dibatasi maksimal 72vh agar tetap proporsional.
+- Aset CSS/JS milik aplikasi memakai versi berdasarkan waktu ubah berkas (`?v=`) agar perbaikan langsung terpakai tanpa perlu hapus cache manual.

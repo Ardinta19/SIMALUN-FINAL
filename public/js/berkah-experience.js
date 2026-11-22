@@ -22,20 +22,34 @@
     triggers.forEach(button => { button.hidden = false; });
     let holdOpen = false;
     const updateHeader = () => { if (!header.contains(document.activeElement) && !document.querySelector('.bk-dialog[open], .bk-header-radial[open]')) header.classList.toggle('is-compact', window.scrollY > 180 && !holdOpen); };
-    window.addEventListener('scroll', () => { if (window.scrollY < 80) holdOpen = false; updateHeader(); }, { passive: true });
+    // Pulihkan posisi baca tanpa memicu lompatan ke atas saat fokus dikembalikan.
+    const syncHeader = () => header.classList.toggle('is-compact', window.scrollY > 180 && !holdOpen && !document.querySelector('.bk-dialog[open], .bk-header-radial[open]'));
+    const focusWithoutScroll = element => { if (!element) return; try { element.focus({ preventScroll: true }); } catch { element.focus(); } };
+    window.addEventListener('scroll', () => { if (window.scrollY < 80) holdOpen = false; if (window.scrollY <= 180) header.classList.remove('is-compact'); updateHeader(); }, { passive: true });
     expand.hidden = false;
-    expand.addEventListener('click', () => { holdOpen = true; header.classList.remove('is-compact'); (window.matchMedia('(max-width: 700px)').matches ? (header.querySelector('.bk-menu-trigger') || header.querySelector('.bk-header-radial summary')) : header.querySelector('.bk-desktop-nav a'))?.focus(); });
+    expand.addEventListener('click', () => { holdOpen = true; header.classList.remove('is-compact'); focusWithoutScroll(window.matchMedia('(max-width: 700px)').matches ? (header.querySelector('.bk-menu-trigger') || header.querySelector('.bk-header-radial summary')) : header.querySelector('.bk-desktop-nav a')); });
     function openDialog(dialog, trigger) {
         if (!dialog || dialog.open || document.querySelector('.bk-dialog[open]')) return;
         dialog.dataset.returnFocus = trigger?.dataset.openDialog || '';
+        dialog.dataset.returnScroll = String(window.scrollY);
         dialog.showModal();
-        (dialog.querySelector('[data-filter-form] [aria-invalid="true"]') || dialog.querySelector('[data-filter-form] input') || dialog.querySelector('[data-close-dialog]'))?.focus();
+        focusWithoutScroll(dialog.querySelector('[data-filter-form] [aria-invalid="true"]') || dialog.querySelector('[data-filter-form] input') || dialog.querySelector('[data-close-dialog]'));
     }
     triggers.forEach(button => button.addEventListener('click', () => openDialog(document.getElementById(button.dataset.openDialog), button)));
     document.querySelectorAll('.bk-dialog').forEach(dialog => {
         dialog.querySelector('[data-close-dialog]')?.addEventListener('click', () => dialog.close());
         dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
-        dialog.addEventListener('close', () => { const trigger = document.querySelector(`[data-open-dialog="${dialog.dataset.returnFocus}"]`); if (trigger && (!header.contains(trigger) || !header.classList.contains('is-compact'))) trigger.focus(); else expand.focus(); });
+        dialog.addEventListener('close', () => {
+            const savedScroll = Number(dialog.dataset.returnScroll || NaN);
+            // Dialog modal dapat memaksa halaman melompat ke atas; kembalikan posisi baca semula.
+            if (Number.isFinite(savedScroll) && window.scrollY + 4 < savedScroll) {
+                try { window.scrollTo({ top: savedScroll, left: 0, behavior: 'auto' }); } catch { window.scrollTo(0, savedScroll); }
+            }
+            syncHeader();
+            const trigger = document.querySelector(`[data-open-dialog="${dialog.dataset.returnFocus}"]`);
+            focusWithoutScroll(trigger && (!header.contains(trigger) || !header.classList.contains('is-compact')) ? trigger : expand);
+            syncHeader();
+        });
     });
     if (filterForm?.dataset.filterErrors === '1') openDialog(document.getElementById('bk-filter'), document.querySelector('[data-open-dialog="bk-filter"]'));
     updateHeader();

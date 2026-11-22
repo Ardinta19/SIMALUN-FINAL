@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+@php $asset = fn (string $path) => asset($path).(file_exists(public_path($path)) ? '?v='.filemtime(public_path($path)) : ''); @endphp
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Lapor Kendala – Berkah Kreatif</title>
@@ -174,8 +175,8 @@ body {
 /* ERROR */
 .field__error { font-size: 0.68rem; font-weight: 700; color: var(--red); margin-top: 4px; }
 </style>
-<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}"><script src="{{ asset('js/page-transitions.js') }}" defer></script>
-@if(auth()->user()->role === 'customer')<link rel="stylesheet" href="{{ asset('css/berkah-experience.css') }}">@endif
+<link rel="stylesheet" href="{{ $asset('css/page-transitions.css') }}"><script src="{{ $asset('js/page-transitions.js') }}" defer></script>
+@if(auth()->user()->role === 'customer')<link rel="stylesheet" href="{{ $asset('css/berkah-experience.css') }}">@endif
 </head>
 <body @if(auth()->user()->role === 'customer') class="bk-experience bk-customer bk-standalone-report" @endif>
 @if(auth()->user()->role === 'customer')@include('catalog.customer-navigation')@endif
@@ -323,6 +324,6 @@ if (_fileInput) _fileInput.addEventListener('change', function() {
   window.addEventListener('load', syncChecked);
 })();
 </script>
-@if(auth()->user()->role === 'customer')<script src="{{ asset('js/berkah-experience.js') }}" defer></script>@endif
+@if(auth()->user()->role === 'customer')<script src="{{ $asset('js/berkah-experience.js') }}" defer></script>@endif
 </body>
 </html>

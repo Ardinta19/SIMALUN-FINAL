@@ -47,6 +47,16 @@ class RentalCatalogTest extends TestCase
         $this->get(route('admin.catalog.index'))->assertOk()->assertDontSee('Array')->assertSee('name="name"', false);
     }
 
+    public function test_catalog_photos_fit_without_cropping_and_assets_are_versioned(): void
+    {
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 1]);
+        $this->get(route('welcome'))->assertOk()
+            ->assertSee('object-fit:contain', false)
+            ->assertSee('css/berkah-experience.css?v=', false)
+            ->assertSee('js/berkah-experience.js?v=', false);
+    }
+
     public function test_inactive_product_is_not_accessible(): void
     {
         $category = RentalCategory::create(['name' => 'Wisuda']);
