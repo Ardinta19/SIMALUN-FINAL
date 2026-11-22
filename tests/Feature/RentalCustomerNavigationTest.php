@@ -58,6 +58,18 @@ class RentalCustomerNavigationTest extends TestCase
             ->assertSee(route('admin.rental.orders'))->assertDontSee('id="bk-command"', false);
     }
 
+    public function test_desktop_navigation_keeps_accessible_shortcuts_and_current_state(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer']);
+        $this->actingAs($customer)->get(route('customer.notifications'))->assertOk()
+            ->assertSee('aria-label="Pintasan akun dan keranjang"', false)
+            ->assertSee('aria-label="Notifikasi"', false)->assertSee('aria-label="Profil"', false)
+            ->assertSee('href="'.route('customer.notifications').'" class="bk-desktop-action"', false)->assertSee('aria-current="page"', false)
+            ->assertSee(route('customer.help'));
+        $this->get(route('welcome'))->assertOk()->assertSee('data-open-dialog="bk-filter"', false)
+            ->assertSee('data-open-dialog="bk-command"', false);
+    }
+
     public function test_customer_discovery_preserves_filter_and_dashboard_navigation(): void
     {
         $this->get(route('welcome'))->assertOk()->assertSee('id="bk-filter"', false)
