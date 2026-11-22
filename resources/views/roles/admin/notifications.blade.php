@@ -161,7 +161,7 @@ body {
                     <div>
                         <div class="row__title">{{ $order->product_name }} · {{ $order->order->reference }}</div>
                         <div class="row__meta">{{ $order->order->customer?->name ?? 'Pelanggan tidak tersedia' }} · {{ $order->created_at->copy()->timezone('Asia/Jakarta')->translatedFormat('d M Y H:i') }} WIB</div>
-                        <a class="queue-link" href="{{ route('admin.rental.orders', ['q' => $order->order->reference]) }}">Lihat pesanan</a>
+                        <a class="queue-link" href="{{ route('admin.rental.orders.show', $order->order) }}">Lihat pesanan</a>
                     </div>
                     <span class="badge">Menunggu konfirmasi</span>
                 </div>

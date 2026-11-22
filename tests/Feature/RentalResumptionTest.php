@@ -34,7 +34,7 @@ class RentalResumptionTest extends TestCase
             $this->post(route('admin.rental.resume', $unit), ['reason' => 'Lanjut'])->assertSessionHasNoErrors();
             $this->assertSame('confirmed', $unit->fresh()->status);
             $this->assertSame(['cancel', 'resume'], $unit->cancellationEvents()->pluck('action')->all());
-            $this->actingAs($customer)->get(route('rental.orders.show', $order))->assertOk()->assertSee('Perubahan')->assertSee('Lanjut');
+            $this->actingAs($customer)->get(route('rental.orders.unit', [$order, $unit]))->assertOk()->assertSee('Perubahan')->assertSee('Lanjut');
             $this->actingAs($admin)->post(route('admin.rental.cancel', $unit), ['reason' => 'Ulang', 'responsibility' => 'other'])->assertSessionHasNoErrors();
             Carbon::setTestNow(Carbon::parse('2026-12-04 13:00:00', 'Asia/Jakarta'));
             $this->post(route('admin.rental.resume', $unit), ['reason' => 'Lanjut'])->assertSessionHasErrors('unit');

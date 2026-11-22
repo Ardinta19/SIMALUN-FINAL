@@ -124,6 +124,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/checkout', [RentalOrderController::class, 'store'])->middleware('throttle:6,1')->name('rental.checkout.store');
         Route::get('/sewa', [RentalOrderController::class, 'index'])->name('rental.orders.index');
         Route::get('/sewa/{order}', [RentalOrderController::class, 'show'])->name('rental.orders.show');
+        Route::get('/sewa/{order}/unit/{unit}', [RentalOrderController::class, 'customerUnit'])->name('rental.orders.unit');
     });
 
     Route::middleware('role:customer')->prefix('customer')->name('customer.')->group(function () {
@@ -171,6 +172,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/jadwal-sewa', [RentalScheduleController::class, 'index'])->name('rental.schedule');
         Route::get('/jadwal-sewa/lembar-harian', [RentalScheduleController::class, 'dailySheet'])->name('rental.schedule.daily-sheet');
         Route::get('/sewa', [RentalOrderController::class, 'adminIndex'])->name('rental.orders');
+        Route::get('/sewa/{order}', [RentalOrderController::class, 'adminShow'])->name('rental.orders.show');
         Route::post('/sewa/unit/{unit}/selesai-tinjau-pembayaran', [RentalPaymentController::class, 'resolveReview'])->name('rental.payment.resolve-review');
         Route::post('/sewa/unit/{unit}/perkembangan', [RentalProgressController::class, 'advance'])->name('rental.progress.advance');
         Route::post('/sewa/unit/{unit}/ongkos', [RentalOrderController::class, 'quoteTransport'])->name('rental.transport.quote');

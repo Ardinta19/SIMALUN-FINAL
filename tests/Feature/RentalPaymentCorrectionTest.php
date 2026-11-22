@@ -37,6 +37,6 @@ class RentalPaymentCorrectionTest extends TestCase
         $this->post($url, ['expected_amount' => 70, 'amount' => 101, 'reason' => 'Terlalu besar'])->assertSessionHasErrors('payment');
         $this->assertDatabaseCount('finance_entries', 1);
         $this->assertSame(1, $customer->notifications()->get()->filter(fn ($notification) => $notification->data['title'] === 'Nominal pembayaran dikoreksi')->count());
-        $this->actingAs($customer)->get(route('rental.orders.show', $order))->assertOk()->assertSee('Koreksi nominal');
+        $this->actingAs($customer)->get(route('rental.orders.unit', [$order, $unit]))->assertOk()->assertSee('Koreksi nominal');
     }
 }

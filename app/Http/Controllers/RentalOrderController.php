@@ -145,9 +145,18 @@ class RentalOrderController extends Controller
     public function show(Request $request, RentalOrder $order)
     {
         abort_unless($order->customer_id === $request->user()->id, 403);
-        $order->load('units.previews', 'units.payments.refunds', 'units.payments.corrections', 'units.progressEvents', 'units.cancellationEvents');
+        $order->load(['units' => fn ($query) => $query->orderBy('id'), 'units.previews', 'units.payments']);
+        return view('rental.show', compact('order'));
+    }
+
+    public function customerUnit(Request $request, RentalOrder $order, RentalOrderUnit $unit)
+    {
+        abort_unless($order->customer_id === $request->user()->id, 403);
+        abort_unless($unit->rental_order_id === $order->id, 404);
+        $unit->load('previews', 'payments.refunds', 'payments.corrections', 'progressEvents', 'cancellationEvents');
         $paymentSettings = RentalPaymentSetting::find(1);
-        return view('rental.show', compact('order', 'paymentSettings'));
+        $unitNumber = $order->units()->where('id', '<=', $unit->id)->count();
+        return view('rental.unit', compact('order', 'unit', 'paymentSettings', 'unitNumber'));
     }
 
     public function index(Request $request)
@@ -179,7 +188,7 @@ class RentalOrderController extends Controller
             'to' => ['nullable', 'date_format:Y-m-d'],
         ]);
         if (! empty($filters['from']) && ! empty($filters['to']) && $filters['to'] < $filters['from']) throw ValidationException::withMessages(['to' => 'Tanggal akhir tidak boleh sebelum tanggal mulai.']);
-        $orders = RentalOrder::with(['customer', 'units.previews', 'units.payments.refunds', 'units.payments.corrections', 'units.progressEvents.recorder', 'units.cancellationEvents'])
+        $orders = RentalOrder::with(['customer', 'units'])
             ->when(! empty($filters['q']), function ($query) use ($filters) {
                 $term = '%'.$filters['q'].'%';
                 $query->where(fn ($q) => $q->where('reference', 'like', $term)
@@ -209,6 +218,12 @@ class RentalOrderController extends Controller
                 });
             })->when(($filters['status'] ?? null) === 'pending', fn ($query) => $query->orderBy('confirmation_deadline')->orderBy('id'), fn ($query) => $query->latest()->orderByDesc('id'))->paginate(20)->withQueryString();
         return view('rental.admin', compact('orders', 'filters'));
+    }
+
+    public function adminShow(RentalOrder $order)
+    {
+        $order->load(['customer', 'units.previews', 'units.payments.refunds', 'units.payments.corrections', 'units.progressEvents.recorder', 'units.cancellationEvents']);
+        return view('rental.admin-detail', ['order' => $order, 'filters' => []]);
     }
 
     public function confirm(Request $request, RentalOrderUnit $unit)

@@ -17,5 +17,5 @@
 @if($unit->starts_on->toDateString() === $today)<p>Penerimaan hari ini: {{ $unit->delivery_method === 'delivery' ? 'Diantar penjual · '.$unit->delivery_address : 'Diambil di outlet' }}</p>@endif
 @if($unit->event_on->toDateString() === $today)<p>Acara hari ini</p>@endif
 @if($unit->ends_on->toDateString() === $today)<p>Pengembalian hari ini: {{ $unit->return_method === 'collection' ? 'Diambil kembali penjual · '.$unit->return_address : 'Dikembalikan ke outlet' }}</p>@endif
-<p class="muted">{{ ['waiting'=>'Menunggu pengerjaan', 'production'=>'Dalam pengerjaan', 'ready'=>'Siap diserahkan', 'handed_over'=>'Sudah diserahkan', 'returned'=>'Sudah dikembalikan'][$unit->progress] ?? $unit->progress }}</p><a href="{{ route('admin.rental.orders', ['q' => $unit->order->reference]) }}">Buka pesanan</a></div>@empty<p class="muted">Tidak ada unit terjadwal.</p>@endforelse</section>@endforeach</div>
+<p class="muted">{{ ['waiting'=>'Menunggu pengerjaan', 'production'=>'Dalam pengerjaan', 'ready'=>'Siap diserahkan', 'handed_over'=>'Sudah diserahkan', 'returned'=>'Sudah dikembalikan'][$unit->progress] ?? $unit->progress }}</p><a href="{{ route('admin.rental.orders.show', $unit->order) }}">Buka pesanan</a></div>@empty<p class="muted">Tidak ada unit terjadwal.</p>@endforelse</section>@endforeach</div>
 @endsection

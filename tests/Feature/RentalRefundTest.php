@@ -32,15 +32,15 @@ class RentalRefundTest extends TestCase
         $this->assertDatabaseCount('rental_payment_refunds', 1);
         $this->assertSame(1, $customer->notifications()->get()->filter(fn ($notification) => $notification->data['title'] === 'Pengembalian dana dicatat')->count());
         $this->assertSame(60, $unit->verifiedNet());
-        $this->get(route('admin.rental.orders'))->assertOk()->assertSee('Catat pengembalian dana')->assertSee('Pengembalian sebagian');
-        $this->actingAs($customer)->get(route('rental.orders.show', $order))->assertOk()->assertSee('Pengembalian sebagian');
+        $this->get(route('admin.rental.orders.show', $order))->assertOk()->assertSee('Catat pengembalian dana')->assertSee('Pengembalian sebagian');
+        $this->actingAs($customer)->get(route('rental.orders.unit', [$order, $unit]))->assertOk()->assertSee('Pengembalian sebagian');
         $this->actingAs($admin);
         $refund = $payment->refunds()->firstOrFail();
         $this->assertDatabaseHas('finance_entries', ['id' => $refund->finance_entry_id, 'entry_type' => 'expense', 'source_type' => 'rental_refund', 'source_id' => $refund->id, 'amount' => 40]);
         $this->post($url, ['amount' => 61, 'reason' => 'Lebih', 'request_key' => (string) Str::uuid(), 'confirmed' => 1])->assertSessionHasErrors('refund');
         $this->post(route('admin.rental.cancel', $unit), ['reason' => 'Batal', 'responsibility' => 'seller'])->assertSessionHasNoErrors();
         $this->assertSame('cancelled', $unit->fresh()->status);
-        $this->get(route('admin.rental.orders'))->assertOk()->assertSee('Kesalahan penjual: kembalikan pembayaran pelanggan');
+        $this->get(route('admin.rental.orders.show', $order))->assertOk()->assertSee('Kesalahan penjual: kembalikan pembayaran pelanggan');
         $this->post($url, ['amount' => 60, 'reason' => 'Sisa', 'request_key' => (string) Str::uuid(), 'confirmed' => 1])->assertSessionHasNoErrors();
         $this->assertSame('cancelled', $unit->fresh()->status);
         $this->assertSame(100, (int) FinanceEntry::where('source_type', 'rental_refund')->sum('amount'));

@@ -37,6 +37,6 @@ class RentalProgressTest extends TestCase
         $this->assertSame('returned', $unit->fresh()->progress);
         $this->assertSame('waiting', $other->fresh()->progress);
         $this->assertCount(4, $unit->progressEvents);
-        $this->actingAs($customer)->get(route('rental.orders.show', $order))->assertOk()->assertSee('Sudah dikembalikan')->assertSee('Mulai');
+        $this->actingAs($customer)->get(route('rental.orders.unit', [$order, $unit]))->assertOk()->assertSee('Sudah dikembalikan')->assertSee('Mulai');
     }
 }
