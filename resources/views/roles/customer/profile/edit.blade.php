@@ -222,6 +222,12 @@
 @if($user->role === 'customer')<link rel="stylesheet" href="{{ asset('css/customer-forms.css') }}"><link rel="stylesheet" href="{{ asset('css/berkah-experience.css') }}">@endif
 </head>
 <body @if($user->role === 'customer') class="bk-experience bk-customer bk-standalone" @endif>
+@php
+$oldText = function (string $key, $fallback = '') {
+    $value = old($key, $fallback);
+    return is_scalar($value) ? (string) $value : '';
+};
+@endphp
 @if($user->role === 'customer')@include('catalog.customer-navigation')@endif
 
 <header class="page-header">
@@ -286,7 +292,7 @@
                     <label class="field-label" for="profile-name">Nama Lengkap <span class="req">*</span></label>
                     <input type="text" id="profile-name" name="name"
                            class="field-input {{ $errors->has('name') ? 'is-error' : '' }}"
-                           value="{{ old('name', $user->name) }}" required>
+                           value="{{ $oldText('name', $user->name) }}" required>
                     @error('name') <div class="field-error">{{ $message }}</div> @enderror
                 </div>
 
@@ -294,7 +300,7 @@
                     <label class="field-label" for="profile-email">Email <span style="font-weight:600;color:var(--ink-lt)">(opsional)</span></label>
                     <input type="email" id="profile-email" name="email"
                            class="field-input {{ $errors->has('email') ? 'is-error' : '' }}"
-                           value="{{ old('email', $user->email) }}"
+                           value="{{ $oldText('email', $user->email) }}"
                            placeholder="Boleh dikosongkan">
                     @error('email') <div class="field-error">{{ $message }}</div> @enderror
                 </div>
@@ -303,7 +309,7 @@
                     <label class="field-label" for="profile-phone">Nomor HP / WhatsApp <span class="req">*</span></label>
                     <input type="tel" id="profile-phone" name="phone"
                            class="field-input"
-                           value="{{ old('phone', $user->phone) }}"
+                           value="{{ $oldText('phone', $user->phone) }}"
                            placeholder="08xxxxxxxxxx" required>
                     @error('phone') <div class="field-error">{{ $message }}</div> @enderror
                 </div>
@@ -327,7 +333,7 @@
                     <label class="field-label" for="profile-address-label">Label <span class="req">*</span></label>
                     <input type="text" id="profile-address-label" name="label"
                            class="field-input {{ $errors->has('label') ? 'is-error' : '' }}"
-                           value="{{ old('label', $primaryAddress->label ?? 'Rumah') }}"
+                           value="{{ $oldText('label', $primaryAddress->label ?? 'Rumah') }}"
                            placeholder="Rumah, Kantor, Kos..."
                            required>
                 </div>
@@ -336,7 +342,7 @@
                     <label class="field-label" for="profile-address-recipient">Nama Penerima <span class="req">*</span></label>
                     <input type="text" id="profile-address-recipient" name="recipient_name"
                            class="field-input {{ $errors->has('recipient_name') ? 'is-error' : '' }}"
-                           value="{{ old('recipient_name', $primaryAddress->recipient_name ?? $user->name) }}"
+                           value="{{ $oldText('recipient_name', $primaryAddress->recipient_name ?? $user->name) }}"
                            required>
                 </div>
 
@@ -344,7 +350,7 @@
                     <label class="field-label" for="profile-address-phone">No. HP Penerima</label>
                     <input type="text" id="profile-address-phone" name="phone"
                            class="field-input"
-                           value="{{ old('phone', $primaryAddress->phone ?? $user->phone) }}"
+                           value="{{ $oldText('phone', $primaryAddress->phone ?? $user->phone) }}"
                            placeholder="08xxxxxxxxxx">
                 </div>
 
@@ -353,14 +359,14 @@
                     <textarea id="profile-address-full" name="full_address"
                               class="field-input {{ $errors->has('full_address') ? 'is-error' : '' }}"
                               placeholder="Jalan, nomor rumah, RT/RW, kelurahan, kecamatan"
-                              required>{{ old('full_address', $primaryAddress->full_address ?? '') }}</textarea>
+                              required>{{ $oldText('full_address', $primaryAddress->full_address ?? '') }}</textarea>
                 </div>
 
                 <div>
                     <label class="field-label" for="profile-address-notes">Catatan (opsional)</label>
                     <input type="text" id="profile-address-notes" name="notes"
                            class="field-input"
-                           value="{{ old('notes', $primaryAddress->notes ?? '') }}"
+                           value="{{ $oldText('notes', $primaryAddress->notes ?? '') }}"
                            placeholder="Patokan, warna pagar, lantai">
                 </div>
 

@@ -153,4 +153,18 @@ class ProfileTest extends TestCase
         Storage::disk('public')->assertMissing('avatars/old.jpg');
         Storage::disk('public')->assertExists($user->fresh()->avatar);
     }
+
+    public function test_profile_and_address_forms_render_safely_after_non_scalar_retry(): void
+    {
+        $user = User::factory()->create(['role' => 'customer', 'phone' => '81234567890']);
+
+        $this->actingAs($user)->from('/profile/edit')->patch('/profile', ['name' => ['Budi'], 'phone' => '81234567890'])
+            ->assertRedirect('/profile/edit')->assertSessionHasErrors('name');
+        $this->get('/profile/edit')->assertOk()->assertDontSee('Array');
+
+        $this->actingAs($user)->from('/addresses/create')->post('/addresses', [
+            'label' => ['Rumah'], 'recipient_name' => ['Budi'], 'full_address' => ['Jalan panjang nomor satu'], 'latitude' => ['-3.8'],
+        ])->assertRedirect('/addresses/create')->assertSessionHasErrors(['label', 'recipient_name', 'full_address']);
+        $this->get('/addresses/create')->assertOk()->assertDontSee('Array')->assertSee('name="label"', false);
+    }
 }
