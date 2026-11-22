@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\RentalCategory;
 use App\Models\RentalOrder;
+use App\Models\RentalPaymentSetting;
 use App\Models\RentalProduct;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -37,5 +38,13 @@ class RentalCustomerNavigationTest extends TestCase
         $this->actingAs($customer)->get(route('customer.addresses.create'))->assertOk()->assertSee('Berkah Kreatif')->assertSee('Peta bersifat opsional')->assertSee('type="checkbox" name="is_primary"', false)->assertDontSee('gsap.min.js');
         $this->get(route('customer.addresses.edit', $address))->assertOk()->assertSee('value="-1.6101000"', false)->assertSee('value="103.6131000"', false)->assertSee('Alamat utama saat ini')->assertDontSee('gsap.min.js');
         $this->get(route('customer.addresses.index'))->assertOk()->assertSee('Hapus alamat ini?')->assertDontSee('gsap.min.js')->assertDontSee('akan dihapus permanen');
+    }
+    public function test_report_page_uses_only_configured_business_contact(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer']);
+        $this->actingAs($customer)->get(route('customer.report'))->assertOk()
+            ->assertSee('Berkah Kreatif')->assertDontSee('Azka Laundry')->assertDontSee('wa.me/')->assertDontSee('1x24 jam');
+        RentalPaymentSetting::create(['id' => 1, 'whatsapp_number' => '6289876543210']);
+        $this->get(route('customer.report'))->assertOk()->assertSee('https://wa.me/6289876543210', false);
     }
 }

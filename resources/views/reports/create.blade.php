@@ -2,26 +2,26 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Lapor Kendala – Azka Laundry</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Lapor Kendala – Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 <style>
 :root {
-    --blue-dark: #002f5c;
-    --blue: #0077b6;
-    --blue-lt: #e8f4fd;
+    --blue-dark: #54051f;
+    --blue: #85092d;
+    --blue-lt: #f8e9ed;
     --green: #059669;
     --green-lt: #ecfdf5;
     --orange: #f59e0b;
     --orange-lt: #fef3c7;
     --red: #dc2626;
     --red-lt: #fef2f2;
-    --surface: #f4f8fc;
+    --surface: #faf4f3;
     --card: #ffffff;
     --ink: #1a2332;
     --ink-mid: #4a5568;
     --ink-lt: #8896a6;
-    --border: #e2e8f0;
+    --border: #f0dfe1;
     --radius: 16px;
     --radius-sm: 10px;
     --font: 'Plus Jakarta Sans', -apple-system, sans-serif;
@@ -84,7 +84,8 @@ body {
 .category-pill:has(input:checked), .category-pill.is-checked {
     border-color: var(--blue); background: var(--blue-lt); color: var(--blue);
 }
-.category-pill input { display: none; }
+.category-pill input { position: absolute; opacity: 0; }
+.category-pill:focus-within { outline: 3px solid #bc5b75; outline-offset: 2px; }
 .category-pill__icon { font-size: 1rem; }
 
 .field__textarea {
@@ -200,7 +201,7 @@ body {
     {{-- Form --}}
     <div class="form-card">
         <div class="form-card__title">Ada kendala atau masukan?</div>
-        <div class="form-card__desc">Ceritakan ke kami agar bisa segera ditangani. Tim kami akan meninjau laporan kamu dalam 1x24 jam.</div>
+        <div class="form-card__desc">Ceritakan ke kami agar bisa segera ditangani. Tim kami akan meninjau laporan yang masuk.</div>
 
         <form method="POST" action="{{ route(auth()->user()->role === 'driver' ? 'driver.report.store' : 'customer.report.store') }}" enctype="multipart/form-data">
             @csrf
@@ -234,12 +235,12 @@ body {
 
             {{-- Screenshot --}}
             <div class="field">
-                <label class="field__label">Screenshot (opsional)</label>
+                <label class="field__label" for="file-input">Screenshot (opsional)</label>
                 <div class="field__file-wrap" id="dropzone">
                     <input type="file" name="screenshot" accept="image/*" id="file-input">
                     <div class="field__file-icon">📷</div>
                     <div class="field__file-text" id="file-name">Klik atau seret gambar ke sini</div>
-                    <div class="field__file-hint">Format: JPG, PNG — maks 5 MB</div>
+                    <div class="field__file-hint">Format: JPG, PNG, WEBP — maks 5 MB</div>
                 </div>
                 @error('screenshot') <div class="field__error">{{ $message }}</div> @enderror
             </div>
@@ -252,14 +253,12 @@ body {
         </form>
     </div>
 
-    {{-- WA Alternative --}}
-    <a href="{{ \App\Support\Laundry::waLink('Halo Azka Laundry, saya ingin melaporkan kendala:') }}" target="_blank" class="wa-alt">
+    @if($settings?->whatsapp_number)
+    <a href="https://wa.me/{{ $settings->whatsapp_number }}?text={{ rawurlencode('Halo Berkah Kreatif, saya ingin melaporkan kendala.') }}" target="_blank" rel="noopener noreferrer" class="wa-alt">
         <span class="wa-alt__icon">💬</span>
-        <div class="wa-alt__text">
-            <strong>Hubungi via WhatsApp</strong>
-            Chat langsung dengan tim support kami.
-        </div>
+        <span class="wa-alt__text"><strong>Hubungi via WhatsApp</strong> Chat langsung dengan admin.</span>
     </a>
+    @endif
 
     {{-- Riwayat Laporan --}}
     @if(isset($myReports) && $myReports->count() > 0)

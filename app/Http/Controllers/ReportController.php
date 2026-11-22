@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Report;
+use App\Models\RentalPaymentSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -18,7 +19,9 @@ class ReportController extends Controller
             ->take(5)
             ->get();
 
-        return view('reports.create', compact('myReports'));
+        $settings = RentalPaymentSetting::find(1);
+
+        return view('reports.create', compact('myReports', 'settings'));
     }
 
     /**

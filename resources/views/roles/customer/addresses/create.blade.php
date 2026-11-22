@@ -223,24 +223,24 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
             </div>
             <div class="section-body">
                 <div>
-                    <div class="field-label">Label Alamat <span class="required">*</span></div>
-                    <input type="text" name="label" class="field-input {{ $errors->has('label') ? 'is-error' : '' }}"
+                    <label class="field-label" for="address-label">Label Alamat <span class="required">*</span></label>
+                    <input type="text" name="label" id="address-label" class="field-input {{ $errors->has('label') ? 'is-error' : '' }}"
                         placeholder="Rumah, Kantor, Kos, dll."
                         value="{{ old('label', 'Rumah') }}" required>
                     @error('label') <div class="field-error">{{ $message }}</div> @enderror
                 </div>
 
                 <div>
-                    <div class="field-label">Nama Penerima <span class="required">*</span></div>
-                    <input type="text" name="recipient_name" class="field-input {{ $errors->has('recipient_name') ? 'is-error' : '' }}"
+                    <label class="field-label" for="address-recipient_name">Nama Penerima <span class="required">*</span></label>
+                    <input type="text" name="recipient_name" id="address-recipient_name" class="field-input {{ $errors->has('recipient_name') ? 'is-error' : '' }}"
                         placeholder="Nama penerima"
                         value="{{ old('recipient_name', auth()->user()->name) }}" required>
                     @error('recipient_name') <div class="field-error">{{ $message }}</div> @enderror
                 </div>
 
                 <div>
-                    <div class="field-label">No. HP / WhatsApp</div>
-                    <input type="text" name="phone" class="field-input"
+                    <label class="field-label" for="address-phone">No. HP / WhatsApp</label>
+                    <input type="text" name="phone" id="address-phone" class="field-input"
                         placeholder="08xxxxxxxxxx"
                         value="{{ old('phone', auth()->user()->phone) }}">
                 </div>
@@ -266,16 +266,16 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
                 </div>
 
                 <div>
-                    <div class="field-label">Alamat Lengkap <span class="required">*</span></div>
-                    <textarea name="full_address" class="field-input {{ $errors->has('full_address') ? 'is-error' : '' }}"
+                    <label class="field-label" for="address-full_address">Alamat Lengkap <span class="required">*</span></label>
+                    <textarea name="full_address" id="address-full_address" class="field-input {{ $errors->has('full_address') ? 'is-error' : '' }}"
                         placeholder="Nama jalan, nomor rumah, RT/RW, Kelurahan, Kecamatan..."
                         required>{{ old('full_address') }}</textarea>
                     @error('full_address') <div class="field-error">{{ $message }}</div> @enderror
                 </div>
 
                 <div>
-                    <div class="field-label">Catatan Tambahan</div>
-                    <input type="text" name="notes" class="field-input"
+                    <label class="field-label" for="address-notes">Catatan Tambahan</label>
+                    <input type="text" name="notes" id="address-notes" class="field-input"
                         placeholder="Warna pagar, patokan, titipkan di mana, dll."
                         value="{{ old('notes') }}">
                 </div>
@@ -324,9 +324,14 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
 document.addEventListener('DOMContentLoaded', function () {
     if (typeof L === 'undefined') return;
     document.getElementById('addr-map').hidden = false;
-    const map = L.map('addr-map').setView([-1.6101, 103.6131], 13);
+    const latitude = document.getElementById('map-lat'), longitude = document.getElementById('map-lng');
+    const lat = Number(latitude.value), lng = Number(longitude.value);
+    const hasCoordinates = latitude.value.trim() !== '' && longitude.value.trim() !== '' && Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180;
+    const point = hasCoordinates ? [lat, lng] : [-1.6101, 103.6131];
+    const map = L.map('addr-map').setView(point, hasCoordinates ? 15 : 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
-    let marker;
+    let marker = hasCoordinates ? L.marker(point, { draggable: true }).addTo(map) : null;
+    if (marker) marker.on('dragend', function () { save(marker.getLatLng()); });
     map.on('click', function (e) {
         if (!marker) {
             marker = L.marker(e.latlng, { draggable: true }).addTo(map);
