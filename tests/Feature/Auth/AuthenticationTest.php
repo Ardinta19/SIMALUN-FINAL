@@ -87,4 +87,12 @@ class AuthenticationTest extends TestCase
         $this->actingAs($user)->getJson(route('profile.edit'))->assertUnauthorized();
         $this->assertGuest();
     }
+    public function test_database_default_active_account_is_not_mistaken_for_inactive(): void
+    {
+        // create() returns an instance without database-default attributes
+        // until it is reloaded. actingAs uses that instance directly.
+        $user = User::factory()->create();
+        $this->actingAs($user)->get(route('profile.edit'))->assertOk();
+        $this->assertAuthenticatedAs($user);
+    }
 }
