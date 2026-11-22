@@ -50,3 +50,7 @@ Langkah pemeriksaan yang disarankan:
 ### Merek pada email dan konfigurasi
 
 Email transaksi (termasuk reset kata sandi) masih mengambil nama usaha dari `Laundry::name()` yang membaca `LAUNDRY_NAME` di `.env`, dengan nilai bawaan "Azka Laundry". Ubah nilai berikut pada `.env` produksi sebelum dipakai pelanggan: `APP_NAME`, `LAUNDRY_NAME="Berkah Kreatif"`, `LAUNDRY_TAGLINE`, `LAUNDRY_ADDRESS`, `LAUNDRY_PHONE`, `LAUNDRY_PHONE_DISPLAY`, `LAUNDRY_WA`, serta `MAIL_FROM_ADDRESS`. Ini perubahan konfigurasi, bukan kode; nilai alamat dan nomor harus berasal dari pemilik usaha, jangan dikarang.
+
+### Pemeriksaan form pemesanan (belum dijalankan)
+
+Selain `php artisan test`, periksa di browser: pintasan tanggal satu hari, batas minimal tanggal pengembalian tanpa JavaScript, fokus otomatis ke kolom galat pertama setelah kirim gagal, tombol "Isi sisa tagihan" pada unit dengan sisa pembayaran, serta kewajiban catatan saat memilih "Minta revisi". Uji juga pada layar kecil karena tombol pintasan menjadi selebar layar di bawah 420 px.

@@ -52,3 +52,10 @@ html:not(.bk-enhanced) .bk-header-space{height:auto!important;min-height:0;paddi
 .bk-field-error{color:#a1263a;font-size:.85rem;font-weight:700;line-height:1.5}.unit-section [aria-invalid=true]{border-color:#b5263f;box-shadow:0 0 0 1px #b5263f}
 .bk-filter-form [aria-invalid=true],.bk-product-detail [aria-invalid=true]{border-color:#b5263f;box-shadow:0 0 0 1px #b5263f}.bk-filter-form .bk-field-error{margin:5px 0 0}.bk-product-detail .bk-field-error{display:block;margin-top:5px}
 .bk-order-filter [aria-invalid=true]{border-color:#b5263f;box-shadow:0 0 0 1px #b5263f}.bk-order-filter .bk-field-error{margin:5px 0 0}
+.bk-req{color:#85092d;font-size:.78rem;font-weight:700;white-space:nowrap}
+.bk-muted-mark{color:#8a727a;font-size:.78rem;font-weight:600;white-space:nowrap}
+.bk-date-shortcut{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:-2px 0 10px}
+.bk-date-shortcut .btn{min-height:42px;padding:9px 14px;font-size:.82rem}
+.bk-date-shortcut .muted{margin:0;font-size:.78rem}
+.checkout-form [data-checkout-submit][disabled]{opacity:.75;cursor:progress}
+@media(max-width:420px){.bk-date-shortcut .btn{width:100%}}

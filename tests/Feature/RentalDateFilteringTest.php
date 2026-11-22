@@ -32,8 +32,9 @@ class RentalDateFilteringTest extends TestCase
             $this->get(route('catalog.show', array_merge(['product' => $full->id], $dates)))->assertOk()->assertSee('0 unit')->assertDontSee('Tambah ke keranjang');
             $this->from(route('catalog.show', $full))->post(route('cart.store', $full), $dates + ['quantity' => 1])->assertSessionHasErrors('quantity');
             $this->post(route('cart.store', $open), $dates + ['quantity' => 1])->assertSessionHasNoErrors();
-            $this->get(route('cart.index'))->assertOk()->assertSee('Tanggal pilihan')->assertSee('+ Tambah unit')->assertSee('− Hapus unit');
-            $this->actingAs($customer)->get(route('rental.checkout'))->assertOk()->assertSee('value="2026-12-04"', false)->assertSee('value="2026-12-05"', false);
+            $this->get(route('cart.index'))->assertOk()->assertSee('Tanggal pilihan')->assertSee('+ Tambah unit')->assertSee('Hapus unit');
+            $this->actingAs($customer)->get(route('rental.checkout'))->assertOk()->assertSee('value="2026-12-04"', false)->assertSee('value="2026-12-05"', false)
+                ->assertSee('min="2026-12-04"', false);
             $this->get(route('welcome', ['starts_on' => '2026-12-03']))->assertSessionHasErrors('ends_on');
         } finally { Carbon::setTestNow(); }
     }
@@ -114,6 +115,16 @@ class RentalDateFilteringTest extends TestCase
         $this->get($url)->assertOk()->assertSee('id="quantity-error"', false)->assertSee('Jumlah papan tidak tersedia')->assertSee('Tambah ke keranjang');
     }
 
+    public function test_product_detail_offers_a_way_to_clear_chosen_dates(): void
+    {
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 2]);
+        $date = now('Asia/Jakarta')->addDays(3)->toDateString();
+        $this->get(route('catalog.show', ['product' => $product, 'starts_on' => $date, 'ends_on' => $date]))->assertOk()
+            ->assertSee('Hapus tanggal')->assertSee('href="'.route('catalog.show', $product).'"', false);
+        $this->get(route('catalog.show', $product))->assertOk()->assertDontSee('Hapus tanggal');
+    }
+
     public function test_catalog_filter_chips_remove_one_condition_and_keep_the_others(): void
     {
         $category = RentalCategory::create(['name' => 'Wisuda']);
@@ -159,6 +170,7 @@ class RentalDateFilteringTest extends TestCase
         $this->assertCount(1, session('rental_cart'));
         // Tambahkan unit tanpa tanggal; pelanggan memilih tanggal saat checkout.
         $this->post(route('cart.store', $product), ['quantity' => 2])->assertSessionHasNoErrors();
+        $this->get(route('cart.index'))->assertOk()->assertSee('Tanggal belum dipilih');
         $keys = array_keys(session('rental_cart'));
         $base = ['event_on' => $date, 'ends_on' => $date, 'recipient_name' => 'Nama', 'greeting' => 'Selamat', 'delivery_method' => 'pickup', 'return_method' => 'dropoff'];
         $units = array_fill_keys($keys, $base);

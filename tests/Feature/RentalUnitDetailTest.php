@@ -41,7 +41,8 @@ class RentalUnitDetailTest extends TestCase
         $this->get($url)->assertOk()->assertSee('Penawaran ongkos siap diperiksa dan disetujui.')->assertSee('Menunggu preview desain dari admin.')->assertDontSee('Bayar melalui QRIS');
         $unit->update(['transport_approved_at' => now()]);
         $preview = $unit->previews()->create(['version' => 1, 'image_path' => 'preview.png', 'created_by' => $admin->id, 'status' => 'pending']);
-        $this->get($url)->assertOk()->assertSee('Preview desain siap diperiksa')->assertSee('Bayar melalui QRIS')->assertSee('Lihat pembayaran');
+        $this->get($url)->assertOk()->assertSee('Preview desain siap diperiksa')->assertSee('Bayar melalui QRIS')->assertSee('Lihat pembayaran')
+            ->assertSee('Sisa tagihan unit ini')->assertSee('data-fill-remaining="120"', false);
         $preview->update(['status' => 'revision']);
         $unit->payments()->create(['amount' => 120, 'proof_path' => 'proof.jpg', 'submitted_at' => now()]);
         $this->get($url)->assertOk()->assertSee('Permintaan revisi sudah dikirim')->assertSee('Ada bukti pembayaran menunggu pemeriksaan admin.')->assertDontSee('Bayar melalui QRIS');

@@ -28,12 +28,13 @@
                 <p class="price">Harga dasar Rp {{ number_format($product->base_price, 0, ',', '.') }} / {{ $product->price_unit === 'day' ? 'hari' : 'acara' }}</p>
                 @if($hasDates)<p class="muted">Tanggal pilihan: {{ \Carbon\Carbon::parse($item['starts_on'])->format('d/m/Y') }}–{{ \Carbon\Carbon::parse($item['ends_on'])->format('d/m/Y') }}; dapat diubah saat checkout.</p>@endif
                 @if($datesExpired)<p class="notice">Tanggal pilihan sudah lewat. Ubah tanggal unit ini saat checkout. Untuk menambah unit dengan tanggal baru, pilih tanggal di detail papan.</p>@endif
+                @if(!$hasDates)<p class="muted">Tanggal belum dipilih; tentukan tanggal acara dan pengembalian saat checkout.</p>@endif
                 <a href="{{ route('catalog.show', array_merge(['product' => $product->id], $hasDates && !$datesExpired ? ['starts_on' => $item['starts_on'], 'ends_on' => $item['ends_on']] : [])) }}">Lihat detail papan</a>
             @else
                 <h2>Papan tidak tersedia</h2><p class="muted">Papan ini tidak lagi tersedia. Hapus unit ini sebelum melanjutkan.</p>
             @endif
             <div class="cart-unit-actions">
-                <form method="post" action="{{ route('cart.destroy', $id) }}">@csrf @method('DELETE')<button class="btn secondary" aria-label="Kurangi atau hapus unit {{ $loop->iteration }}{{ $available ? ' '.$product->name : ' yang tidak tersedia' }}">− Hapus unit</button></form>
+                <form method="post" action="{{ route('cart.destroy', $id) }}">@csrf @method('DELETE')<button class="btn secondary" aria-label="Hapus unit {{ $loop->iteration }}{{ $available ? ' '.$product->name : ' yang tidak tersedia' }} dari keranjang">Hapus unit</button></form>
                 @if($available && !$datesExpired)<form method="post" action="{{ route('cart.duplicate', $id) }}">@csrf<button class="btn secondary" aria-label="Tambah satu unit {{ $product->name }} dengan tanggal pilihan yang sama">+ Tambah unit</button></form>@endif
             </div>
         </div>

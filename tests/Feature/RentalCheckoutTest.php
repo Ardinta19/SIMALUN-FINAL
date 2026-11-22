@@ -44,7 +44,9 @@ class RentalCheckoutTest extends TestCase
         $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 2]);
         $customer = User::factory()->create(); $customer->forceFill(['role' => 'customer'])->save();
         $this->actingAs($customer)->post(route('cart.store', $product), ['quantity' => 2]);
-        $this->get(route('rental.checkout'))->assertOk()->assertSee('Unit 1')->assertSee('Unit 2')->assertSee('Tahapan penyewaan')->assertSee('Salin detail dari unit sebelumnya')->assertSee('pilihan paket tidak disalin')->assertSee('data-checkout-submit', false)->assertSee('data-checkout-status', false)->assertSee('Ketentuan penyewaan')->assertSee('Konfirmasi dan stok.')->assertSee('DP dan pelunasan.')->assertSee('Jangan kirim pembayaran nyata.');
+        $this->get(route('rental.checkout'))->assertOk()->assertSee('Unit 1')->assertSee('Unit 2')->assertSee('Tahapan penyewaan')->assertSee('Salin detail dari unit sebelumnya')->assertSee('pilihan paket tidak disalin')->assertSee('data-checkout-submit', false)->assertSee('data-checkout-status', false)->assertSee('Ketentuan penyewaan')->assertSee('Konfirmasi dan stok.')->assertSee('DP dan pelunasan.')->assertSee('Jangan kirim pembayaran nyata.')
+            ->assertSee('data-same-day', false)->assertSee('(wajib)')->assertSee('(opsional)')
+            ->assertSee('id="checkout-1-delivery-hint"', false)->assertSee('id="checkout-1-return-hint"', false);
     }
 
     public function test_checkout_errors_link_to_the_affected_unit_fields_and_preserve_other_input(): void

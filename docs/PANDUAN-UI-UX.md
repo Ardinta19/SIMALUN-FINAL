@@ -70,3 +70,6 @@ Pola di bawah adalah pilihan default yang diterapkan jika sesuai konteks, bukan 
 - Halaman galat memakai identitas Berkah Kreatif (marun, krem, logo) dengan aksi utama yang jelas, `noindex`, dan tanpa animasi saat pengguna meminta gerak minimal. Merek laundry lama tidak boleh muncul di halaman yang dilihat pelanggan.
 - FAQ pelanggan menjelaskan bahwa keranjang bisa diisi sebelum masuk, beberapa unit boleh berbeda tanggal, serta cara rating dan suka bekerja; sesuaikan bila aturan berubah.
 - Chip filter katalog dibangun dari nilai kueri yang sudah dipastikan tunggal; menghapus satu chip mempertahankan filter lain, dan tautan tanggal yang dibawa ke keranjang memakai nilai yang sudah diperiksa.
+- Form pemesanan menandai isian wajib/opsional secara eksplisit, menautkan label ke kolom, dan memberi contoh isian pada nama penerima, ucapan, dan permintaan desain.
+- Checkout menyediakan pintasan "Pakai tanggal yang sama (sewa satu hari)", batas minimal tanggal pengembalian mengikuti tanggal acara tanpa perlu JavaScript, serta petunjuk metode penerimaan/pengembalian yang ditautkan dengan `aria-describedby`.
+- Bila pengiriman gagal, fokus berpindah ke kolom bermasalah pertama; tombol kirim menandai formulir `aria-busy` selama proses. Tombol "Isi sisa tagihan" mengisi nominal maksimum pada form pembayaran unit, dan "Minta revisi" mewajibkan catatan revisi.
