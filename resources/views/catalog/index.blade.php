@@ -34,7 +34,7 @@
 @endif
 <div class="bk-section-heading"><div><span class="bk-kicker">KOLEKSI BERKAH KREATIF</span><h2>Jelajahi katalog</h2></div><span class="muted">{{ $products->total() }} pilihan</span></div>
 @if($dates)<p class="notice" role="status">Menampilkan papan yang diperkirakan tersedia pada {{ \Carbon\Carbon::parse($dates['starts_on'])->format('d/m/Y') }}–{{ \Carbon\Carbon::parse($dates['ends_on'])->format('d/m/Y') }}. Stok belum dicadangkan dan dapat berubah sampai admin mengonfirmasi.</p>@else<p class="muted">Foto merupakan contoh; desain akhir mengikuti permintaan pelanggan. Pilih tanggal di atas untuk memeriksa ketersediaan.</p>@endif
-<div class="grid">
+<div class="grid" data-catalog-products>
 @forelse($products as $product)
 <article class="card bk-product-card">
     @if($product->image_path)<img loading="lazy" decoding="async" class="photo" src="{{ asset('storage/'.$product->image_path) }}" alt="Contoh {{ $product->name }}">@else<div class="photo placeholder" aria-hidden="true">✿</div>@endif

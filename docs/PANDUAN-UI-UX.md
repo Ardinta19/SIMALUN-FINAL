@@ -38,3 +38,8 @@ Pola di bawah adalah pilihan default yang diterapkan jika sesuai konteks, bukan 
 3. Uji desktop, tablet dan beberapa ukuran mobile, keyboard, zoom, safe area, reduced motion, jaringan lambat, dan fallback tanpa fitur visual tertentu.
 4. Minta screenshot dan umpan balik pengguna; perbaiki berdasarkan hasil pengujian sebelum melanjutkan role berikutnya.
 5. Jalankan build dan tes terkait; pisahkan hasil pemeriksaan otomatis dari pengujian browser nyata. Jangan menyatakan sempurna atau siap produksi sebelum terbukti.
+
+### Beranda pelanggan dan navigasi mobile
+- Hindari dua tombol yang membuka menu yang sama: menu radial tetap di tab bawah; pintasan di header membuka keranjang. Navigasi desktop tetap tersedia.
+- Beranda menampilkan pratinjau hingga empat papan dari katalog publik, bukan daftar aktivitas dan statistik pesanan. Pesanan tetap dapat diakses dari menu pelanggan.
+- Pratinjau memakai katalog yang sudah ada sebagai progressive enhancement; bila JavaScript atau pemuatan gagal, tautan katalog tetap tersedia. Detail papan memiliki tautan kembali ke katalog; tombol kembali browser dari pratinjau diarahkan ke katalog juga. Uji alur ini di browser nyata, termasuk back/forward cache.

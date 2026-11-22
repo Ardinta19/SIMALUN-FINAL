@@ -20,20 +20,11 @@
     if (filterForm && filterSlot) filterSlot.appendChild(filterForm);
     const triggers = document.querySelectorAll('[data-open-dialog]');
     triggers.forEach(button => { button.hidden = false; });
-    const radialTrigger = header.querySelector('[data-open-radial]');
-    const radialMenu = document.querySelector('[data-customer-radial]');
-    if (radialTrigger && radialMenu) {
-        radialTrigger.hidden = false;
-        radialTrigger.addEventListener('click', () => {
-            radialMenu.open = true;
-            radialMenu.querySelector('summary')?.focus();
-        });
-    }
     let holdOpen = false;
     const updateHeader = () => { if (!header.contains(document.activeElement) && !document.querySelector('.bk-dialog[open]')) header.classList.toggle('is-compact', window.scrollY > 180 && !holdOpen); };
     window.addEventListener('scroll', () => { if (window.scrollY < 80) holdOpen = false; updateHeader(); }, { passive: true });
     expand.hidden = false;
-    expand.addEventListener('click', () => { holdOpen = true; header.classList.remove('is-compact'); (window.matchMedia('(max-width: 700px)').matches ? header.querySelector('.bk-menu-trigger') : header.querySelector('.bk-command-trigger')).focus(); });
+    expand.addEventListener('click', () => { holdOpen = true; header.classList.remove('is-compact'); (window.matchMedia('(max-width: 700px)').matches ? (header.querySelector('.bk-menu-trigger') || header.querySelector('.bk-header-cart')) : header.querySelector('.bk-command-trigger'))?.focus(); });
     function openDialog(dialog, trigger) {
         if (!dialog || dialog.open || document.querySelector('.bk-dialog[open]')) return;
         dialog.dataset.returnFocus = trigger?.dataset.openDialog || '';

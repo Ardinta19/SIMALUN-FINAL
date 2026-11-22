@@ -50,7 +50,7 @@ class RentalCustomerNavigationTest extends TestCase
         $customer = User::factory()->create(['role' => 'customer']);
         $this->actingAs($customer)->get(route('welcome'))->assertOk()
             ->assertSee(route('rental.orders.index'))->assertSee(route('customer.help'))
-            ->assertSee('id="customer-nav"', false)->assertSee('data-open-radial', false)->assertDontSee(route('admin.rental.orders'));
+            ->assertSee('id="customer-nav"', false)->assertSee('bk-header-cart', false)->assertDontSee(route('admin.rental.orders'));
         $admin = User::factory()->create(['role' => 'admin']);
         $this->actingAs($admin)->get(route('welcome'))->assertOk()
             ->assertSee(route('admin.rental.orders'))->assertDontSee('id="bk-command"', false);
@@ -62,7 +62,7 @@ class RentalCustomerNavigationTest extends TestCase
             ->assertSee('data-filter-form', false)->assertSee('name="starts_on"', false)->assertSee('name="ends_on"', false);
         $customer = User::factory()->create(['role' => 'customer']);
         $this->actingAs($customer)->get(route('customer.dashboard'))->assertOk()
-            ->assertSee('Aktivitas terbaru')->assertSee(route('cart.index'))->assertSee(route('customer.help'))
+            ->assertSee('Temukan papan untuk momenmu')->assertSee('data-catalog-preview', false)->assertDontSee('Aktivitas terbaru')->assertSee(route('cart.index'))->assertSee(route('customer.help'))
             ->assertSee('id="bk-command"', false)->assertSee('id="customer-nav"', false);
     }
 
