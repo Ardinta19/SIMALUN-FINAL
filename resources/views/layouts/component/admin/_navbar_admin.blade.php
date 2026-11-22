@@ -15,7 +15,7 @@
     $pendingCount = 0;
     $unreadCount  = 0;
     try {
-        $pendingCount = \App\Models\Order::where('status', 'menunggu')->count();
+        $pendingCount = \App\Models\RentalOrderUnit::where('status', 'pending')->count();
         $unreadCount  = auth()->user()?->unreadNotifications?->count() ?? 0;
     } catch (\Exception $e) {}
 @endphp
@@ -38,7 +38,7 @@
         </a>
 
         {{-- Pesanan --}}
-        <a href="{{ route('admin.orders') }}"
+        <a href="{{ route('admin.rental.orders') }}"
            class="admin-nav__item {{ $navActive === 'pesanan' ? 'is-active' : '' }}"
            @if($navActive === 'pesanan') aria-current="page" @endif
            aria-label="Pesanan">
@@ -112,7 +112,7 @@
     transition: color 0.2s ease;
     -webkit-tap-highlight-color: transparent;
 }
-.admin-nav__item.is-active { color: #0077b6; }
+.admin-nav__item.is-active { color: #85092d; }
 .admin-nav__item.is-active .admin-nav__icon svg { stroke-width: 2.6; }
 .admin-nav__icon {
     position: relative;
@@ -123,7 +123,7 @@
 .admin-nav__badge {
     position: absolute;
     top: -6px; right: -8px;
-    background: #FF6B35;
+    background: #b63050;
     color: #fff;
     font-size: 0.55rem;
     font-weight: 900;
@@ -147,7 +147,7 @@
     position: absolute;
     bottom: -2px;
     width: 4px; height: 4px;
-    background: #0077b6;
+    background: #85092d;
     border-radius: 50%;
 }
 @media (prefers-reduced-motion: reduce) { .admin-nav__item { transition: none; } }

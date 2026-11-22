@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Voucher;
 use App\Models\RentalOrder;
 use App\Models\RentalOrderUnit;
+use App\Models\RentalPayment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
@@ -147,7 +148,14 @@ class DashboardController extends Controller
             return Voucher::where('is_active', true)->count();
         });
 
+        $rentalPending = RentalOrderUnit::where('status', 'pending')->count();
+        $rentalActive = RentalOrderUnit::where('status', 'confirmed')->where('progress', '!=', 'returned')->count();
+        $rentalPaymentPending = RentalPayment::where('status', 'pending')->count();
+        $rentalReview = RentalOrderUnit::where('status', 'confirmed')->where('payment_review_hold', true)->count();
+        $recentRentalOrders = RentalOrder::with('customer')->withCount('units')->latest()->take(5)->get();
+
         return view('roles.admin.dashboard', compact(
+            'rentalPending', 'rentalActive', 'rentalPaymentPending', 'rentalReview', 'recentRentalOrders',
             'jumlahDiproses',
             'jumlahPrioritas',
             'jumlahSelesaiHari',

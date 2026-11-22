@@ -2,8 +2,8 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Dashboard Admin – Azka Laundry</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Dashboard Admin – Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 {{-- Canonical Design System tokens (single source of truth). Standalone page:
      not compiled through Vite, so include tokens directly in <head>. --}}
@@ -15,14 +15,14 @@
    _analytics_section.blade.php — jangan di-rename.
 ═══════════════════════════════════════════════════════════ */
 :root {
-    --blue:       #0077b6;
-    --blue-mid:   #0091cf;
-    --blue-dark:  #002f5c;
-    --blue-lt:    #e8f4fd;
-    --sky:        #48cae4;
+    --blue:       #85092d;
+    --blue-mid:   #ad3553;
+    --blue-dark:  #54051f;
+    --blue-lt:    #f9e8ec;
+    --sky:        #cf7488;
     --teal:       #0d9488;
     --teal-lt:    #ccfbf1;
-    --orange:     #FF6B35;
+    --orange:     #a92143;
     --amber:      #f59e0b;
     --orange-lt:  #fff1ea;
     --green:      #059669;
@@ -31,7 +31,7 @@
     --red-lt:     #fff1f1;
     --violet:     #6366f1;
     --violet-lt:  #eef0ff;
-    --surface:    #eef4fa;
+    --surface:    #faf4f3;
     --card:       #ffffff;
     --ink:        #112030;
     --ink-mid:    #46586c;
@@ -70,7 +70,7 @@ body {
     overflow: hidden;
     background:
         radial-gradient(135% 110% at 88% -25%, rgba(72,202,228,0.55) 0%, transparent 48%),
-        linear-gradient(140deg, #0077b6 0%, #0090cd 52%, #00a6d6 100%);
+        linear-gradient(140deg, #85092d 0%, #0090cd 52%, #00a6d6 100%);
     padding-top: max(env(safe-area-inset-top, 0px), 12px);
     padding-bottom: 46px;
 }
@@ -234,7 +234,7 @@ body {
 .driver-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 6px; margin: 0 -2px; scrollbar-width: none; }
 .driver-scroll::-webkit-scrollbar { display: none; }
 .driver-chip { display: flex; align-items: center; gap: 9px; background: var(--card); border: 1px solid var(--border); border-radius: 99px; padding: 7px 14px 7px 7px; box-shadow: var(--shadow); flex-shrink: 0; }
-.driver-chip__av { position: relative; width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(145deg, #e8f4fd, #d3ecfb); color: var(--blue-dark); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 800; flex-shrink: 0; }
+.driver-chip__av { position: relative; width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(145deg, #f9e8ec, #d3ecfb); color: var(--blue-dark); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 800; flex-shrink: 0; }
 .driver-chip__dot { position: absolute; bottom: -1px; right: -1px; width: 11px; height: 11px; border-radius: 50%; background: #22c55e; border: 2px solid var(--card); }
 .driver-chip__name { font-size: 0.8rem; font-weight: 800; color: var(--ink); line-height: 1; }
 .driver-chip__role { font-size: 0.62rem; font-weight: 700; color: var(--green); margin-top: 3px; }
@@ -257,314 +257,48 @@ body {
 </style>
 </head>
 <body>
-<a href="{{ route('admin.catalog.index') }}" style="display:block;padding:12px;text-align:center;background:#85092d;color:white;font-weight:800;text-decoration:none">Kelola Katalog Berkah Kreatif</a>
-
 @php
-    $fullName  = trim(auth()->user()->name ?? 'Admin');
+    $fullName = trim(auth()->user()->name ?? 'Admin');
     $adminName = explode(' ', $fullName)[0] ?: 'Admin';
-    $initial   = mb_strtoupper(mb_substr($adminName, 0, 1));
-    $jam       = (int) now()->format('H');
-    $sapaan    = $jam < 11 ? 'Selamat pagi' : ($jam < 15 ? 'Selamat siang' : ($jam < 19 ? 'Selamat sore' : 'Selamat malam'));
-    $tanggal   = \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM YYYY');
-    $perluAksi = (int) ($jumlahPrioritas ?? 0);
-    $pickupLabels = ['pagi' => 'Pagi · 08–11', 'siang' => 'Siang · 11–15', 'sore' => 'Sore · 15–18'];
+    $initial = mb_strtoupper(mb_substr($adminName, 0, 1));
+    $jam = (int) now('Asia/Jakarta')->format('H');
+    $sapaan = $jam < 11 ? 'Selamat pagi' : ($jam < 15 ? 'Selamat siang' : ($jam < 19 ? 'Selamat sore' : 'Selamat malam'));
+    $tanggal = now('Asia/Jakarta')->locale('id')->isoFormat('dddd, D MMMM YYYY');
 @endphp
-
-{{-- ══════════════════════════════════════════════
-     HERO
-══════════════════════════════════════════════ --}}
 <header class="hero">
-    <div class="hero__bubble" style="width:120px;height:120px;top:-46px;right:-22px;opacity:.55;"></div>
-    <div class="hero__bubble" style="width:42px;height:42px;top:26px;right:128px;opacity:.4;"></div>
-    <div class="hero__bubble" style="width:20px;height:20px;top:78px;left:38px;opacity:.3;"></div>
-
-    <div class="hero__inner">
-        {{-- App bar --}}
-        <div class="appbar">
-            <div class="brand">
-                <span class="brand__logo" aria-hidden="true">
-                    <svg viewBox="0 0 148 148" fill="none">
-                        <rect x="22" y="26" width="104" height="96" rx="20" fill="rgba(255,255,255,.18)" stroke="rgba(255,255,255,.55)" stroke-width="3.5"/>
-                        <rect x="22" y="26" width="104" height="26" rx="15" fill="rgba(255,255,255,.24)"/>
-                        <circle cx="42" cy="39" r="5.5" fill="#FF6B35"/>
-                        <circle cx="60" cy="39" r="5.5" fill="#00C48C"/>
-                        <circle cx="74" cy="88" r="29" fill="rgba(255,255,255,.16)" stroke="rgba(255,255,255,.7)" stroke-width="3.5"/>
-                        <path d="M63 86 Q74 75 85 86 L81 99 H67Z" fill="#fff" opacity=".92"/>
-                    </svg>
-                </span>
-                <div>
-                    <span class="brand__name">Azka Laundry</span>
-                    <span class="brand__tag">Admin Panel</span>
-                </div>
-            </div>
-            <a href="{{ route('admin.notifications') }}" class="notif-btn" aria-label="Notifikasi">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-                @if(($adminUnread ?? 0) > 0)
-                    <span class="notif-badge">{{ $adminUnread > 9 ? '9+' : $adminUnread }}</span>
-                @endif
-            </a>
-        </div>
-
-        {{-- Greeting --}}
-        <div class="greet">
-            <div class="greet__avatar" aria-hidden="true">{{ $initial }}</div>
-            <div class="greet__text">
-                <div class="greet__hi">{{ $sapaan }},</div>
-                <h1 class="greet__name">{{ $adminName }}</h1>
-                <span class="greet__date">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                    {{ $tanggal }}
-                </span>
-            </div>
-        </div>
-
-        {{-- Operational pulse --}}
-        @if($perluAksi > 0)
-        <a href="{{ route('admin.orders') }}" class="pulse">
-            <span class="pulse__dot" aria-hidden="true"></span>
-            <span class="pulse__txt"><b>{{ $perluAksi }} pesanan</b> menunggu ditugaskan ke kurir</span>
-            <svg class="pulse__arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </a>
-        @else
-        <div class="pulse">
-            <span class="pulse__dot pulse__dot--ok" aria-hidden="true"></span>
-            <span class="pulse__txt">Semua pesanan sudah tertangani. Kerja bagus!</span>
-        </div>
-        @endif
+    <span style="position:absolute;right:12%;top:20px;color:#ffffff88;font-size:36px" aria-hidden="true">✿</span>
+    <div class="hero__inner"><div class="appbar"><div class="brand"><span class="brand__logo"><img src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt="" style="width:100%;height:100%;object-fit:contain;border-radius:12px;background:white"></span><div><span class="brand__name">Berkah Kreatif</span><span class="brand__tag">Admin Panel</span></div></div></div>
+        <div class="greet"><div class="greet__avatar" aria-hidden="true">{{ $initial }}</div><div class="greet__text"><div class="greet__hi">{{ $sapaan }},</div><h1 class="greet__name">{{ $adminName }}</h1><span class="greet__date">{{ $tanggal }} · WIB</span></div></div>
+        <a href="{{ route('admin.rental.orders') }}" class="pulse"><span class="pulse__dot" aria-hidden="true"></span><span class="pulse__txt"><b>{{ $rentalPending }} unit</b> menunggu konfirmasi · {{ $rentalPaymentPending }} bukti menunggu pemeriksaan</span></a>
     </div>
-
-    {{-- Wave --}}
-    <svg class="hero__wave" viewBox="0 0 414 46" preserveAspectRatio="none" aria-hidden="true">
-        <path fill="#eef4fa" d="M0,24 C70,46 150,6 230,24 C300,40 360,12 414,22 L414,46 L0,46Z"/>
-    </svg>
+    <svg class="hero__wave" viewBox="0 0 414 46" preserveAspectRatio="none" aria-hidden="true"><path fill="#faf4f3" d="M0,24 C70,46 150,6 230,24 C300,40 360,12 414,22 L414,46 L0,46Z"/></svg>
 </header>
-
-{{-- ══════════════════════════════════════════════
-     STAT TILES
-══════════════════════════════════════════════ --}}
-<section class="stats">
-    <div class="stat reveal d1">
-        <div class="stat__ico stat__ico--blue" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 4.27 16.5 9.4M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg>
-        </div>
-        <div class="stat__val">{{ $jumlahDiproses ?? 0 }}</div>
-        <div class="stat__lbl">Diproses</div>
-    </div>
-    <div class="stat reveal d2">
-        <div class="stat__ico stat__ico--orange" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>
-        </div>
-        <div class="stat__val">{{ $jumlahPrioritas ?? 0 }}</div>
-        <div class="stat__lbl">Belum Jemput</div>
-    </div>
-    <div class="stat reveal d3">
-        <div class="stat__ico stat__ico--green" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
-        </div>
-        <div class="stat__val">{{ $jumlahSelesaiHari ?? 0 }}</div>
-        <div class="stat__lbl">Selesai Ini</div>
-    </div>
+<section class="stats" aria-label="Ringkasan unit sewa">
+    <div class="stat reveal d1"><div class="stat__ico stat__ico--blue" aria-hidden="true">🌸</div><div class="stat__val">{{ $rentalActive }}</div><div class="stat__lbl">Unit aktif</div></div>
+    <div class="stat reveal d2"><div class="stat__ico stat__ico--orange" aria-hidden="true">📋</div><div class="stat__val">{{ $rentalPending }}</div><div class="stat__lbl">Menunggu</div></div>
+    <div class="stat reveal d3"><div class="stat__ico stat__ico--green" aria-hidden="true">🔎</div><div class="stat__val">{{ $rentalReview }}</div><div class="stat__lbl">Tinjau manual</div></div>
 </section>
-
-{{-- ══════════════════════════════════════════════
-     BODY
-══════════════════════════════════════════════ --}}
 <main class="body">
-
-    {{-- Revenue --}}
-    <section class="revenue reveal d3" style="margin-top:18px;">
-        <div class="revenue__head">
-            <span class="revenue__ico" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Z"/><path d="M16 12h.01"/><path d="M3 9h18"/></svg>
-            </span>
-            <span class="revenue__cap">Pemasukan Hari Ini</span>
-        </div>
-        <div class="revenue__val"><span>Rp</span> {{ number_format($pemasukanHari ?? 0, 0, ',', '.') }}</div>
-        <div class="revenue__foot">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7h6v6"/><path d="m22 7-8.5 8.5-5-5L2 17"/></svg>
-            <span class="revenue__foot-txt">Bulan ini <b>Rp {{ number_format($pemasukanBulan ?? 0, 0, ',', '.') }}</b></span>
-        </div>
+    <section class="revenue reveal d3" style="margin-top:18px"><div class="revenue__head"><span class="revenue__cap">Pemasukan hari ini · seluruh buku kas</span></div><div class="revenue__val"><span>Rp</span> {{ number_format($pemasukanHari ?? 0, 0, ',', '.') }}</div><div class="revenue__foot"><span class="revenue__foot-txt">Bulan ini <b>Rp {{ number_format($pemasukanBulan ?? 0, 0, ',', '.') }}</b></span></div></section>
+    <section class="section reveal"><div class="section__head"><div><div class="section__title">Pesanan sewa terbaru</div><div class="section__title-sm">Periksa setiap unit secara terpisah</div></div><a href="{{ route('admin.rental.orders') }}" class="section__link">Semua →</a></div>
+        @forelse($recentRentalOrders as $order)
+        <a href="{{ route('admin.rental.orders') }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">💐</span><span class="quick-item__label" style="overflow-wrap:anywhere">{{ $order->customer?->name ?? 'Pelanggan tidak tersedia' }} · {{ $order->units_count }} unit<br><small>{{ $order->reference }}</small></span></a>
+        @empty
+        <div class="driver-empty">Belum ada pesanan sewa.</div>
+        @endforelse
     </section>
-
-    {{-- Perlu Ditugaskan --}}
-    <section class="section reveal d4">
-        <div class="section__head">
-            <div>
-                <div class="section__title">Perlu Ditugaskan</div>
-                <div class="section__title-sm">Pesanan baru yang menunggu kurir</div>
-            </div>
-            <a href="{{ route('admin.orders') }}" class="section__link">
-                Semua
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-            </a>
-        </div>
-        <div class="order-scroll">
-            @forelse(($orderPrioritas ?? collect()) as $order)
-            @php
-                $cust = $order->customer->name ?? 'Customer';
-                $ci = mb_strtoupper(mb_substr($cust, 0, 1));
-                $pickupTxt = $pickupLabels[$order->pickup_time] ?? ($order->pickup_time ?: 'Belum dijadwalkan');
-            @endphp
-            <article class="order-card">
-                <div class="order-card__top">
-                    <div class="order-card__user">
-                        <div class="order-card__avatar" aria-hidden="true">{{ $ci }}</div>
-                        <div>
-                            <div class="order-card__name">{{ Str::limit($cust, 15) }}</div>
-                            <div class="order-card__code">#{{ strtoupper($order->order_code) }}</div>
-                        </div>
-                    </div>
-                    <span class="order-card__badge">Baru</span>
-                </div>
-                <div class="order-card__meta">
-                    <div class="order-card__meta-row">
-                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                        <span>{{ Str::limit($order->address ?? 'Alamat belum diisi', 32) }}</span>
-                    </div>
-                    <div class="order-card__meta-row">
-                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-                        <span>Dijemput {{ $pickupTxt }}</span>
-                    </div>
-                </div>
-                <a href="{{ route('admin.orders') }}" class="order-card__btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m17 11 2 2 4-4"/></svg>
-                    Tugaskan Kurir
-                </a>
-            </article>
-            @empty
-            <div class="order-empty">
-                <div class="order-empty__ico" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>
-                </div>
-                <p>Tidak ada pesanan yang menunggu.<br>Semua sudah ditugaskan ke kurir.</p>
-            </div>
-            @endforelse
-        </div>
-    </section>
-
-    {{-- Kurir Aktif --}}
-    <section class="section reveal d4">
-        <div class="section__head">
-            <div>
-                <div class="section__title">Kurir Bertugas</div>
-                <div class="section__title-sm">{{ ($daftarDriver ?? collect())->count() }} kurir aktif hari ini</div>
-            </div>
-            <a href="{{ route('admin.orders') }}" class="section__link">
-                Atur
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-            </a>
-        </div>
-        <div class="driver-scroll">
-            @forelse(($daftarDriver ?? collect()) as $drv)
-            <div class="driver-chip">
-                <div class="driver-chip__av" aria-hidden="true">
-                    {{ mb_strtoupper(mb_substr($drv->name, 0, 1)) }}
-                    <span class="driver-chip__dot"></span>
-                </div>
-                <div>
-                    <div class="driver-chip__name">{{ Str::limit(explode(' ', $drv->name)[0], 12) }}</div>
-                    <div class="driver-chip__role">Siap antar-jemput</div>
-                </div>
-            </div>
-            @empty
-            <div class="driver-empty">Belum ada kurir aktif. Aktifkan kurir di menu pengaturan.</div>
-            @endforelse
-        </div>
-    </section>
-
-    {{-- Aksi Cepat --}}
-    <section class="section reveal d5">
-        <div class="section__head">
-            <span class="section__title">Aksi Cepat</span>
-        </div>
-        <div class="quick-grid">
-            <a href="{{ route('admin.walkin.form') }}" class="quick-item">
-                <span class="quick-item__icon" style="background:var(--green-lt); color:var(--green);">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
-                </span>
-                <span class="quick-item__label">Pesanan Walk-in</span>
-            </a>
-            <a href="{{ route('admin.finance.index') }}" class="quick-item">
-                <span class="quick-item__icon" style="background:#fff7e6; color:#b45309;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Z"/><path d="M16 12h.01M3 9h18"/></svg>
-                </span>
-                <span class="quick-item__label">Laporan Keuangan</span>
-            </a>
-            <a href="{{ route('admin.reports') }}" class="quick-item">
-                <span class="quick-item__icon" style="background:var(--red-lt); color:var(--red);">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4M12 17h.01"/></svg>
-                </span>
-                <span class="quick-item__label">Laporan Kendala</span>
-            </a>
-            <a href="{{ route('admin.orders') }}?status=selesai" class="quick-item">
-                <span class="quick-item__icon" style="background:var(--teal-lt); color:var(--teal);">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M11 12H3M16 6H3M16 18H3M18 9l3 3-3 3"/></svg>
-                </span>
-                <span class="quick-item__label">Pesanan Selesai</span>
-            </a>
-            <a href="{{ route('admin.vouchers.index') }}" class="quick-item">
-                <span class="quick-item__icon" style="background:var(--orange-lt); color:#c2410c;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2M13 17v2M13 11v2"/></svg>
-                </span>
-                <span class="quick-item__label">Voucher Promo</span>
-            </a>
-            <a href="{{ route('admin.categories.index') }}" class="quick-item">
-                <span class="quick-item__icon" style="background:var(--blue-lt); color:var(--blue);">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
-                </span>
-                <span class="quick-item__label">Kategori &amp; Layanan</span>
-            </a>
-            <a href="{{ route('admin.audit.index') }}" class="quick-item">
-                <span class="quick-item__icon" style="background:#f1f5f9; color:#475569;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v5h5M9 13h6M9 17h4"/></svg>
-                </span>
-                <span class="quick-item__label">Audit Trail</span>
-            </a>
-            <a href="{{ route('admin.notifications') }}" class="quick-item">
-                <span class="quick-item__icon" style="background:var(--violet-lt); color:var(--violet);">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-                </span>
-                <span class="quick-item__label">Notifikasi</span>
-            </a>
-        </div>
-    </section>
-
-    {{-- Analitik 30 Hari --}}
-    @include('roles.admin._analytics_section')
-
-    {{-- Logout --}}
-    <div class="logout-section reveal">
-        <form action="{{ route('logout') }}" method="POST" id="form-logout">
-            @csrf
-            <button type="button" class="logout-btn" id="btn-logout">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>
-                Keluar dari Akun
-            </button>
-        </form>
-    </div>
-    <div class="version-tag">Azka Laundry v{{ \App\Support\Laundry::version() }} &bull; Admin Panel</div>
-
+    <section class="section reveal"><div class="section__head"><div class="section__title">Aksi Cepat</div></div><div class="quick-grid">
+        <a href="{{ route('admin.rental.orders') }}" class="quick-item"><span class="quick-item__icon">📋</span><span class="quick-item__label">Pesanan sewa</span></a>
+        <a href="{{ route('admin.catalog.index') }}" class="quick-item"><span class="quick-item__icon">🌷</span><span class="quick-item__label">Kelola katalog</span></a>
+        <a href="{{ route('admin.rental.universities.index') }}" class="quick-item"><span class="quick-item__icon">📍</span><span class="quick-item__label">Tarif universitas</span></a>
+        <a href="{{ route('admin.rental.cashbook.index') }}" class="quick-item"><span class="quick-item__icon">📒</span><span class="quick-item__label">Buku kas</span></a>
+        <a href="{{ route('admin.rental.payment-settings.edit') }}" class="quick-item"><span class="quick-item__icon">💳</span><span class="quick-item__label">Petunjuk pembayaran</span></a>
+        <a href="{{ route('admin.audit.index') }}" class="quick-item"><span class="quick-item__icon">🔐</span><span class="quick-item__label">Audit trail</span></a>
+    </div></section>
+    <p style="color:#806975;font-size:.78rem;margin-top:20px">Sistem masih dalam pengujian dan belum untuk transaksi nyata. Ringkasan buku kas dapat mencakup data lama.</p>
+    <div class="logout-section"><form action="{{ route('logout') }}" method="POST">@csrf<button type="submit" class="logout-btn">Keluar dari Akun</button></form></div>
+    <div class="version-tag">Berkah Kreatif · Admin Panel</div>
 </main>
-
 @include('layouts.component.admin._navbar_admin', ['active' => 'beranda'])
-@include('layouts.component._confirm_modal')
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    var btnLogout = document.getElementById('btn-logout');
-    if (btnLogout) {
-        btnLogout.addEventListener('click', function () {
-            showConfirmModal({
-                title: 'Keluar dari Akun?',
-                message: 'Kamu akan keluar dari sesi ini. Yakin ingin melanjutkan?',
-                confirmText: 'Ya, Keluar',
-                cancelText: 'Batal',
-                type: 'danger',
-                onConfirm: function () { document.getElementById('form-logout').submit(); }
-            });
-        });
-    }
-});
-</script>
 </body>
 </html>
