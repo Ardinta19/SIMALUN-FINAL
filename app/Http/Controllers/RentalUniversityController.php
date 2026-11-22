@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\RentalUniversity;
+use App\Support\Audit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -16,13 +17,23 @@ class RentalUniversityController extends Controller
 
     public function store(Request $request)
     {
-        RentalUniversity::create($this->validated($request));
+        $data = $this->validated($request);
+        DB::transaction(function () use ($data) {
+            $university = RentalUniversity::create($data);
+            Audit::log('rental.university.create', $university, after: $this->snapshot($university->refresh()));
+        });
         return back()->with('success', 'Universitas dan tarif ditambahkan.');
     }
 
     public function update(Request $request, RentalUniversity $university)
     {
-        $university->update($this->validated($request, $university));
+        $data = $this->validated($request, $university);
+        DB::transaction(function () use ($university, $data) {
+            $locked = RentalUniversity::lockForUpdate()->findOrFail($university->id);
+            $before = $this->snapshot($locked);
+            $locked->update($data);
+            Audit::log('rental.university.update', $locked, before: $before, after: $this->snapshot($locked));
+        });
         return back()->with('success', 'Tarif diperbarui; pesanan lama tidak berubah.');
     }
 
@@ -30,9 +41,16 @@ class RentalUniversityController extends Controller
     {
         DB::transaction(function () use ($university) {
             $university = RentalUniversity::lockForUpdate()->findOrFail($university->id);
+            $before = $this->snapshot($university);
             $university->update(['is_active' => ! $university->is_active]);
+            Audit::log('rental.university.toggle', $university, before: $before, after: $this->snapshot($university));
         });
         return back()->with('success', 'Status universitas diperbarui.');
+    }
+
+    private function snapshot(RentalUniversity $university): array
+    {
+        return $university->only(['name', 'delivery_fee', 'collection_fee', 'is_active']);
     }
 
     private function validated(Request $request, ?RentalUniversity $university = null): array

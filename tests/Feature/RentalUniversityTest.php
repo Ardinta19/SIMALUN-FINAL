@@ -37,4 +37,18 @@ class RentalUniversityTest extends TestCase
         $this->actingAs($customer)->post(route('rental.transport.approve', $ordered), ['version' => 1])->assertSessionHasNoErrors();
         $this->assertSame(150000, $ordered->fresh()->payableAmount());
     }
+    public function test_university_rate_changes_are_audited(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($admin)->post(route('admin.rental.universities.store'), ['name' => 'Kampus', 'delivery_fee' => 20000, 'collection_fee' => 30000])->assertSessionHasNoErrors();
+        $university = RentalUniversity::firstOrFail();
+        $this->put(route('admin.rental.universities.update', $university), ['name' => 'Kampus Baru', 'delivery_fee' => 25000, 'collection_fee' => 35000])->assertSessionHasNoErrors();
+        $this->patch(route('admin.rental.universities.toggle', $university))->assertSessionHasNoErrors();
+        foreach (['create', 'update', 'toggle'] as $action) {
+            $this->assertDatabaseHas('audit_logs', ['actor_id' => $admin->id, 'action' => 'rental.university.'.$action, 'auditable_id' => $university->id]);
+        }
+        $log = \App\Models\AuditLog::where('action', 'rental.university.update')->firstOrFail();
+        $this->assertSame(20000, (int) $log->before['delivery_fee']);
+        $this->assertSame(25000, (int) $log->after['delivery_fee']);
+    }
 }
