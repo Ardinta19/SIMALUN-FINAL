@@ -9,26 +9,34 @@ use Illuminate\Validation\ValidationException;
 
 class RentalAvailability
 {
-    // Caller holds the product row lock throughout the transaction.
-    public function assertAvailable(RentalProduct $product, RentalOrderUnit $unit): void
+    // This is an estimate unless the caller holds the product row lock for the transaction.
+    public function minimumAvailable(RentalProduct $product, string $startsOn, string $endsOn): int
     {
-        if (! $product->is_active || ! $product->category->is_active) throw ValidationException::withMessages(['unit' => 'Papan tidak aktif.']);
         $overlaps = RentalOrderUnit::where('rental_product_id', $product->id)->where('status', 'confirmed')
-            ->whereDate('starts_on', '<=', $unit->ends_on->toDateString())->whereDate('ends_on', '>=', $unit->starts_on->toDateString())->get(['starts_on', 'ends_on']);
+            ->whereDate('starts_on', '<=', $endsOn)->whereDate('ends_on', '>=', $startsOn)->get(['starts_on', 'ends_on']);
         $events = [];
         foreach ($overlaps as $existing) {
-            $start = max($existing->starts_on->toDateString(), $unit->starts_on->toDateString());
-            $end = min($existing->ends_on->toDateString(), $unit->ends_on->toDateString());
+            $start = max($existing->starts_on->toDateString(), $startsOn);
+            $end = min($existing->ends_on->toDateString(), $endsOn);
             $events[$start] = ($events[$start] ?? 0) + 1;
             $after = CarbonImmutable::parse($end)->addDay()->toDateString();
             $events[$after] = ($events[$after] ?? 0) - 1;
         }
         ksort($events);
-        $reserved = 0;
+        $reserved = 0; $maximum = 0;
         foreach ($events as $change) {
             $reserved += $change;
-            if ($reserved >= $product->stock) throw ValidationException::withMessages(['unit' => 'Stok tidak cukup pada periode tersebut.']);
+            $maximum = max($maximum, $reserved);
         }
-        if ($product->stock < 1) throw ValidationException::withMessages(['unit' => 'Stok tidak cukup pada periode tersebut.']);
+        return max(0, (int) $product->stock - $maximum);
+    }
+
+    // Caller holds the product row lock throughout the transaction.
+    public function assertAvailable(RentalProduct $product, RentalOrderUnit $unit): void
+    {
+        if (! $product->is_active || ! $product->category->is_active) throw ValidationException::withMessages(['unit' => 'Papan tidak aktif.']);
+        if ($this->minimumAvailable($product, $unit->starts_on->toDateString(), $unit->ends_on->toDateString()) < 1) {
+            throw ValidationException::withMessages(['unit' => 'Stok tidak cukup pada periode tersebut.']);
+        }
     }
 }
