@@ -41,8 +41,8 @@ class RentalOrderController extends Controller
         $data = $request->validate([
             'units' => ['required', 'array'], 'terms' => ['accepted'],
             'units.*.package_id' => ['nullable', 'integer', 'min:1'],
-            'units.*.starts_on' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
-            'units.*.event_on' => ['required', 'date_format:Y-m-d'],
+            'units.*.starts_on' => ['nullable', 'date_format:Y-m-d'],
+            'units.*.event_on' => ['required', 'date_format:Y-m-d', 'after_or_equal:'.now('Asia/Jakarta')->toDateString()],
             'units.*.ends_on' => ['required', 'date_format:Y-m-d'],
             'units.*.recipient_name' => ['required', 'string', 'max:160'],
             'units.*.greeting' => ['required', 'string', 'max:1000'],
@@ -60,7 +60,11 @@ class RentalOrderController extends Controller
         foreach (array_keys($cart) as $index => $key) {
             $unit = $data['units'][$key];
             $label = 'Unit '.($index + 1).': ';
-            if ($unit['event_on'] < $unit['starts_on'] || $unit['ends_on'] < $unit['event_on']) throw ValidationException::withMessages(['units' => $label.'tanggal acara harus berada dalam periode sewa.']);
+            if (! empty($unit['starts_on']) && $unit['starts_on'] !== $unit['event_on']) throw ValidationException::withMessages(['units' => $label.'tanggal acara dan penerimaan harus sama. Muat ulang halaman checkout.']);
+            if ($unit['ends_on'] < $unit['event_on']) throw ValidationException::withMessages(['units' => $label.'tanggal pengembalian tidak boleh sebelum tanggal acara dan penerimaan.']);
+            $data['units'][$key]['starts_on'] = $unit['event_on'];
+            if ($unit['delivery_method'] !== 'delivery') $data['units'][$key]['delivery_address'] = null;
+            if ($unit['return_method'] !== 'collection') $data['units'][$key]['return_address'] = null;
             if ($unit['delivery_method'] === 'delivery' && empty($unit['delivery_address'])) throw ValidationException::withMessages(['units' => $label.'alamat pengantaran wajib diisi.']);
             if ($unit['return_method'] === 'collection' && empty($unit['return_address'])) throw ValidationException::withMessages(['units' => $label.'alamat pengambilan kembali wajib diisi.']);
         }

@@ -8,7 +8,7 @@ Snapshot setelah pengujian Windows pada commit `54c6a1e`: **178 tes lulus, 768 a
 | --- | --- | --- |
 | Publik dan akun | Katalog, kategori, foto, perkiraan stok berbasis tanggal, keranjang sesi, pesan langsung, login/registrasi | Coba tampilan dan navigasi berbagai perangkat; sesi lintas browser/perangkat tidak disinkronkan; periksa alur Google secara nyata. |
 | Katalog admin | Kelola produk, kategori, stok, paket durasi dan tarif universitas | Uji perubahan katalog bersamaan dengan transaksi; siklus penggantian foto dan audit perubahan belum lengkap. |
-| Checkout | Beberapa unit terpisah, tanggal dan rincian desain/serah terima, harga dan tarif snapshot, persetujuan ketentuan | Uji banyak unit dan input batas di browser; hindari klik ganda; validasi dan penyimpanan tidak menjamin stok. |
+| Checkout | Beberapa unit terpisah, tanggal acara sekaligus penerimaan per unit dan tanggal pengembalian, rincian desain/serah terima, harga dan tarif snapshot, persetujuan ketentuan; pesanan lama tetap mempertahankan tanggalnya | Uji banyak unit dan input batas di browser; hindari klik ganda; validasi dan penyimpanan tidak menjamin stok. |
 | Reservasi | Konfirmasi, stok berdasarkan irisan tanggal, pembatalan dan riwayat, pelanjutan, pembatalan otomatis setelah 24 jam | Uji transaksi bersamaan pada MySQL dan scheduler nyata. Periksa penanganan jadwal dekat dan semua interleaving pembatalan/pelanjutan. |
 | Ongkos | Tarif universitas atau penawaran manual per unit dan persetujuan pelanggan | Uji perubahan penawaran, metode, batas nominal dan peninjauan manual dalam alur lengkap. |
 | Desain | Preview privat berversi, persetujuan/revisi, kontrol sebelum pengerjaan | Uji unggahan, akses silang, kegagalan storage dan penggunaan nyata pada perangkat. |

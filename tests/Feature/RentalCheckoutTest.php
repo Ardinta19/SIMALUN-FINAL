@@ -70,6 +70,30 @@ class RentalCheckoutTest extends TestCase
         $this->assertDatabaseCount('rental_orders', 0);
     }
 
+    public function test_checkout_uses_one_date_for_event_and_receipt_and_preserves_old_orders(): void
+    {
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 2]);
+        $customer = User::factory()->create(); $customer->forceFill(['role' => 'customer'])->save();
+        $this->actingAs($customer)->post(route('cart.store', $product), ['quantity' => 1]);
+        $key = array_key_first(session('rental_cart'));
+        $this->get(route('rental.checkout'))->assertOk()->assertSee('Tanggal acara dan penerimaan')->assertDontSee('name="units['.$key.'][starts_on]"', false);
+        $event = now('Asia/Jakarta')->addDays(3)->toDateString();
+        $end = now('Asia/Jakarta')->addDays(4)->toDateString();
+        $unit = ['event_on' => $event, 'ends_on' => $end, 'recipient_name' => 'Penerima', 'greeting' => 'Selamat', 'delivery_method' => 'pickup', 'return_method' => 'dropoff'];
+        $this->from(route('rental.checkout'))->post(route('rental.checkout.store'), ['terms' => 1, 'units' => [$key => $unit + ['starts_on' => now('Asia/Jakarta')->addDays(2)->toDateString()]]])->assertSessionHasErrors('units');
+        $this->assertDatabaseCount('rental_orders', 0);
+        $this->post(route('rental.checkout.store'), ['terms' => 1, 'units' => [$key => $unit]])->assertSessionHasNoErrors();
+        $order = RentalOrder::with('units')->firstOrFail();
+        $saved = $order->units->first();
+        $this->assertSame($event, $saved->starts_on->toDateString());
+        $this->assertSame($event, $saved->event_on->toDateString());
+        $this->assertSame(200, (int) $saved->rental_amount);
+        $this->get(route('rental.orders.show', $order))->assertOk()->assertSee('Acara dan penerimaan:');
+        $saved->update(['starts_on' => now('Asia/Jakarta')->addDays(2)->toDateString()]);
+        $this->get(route('rental.orders.show', $order))->assertOk()->assertSee('Penerimaan:')->assertSee('Acara:');
+    }
+
     public function test_customer_cannot_view_another_customers_order(): void
     {
         $owner = User::factory()->create();
