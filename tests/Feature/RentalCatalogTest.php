@@ -37,6 +37,16 @@ class RentalCatalogTest extends TestCase
         $this->assertDatabaseHas('rental_products', ['name' => 'Papan Merah', 'stock' => 3]);
     }
 
+    public function test_catalog_admin_form_survives_non_scalar_retry(): void
+    {
+        $admin = User::factory()->create(); $admin->forceFill(['role' => 'admin'])->save();
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $this->actingAs($admin)->from(route('admin.catalog.index'))->post(route('admin.catalog.store'), [
+            'rental_category_id' => $category->id, 'name' => ['Papan'], 'base_price' => ['100'], 'price_unit' => 'event', 'stock' => '1',
+        ])->assertRedirect(route('admin.catalog.index'))->assertSessionHasErrors(['name', 'base_price']);
+        $this->get(route('admin.catalog.index'))->assertOk()->assertDontSee('Array')->assertSee('name="name"', false);
+    }
+
     public function test_inactive_product_is_not_accessible(): void
     {
         $category = RentalCategory::create(['name' => 'Wisuda']);

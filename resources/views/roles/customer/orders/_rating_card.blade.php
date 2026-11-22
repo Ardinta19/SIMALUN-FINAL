@@ -190,7 +190,7 @@
             <div class="rating-stars">
                 @foreach([5, 4, 3, 2, 1] as $val)
                     <input type="radio" name="rating" id="rating-{{ $val }}" value="{{ $val }}"
-                           {{ old('rating') == $val ? 'checked' : '' }}>
+                           {{ is_scalar(old('rating')) && old('rating') == $val ? 'checked' : '' }}>
                     <label for="rating-{{ $val }}" title="{{ $val }} bintang">★</label>
                 @endforeach
             </div>
@@ -199,7 +199,7 @@
             @enderror
 
             <textarea name="comment" class="rating-textarea" maxlength="500"
-                      placeholder="Cerita sedikit pengalamanmu (opsional)...">{{ old('comment') }}</textarea>
+                      placeholder="Cerita sedikit pengalamanmu (opsional)...">{{ is_scalar(old('comment')) ? old('comment') : '' }}</textarea>
             @error('comment')
                 <div class="rating-error">{{ $message }}</div>
             @enderror
