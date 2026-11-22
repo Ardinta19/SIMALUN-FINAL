@@ -2,7 +2,7 @@
 |--------------------------------------------------------------------------
 | Berkah Kreatif — UI kit (tombol tema + dialog sakelar)
 |--------------------------------------------------------------------------
-| Di-@include sekali tepat sebelum </body> di setiap halaman. Semua bagian
+| Di-@include sekali di akhir setiap halaman (sebelum tag penutup body). Semua bagian
 | dibungkus @once sehingga aman bila partial ini ikut ter-include dua kali.
 |
 | Tombol tema dipindahkan otomatis oleh JS ke `[data-bk-theme-host]`

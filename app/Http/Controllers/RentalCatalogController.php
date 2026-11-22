@@ -18,6 +18,7 @@ class RentalCatalogController extends Controller
 {
     public function index(Request $request, RentalAvailability $availability)
     {
+        $this->flattenDateFilters($request);
         $filters = $request->validate([
             'q' => ['nullable', 'string', 'max:160'], 'category' => ['nullable', 'integer', 'min:1'],
             'starts_on' => ['nullable', 'required_with:ends_on', 'date_format:Y-m-d'],
@@ -49,6 +50,21 @@ class RentalCatalogController extends Controller
         return view('catalog.index', compact('products', 'categories', 'dates'));
     }
 
+    /**
+     * Input tanggal yang dikirim sebagai array (mis. ?starts_on[]=x) tidak
+     * boleh sampai ke aturan `after_or_equal` karena Laravel membandingkan
+     * nilainya sebagai string dan melempar TypeError. Ubah menjadi string
+     * kosong agar aturan `required` yang memberi pesan kesalahan.
+     */
+    private function flattenDateFilters(Request $request): void
+    {
+        foreach (['starts_on', 'ends_on'] as $field) {
+            if ($request->has($field) && ! is_scalar($request->input($field))) {
+                $request->merge([$field => '']);
+            }
+        }
+    }
+
     private function validateRentalPeriod(array $data): void
     {
         $start = CarbonImmutable::createFromFormat('!Y-m-d', $data['starts_on'], 'Asia/Jakarta');
@@ -65,6 +81,7 @@ class RentalCatalogController extends Controller
         if ($request->user()?->role === 'customer') $product->loadExists(['likes as liked_by_customer' => fn ($likes) => $likes->where('user_id', $request->user()->id)]);
         $product->load(['packages' => fn ($query) => $query->where('is_active', true)]);
         $available = null;
+        $this->flattenDateFilters($request);
         if ($request->has('starts_on') || $request->has('ends_on')) {
             $data = $request->validate(['starts_on' => ['required', 'date_format:Y-m-d'], 'ends_on' => ['required', 'date_format:Y-m-d', 'after_or_equal:starts_on']]);
             $this->validateRentalPeriod($data);

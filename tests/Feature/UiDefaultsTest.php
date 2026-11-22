@@ -34,6 +34,9 @@ class UiDefaultsTest extends TestCase
     {
         return collect(File::allFiles(resource_path('views')))
             ->filter(fn ($file) => str_ends_with($file->getFilename(), '.blade.php'))
+            // Partial (mis. _ui_kit, _theme_head, _form_controls) bukan halaman
+            // yang punya dokumen sendiri, walau komentarnya menyebut </body>.
+            ->filter(fn ($file) => ! str_starts_with($file->getFilename(), '_'))
             ->map(fn ($file) => str_replace('\\', '/', $file->getRelativePathname()))
             ->reject(fn (string $path) => collect(self::SKIP_PATHS)->contains(
                 fn (string $skip) => str_starts_with($path, $skip) || $path === $skip

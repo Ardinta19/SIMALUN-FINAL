@@ -137,7 +137,7 @@ document.querySelectorAll('[data-checkout-unit]').forEach((unit, index, units) =
             const source = previous.querySelector('[name$="[' + field + ']"]');
             const target = unit.querySelector('[name$="[' + field + ']"]');
             if (!source || !target) return;
-            if (target.tagName === 'SELECT' && !Array.from(target.options).some(option => option.value === source.value)) return;
+            if (target.tagName === 'SELECT' && ![...target.options].some(option => option.value === source.value)) return;
             target.value = source.value;
             target.dispatchEvent(new Event('change', { bubbles: true }));
         });

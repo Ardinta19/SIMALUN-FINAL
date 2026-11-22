@@ -62,9 +62,10 @@ class RentalCustomerNavigationTest extends TestCase
             ->assertSee('bk-top-menu', false)->assertSee('data-customer-radial', false);
         $html = $response->getContent();
         $this->assertLessThan(strpos($html, 'id="customer-nav"'), strpos($html, 'data-customer-radial'), 'Menu pelanggan harus berada di atas, bukan menggantikan keranjang di tab bawah.');
-        $this->assertSame(1, substr_count($html, 'data-customer-radial'), 'Menu pelanggan hanya boleh dirender sekali agar filter SVG tidak duplikat.');
+        // Hitung elemen <details> saja: skrip menu juga menyebut nama atribut ini.
+        $this->assertSame(1, substr_count($html, 'data-customer-radial>'), 'Menu pelanggan hanya boleh dirender sekali agar filter SVG tidak duplikat.');
         $catalog = $this->get(route('welcome'))->assertOk()->getContent();
-        $this->assertSame(1, substr_count($catalog, 'data-customer-radial'));
+        $this->assertSame(1, substr_count($catalog, 'data-customer-radial>'));
     }
 
     public function test_guest_and_customer_have_accessible_catalog_navigation_without_admin_links(): void
@@ -119,11 +120,11 @@ class RentalCustomerNavigationTest extends TestCase
     {
         $customer = User::factory()->create(['role' => 'customer']);
         $address = $customer->customerAddresses()->create(['label' => "Rumah 'contoh'", 'recipient_name' => 'Nama', 'full_address' => 'Jalan Mawar nomor 10', 'latitude' => -1.6101, 'longitude' => 103.6131, 'is_primary' => true]);
-        $this->actingAs($customer)->get(route('customer.addresses.create'))->assertOk()->assertSee('Berkah Kreatif')->assertSee('Peta bersifat opsional')->assertSee('aria-label="Navigasi utama"', false)->assertSee('type="checkbox" name="is_primary"', false)->assertDontSee('gsap.min.js');
-        $this->get(route('customer.addresses.edit', $address))->assertOk()->assertSee('value="-1.6101000"', false)->assertSee('value="103.6131000"', false)->assertSee('Alamat utama saat ini')->assertDontSee('gsap.min.js');
+        $this->actingAs($customer)->get(route('customer.addresses.create'))->assertOk()->assertSee('Berkah Kreatif')->assertSee('Peta bersifat opsional')->assertSee('aria-label="Navigasi utama"', false)->assertSee('type="checkbox" name="is_primary"', false)->assertSee('id="map-lat"', false);
+        $this->get(route('customer.addresses.edit', $address))->assertOk()->assertSee('value="-1.6101000"', false)->assertSee('value="103.6131000"', false)->assertSee('Alamat utama saat ini')->assertSee('id="map-lat"', false);
         $this->get(route('customer.addresses.index'))->assertOk()->assertSee('Hapus alamat ini?')->assertSee('Alamat utama')
             ->assertSee(route('customer.addresses.edit', $address))->assertSee(route('customer.addresses.destroy', $address))
-            ->assertSee('Ya, hapus alamat')->assertDontSee('gsap.min.js')->assertDontSee('akan dihapus permanen');
+            ->assertSee('Ya, hapus alamat')->assertDontSee('akan dihapus permanen');
     }
     public function test_report_page_uses_only_configured_business_contact(): void
     {

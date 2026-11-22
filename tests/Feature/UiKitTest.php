@@ -64,6 +64,12 @@ class UiKitTest extends TestCase
                 continue;
             }
 
+            // Partial (nama berawalan _) bukan halaman yang punya dokumen
+            // sendiri, walau komentarnya menyebut tag penutup body.
+            if (str_starts_with($file->getFilename(), '_')) {
+                continue;
+            }
+
             $relative = str_replace('\\', '/', $file->getRelativePathname());
             $html = File::get($file->getPathname());
 
@@ -109,6 +115,12 @@ class UiKitTest extends TestCase
 
         foreach (File::allFiles(resource_path('views')) as $file) {
             if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            // Partial (nama berawalan _) bukan halaman yang punya dokumen
+            // sendiri, walau komentarnya menyebut tag penutup body.
+            if (str_starts_with($file->getFilename(), '_')) {
                 continue;
             }
 
@@ -161,6 +173,12 @@ class UiKitTest extends TestCase
 
         foreach (File::allFiles(resource_path('views')) as $file) {
             if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            // Partial (nama berawalan _) bukan halaman yang punya dokumen
+            // sendiri, walau komentarnya menyebut tag penutup body.
+            if (str_starts_with($file->getFilename(), '_')) {
                 continue;
             }
 
