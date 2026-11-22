@@ -2,13 +2,13 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Laporan Kendala – Admin – Azka Laundry</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Laporan Kendala – Admin – Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 @include('layouts.component._tokens')
 <style>
 /* ═══════════════════════════════════════════════════════════
-   AZKA LAUNDRY · ADMIN · LAPORAN KENDALA
+   BERKAH KREATIF · ADMIN · LAPORAN KENDALA
    Design System — token-only styling, Lucide icons, pure-CSS motion.
 ═══════════════════════════════════════════════════════════ */
 :root {

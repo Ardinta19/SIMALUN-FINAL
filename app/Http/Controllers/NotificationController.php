@@ -20,7 +20,7 @@ class NotificationController extends Controller
 
     public function readAll()
     {
-        Auth::user()->unreadNotifications->markAsRead();
+        Auth::user()->unreadNotifications()->update(['read_at' => now()]);
 
         return back()->with('success', 'Semua notifikasi ditandai telah dibaca.');
     }
@@ -43,7 +43,10 @@ class NotificationController extends Controller
             $rentalOrder = RentalOrder::where('customer_id', Auth::id())->findOrFail($rentalOrderId);
             return redirect()->route('rental.orders.show', $rentalOrder);
         }
-        if ($rentalOrderId && Auth::user()->role === 'admin') return redirect()->route('admin.rental.orders');
+        if ($rentalOrderId && Auth::user()->role === 'admin') {
+            $rentalOrder = RentalOrder::find($rentalOrderId);
+            return redirect()->route('admin.rental.orders', $rentalOrder ? ['q' => $rentalOrder->reference] : []);
+        }
 
         $orderId = $notif->data['order_id'] ?? null;
         $role = Auth::user()->role;
@@ -75,8 +78,6 @@ class NotificationController extends Controller
 
         $notifikasiOperasional = RentalOrderUnit::with('order.customer')
             ->where('status', 'pending')->latest()->take(10)->get();
-
-        Auth::user()->unreadNotifications->markAsRead();
 
         return view('roles.admin.notifications', compact('notifications', 'notifikasiOperasional'));
     }

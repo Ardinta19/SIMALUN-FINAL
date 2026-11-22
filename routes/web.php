@@ -234,6 +234,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/audit', [AuditLogController::class, 'index'])->name('audit.index');
 
         Route::get('/notifications', [NotificationController::class, 'adminIndex'])->name('notifications');
+        Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
+        Route::get('/notifications/{id}/open', [NotificationController::class, 'markAndRedirect'])->name('notifications.open');
 
         Route::get('/profile', [ProfileController::class, 'adminShow'])->name('profile');
 

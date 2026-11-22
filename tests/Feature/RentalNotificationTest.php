@@ -6,6 +6,7 @@ use App\Models\RentalCategory;
 use App\Models\RentalOrder;
 use App\Models\RentalProduct;
 use App\Models\User;
+use App\Notifications\RentalUpdate;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -31,5 +32,22 @@ class RentalNotificationTest extends TestCase
         $this->get(route('customer.notifications.open', $notification->id))->assertRedirect(route('rental.orders.show', $order));
         $this->assertNotNull($notification->fresh()->read_at);
         $this->actingAs($admin)->get(route('admin.notifications'))->assertOk();
+    }
+    public function test_admin_can_review_notifications_individually_and_open_the_related_order(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $otherAdmin = User::factory()->create(['role' => 'admin']);
+        $customer = User::factory()->create(['role' => 'customer']);
+        $order = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $customer->id, 'confirmation_deadline' => now()->addDay()]);
+        $admin->notify(new RentalUpdate($order->id, 'Bukti baru', 'Periksa bukti pembayaran.'));
+        $admin->notify(new RentalUpdate($order->id, 'Pesanan baru', 'Periksa pesanan.'));
+        $notification = $admin->notifications()->firstOrFail();
+        $this->actingAs($admin)->get(route('admin.notifications'))->assertOk()->assertSee('Tandai semua dibaca')->assertSee(route('admin.notifications.open', $notification->id), false);
+        $this->assertSame(2, $admin->unreadNotifications()->count());
+        $this->actingAs($otherAdmin)->get(route('admin.notifications.open', $notification->id))->assertNotFound();
+        $this->actingAs($admin)->get(route('admin.notifications.open', $notification->id))->assertRedirect(route('admin.rental.orders', ['q' => $order->reference]));
+        $this->assertSame(1, $admin->unreadNotifications()->count());
+        $this->post(route('admin.notifications.read-all'))->assertSessionHasNoErrors();
+        $this->assertSame(0, $admin->unreadNotifications()->count());
     }
 }

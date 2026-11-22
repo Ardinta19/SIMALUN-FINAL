@@ -2,19 +2,21 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Notifikasi Admin – Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 @include('layouts.component._tokens')
 <style>
 /* ═══════════════════════════════════════════════════════════
-   AZKA LAUNDRY · ADMIN · NOTIFIKASI
+   BERKAH KREATIF · ADMIN · NOTIFIKASI
    Design System — token-only styling, Lucide icons, pure-CSS motion.
    All colors/radii/shadows/spacing reference canonical tokens
    emitted by layouts.component._tokens (mirrors tailwind.config.js).
 ═══════════════════════════════════════════════════════════ */
 :root {
-    /* Page-local aliases — only reference canonical tokens (no literals) */
+    --brand-100: #f8e9ed; --brand-500: #85092d; --brand-900: #54051f;
+    --surface-50: #faf4f3; --surface-100: #fff4f5; --surface-200: #f0dfe1; --surface-400: #6f5a63;
+    /* Page-local aliases */
     --ink:        var(--brand-900);
     --ink-muted:  var(--surface-400);
     --line:       var(--surface-200);
@@ -35,7 +37,7 @@ body {
 
 /* ── Entrance animation (pure CSS — transform/opacity only) ── */
 @keyframes riseIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-.reveal { opacity: 0; animation: riseIn .5s cubic-bezier(.22,.61,.36,1) forwards; }
+.reveal { animation: riseIn .5s cubic-bezier(.22,.61,.36,1) forwards; }
 .d1{animation-delay:.04s}.d2{animation-delay:.10s}.d3{animation-delay:.16s}
 @media (prefers-reduced-motion: reduce){ .reveal{opacity:1;animation:none} }
 
@@ -53,7 +55,14 @@ body {
     transition: transform .12s ease, background .15s ease;
 }
 .icon-btn:active { transform: scale(.94); background: var(--surface-100); }
-.appbar__title { font-size: 1.15rem; font-weight: 800; color: var(--brand-900); line-height: 1.1; }
+.appbar__title { flex: 1; font-size: 1.15rem; font-weight: 800; color: var(--brand-900); line-height: 1.1; }
+
+.read-all { border: 1px solid #d8b8c1; border-radius: 10px; padding: 8px; background: #fff; color: #85092d; font: inherit; font-size: .72rem; font-weight: 800; cursor: pointer; }
+.read-all:focus-visible, .notif:focus-visible, .queue-link:focus-visible { outline: 3px solid #bc5b75; outline-offset: 2px; }
+.queue-link { color: #85092d; font-size: .8rem; font-weight: 800; display: inline-block; margin-top: 8px; }
+.row > div { min-width: 0; }
+.row__title, .notif__msg { overflow-wrap: anywhere; }
+@media(max-width: 360px) { .appbar { flex-wrap: wrap; } .appbar form { margin-left: auto; } .row { flex-wrap: wrap; } .notif__time { white-space: normal; } }
 
 /* ═══════════════════════════════════════════════ CARD */
 .card {
@@ -133,6 +142,9 @@ body {
         @include('layouts.component._icon', ['name' => 'back', 'size' => 20, 'label' => 'Kembali'])
     </a>
     <h1 class="appbar__title">Notifikasi Admin</h1>
+    @if(auth()->user()->unreadNotifications()->exists())
+    <form method="post" action="{{ route('admin.notifications.read-all') }}">@csrf<button class="read-all" type="submit">Tandai semua dibaca</button></form>
+    @endif
 </header>
 
 <main class="wrap">
@@ -148,7 +160,8 @@ body {
                 <div class="row">
                     <div>
                         <div class="row__title">{{ $order->product_name }} · {{ $order->order->reference }}</div>
-                        <div class="row__meta">{{ $order->order->customer?->name ?? 'Pelanggan tidak tersedia' }} · {{ $order->created_at->translatedFormat('d M Y H:i') }}</div>
+                        <div class="row__meta">{{ $order->order->customer?->name ?? 'Pelanggan tidak tersedia' }} · {{ $order->created_at->copy()->timezone('Asia/Jakarta')->translatedFormat('d M Y H:i') }} WIB</div>
+                        <a class="queue-link" href="{{ route('admin.rental.orders', ['q' => $order->order->reference]) }}">Lihat pesanan</a>
                     </div>
                     <span class="badge">Menunggu konfirmasi</span>
                 </div>
@@ -171,7 +184,7 @@ body {
                 Notifikasi Sistem
             </div>
             @forelse($notifications as $notif)
-                <a href="{{ isset($notif->data['rental_order_id']) ? route('admin.rental.orders') : (isset($notif->data['order_id']) ? route('admin.orders') : '#') }}" class="notif {{ is_null($notif->read_at) ? 'is-unread' : '' }}">
+                <a href="{{ route('admin.notifications.open', $notif->id) }}" class="notif {{ is_null($notif->read_at) ? 'is-unread' : '' }}">
                     <span class="notif__ico" aria-hidden="true">
                         @include('layouts.component._icon', ['name' => 'notifikasi', 'size' => 16])
                     </span>
