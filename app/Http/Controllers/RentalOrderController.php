@@ -126,7 +126,7 @@ class RentalOrderController extends Controller
     {
         $filters = $request->validate([
             'q' => ['nullable', 'string', 'max:160'],
-            'status' => ['nullable', Rule::in(['pending', 'confirmed', 'cancelled', 'payment_pending', 'design_pending', 'review'])],
+            'status' => ['nullable', Rule::in(['pending', 'confirmed', 'cancelled', 'payment_pending', 'design_pending', 'review', 'transport_quote', 'transport_approval', 'design_initial', 'design_revision'])],
             'from' => ['nullable', 'date_format:Y-m-d'],
             'to' => ['nullable', 'date_format:Y-m-d'],
         ]);
@@ -145,6 +145,16 @@ class RentalOrderController extends Controller
                     if ($status === 'review') $unit->where('status', 'confirmed')->where('payment_review_hold', true);
                     if ($status === 'payment_pending') $unit->whereHas('payments', fn ($payment) => $payment->where('status', 'pending'));
                     if ($status === 'design_pending') $unit->where('status', 'confirmed')->whereHas('previews', fn ($preview) => $preview->where('status', 'pending'));
+                    if (in_array($status, ['transport_quote', 'transport_approval'], true)) {
+                        $unit->whereIn('status', ['pending', 'confirmed'])
+                            ->where(fn ($q) => $q->where('delivery_method', 'delivery')->orWhere('return_method', 'collection'))
+                            ->whereNull('transport_approved_at');
+                        if ($status === 'transport_quote') $unit->whereNull('transport_quote');
+                        else $unit->whereNotNull('transport_quote');
+                    }
+                    if ($status === 'design_initial') $unit->where('status', 'confirmed')->where('progress', 'waiting')->whereDoesntHave('previews');
+                    if ($status === 'design_revision') $unit->where('status', 'confirmed')->where('progress', 'waiting')
+                        ->whereHas('previews', fn ($preview) => $preview->where('status', 'revision')->whereRaw('rental_design_previews.version = (select max(latest_preview.version) from rental_design_previews as latest_preview where latest_preview.rental_order_unit_id = rental_order_units.id)'));
                     if (! empty($filters['from'])) $unit->whereDate('event_on', '>=', $filters['from']);
                     if (! empty($filters['to'])) $unit->whereDate('event_on', '<=', $filters['to']);
                 });

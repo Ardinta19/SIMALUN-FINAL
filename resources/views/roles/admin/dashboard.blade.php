@@ -269,7 +269,7 @@ body {
     <span style="position:absolute;right:12%;top:20px;color:#ffffff88;font-size:36px" aria-hidden="true">✿</span>
     <div class="hero__inner"><div class="appbar"><div class="brand"><span class="brand__logo"><img src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt="" style="width:100%;height:100%;object-fit:contain;border-radius:12px;background:white"></span><div><span class="brand__name">Berkah Kreatif</span><span class="brand__tag">Admin Panel</span></div></div></div>
         <div class="greet"><div class="greet__avatar" aria-hidden="true">{{ $initial }}</div><div class="greet__text"><div class="greet__hi">{{ $sapaan }},</div><h1 class="greet__name">{{ $adminName }}</h1><span class="greet__date">{{ $tanggal }} · WIB</span></div></div>
-        <a href="{{ route('admin.rental.orders') }}" class="pulse"><span class="pulse__dot" aria-hidden="true"></span><span class="pulse__txt"><b>{{ $rentalPending }} unit</b> menunggu konfirmasi · {{ $rentalPaymentPending }} bukti menunggu pemeriksaan</span></a>
+        <a href="{{ route('admin.rental.orders', ['status' => 'pending']) }}" class="pulse"><span class="pulse__dot" aria-hidden="true"></span><span class="pulse__txt"><b>{{ $rentalPending }} unit</b> menunggu konfirmasi</span></a>
     </div>
     <svg class="hero__wave" viewBox="0 0 414 46" preserveAspectRatio="none" aria-hidden="true"><path fill="#faf4f3" d="M0,24 C70,46 150,6 230,24 C300,40 360,12 414,22 L414,46 L0,46Z"/></svg>
 </header>
@@ -282,7 +282,7 @@ body {
     <section class="revenue reveal d3" style="margin-top:18px"><div class="revenue__head"><span class="revenue__cap">Pemasukan hari ini · seluruh buku kas</span></div><div class="revenue__val"><span>Rp</span> {{ number_format($pemasukanHari ?? 0, 0, ',', '.') }}</div><div class="revenue__foot"><span class="revenue__foot-txt">Bulan ini <b>Rp {{ number_format($pemasukanBulan ?? 0, 0, ',', '.') }}</b></span></div></section>
     <section class="section reveal"><div class="section__head"><div><div class="section__title">Pesanan sewa terbaru</div><div class="section__title-sm">Periksa setiap unit secara terpisah</div></div><a href="{{ route('admin.rental.orders') }}" class="section__link">Semua →</a></div>
         @forelse($recentRentalOrders as $order)
-        <a href="{{ route('admin.rental.orders') }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">💐</span><span class="quick-item__label" style="overflow-wrap:anywhere">{{ $order->customer?->name ?? 'Pelanggan tidak tersedia' }} · {{ $order->units_count }} unit<br><small>{{ $order->reference }}</small></span></a>
+        <a href="{{ route('admin.rental.orders', ['q' => $order->reference]) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">💐</span><span class="quick-item__label" style="overflow-wrap:anywhere">{{ $order->customer?->name ?? 'Pelanggan tidak tersedia' }} · {{ $order->units_count }} unit<br><small>{{ $order->reference }}</small></span></a>
         @empty
         <div class="driver-empty">Belum ada pesanan sewa.</div>
         @endforelse
