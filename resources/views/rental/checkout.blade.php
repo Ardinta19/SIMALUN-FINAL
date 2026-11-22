@@ -2,7 +2,7 @@
 @section('title', 'Checkout')
 @section('content')
 <p><a href="{{ route('cart.index') }}">← Kembali ke keranjang</a></p><h1>Detail penyewaan</h1><p class="notice">Langkah 1: isi detail setiap unit. Langkah 2: baca dan setujui ketentuan. Langkah 3: kirim pesanan dan tunggu konfirmasi admin.</p><p class="muted">Isi kebutuhan untuk setiap unit. Stok belum dicadangkan sampai admin mengonfirmasi. Ongkos lokasi lain ditawarkan admin; tarif universitas mengikuti daftar saat checkout.</p>
-<form class="stack checkout-form" method="post" action="{{ route('rental.checkout.store') }}">@csrf
+<form class="stack checkout-form" data-checkout-form method="post" action="{{ route('rental.checkout.store') }}">@csrf
 @foreach($cart as $key => $entry)
 @php $product = $products->get($entry['product_id']); @endphp
 <section class="card body" style="margin-bottom:16px" data-checkout-unit><h2>Unit {{ $loop->iteration }} dari {{ count($cart) }} · {{ $product->name }}</h2>
@@ -29,8 +29,23 @@
 <li><strong>Jika tenggat terlewati.</strong> Unit tanpa pelunasan atau bukti pelunasan tepat waktu direncanakan batal dan stok dilepas. Pada hari penerimaan, admin dapat melanjutkan setelah pembayaran diverifikasi dan stok dicek; ada risiko terlambat. Mulai pukul 00.00 WIB hari berikutnya, unit tidak dapat dilanjutkan.</li>
 <li><strong>DP dan pengembalian.</strong> DP lama dihitung jika unit dilanjutkan; jika tidak dilanjutkan hingga batas itu, DP hangus. Jika kesalahan penjual menyebabkan pembatalan, pembayaran dikembalikan. Tindak lanjut pengembalian masih manual.</li>
 </ul><p><strong>Alur ini masih diuji. Jangan kirim pembayaran nyata.</strong></p></section>
-<label><input style="width:auto" type="checkbox" name="terms" value="1" @checked(old('terms')) required> Saya memahami pesanan ini masih dalam tahap pengembangan dan belum merupakan reservasi.</label><p><button class="btn">Kirim pesanan uji coba</button></p></form>
+<label><input style="width:auto" type="checkbox" name="terms" value="1" @checked(old('terms')) required> Saya memahami pesanan ini masih dalam tahap pengembangan dan belum merupakan reservasi.</label><p><button class="btn" type="submit" data-checkout-submit>Kirim pesanan uji coba</button></p><p class="muted" data-checkout-status role="status" aria-live="polite"></p></form>
 <script>
+const checkoutForm = document.querySelector('[data-checkout-form]');
+const checkoutSubmit = document.querySelector('[data-checkout-submit]');
+const checkoutStatus = document.querySelector('[data-checkout-status]');
+checkoutForm.addEventListener('submit', event => {
+    if (checkoutSubmit.disabled) { event.preventDefault(); return; }
+    checkoutSubmit.disabled = true;
+    checkoutSubmit.textContent = 'Mengirim pesanan...';
+    checkoutStatus.textContent = 'Mohon tunggu. Jangan kirim ulang atau tutup halaman.';
+});
+window.addEventListener('pageshow', () => {
+    checkoutSubmit.disabled = false;
+    checkoutSubmit.textContent = 'Kirim pesanan uji coba';
+    checkoutStatus.textContent = '';
+});
+
 document.querySelectorAll('[data-checkout-unit]').forEach((unit, index, units) => {
     const button = unit.querySelector('[data-copy-previous]');
     const eventDate = unit.querySelector('[name$="[event_on]"]');
@@ -48,6 +63,7 @@ document.querySelectorAll('[data-checkout-unit]').forEach((unit, index, units) =
             const visible = select.value === expected;
             fields.hidden = !visible;
             fields.querySelectorAll('input, select, textarea').forEach(input => { input.disabled = !visible; });
+            fields.querySelector('textarea').required = visible;
         };
         select.addEventListener('change', update);
         update();

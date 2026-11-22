@@ -42,7 +42,7 @@ class RentalCheckoutTest extends TestCase
         $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 2]);
         $customer = User::factory()->create(); $customer->forceFill(['role' => 'customer'])->save();
         $this->actingAs($customer)->post(route('cart.store', $product), ['quantity' => 2]);
-        $this->get(route('rental.checkout'))->assertOk()->assertSee('Unit 1')->assertSee('Unit 2')->assertSee('Salin detail dari unit sebelumnya')->assertSee('pilihan paket tidak disalin')->assertSee('Ketentuan penyewaan')->assertSee('Konfirmasi dan stok.')->assertSee('DP dan pelunasan.')->assertSee('Jangan kirim pembayaran nyata.');
+        $this->get(route('rental.checkout'))->assertOk()->assertSee('Unit 1')->assertSee('Unit 2')->assertSee('Salin detail dari unit sebelumnya')->assertSee('pilihan paket tidak disalin')->assertSee('data-checkout-submit', false)->assertSee('data-checkout-status', false)->assertSee('Ketentuan penyewaan')->assertSee('Konfirmasi dan stok.')->assertSee('DP dan pelunasan.')->assertSee('Jangan kirim pembayaran nyata.');
     }
 
     public function test_checkout_displays_current_price_and_returns_unavailable_units_to_cart(): void
