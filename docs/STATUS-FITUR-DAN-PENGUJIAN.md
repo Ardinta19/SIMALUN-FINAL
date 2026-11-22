@@ -31,3 +31,7 @@ Jangan jalankan transaksi atau pembayaran nyata sebelum pemeriksaan dan keputusa
 ## Lampiran laporan kendala
 
 Lampiran laporan baru disimpan pada disk lokal privat dan ditampilkan melalui rute admin terautentikasi. Lampiran historis pada `storage/app/public/reports` tetap berada di lokasi publik lama agar tidak rusak; tautan langsung lama masih dapat diakses jika `public/storage` tersedia. Untuk melindungi lampiran lama, cadangkan dan rencanakan migrasi berkas serta pembaruan jalurnya secara teruji; perubahan ini tidak memindahkan atau menghapus data lama. Bukti laundry lama juga perlu audit terpisah.
+
+## Hasil tes pengguna terbaru
+
+Pada commit `4870668`, pengguna menjalankan `php artisan test` di Windows: **230 passed, 1469 assertions**, 8,01 detik. Hasil ini mencakup tes fitur rating dan suka serta kebijakan referrer tautan publik. Perubahan setelah commit tersebut belum termasuk hasil ini. Tes otomatis tersebut bukan pengganti uji visual browser, uji konkurensi MySQL, atau pemeriksaan kesiapan produksi.

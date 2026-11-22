@@ -14,6 +14,16 @@ class RentalAuthPresentationTest extends TestCase
         $this->get(route('login'))->assertOk()->assertSee('Berkah Kreatif')->assertSee('berkah-kreatif-logo.jpeg')->assertDontSee('cdnjs.cloudflare.com')->assertDontSee('Azka Laundry');
         $this->get(route('register'))->assertOk()->assertSee('Berkah Kreatif')->assertSee('berkah-kreatif-logo.jpeg')->assertSee('Notifikasi pesanan tersedia di dalam aplikasi')->assertDontSee('cdnjs.cloudflare.com')->assertDontSee('Azka Laundry');
     }
+    public function test_registration_form_has_progressive_and_accessible_controls(): void
+    {
+        $this->get(route('register'))->assertOk()
+            ->assertSee('.form-step { display:block; }', false)
+            ->assertSee('register-enhanced', false)->assertSee('role="radiogroup"', false)
+            ->assertSee('aria-label="Tampilkan kata sandi"', false)
+            ->assertSee('aria-label="Kembali ke data diri"', false)
+            ->assertSee('name="terms"', false)->assertDontSee('Daftar sebagai pelanggan SIMALUN');
+    }
+
     public function test_password_recovery_uses_brand_and_surfaces_status_without_animation_dependencies(): void
     {
         $this->get(route('password.request'))->assertOk()->assertSee('Berkah Kreatif')->assertSee('Lupa kata sandi?')

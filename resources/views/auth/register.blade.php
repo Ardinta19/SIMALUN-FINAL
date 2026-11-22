@@ -103,8 +103,13 @@ html, body {
 .step-line.done { background:#00C48C; }
 
 /* ── FORM ── */
-.form-step { display:none; }
-.form-step.active { display:block; }
+.form-step { display:block; }
+.step-indicator, .btn-next-step, .btn-back-step, .pw-toggle { display:none; }
+.register-enhanced .form-step { display:none; }
+.register-enhanced .form-step.active { display:block; }
+.register-enhanced .step-indicator { display:flex; }
+.register-enhanced .btn-next-step, .register-enhanced .btn-back-step { display:block; }
+.register-enhanced .pw-toggle { display:block; }
 
 .form-group { margin-bottom:.9rem; position:relative; }
 .form-label {
@@ -187,7 +192,8 @@ html, body {
 
 /* gender select */
 .gender-row { display:flex; gap:.6rem; }
-.gender-opt { display:none; }
+.gender-opt { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+.gender-opt:focus-visible + .gender-label { outline:3px solid #fff; outline-offset:3px; }
 .gender-label {
   flex:1; display:flex; flex-direction:column; align-items:center; gap:.3rem;
   padding:.65rem .4rem; background:rgba(255,255,255,.08);
@@ -313,9 +319,13 @@ html, body {
 .ambient-flower{position:absolute;color:rgba(255,255,255,.35);font-size:28px;animation:flower-float 5s ease-in-out infinite alternate}
 @keyframes brand-intro{from{transform:rotate(-120deg) scale(.85)}to{transform:rotate(0) scale(1)}}
 @keyframes flower-float{from{transform:translateY(0) rotate(0)}to{transform:translateY(-14px) rotate(20deg)}}
-@media(prefers-reduced-motion:reduce){#brand-logo,.ambient-flower,#drum-spin-ring,#drum-wrap::after{animation:none!important}}
+#registration-progress{font-size:.76rem;color:#fff;text-align:center;margin-bottom:12px;min-height:1em}
+html:not(.register-enhanced) #registration-progress{display:none}
+#btn-back,.btn-back-step,.btn-next-step,.btn-submit,.pw-toggle{min-height:44px;min-width:44px}
+:focus-visible{outline:3px solid #fff;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){#brand-logo,.ambient-flower,#drum-spin-ring,#drum-wrap::after,.btn-next-step::before,.btn-submit::before{animation:none!important}}
 </style>
-<noscript><style>.form-step{display:block!important}.btn-next-step,.btn-back-step,.step-indicator{display:none!important}</style></noscript><link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}"><script src="{{ asset('js/page-transitions.js') }}" defer></script>
+<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}"><script src="{{ asset('js/page-transitions.js') }}" defer></script>
 </head>
 <body>
 
@@ -332,7 +342,7 @@ html, body {
   </svg>
 </div>
 
-<a href="{{ route('login') }}" id="btn-back" title="Kembali ke Login">&#8592;</a>
+<a href="{{ route('login') }}" id="btn-back" title="Kembali ke masuk" aria-label="Kembali ke masuk">&#8592;</a>
 
 <div id="page">
   <div id="header">
@@ -347,14 +357,14 @@ html, body {
 
   <div id="card">
     <div class="card-title">Buat Akun Baru</div>
-    <div class="card-sub">Daftar sebagai pelanggan SIMALUN</div>
+    <div class="card-sub">Daftar sebagai pelanggan Berkah Kreatif</div>
 
     @if(session('error'))
       <div class="alert alert-error">⚠️ {{ session('error') }}</div>
     @endif
 
     <!-- Step Indicator -->
-    <div class="step-indicator" id="step-indicator">
+    <div class="step-indicator" id="step-indicator" aria-hidden="true">
       <div class="step-dot active" id="sdot-1">1</div>
       <div class="step-line" id="sline-1"></div>
       <div class="step-dot" id="sdot-2">2</div>
@@ -362,6 +372,8 @@ html, body {
       <div class="step-dot" id="sdot-3">3</div>
     </div>
 
+    @if($errors->any())<div class="alert alert-error" role="alert">Periksa kembali isian yang ditandai. Data yang sudah diisi tetap tersimpan, kecuali kata sandi.</div>@endif
+    <p id="registration-progress" class="registration-progress" role="status" aria-live="polite"></p>
     <form method="POST" action="{{ route('register.post') }}" id="register-form" novalidate>
       @csrf
 
@@ -372,17 +384,17 @@ html, body {
           <div class="input-wrap">
             <span class="input-icon">👤</span>
             <input class="form-input @error('name') error @enderror"
-              type="text" id="name" name="name"
+              type="text" id="name" name="name" aria-describedby="err-name"
               placeholder="Nama sesuai identitas"
               value="{{ old('name') }}" autocomplete="name">
           </div>
           @error('name')<div class="form-error show">{{ $message }}</div>@enderror
-          <div class="form-error" id="err-name"></div>
+          <div class="form-error" aria-live="polite" id="err-name"></div>
         </div>
 
         <div class="form-group">
-          <label class="form-label">Jenis Kelamin</label>
-          <div class="gender-row">
+          <div class="form-label" id="gender-label">Jenis Kelamin</div>
+          <div class="gender-row" role="radiogroup" aria-labelledby="gender-label" aria-describedby="err-gender">
             <input type="radio" class="gender-opt" name="gender" id="g-male" value="L" {{ old('gender')=='L' ? 'checked' : '' }}>
             <label class="gender-label" for="g-male">
               <span>👨</span><span>Laki-laki</span>
@@ -393,7 +405,7 @@ html, body {
             </label>
           </div>
           @error('gender')<div class="form-error show">{{ $message }}</div>@enderror
-          <div class="form-error" id="err-gender"></div>
+          <div class="form-error" aria-live="polite" id="err-gender"></div>
         </div>
 
         <div class="form-group">
@@ -402,13 +414,13 @@ html, body {
             <div class="phone-prefix">🇮🇩 +62</div>
             <div class="phone-input-wrap">
               <input class="form-input @error('phone') error @enderror"
-                type="tel" id="phone" name="phone"
+                type="tel" id="phone" name="phone" aria-describedby="err-phone"
                 placeholder="8xxxxxxxxxx"
                 value="{{ old('phone') }}" inputmode="tel" autocomplete="tel">
             </div>
           </div>
           @error('phone')<div class="form-error show">{{ $message }}</div>@enderror
-          <div class="form-error" id="err-phone"></div>
+          <div class="form-error" aria-live="polite" id="err-phone"></div>
         </div>
 
         <div class="btn-row">
@@ -427,12 +439,12 @@ html, body {
           <div class="input-wrap">
             <span class="input-icon">@</span>
             <input class="form-input @error('email') error @enderror"
-              type="email" id="email" name="email"
+              type="email" id="email" name="email" aria-describedby="err-email"
               placeholder="Boleh dikosongkan"
               value="{{ old('email') }}" autocomplete="email" inputmode="email">
           </div>
           @error('email')<div class="form-error show">{{ $message }}</div>@enderror
-          <div class="form-error" id="err-email"></div>
+          <div class="form-error" aria-live="polite" id="err-email"></div>
           <div style="font-size:.66rem;font-weight:700;color:rgba(255,255,255,.55);margin-top:.35rem;line-height:1.4;">
             Nomor HP digunakan untuk kontak. Notifikasi pesanan tersedia di dalam aplikasi.
           </div>
@@ -442,19 +454,19 @@ html, body {
           <label class="form-label" for="password">Password</label>
           <div class="input-wrap">
             <span class="input-icon">🔒</span>
-            <input class="form-input" type="password" id="password" name="password"
+            <input class="form-input" type="password" id="password" name="password" aria-describedby="err-pw"
               placeholder="Min. 8 karakter" autocomplete="new-password">
-            <button type="button" class="pw-toggle" id="pw-toggle-1">👁️</button>
+            <button type="button" class="pw-toggle" id="pw-toggle-1" aria-label="Tampilkan kata sandi" aria-pressed="false">👁️</button>
           </div>
           @error('password')<div class="form-error show">{{ $message }}</div>@enderror
-          <div class="form-error" id="err-pw"></div>
+          <div class="form-error" aria-live="polite" id="err-pw"></div>
           <!-- Strength meter -->
           <div class="pw-strength" id="pw-strength">
             <div class="pw-strength-bar">
               <div class="pw-strength-fill" id="pw-strength-fill"></div>
             </div>
             <div class="pw-strength-lbl" id="pw-strength-lbl">Ketik password...</div>
-            <ul class="pw-hints">
+            <p style="font-size:.7rem;color:#fff;margin-top:.4rem">Selain minimal 8 karakter, kombinasi berikut disarankan, bukan wajib.</p><ul class="pw-hints">
               <li class="pw-hint" id="hint-len">Min. 8 karakter</li>
               <li class="pw-hint" id="hint-upper">Huruf besar</li>
               <li class="pw-hint" id="hint-num">Angka</li>
@@ -467,15 +479,15 @@ html, body {
           <label class="form-label" for="password_confirmation">Konfirmasi Password</label>
           <div class="input-wrap">
             <span class="input-icon">🔐</span>
-            <input class="form-input" type="password" id="password_confirmation" name="password_confirmation"
+            <input class="form-input" type="password" id="password_confirmation" name="password_confirmation" aria-describedby="err-pwc"
               placeholder="Ulangi password" autocomplete="new-password">
-            <button type="button" class="pw-toggle" id="pw-toggle-2">👁️</button>
+            <button type="button" class="pw-toggle" id="pw-toggle-2" aria-label="Tampilkan konfirmasi kata sandi" aria-pressed="false">👁️</button>
           </div>
-          <div class="form-error" id="err-pwc"></div>
+          <div class="form-error" aria-live="polite" id="err-pwc"></div>
         </div>
 
         <div class="btn-row">
-          <button type="button" class="btn-back-step" onclick="goStep(1)">&#8592;</button>
+          <button type="button" class="btn-back-step" aria-label="Kembali ke data diri" onclick="goStep(1)">&#8592;</button>
           <button type="button" class="btn-next-step" onclick="goStep(3)">Lanjut &rarr;</button>
         </div>
       </div>
@@ -486,12 +498,12 @@ html, body {
           <label class="form-label" for="address">Alamat Lengkap</label>
           <div class="input-wrap">
             <span class="input-icon" style="top:14px;transform:none;">🏠</span>
-            <textarea class="form-input" id="address" name="address"
+            <textarea class="form-input" id="address" name="address" aria-describedby="err-address"
               placeholder="Nama jalan, nomor rumah, RT/RW, kelurahan..."
               rows="3" style="padding-left:2.65rem;resize:none;">{{ old('address') }}</textarea>
           </div>
           @error('address')<div class="form-error show">{{ $message }}</div>@enderror
-          <div class="form-error" id="err-address"></div>
+          <div class="form-error" aria-live="polite" id="err-address"></div>
         </div>
 
         <div class="form-group">
@@ -505,16 +517,16 @@ html, body {
         </div>
 
         <div class="terms-row">
-          <input type="checkbox" class="terms-cb" id="terms" name="terms" value="1" @checked(old('terms')) required>
+          <input type="checkbox" class="terms-cb" id="terms" name="terms" aria-describedby="err-terms" value="1" @checked(old('terms')) required>
           <label class="terms-txt" for="terms">
             Saya menyetujui penggunaan data saya untuk pengelolaan akun dan pesanan Berkah Kreatif.
           </label>
         </div>
         @error('terms')<div class="form-error show">{{ $message }}</div>@enderror
-        <div class="form-error" id="err-terms"></div>
+        <div class="form-error" aria-live="polite" id="err-terms"></div>
 
         <div class="btn-row">
-          <button type="button" class="btn-back-step" onclick="goStep(2)">&#8592;</button>
+          <button type="button" class="btn-back-step" aria-label="Kembali ke akun dan kata sandi" onclick="goStep(2)">&#8592;</button>
           <button type="submit" class="btn-submit" id="btn-submit">
             <span class="btn-spinner"></span>
             <span class="btn-text">Daftar Sekarang</span>
@@ -577,9 +589,11 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById(`step-${prev}`).classList.remove('active');
     document.getElementById(`step-${next}`).classList.add('active');
     updateStepDots(next);
+    document.querySelector(`#step-${next} input:not([type=hidden]), #step-${next} textarea`)?.focus();
   };
 
   function updateStepDots(step) {
+    document.getElementById('registration-progress').textContent = `Langkah ${step} dari 3: ${['Data diri', 'Akun dan kata sandi', 'Alamat dan persetujuan'][step - 1]}`;
     for (let i = 1; i <= 3; i++) {
       const dot = document.getElementById(`sdot-${i}`);
       dot.classList.remove('active','done');
@@ -606,7 +620,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (!name || name.length < 3) { showErr('err-name','Nama minimal 3 karakter'); document.getElementById('name').classList.add('error'); ok=false; }
       if (!gender) { showErr('err-gender','Pilih jenis kelamin'); ok=false; }
-      if (!phone || !/^8[0-9]{7,12}$/.test(phone.replace(/[\s-]/g,''))) {
+      if (!phone || !/^8[0-9]{8,12}$/.test(phone.replace(/[\s-]/g,''))) {
         showErr('err-phone','Nomor HP tidak valid (contoh: 81234567890)');
         document.getElementById('phone').classList.add('error'); ok=false;
       }
@@ -621,7 +635,7 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('password_confirmation').classList.remove('error');
 
       // Email opsional — hanya validasi format jika diisi
-      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      if (email && !document.getElementById('email').validity.valid) {
         showErr('err-email','Format email tidak valid'); document.getElementById('email').classList.add('error'); ok=false;
       }
       if (!pw || pw.length < 8) {
@@ -632,7 +646,9 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
     if (!ok) {
-
+      const firstError = document.querySelector(`#step-${step} .form-error.show[id^="err-"]`);
+      const fields = { 'err-name': 'name', 'err-gender': 'g-male', 'err-phone': 'phone', 'err-email': 'email', 'err-pw': 'password', 'err-pwc': 'password_confirmation' };
+      document.getElementById(fields[firstError?.id])?.focus();
     }
     return ok;
   }
@@ -642,16 +658,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ── STEP 3 SUBMIT VALIDATION ── */
   document.getElementById('register-form').addEventListener('submit', function(e) {
+    if (document.documentElement.classList.contains('register-enhanced') && currentStep < 3) { e.preventDefault(); window.goStep(currentStep + 1); return; }
     const addr = document.getElementById('address').value.trim();
     const terms = document.getElementById('terms').checked;
     clearErr('err-address'); clearErr('err-terms');
     let ok = true;
     if (!addr || addr.length < 10) { showErr('err-address','Alamat minimal 10 karakter'); ok=false; }
     if (!terms) { showErr('err-terms','Kamu harus menyetujui syarat & ketentuan'); ok=false; }
-    if (!ok) { e.preventDefault(); return; }
+    if (!ok) { e.preventDefault(); document.getElementById(addr.length < 10 ? 'address' : 'terms').focus(); return; }
     document.getElementById('btn-submit').classList.add('loading');
     document.getElementById('btn-submit').disabled = true;
   });
+
+  window.addEventListener('pageshow', () => { const btn = document.getElementById('btn-submit'); btn.disabled = false; btn.classList.remove('loading'); });
 
   /* ── PASSWORD TOGGLE ── */
   function togglePw(inputId, btnId) {
@@ -661,6 +680,8 @@ document.addEventListener('DOMContentLoaded', function () {
       const show = input.type === 'password';
       input.type = show ? 'text' : 'password';
       this.textContent = show ? '🙈' : '👁️';
+      this.setAttribute('aria-pressed', String(show));
+      this.setAttribute('aria-label', (show ? 'Sembunyikan ' : 'Tampilkan ') + (inputId === 'password_confirmation' ? 'konfirmasi kata sandi' : 'kata sandi'));
     });
   }
   togglePw('password','pw-toggle-1');
@@ -727,16 +748,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     phone.addEventListener('input', applyNormalize);
-    // Tangani paste secara eksplisit (mis. "+62 812-3456-7890" / "0812 3456 7890")
-    phone.addEventListener('paste', function (e) {
-      e.preventDefault();
-      const text = (e.clipboardData || window.clipboardData).getData('text');
-      phone.value = normalizePhone(phone.value + text);
-      phone.setSelectionRange(phone.value.length, phone.value.length);
-    });
+
   })();
 
-
+  document.documentElement.classList.add('register-enhanced');
 });
 </script>
 </body>
