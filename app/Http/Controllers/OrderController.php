@@ -393,10 +393,12 @@ class OrderController extends Controller
 
         $user = Auth::user();
 
-        // Customer hanya boleh lihat ordernya sendiri.
-        if ($user && $user->role === 'customer' && $order->customer_id !== $user->id) {
-            abort(403);
-        }
+        // Route lama tetap perlu membatasi akses meskipun bukan alur sewa.
+        abort_unless($user && (
+            $user->role === 'admin'
+            || ($user->role === 'customer' && $order->customer_id === $user->id)
+            || ($user->role === 'driver' && $order->driver_id === $user->id)
+        ), 403);
 
         // Tampilkan layar success hanya saat order baru dibuat (menunggu/dijemput).
         // Kalau sudah masuk proses lebih lanjut, arahkan ke detail.

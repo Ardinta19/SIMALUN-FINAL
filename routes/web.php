@@ -110,6 +110,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders/{order}/receipt/pdf', [OrderController::class, 'receiptPdf'])
         ->name('orders.receipt.pdf');
 
+    Route::get('/pembayaran-sewa/qris', [RentalPaymentSettingController::class, 'qris'])->name('rental.payment.qris');
     Route::get('/ringkasan-sewa/{order}', [RentalReceiptController::class, 'show'])->name('rental.receipt');
     Route::get('/pembayaran-sewa/{payment}/bukti', [RentalPaymentController::class, 'proof'])->name('rental.payment.proof');
     Route::get('/preview-desain/{preview}/gambar', [RentalDesignController::class, 'image'])->name('rental.design.image');
