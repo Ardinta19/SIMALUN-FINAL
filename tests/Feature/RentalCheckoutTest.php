@@ -36,6 +36,15 @@ class RentalCheckoutTest extends TestCase
         $this->assertSame('pending', $order->units[1]->fresh()->status);
     }
 
+    public function test_checkout_shows_separate_units_and_optional_copy_control(): void
+    {
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 2]);
+        $customer = User::factory()->create(); $customer->forceFill(['role' => 'customer'])->save();
+        $this->actingAs($customer)->post(route('cart.store', $product), ['quantity' => 2]);
+        $this->get(route('rental.checkout'))->assertOk()->assertSee('Unit 1')->assertSee('Unit 2')->assertSee('Salin detail dari unit sebelumnya')->assertSee('pilihan paket tidak disalin');
+    }
+
     public function test_customer_cannot_view_another_customers_order(): void
     {
         $owner = User::factory()->create();

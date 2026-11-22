@@ -1,5 +1,7 @@
 # Audit dan daftar pemeriksaan Berkah Kreatif
 
+> Snapshot audit awal: sejumlah status fitur di bawah telah berubah. Lihat `STATUS-FITUR-DAN-PENGUJIAN.md` untuk inventaris yang lebih baru; temuan keamanan historis tetap perlu diperiksa.
+
 Audit ini membandingkan kode yang ada dengan kebutuhan penyewaan yang disepakati. Status adalah hasil pemeriksaan statis dan observasi preview pengguna, bukan sertifikasi keamanan atau kesiapan produksi. Tes yang dilaporkan pengguna pada Windows: 146 lulus, 428 assertion; ini bukan pengujian seluruh alur bisnis sewa atau konkurensi MySQL.
 
 ## Prioritas keamanan dan keandalan
