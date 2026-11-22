@@ -62,6 +62,9 @@ class RentalCustomerNavigationTest extends TestCase
             ->assertSee('bk-top-menu', false)->assertSee('data-customer-radial', false);
         $html = $response->getContent();
         $this->assertLessThan(strpos($html, 'id="customer-nav"'), strpos($html, 'data-customer-radial'), 'Menu pelanggan harus berada di atas, bukan menggantikan keranjang di tab bawah.');
+        $this->assertSame(1, substr_count($html, 'data-customer-radial'), 'Menu pelanggan hanya boleh dirender sekali agar filter SVG tidak duplikat.');
+        $catalog = $this->get(route('welcome'))->assertOk()->getContent();
+        $this->assertSame(1, substr_count($catalog, 'data-customer-radial'));
     }
 
     public function test_guest_and_customer_have_accessible_catalog_navigation_without_admin_links(): void
