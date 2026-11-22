@@ -158,7 +158,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/report', [ReportController::class, 'create'])->name('report');
         Route::post('/report', [ReportController::class, 'store'])->name('report.store');
 
-        Route::get('/help', fn () => view('roles.customer.help'))->name('help');
+        Route::get('/help', fn () => view('roles.customer.help', ['settings' => \App\Models\RentalPaymentSetting::find(1)]))->name('help');
     });
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
