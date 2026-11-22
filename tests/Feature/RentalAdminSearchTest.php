@@ -48,4 +48,20 @@ class RentalAdminSearchTest extends TestCase
         $this->get(route('admin.rental.orders', ['status' => 'design_initial']))->assertOk()->assertSee($orders[0]->reference)->assertDontSee($orders[1]->reference)->assertSee('Preview desain · 0 versi')->assertSee('Ongkos dan tagihan')->assertSee('Riwayat dan perkembangan');
         $this->get(route('admin.rental.orders', ['status' => 'design_revision']))->assertOk()->assertSee($orders[1]->reference)->assertDontSee($orders[2]->reference)->assertDontSee($orders[0]->reference);
     }
+    public function test_pending_orders_are_prioritised_by_confirmation_deadline_and_seller_cancellations_are_filterable(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $customer = User::factory()->create(['role' => 'customer']);
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 3]);
+        $later = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $customer->id, 'confirmation_deadline' => now()->addHours(20)]);
+        $urgent = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $customer->id, 'confirmation_deadline' => now()->addHours(2)]);
+        $cancelled = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $customer->id, 'confirmation_deadline' => now()->addHours(2)]);
+        $base = ['rental_product_id' => $product->id, 'product_name' => 'Papan', 'unit_price' => 100, 'price_unit' => 'day', 'rental_amount' => 100, 'starts_on' => now()->addDays(3), 'event_on' => now()->addDays(3), 'ends_on' => now()->addDays(3), 'recipient_name' => 'Penerima', 'greeting' => 'Selamat', 'delivery_method' => 'pickup', 'return_method' => 'dropoff'];
+        $later->units()->create($base); $urgent->units()->create($base);
+        $cancelled->units()->create($base + ['status' => 'cancelled', 'cancel_responsibility' => 'seller', 'cancel_reason' => 'Penjual']);
+        $this->actingAs($admin)->get(route('admin.rental.orders', ['status' => 'pending']))->assertOk()->assertSeeInOrder([$urgent->reference, $later->reference])->assertDontSee($cancelled->reference);
+        $this->get(route('admin.rental.orders', ['status' => 'seller_cancelled']))->assertOk()->assertSee($cancelled->reference)->assertDontSee($urgent->reference);
+        $this->get(route('dashboard.admin'))->assertOk()->assertSee('Perlu perhatian')->assertSee('2 unit menunggu konfirmasi')->assertSee('1 unit dibatalkan karena penjual')->assertSee('termasuk yang sudah ditindaklanjuti');
+    }
 }

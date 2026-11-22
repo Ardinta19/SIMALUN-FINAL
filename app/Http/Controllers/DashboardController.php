@@ -152,10 +152,15 @@ class DashboardController extends Controller
         $rentalActive = RentalOrderUnit::where('status', 'confirmed')->where('progress', '!=', 'returned')->count();
         $rentalPaymentPending = RentalPayment::where('status', 'pending')->count();
         $rentalReview = RentalOrderUnit::where('status', 'confirmed')->where('payment_review_hold', true)->count();
+        $rentalQuoteNeeded = RentalOrderUnit::whereIn('status', ['pending', 'confirmed'])
+            ->where(fn ($q) => $q->where('delivery_method', 'delivery')->orWhere('return_method', 'collection'))
+            ->whereNull('transport_quote')->whereNull('transport_approved_at')->count();
+        $rentalDesignNeeded = RentalOrderUnit::where('status', 'confirmed')->where('progress', 'waiting')->whereDoesntHave('previews')->count();
+        $rentalSellerCancelled = RentalOrderUnit::where('status', 'cancelled')->where('cancel_responsibility', 'seller')->count();
         $recentRentalOrders = RentalOrder::with('customer')->withCount('units')->latest()->take(5)->get();
 
         return view('roles.admin.dashboard', compact(
-            'rentalPending', 'rentalActive', 'rentalPaymentPending', 'rentalReview', 'recentRentalOrders',
+            'rentalPending', 'rentalActive', 'rentalPaymentPending', 'rentalReview', 'rentalQuoteNeeded', 'rentalDesignNeeded', 'rentalSellerCancelled', 'recentRentalOrders',
             'jumlahDiproses',
             'jumlahPrioritas',
             'jumlahSelesaiHari',

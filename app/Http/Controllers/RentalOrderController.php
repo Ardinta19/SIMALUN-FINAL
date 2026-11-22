@@ -138,7 +138,7 @@ class RentalOrderController extends Controller
     {
         $filters = $request->validate([
             'q' => ['nullable', 'string', 'max:160'],
-            'status' => ['nullable', Rule::in(['pending', 'confirmed', 'cancelled', 'payment_pending', 'design_pending', 'review', 'transport_quote', 'transport_approval', 'design_initial', 'design_revision'])],
+            'status' => ['nullable', Rule::in(['pending', 'confirmed', 'cancelled', 'payment_pending', 'design_pending', 'review', 'transport_quote', 'transport_approval', 'design_initial', 'design_revision', 'seller_cancelled'])],
             'from' => ['nullable', 'date_format:Y-m-d'],
             'to' => ['nullable', 'date_format:Y-m-d'],
         ]);
@@ -154,6 +154,7 @@ class RentalOrderController extends Controller
                 $query->whereHas('units', function ($unit) use ($filters) {
                     $status = $filters['status'] ?? null;
                     if (in_array($status, ['pending', 'confirmed', 'cancelled'], true)) $unit->where('status', $status);
+                    if ($status === 'seller_cancelled') $unit->where('status', 'cancelled')->where('cancel_responsibility', 'seller');
                     if ($status === 'review') $unit->where('status', 'confirmed')->where('payment_review_hold', true);
                     if ($status === 'payment_pending') $unit->whereHas('payments', fn ($payment) => $payment->where('status', 'pending'));
                     if ($status === 'design_pending') $unit->where('status', 'confirmed')->whereHas('previews', fn ($preview) => $preview->where('status', 'pending'));
@@ -170,7 +171,7 @@ class RentalOrderController extends Controller
                     if (! empty($filters['from'])) $unit->whereDate('event_on', '>=', $filters['from']);
                     if (! empty($filters['to'])) $unit->whereDate('event_on', '<=', $filters['to']);
                 });
-            })->latest()->paginate(20)->withQueryString();
+            })->when(($filters['status'] ?? null) === 'pending', fn ($query) => $query->orderBy('confirmation_deadline')->orderBy('id'), fn ($query) => $query->latest()->orderByDesc('id'))->paginate(20)->withQueryString();
         return view('rental.admin', compact('orders', 'filters'));
     }
 
