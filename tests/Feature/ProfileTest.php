@@ -114,11 +114,24 @@ class ProfileTest extends TestCase
     {
         $customer = User::factory()->create(['role' => 'customer']);
         $admin = User::factory()->create(['role' => 'admin']);
-        $this->actingAs($customer)->get(route('customer.profile'))->assertOk()->assertSee('Alamat tersimpan dapat dipilih saat checkout sewa')->assertDontSee('ui-avatars.com');
+        $this->actingAs($customer)->get(route('customer.profile'))->assertOk()->assertSee('Alamat tersimpan dapat dipilih saat checkout sewa')
+            ->assertSee(route('profile.edit'))->assertSee(route('customer.addresses.create'))->assertSee(route('logout'))
+            ->assertSee('Keluar dari akun')->assertSee('id="bk-command"', false)->assertDontSee('ui-avatars.com');
         $this->get(route('profile.edit'))->assertOk()->assertSee('Data pesanan dan catatan transaksi dapat tetap tersimpan')->assertDontSee('Semua data pesanan akan ikut terhapus')->assertDontSee('ui-avatars.com');
         $this->actingAs($admin)->get(route('admin.profile'))->assertOk()->assertSee('Berkah Kreatif')->assertSee('Menunggu konfirmasi')->assertSee('Unit aktif')->assertSee(route('admin.rental.orders'))->assertSee(route('admin.rental.cashbook.index'))->assertDontSee('Tugaskan kurir')->assertDontSee('ui-avatars.com');
         $this->get(route('profile.edit'))->assertOk()->assertSee('Berkah Kreatif')->assertDontSee('ui-avatars.com');
     }
+    public function test_customer_profile_shows_only_their_primary_address_and_has_accessible_logout(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer']);
+        $other = User::factory()->create(['role' => 'customer']);
+        $customer->customerAddresses()->create(['label' => 'Rumah utama', 'recipient_name' => 'Penerima', 'full_address' => 'Jalan Mawar 8', 'is_primary' => true]);
+        $other->customerAddresses()->create(['label' => 'Alamat rahasia', 'recipient_name' => 'Lain', 'full_address' => 'Jalan Rahasia', 'is_primary' => true]);
+        $this->actingAs($customer)->get(route('customer.profile'))->assertOk()->assertSee('Rumah utama')
+            ->assertSee('Jalan Mawar 8')->assertDontSee('Jalan Rahasia')
+            ->assertSee('Keluar dari akun')->assertSee('Ya, keluar')->assertSee(route('logout'));
+    }
+
     public function test_phone_uniqueness_is_checked_after_normalization(): void
     {
         $owner = User::factory()->create(['phone' => '81234567890']);

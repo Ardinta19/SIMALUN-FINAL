@@ -53,7 +53,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 <main class="wrap" id="main-content" tabindex="-1">@if(session('success'))<div class="notice" role="status">{{ session('success') }}</div>@endif @if($errors->any())<div class="notice" role="alert"><strong>Mohon periksa kembali:</strong><ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif @yield('content')</main><footer>© {{ date('Y') }} Berkah Kreatif</footer>
 @auth
     @if(auth()->user()->role === 'customer')
-        @include('layouts.component.customer._navbar_customer', ['active' => request()->routeIs('customer.dashboard') ? 'beranda' : (request()->routeIs('customer.notifications*') ? 'notif' : (request()->routeIs('rental.orders.*') ? 'pesanan' : 'pesan'))])
+        @include('layouts.component.customer._navbar_customer', ['active' => request()->routeIs('customer.dashboard') ? 'beranda' : (request()->routeIs('customer.notifications*') ? 'notif' : (request()->routeIs('customer.profile') ? 'profil' : (request()->routeIs('rental.orders.*') ? 'pesanan' : 'pesan')))])
     @endif
 @endauth
 @if(!auth()->check() || auth()->user()->role === 'customer')
