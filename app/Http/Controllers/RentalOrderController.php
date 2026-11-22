@@ -6,6 +6,7 @@ use App\Models\RentalOrderUnit;
 use App\Models\RentalProduct;
 use App\Models\RentalDurationPackage;
 use App\Models\RentalUniversity;
+use App\Models\RentalPaymentSetting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -93,7 +94,8 @@ class RentalOrderController extends Controller
     {
         abort_unless($order->customer_id === $request->user()->id, 403);
         $order->load('units.previews', 'units.payments.refunds', 'units.progressEvents');
-        return view('rental.show', compact('order'));
+        $paymentInstructions = RentalPaymentSetting::find(1)?->instructions;
+        return view('rental.show', compact('order', 'paymentInstructions'));
     }
 
     public function index(Request $request)

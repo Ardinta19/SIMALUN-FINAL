@@ -15,6 +15,11 @@ class RentalOrderUnit extends Model
         // Waktu serah-terima belum dipilih: perlakukan seluruh hari sebagai dekat jadwal.
         return $this->starts_on->toDateString() <= $this->order->confirmation_deadline->copy()->timezone('Asia/Jakarta')->toDateString();
     }
+    public function plannedPaymentDeadline(): \Carbon\CarbonImmutable
+    {
+        // Tanggal penerimaan adalah tanggal pengantaran/ambil outlet; WIB tidak mengikuti zona browser.
+        return \Carbon\CarbonImmutable::parse($this->starts_on->toDateString(), 'Asia/Jakarta')->startOfDay()->subSecond();
+    }
     public function transportRequired(): bool { return $this->delivery_method === 'delivery' || $this->return_method === 'collection'; }
     public function payableAmount(): ?int
     {
