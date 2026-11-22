@@ -547,8 +547,11 @@ class UiKitTest extends TestCase
             }
         }
 
-        // Fokus keyboard untuk tombol sistem tetap terlihat.
-        $this->assertStringContainsString('.btn:focus-visible', File::get(resource_path('views/catalog/layout.blade.php')));
+        // Tombol sistem punya keadaan hover dan fokus keyboard yang terlihat.
+        $layout = File::get(resource_path('views/catalog/layout.blade.php'));
+        $this->assertStringContainsString('.btn:hover', $layout);
+        $this->assertStringContainsString('.btn.secondary:hover', $layout);
+        $this->assertStringContainsString('button:focus-visible', $layout);
     }
 
     public function test_date_picker_disables_fully_booked_dates(): void
