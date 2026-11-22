@@ -142,6 +142,7 @@ body {
 .pager { margin-top: var(--space-4); }
 .pager nav { display: flex; justify-content: center; }
 </style>
+@include('layouts.component._theme_head')
 </head>
 <body>
 <header class="appbar reveal d1">
@@ -243,5 +244,6 @@ body {
 
 @include('layouts.component.admin._navbar_admin', ['active' => 'beranda'])
 @include('layouts.component._form_controls')
+@include('layouts.component._ui_kit')
 </body>
 </html>

@@ -20,6 +20,7 @@
     .alert-error { background:#fff1f1; color:#b91c1c; }
     a.back { color:#0077b6; font-weight:800; text-decoration:none; display:inline-block; margin-bottom:12px; }
 </style>
+@include('layouts.component._theme_head')
 </head>
 <body>
 <div class="container">
@@ -93,5 +94,6 @@
 
 </div>
 @include('layouts.component._form_controls')
+@include('layouts.component._ui_kit')
 </body>
 </html>

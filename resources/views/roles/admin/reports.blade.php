@@ -158,6 +158,7 @@ body {
 @keyframes toastOut { to { opacity:0; transform:translateX(-50%) translateY(-20px); } }
 @media (prefers-reduced-motion: reduce){ .toast{animation:none} }
 </style>
+@include('layouts.component._theme_head')
 </head>
 <body>
 
@@ -272,5 +273,6 @@ body {
 
 
 
+@include('layouts.component._ui_kit')
 </body>
 </html>

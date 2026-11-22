@@ -148,6 +148,7 @@ body {
 .pagination-wrap { display: flex; justify-content: center; padding: var(--space-3) 0; }
 .pagination-wrap nav { font-size: .85rem; }
 </style>
+@include('layouts.component._theme_head')
 </head>
 <body>
 
@@ -264,5 +265,6 @@ body {
 @include('layouts.component.driver._navbar_driver', ['active' => 'tugas'])
 
 @include('layouts.component._form_controls')
+@include('layouts.component._ui_kit')
 </body>
 </html>

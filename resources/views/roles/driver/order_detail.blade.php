@@ -165,6 +165,7 @@ body {
 .timeline__text { font-size: .82rem; font-weight: 800; color: var(--ink); }
 .timeline__meta { font-size: .72rem; font-weight: 500; color: var(--ink-muted); margin-top: 2px; }
 </style>
+@include('layouts.component._theme_head')
 </head>
 <body>
 
@@ -435,5 +436,6 @@ body {
 })();
 </script>
 
+@include('layouts.component._ui_kit')
 </body>
 </html>

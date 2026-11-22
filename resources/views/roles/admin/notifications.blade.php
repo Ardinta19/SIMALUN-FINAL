@@ -133,6 +133,7 @@ body {
 .pagination-wrap { display: flex; justify-content: center; margin-top: var(--space-3); }
 .pagination-wrap nav { font-size: .85rem; }
 </style>
+@include('layouts.component._theme_head')
 </head>
 <body>
 
@@ -216,5 +217,6 @@ body {
 @include('layouts.component.admin._navbar_admin', ['active' => ''])
 
 @include('layouts.component._form_controls')
+@include('layouts.component._ui_kit')
 </body>
 </html>

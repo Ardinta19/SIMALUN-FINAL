@@ -338,6 +338,7 @@ html, body { width:100%; height:100%; overflow:hidden; font-family:'Plus Jakarta
   background:rgba(255,255,255,.7); pointer-events:none;
 }
 </style>
+@include('layouts.component._theme_head')
 </head>
 <body>
 <div id="stage">
@@ -969,5 +970,6 @@ function resetForDemo() {
 
 }); /* end DOMContentLoaded */
 </script>
+@include('layouts.component._ui_kit')
 </body>
 </html>

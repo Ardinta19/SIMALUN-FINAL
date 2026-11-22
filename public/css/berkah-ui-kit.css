@@ -1,0 +1,1041 @@
+/*!
+ * Berkah Kreatif — UI kit mikro-interaksi
+ * ------------------------------------------------------------------
+ * Dimuat oleh resources/views/layouts/component/_theme_head.blade.php.
+ * Semua kelas berawalan `bk-` dan tidak menyentuh nama field / logika form.
+ *
+ * Komponen:
+ *   .bk-atc        tombol "Tambah ke keranjang"
+ *   .bk-auth       tombol kirim "Daftar Sekarang" (splash + morph teks)
+ *   .bk-del        tombol hapus (ikon, melebar saat hover/fokus)
+ *   .bk-heart      tombol suka (hati + konfeti)
+ *   .bk-theme-btn  tombol pembuka dialog tema
+ *   .bk-theme-dialog + SVG sakelar robot (GSAP, lihat berkah-ui-kit.js)
+ *
+ * Semua animasi dimatikan pada `prefers-reduced-motion: reduce`.
+ * Semua ukuran memakai clamp/minmax sehingga tetap proporsional 320–1440 px.
+ */
+
+:root {
+    --bk-sr-only: 1px;
+    --bk-atc-bg: linear-gradient(180deg, #fffaf8, #f7e7e9);
+    --bk-atc-ink: #85092d;
+    --bk-atc-line: #e5cbd0;
+    --bk-atc-hover: 0 10px 24px rgba(84, 5, 31, 0.16);
+    --bk-del-bg: #fff0f0;
+    --bk-del-line: #f0c9c9;
+    --bk-del-ink: #a11a32;
+    --bk-heart: #e11d48;
+    --bk-theme-dialog-bg: #fffaf6;
+    --bk-theme-dialog-ink: #301722;
+    --bk-theme-dialog-line: #eadbd6;
+    --bk-theme-svg-panel: #ffffff;
+    --bk-theme-svg-track: #f0e3dd;
+}
+
+.bk-sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* ================================================================
+   1. Tombol tambah ke keranjang
+   ================================================================ */
+
+.bk-atc {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55em;
+    width: 100%;
+    min-height: 48px;
+    padding: 0.7em 1em;
+    border: 1px solid var(--bk-atc-line);
+    border-radius: 14px;
+    background: var(--bk-atc-bg);
+    color: var(--bk-atc-ink);
+    font: inherit;
+    font-size: clamp(0.85rem, 2.4vw, 0.98rem);
+    font-weight: 800;
+    line-height: 1.2;
+    text-align: center;
+    cursor: pointer;
+    overflow: hidden;
+    isolation: isolate;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.bk-atc:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--bk-atc-hover);
+    border-color: var(--bk-atc-ink);
+}
+
+.bk-atc:active {
+    transform: translateY(0) scale(0.985);
+}
+
+.bk-atc:focus-visible {
+    outline: 3px solid #bc5b75;
+    outline-offset: 3px;
+}
+
+.bk-atc__icon {
+    display: inline-grid;
+    place-items: center;
+    width: 1.35em;
+    height: 1.35em;
+    flex: none;
+    transition: transform 0.22s ease;
+}
+
+.bk-atc__icon svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.bk-atc:hover .bk-atc__icon {
+    transform: translateY(-1px) rotate(-4deg);
+}
+
+.bk-atc__label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bk-atc__bar {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 3px;
+    width: 0;
+    background: currentColor;
+    opacity: 0.85;
+    border-radius: 0 3px 3px 0;
+    transition: width 0.6s cubic-bezier(0.3, 0.7, 0.2, 1);
+}
+
+.bk-atc.is-loading {
+    pointer-events: none;
+    cursor: progress;
+}
+
+.bk-atc.is-loading .bk-atc__bar {
+    width: 100%;
+}
+
+.bk-atc.is-loading .bk-atc__icon {
+    animation: bk-atc-bob 0.9s ease-in-out infinite;
+}
+
+.bk-atc.is-added {
+    --bk-atc-bg: linear-gradient(180deg, #e8f8ef, #d2f0e0);
+    --bk-atc-ink: #0f6b45;
+    --bk-atc-line: #bfe3d0;
+}
+
+@keyframes bk-atc-bob {
+    50% { transform: translateY(-2px); }
+}
+
+/* ================================================================
+   2. Tombol hapus
+   ================================================================ */
+
+.bk-del {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid var(--bk-del-line);
+    border-radius: 999px;
+    background: var(--bk-del-bg);
+    color: var(--bk-del-ink);
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 800;
+    cursor: pointer;
+    overflow: hidden;
+    flex: none;
+    transition: width 0.24s ease, padding 0.24s ease, gap 0.24s ease, background 0.18s ease, border-color 0.18s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.bk-del__icon {
+    display: grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    flex: none;
+}
+
+.bk-del__icon svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.bk-del__text {
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: max-width 0.24s ease, opacity 0.18s ease;
+}
+
+.bk-del:hover,
+.bk-del:focus-visible {
+    width: auto;
+    padding: 0 14px 0 12px;
+    gap: 8px;
+    border-color: var(--bk-del-ink);
+}
+
+.bk-del:hover .bk-del__text,
+.bk-del:focus-visible .bk-del__text {
+    max-width: 12rem;
+    opacity: 1;
+}
+
+.bk-del:active {
+    transform: translateY(1px) scale(0.98);
+}
+
+.bk-del:focus-visible {
+    outline: 3px solid #bc5b75;
+    outline-offset: 3px;
+}
+
+/* Layar sentuh tidak punya hover: label selalu tampil. */
+@media (hover: none), (pointer: coarse) {
+    .bk-del {
+        width: auto;
+        padding: 0 14px 0 12px;
+        gap: 8px;
+    }
+
+    .bk-del__text {
+        max-width: none;
+        opacity: 1;
+    }
+}
+
+/* ================================================================
+   3. Tombol suka (hati)
+   ================================================================ */
+
+.bk-heart {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--bk-heart);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.bk-heart:hover {
+    background: rgba(225, 29, 72, 0.1);
+    background: color-mix(in srgb, var(--bk-heart) 12%, transparent);
+}
+
+.bk-heart:active {
+    transform: scale(0.94);
+}
+
+.bk-heart:focus-visible {
+    outline: 3px solid #bc5b75;
+    outline-offset: 2px;
+}
+
+.bk-heart svg {
+    display: block;
+    width: 26px;
+    height: 26px;
+    overflow: visible;
+}
+
+.bk-heart__outline {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.bk-heart__filled {
+    position: absolute;
+    fill: currentColor;
+    opacity: 0;
+    transform: scale(0.3);
+    transition: opacity 0.18s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.bk-heart[aria-pressed="true"] .bk-heart__outline {
+    opacity: 0;
+}
+
+.bk-heart[aria-pressed="true"] .bk-heart__filled {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.bk-heart__burst {
+    position: absolute;
+    width: 52px;
+    height: 52px;
+    pointer-events: none;
+    opacity: 0;
+    stroke: currentColor;
+    fill: currentColor;
+    stroke-width: 1.6;
+    stroke-linejoin: round;
+}
+
+.bk-heart.is-celebrating .bk-heart__burst {
+    animation: bk-heart-burst 0.6s ease-out forwards;
+}
+
+.bk-heart.is-celebrating .bk-heart__filled {
+    animation: bk-heart-pop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes bk-heart-pop {
+    40% { transform: scale(1.22); }
+    100% { transform: scale(1); }
+}
+
+@keyframes bk-heart-burst {
+    0% { opacity: 1; transform: scale(0.5); }
+    70% { opacity: 0.9; }
+    100% { opacity: 0; transform: scale(1.35); }
+}
+
+/* ================================================================
+   4. Tombol autentikasi (Daftar) — splash + morph teks
+   ================================================================ */
+
+button.bk-auth {
+    --bk-auth-radius: 18px;
+    --bk-auth-white: #fff6f2;
+    --bk-auth-1: #f7d9e1;
+    --bk-auth-2: #e9a9b9;
+    --bk-auth-3: #cf6f8b;
+    --bk-auth-4: #a81f45;
+    --bk-auth-5: #54051f;
+
+    position: relative;
+    display: block;
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: 360px;
+    min-width: 0;
+    height: clamp(58px, 15vw, 76px);
+    padding: 0;
+    border: 0;
+    border-radius: var(--bk-auth-radius);
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+    cursor: pointer;
+    color: var(--bk-auth-white);
+    font-family: inherit;
+    transform: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+button.bk-auth:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+button.bk-auth:focus-visible {
+    outline: 3px solid #f2a1b4;
+    outline-offset: 4px;
+}
+
+.bk-auth__bg,
+.bk-auth__wrap {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+.bk-auth__bg {
+    filter: blur(1px);
+}
+
+.bk-auth__bg::before,
+.bk-auth__bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: calc(var(--bk-auth-radius) * 1.1);
+    background: var(--bk-auth-5);
+}
+
+.bk-auth__bg::before {
+    filter: blur(5px);
+    transition: box-shadow 0.3s ease;
+    box-shadow:
+        -4px 3px 0 0 rgba(88, 22, 40, 0.34),
+        -8px 6px 0 0 rgba(88, 22, 40, 0.24),
+        -12px 9px 3px 0 rgba(88, 22, 40, 0.16),
+        -16px 12px 6px 0 rgba(88, 22, 40, 0.1);
+}
+
+.bk-auth__wrap {
+    overflow: hidden;
+    transform: translate(5px, -5px);
+    padding: 3px;
+    background: linear-gradient(to bottom, var(--bk-auth-1) 0%, var(--bk-auth-4) 100%);
+    transition: transform 0.28s ease;
+}
+
+.bk-auth:hover .bk-auth__wrap,
+.bk-auth:focus-visible .bk-auth__wrap {
+    transform: translate(7px, -7px);
+}
+
+.bk-auth:active .bk-auth__wrap {
+    transform: translate(2px, -2px);
+}
+
+.bk-auth__outline {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: 0;
+    overflow: hidden;
+    transition: opacity 0.3s ease;
+}
+
+.bk-auth__outline::before {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    width: 45%;
+    height: 300%;
+    margin: auto;
+    background: linear-gradient(to right, transparent 0%, rgba(255, 255, 255, 0.75) 50%, transparent 100%);
+    transform: rotate(0deg);
+    animation: bk-auth-spin 3s linear infinite;
+    animation-play-state: paused;
+}
+
+.bk-auth:hover .bk-auth__outline,
+.bk-auth:focus-visible .bk-auth__outline {
+    opacity: 1;
+}
+
+.bk-auth:hover .bk-auth__outline::before,
+.bk-auth:focus-visible .bk-auth__outline::before {
+    animation-play-state: running;
+}
+
+.bk-auth__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(8px, 3vw, 14px);
+    height: 100%;
+    padding: 0 clamp(10px, 4vw, 20px);
+    border-radius: calc(var(--bk-auth-radius) * 0.85);
+    background: linear-gradient(to bottom, var(--bk-auth-3) 0%, var(--bk-auth-4) 100%);
+    box-shadow:
+        inset -2px 12px 11px -5px var(--bk-auth-2),
+        inset 1px -3px 11px 0 rgba(0, 0, 0, 0.35);
+    font-size: clamp(16px, 4.6vw, 22px);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+}
+
+.bk-auth__content::before {
+    content: "";
+    position: absolute;
+    z-index: 10;
+    left: 10%;
+    right: 10%;
+    top: 45%;
+    bottom: 35%;
+    background: linear-gradient(to bottom, transparent, var(--bk-auth-4));
+    filter: brightness(1.3) blur(5px);
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.bk-auth__text {
+    display: inline-grid;
+    place-items: center;
+    min-width: 0;
+}
+
+.bk-auth__chars {
+    grid-area: 1 / 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.bk-auth__chars span {
+    display: block;
+    color: var(--bk-auth-white);
+    text-shadow: -1px 1px 2px var(--bk-auth-5);
+}
+
+.bk-auth__chars--b {
+    opacity: 0;
+}
+
+.bk-auth:hover .bk-auth__chars--a,
+.bk-auth:focus-visible .bk-auth__chars--a {
+    animation: bk-auth-fade-out 0.3s ease forwards;
+}
+
+.bk-auth:hover .bk-auth__chars--a span,
+.bk-auth:focus-visible .bk-auth__chars--a span {
+    animation: bk-auth-char-out 0.45s ease forwards calc(var(--i) * 0.025s);
+}
+
+.bk-auth:hover .bk-auth__chars--b,
+.bk-auth:focus-visible .bk-auth__chars--b {
+    opacity: 1;
+}
+
+.bk-auth:hover .bk-auth__chars--b span,
+.bk-auth:focus-visible .bk-auth__chars--b span {
+    animation: bk-auth-char-in 0.55s ease backwards calc(var(--i) * 0.03s);
+}
+
+.bk-auth__icon {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 14px;
+    flex: none;
+}
+
+.bk-auth__icon div,
+.bk-auth__icon div::before,
+.bk-auth__icon div::after {
+    height: 3px;
+    border-radius: 2px;
+    background: linear-gradient(to bottom, var(--bk-auth-white), var(--bk-auth-1));
+}
+
+.bk-auth__icon div {
+    position: relative;
+    width: clamp(18px, 5vw, 24px);
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+.bk-auth__icon div::before,
+.bk-auth__icon div::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    width: 13px;
+    transform-origin: center right;
+    transition: transform 0.3s ease;
+}
+
+.bk-auth__icon div::before {
+    top: 1px;
+    transform: rotate(42deg);
+}
+
+.bk-auth__icon div::after {
+    bottom: 1px;
+    transform: rotate(318deg);
+}
+
+.bk-auth__icon div {
+    animation: bk-auth-swing 1.6s ease-in-out infinite;
+    animation-play-state: paused;
+}
+
+.bk-auth:hover .bk-auth__icon div,
+.bk-auth:focus-visible .bk-auth__icon div {
+    animation-play-state: running;
+}
+
+.bk-auth__path {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 3;
+    width: 100%;
+    height: auto;
+    stroke-dasharray: 160 480;
+    stroke-dashoffset: 160;
+    pointer-events: none;
+}
+
+.bk-auth:focus-visible .bk-auth__path {
+    animation: bk-auth-path 1.3s ease forwards 0.15s;
+}
+
+.bk-auth__splash {
+    position: absolute;
+    z-index: 3;
+    top: 0;
+    left: 0;
+    width: 58%;
+    max-width: 210px;
+    height: auto;
+    transform: translate(-6%, -18%);
+    stroke-dasharray: 60 60;
+    stroke-dashoffset: 60;
+    stroke: var(--bk-auth-2);
+    pointer-events: none;
+}
+
+.bk-auth:active .bk-auth__splash {
+    animation: bk-auth-splash 0.8s cubic-bezier(0.3, 0, 0, 1) forwards 0.05s;
+}
+
+.bk-auth:active .bk-auth__content {
+    box-shadow:
+        inset -1px 12px 8px -5px rgba(84, 5, 31, 0.45),
+        inset 0 -3px 8px 0 var(--bk-auth-2);
+}
+
+@keyframes bk-auth-spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes bk-auth-fade-out {
+    to { opacity: 0; }
+}
+
+@keyframes bk-auth-char-in {
+    0% { transform: translateY(60%); opacity: 0; filter: blur(12px); }
+    40% { transform: translateY(65%); opacity: 1; }
+    70% { transform: translateY(-12%); opacity: 1; filter: blur(0); }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes bk-auth-char-out {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-70%); opacity: 0; filter: blur(3px); }
+}
+
+@keyframes bk-auth-swing {
+    50% { transform: translateX(4px) scale(0.95); }
+}
+
+@keyframes bk-auth-splash {
+    to { stroke-dasharray: 2 60; stroke-dashoffset: -60; }
+}
+
+@keyframes bk-auth-path {
+    from { stroke: #fff; }
+    to { stroke-dashoffset: -480; stroke: #ffd9e3; }
+}
+
+/* ================================================================
+   5. Tombol tema + dialog sakelar
+   ================================================================ */
+
+.bk-theme-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    flex: none;
+    padding: 0;
+    border: 1px solid var(--bk-toggle-line, #e8d6dc);
+    border-radius: 14px;
+    background: var(--bk-toggle-bg, #f8ecec);
+    color: var(--bk-toggle-ink, #85092d);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.bk-theme-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(84, 5, 31, 0.18);
+}
+
+.bk-theme-btn:active {
+    transform: translateY(0) scale(0.96);
+}
+
+.bk-theme-btn:focus-visible {
+    outline: 3px solid #bc5b75;
+    outline-offset: 3px;
+}
+
+.bk-theme-btn svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+}
+
+.bk-theme-btn__moon {
+    display: none;
+}
+
+html[data-theme="dark"] .bk-theme-btn__sun {
+    display: none;
+}
+
+html[data-theme="dark"] .bk-theme-btn__moon {
+    display: block;
+}
+
+.bk-theme-btn.bk-theme-dock {
+    position: fixed;
+    right: 12px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 92px);
+    z-index: 1050;
+    box-shadow: 0 10px 26px rgba(23, 8, 14, 0.28);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+@media (min-width: 701px) {
+    .bk-theme-btn.bk-theme-dock {
+        bottom: 24px;
+        right: 20px;
+    }
+}
+
+/* Slot di header: tombol dipindahkan ke sini oleh JS. */
+.bk-theme-host {
+    display: flex;
+    align-items: center;
+    flex: none;
+}
+
+.bk-theme-host .bk-theme-btn.bk-theme-dock {
+    position: static;
+    right: auto;
+    bottom: auto;
+    box-shadow: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+}
+
+@media (max-width: 700px) {
+    .bk-theme-host {
+        display: none;
+    }
+}
+
+.bk-theme-dialog {
+    box-sizing: border-box;
+    width: min(520px, calc(100% - 20px));
+    max-width: calc(100% - 20px);
+    max-height: calc(100vh - 26px);
+    max-height: calc(100dvh - 26px);
+    margin: auto;
+    padding: 0;
+    border: 1px solid var(--bk-theme-dialog-line);
+    border-radius: 26px;
+    background: var(--bk-theme-dialog-bg);
+    color: var(--bk-theme-dialog-ink);
+    box-shadow: 0 30px 80px rgba(10, 4, 7, 0.45);
+    overflow: auto;
+    overscroll-behavior: contain;
+}
+
+.bk-theme-dialog::backdrop {
+    background: rgba(12, 6, 9, 0.55);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+}
+
+.bk-theme-dialog__body {
+    padding: clamp(16px, 4vw, 26px);
+    padding-bottom: calc(clamp(16px, 4vw, 26px) + env(safe-area-inset-bottom, 0px));
+}
+
+.bk-theme-dialog__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.bk-theme-dialog__head h2 {
+    margin: 2px 0 4px;
+    font-size: clamp(1.15rem, 4.6vw, 1.45rem);
+    line-height: 1.25;
+}
+
+.bk-theme-dialog__eyebrow {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    opacity: 0.75;
+}
+
+.bk-theme-dialog__close {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--bk-theme-dialog-line);
+    border-radius: 50%;
+    background: transparent;
+    color: inherit;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.bk-theme-dialog__close:hover {
+    background: rgba(133, 9, 45, 0.08);
+}
+
+.bk-theme-dialog__stage {
+    margin: 10px auto 4px;
+    width: 100%;
+    max-width: 440px;
+}
+
+.bk-theme-dialog__stage svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    touch-action: manipulation;
+}
+
+.bk-theme-dialog__hint {
+    margin: 6px 0 0;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    opacity: 0.85;
+    text-align: center;
+}
+
+.bk-theme-choices {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.bk-theme-choice {
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--bk-theme-dialog-line);
+    border-radius: 999px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 0.86rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.bk-theme-choice:hover {
+    border-color: currentColor;
+}
+
+.bk-theme-choice[aria-pressed="true"] {
+    background: #a81f45;
+    border-color: #a81f45;
+    color: #fff;
+}
+
+.bk-theme-choice:focus-visible,
+.bk-theme-dialog__close:focus-visible {
+    outline: 3px solid #bc5b75;
+    outline-offset: 3px;
+}
+
+/* SVG sakelar robot */
+#bk-theme-switch {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#bk-theme-switch .bk-theme-svg__panel {
+    fill: var(--bk-theme-svg-panel);
+}
+
+#bk-theme-switch .bk-theme-svg__track {
+    fill: var(--bk-theme-svg-track);
+}
+
+#bk-theme-switch .bk-theme-svg__knob {
+    fill: #2bdb7f;
+}
+
+#bk-theme-switch .bk-theme-svg__hand--2 {
+    opacity: 0;
+}
+
+/* ================================================================
+   6. Preferensi gerak
+   ================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    .bk-atc,
+    .bk-atc__icon,
+    .bk-atc__bar,
+    .bk-del,
+    .bk-del__text,
+    .bk-heart,
+    .bk-heart__filled,
+    .bk-heart__outline,
+    .bk-auth__wrap,
+    .bk-auth__outline,
+    .bk-theme-btn {
+        transition: none !important;
+    }
+
+    .bk-atc.is-loading .bk-atc__icon,
+    .bk-heart.is-celebrating .bk-heart__burst,
+    .bk-heart.is-celebrating .bk-heart__filled,
+    .bk-auth__icon div,
+    .bk-auth__outline::before,
+    .bk-auth:hover .bk-auth__chars--a span,
+    .bk-auth:hover .bk-auth__chars--b span,
+    .bk-auth:focus-visible .bk-auth__chars--a span,
+    .bk-auth:focus-visible .bk-auth__chars--b span,
+    .bk-auth:active .bk-auth__splash,
+    .bk-auth:focus-visible .bk-auth__path {
+        animation: none !important;
+    }
+
+    .bk-auth:hover .bk-auth__chars--a,
+    .bk-auth:focus-visible .bk-auth__chars--a {
+        opacity: 0;
+    }
+
+    .bk-auth:hover .bk-auth__chars--b,
+    .bk-auth:focus-visible .bk-auth__chars--b {
+        opacity: 1;
+    }
+}
+
+/* ================================================================
+   7. Layar sangat kecil
+   ================================================================ */
+
+@media (max-width: 360px) {
+    .bk-atc {
+        padding-inline: 0.7em;
+        font-size: 0.82rem;
+    }
+
+    .bk-atc__icon {
+        width: 1.15em;
+        height: 1.15em;
+    }
+
+    button.bk-auth {
+        max-width: none;
+    }
+
+    .bk-auth__content {
+        gap: 8px;
+        font-size: 15px;
+    }
+}
+
+
+/* ================================================================
+   8. Penyesuaian integrasi halaman
+   ================================================================ */
+
+.bk-atc__label-short {
+    display: none;
+}
+
+@media (max-width: 420px) {
+    .bk-atc__label-long {
+        display: none;
+    }
+
+    .bk-atc__label-short {
+        display: inline;
+    }
+}
+
+.bk-like-form {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+}
+
+/* Tombol daftar memakai kelas halaman .btn-submit; matikan efek lama
+   supaya lapisan 3D milik .bk-auth tidak tertimpa. */
+button.bk-auth::before {
+    content: none;
+}
+
+.bk-auth .btn-spinner {
+    position: absolute;
+    z-index: 4;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+}
+
+.bk-auth.loading .bk-auth__wrap {
+    opacity: 0.4;
+}
+
+.bk-auth.loading .bk-auth__content {
+    color: transparent;
+}
+
+/* Keranjang: baris aksi tetap rapi saat tombol hapus melebar. */
+.cart-unit-actions .bk-del {
+    align-self: center;
+}
+
+/* ================================================================
+   9. Cetak
+   ================================================================ */
+
+@media print {
+    .bk-theme-btn,
+    .bk-theme-dialog,
+    .bk-theme-dialog::backdrop {
+        display: none !important;
+    }
+}

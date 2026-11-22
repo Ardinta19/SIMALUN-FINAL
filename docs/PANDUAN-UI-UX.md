@@ -157,3 +157,40 @@ Status header hanya dua: **melebar** (di atas halaman) dan **ringkas** (logo 66 
 - `tests/Feature/ResponsiveLayoutTest.php` — lint `dvh` tanpa fallback (komentar CSS diabaikan) di semua CSS + blok `<style>` Blade, memastikan `.bk-dialog` dibatasi `100dvh`, ada safe area, `overscroll-behavior`, bilah aksi sticky, dan status header `is-pinned` (serta `holdOpen` tidak kembali).
 - Harness jsdom (di luar repo): `header-state.cjs` (logo, pin, Escape, fokus keluar) dan `filter-sheet.cjs` (form dipindah ke dialog, tanggal/select tetap kustom, layer di dalam dialog, Escape hanya menutup layer).
 - Batas: jsdom tidak mengukur layout nyata, jadi tinggi/overflow tetap diverifikasi lewat aturan CSS, lint, dan uji perangkat.
+
+## Tema gelap & UI kit mikro-interaksi
+
+### Arsitektur
+
+- `resources/views/layouts/component/_theme_head.blade.php` dimuat **di dalam `<head>`, setelah CSS halaman** pada setiap layar (43 halaman). Isinya: skrip boot kecil (menetapkan `data-theme` sebelum paint, tanpa kedipan), lalu `public/css/berkah-theme.css` dan `public/css/berkah-ui-kit.css`.
+- `resources/views/layouts/component/_ui_kit.blade.php` dimuat sebelum `</body>`: tombol tema, dialog sakelar robot, dan `public/js/berkah-ui-kit.js`. Kedua partial memakai `@once` sehingga aman di-include dua kali.
+- Tema disimpan di `localStorage('bk-theme')` (`light`/`dark`). Bila belum pernah memilih, tema mengikuti `prefers-color-scheme`; perubahan preferensi sistem ikut diterapkan selama pengguna belum memilih. Tombol "Ikuti perangkat" menghapus pilihan.
+- Email, PDF (`exports/*`, `*-pdf`), dan lembar cetak (`rental/daily-sheet`) **tidak boleh** memuat partial ini; `UiKitTest` menjaga larangan tersebut. Saat mencetak halaman biasa, tombol/dialog tema disembunyikan lewat `@media print`.
+
+### Aturan tema gelap (wajib untuk view baru)
+
+1. Tulis aturan hanya di bawah `html[data-theme="dark"]`; tema terang tidak boleh berubah.
+2. Halaman yang memakai variabel `--ink`, `--card`, `--surface*`, `--line`, `--border`, `--fc-*`, `--bk-*` otomatis ikut gelap karena token dipetakan ulang di `berkah-theme.css`.
+3. **Jangan** memetakan `--surface-raised`: nilainya juga dipakai sebagai warna teks putih di atas tombol brand (`color:var(--surface-raised)`). Permukaan yang memakainya dioverride per kelas.
+4. Setiap `background: white|#fff|#fffaf8` baru di view harus punya pasangan gelap (atau masuk `SURFACE_ALLOWLIST` bila memang knop/titik/kilatan). `UiKitTest::test_dark_theme_covers_every_light_surface` akan gagal bila lupa.
+5. Jangan memakai `!important`; selektor `html[data-theme="dark"] :is(...)` sudah mengalahkan satu kelas halaman.
+
+### Komponen & kontrak form
+
+| Komponen | Kelas | Dipakai di | Kontrak yang dijaga |
+| --- | --- | --- | --- |
+| Tambah ke keranjang | `.bk-atc` | kartu katalog, detail papan | Tombol tetap `type="submit"`; `name/value` (`name="next" value="cart"`) dan hidden `quantity`, `starts_on`, `ends_on` tidak diubah. JS **tidak** menonaktifkan tombol agar submitter tetap terkirim. |
+| Daftar (splash) | `.bk-auth` pada `#btn-submit` | halaman register | `id="btn-submit"`, `type="submit"`, dan `.btn-text` dipertahankan; teks dekoratif `aria-hidden`, nama aksesibel "Daftar Sekarang". |
+| Hapus | `.bk-del` | keranjang, daftar alamat | Tetap submit di form `@method('DELETE')`; `aria-label` lengkap dipertahankan; label terlihat di layar sentuh. |
+| Suka | `.bk-heart` | `catalog/product-feedback` | Form, `@csrf`, dan hidden `name="liked"` tidak disentuh; `aria-pressed` hanya untuk tampilan. |
+| Tema | `.bk-theme-btn` + `#bk-theme-switch` | semua halaman | Tombol pindah ke `[data-bk-theme-host]` bila ada (header desktop), jika tidak melayang di kanan bawah. |
+
+### Menambah slot tema di header baru
+
+Tambahkan `<span class="bk-theme-host" data-bk-theme-host></span>` di dalam header, lalu pastikan CSS header menyembunyikannya di layar sempit (`.bk-theme-host` default `display:none` ≤700 px) agar tombol melayang yang dipakai. JS memindahkan tombol hanya bila slot terlihat (`offsetParent` tidak null).
+
+### Verifikasi
+
+- `tests/Feature/UiKitTest.php` — aset & partial, semua halaman memuat tema/UI kit, cakupan permukaan terang, kontrak form, dan larangan menonaktifkan tombol submit.
+- `tests/Feature/ResponsiveLayoutTest.php` — lint `dvh` tanpa fallback juga mencakup CSS baru.
+- Harness jsdom `ui-kit.cjs` — penempatan tombol, dialog, persistensi tema, sakelar + reduced motion, status "Menambahkan…", dan hati tanpa mengubah `liked`.

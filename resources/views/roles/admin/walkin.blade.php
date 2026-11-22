@@ -225,6 +225,7 @@ body {
 .form-submit:active { transform: scale(.97); }
 @media (prefers-reduced-motion: reduce){ .form-submit:active, .topbar__back:active { transform: none; } }
 </style>
+@include('layouts.component._theme_head')
 </head>
 <body>
 
@@ -625,5 +626,6 @@ body {
 </script>
 
 @include('layouts.component._form_controls')
+@include('layouts.component._ui_kit')
 </body>
 </html>

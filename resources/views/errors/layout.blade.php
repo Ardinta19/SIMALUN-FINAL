@@ -35,6 +35,7 @@ p.lead{font-size:.94rem;font-weight:600;color:#5b4149;line-height:1.6;margin-bot
 @media(max-width:360px){.card{padding:28px 18px 24px}.hero-emoji{font-size:3rem}}
 @media(prefers-reduced-motion:reduce){.hero-emoji{animation:none}*,*::before,*::after{transition:none!important}}
 </style>
+@include('layouts.component._theme_head')
 </head>
 <body>
 <main>
@@ -54,5 +55,6 @@ p.lead{font-size:.94rem;font-weight:600;color:#5b4149;line-height:1.6;margin-bot
     <div class="brand"><span>Berkah Kreatif</span> &bull; <span>SIMALUN</span></div>
 </main>
 @include('layouts.component._form_controls')
+@include('layouts.component._ui_kit')
 </body>
 </html>

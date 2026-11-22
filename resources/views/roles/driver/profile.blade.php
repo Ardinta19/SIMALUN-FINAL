@@ -274,6 +274,7 @@ body {
 }
 .btn-logout:active { background: color-mix(in srgb, var(--danger-500) 8%, transparent); transform: scale(.98); }
 </style>
+@include('layouts.component._theme_head')
 </head>
 <body>
 
@@ -435,5 +436,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 @include('layouts.component._form_controls')
+@include('layouts.component._ui_kit')
 </body>
 </html>

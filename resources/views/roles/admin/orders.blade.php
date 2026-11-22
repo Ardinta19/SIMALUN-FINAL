@@ -203,6 +203,7 @@ body {
 .pagination-wrap { padding: var(--space-3) 0; }
 .pagination-wrap nav { display: flex; justify-content: center; }
 </style>
+@include('layouts.component._theme_head')
 </head>
 <body>
 
@@ -460,5 +461,6 @@ body {
 </script>
 
 @include('layouts.component._form_controls')
+@include('layouts.component._ui_kit')
 </body>
 </html>

@@ -191,6 +191,7 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
 <link rel="stylesheet" href="{{ $asset('css/page-transitions.css') }}"><script src="{{ $asset('js/page-transitions.js') }}" defer></script>
 <link rel="stylesheet" href="{{ $asset('css/customer-forms.css') }}">
 <link rel="stylesheet" href="{{ $asset('css/berkah-experience.css') }}">
+@include('layouts.component._theme_head')
 </head>
 <body class="bk-experience bk-customer bk-standalone">
 @php
@@ -382,5 +383,6 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 <script src="{{ $asset('js/berkah-experience.js') }}" defer></script>
 @include('layouts.component._form_controls')
+@include('layouts.component._ui_kit')
 </body>
 </html>

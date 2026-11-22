@@ -272,6 +272,7 @@ body {
     letter-spacing: .3px;
 }
 </style>
+@include('layouts.component._theme_head')
 </head>
 <body>
 
@@ -421,5 +422,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 @include('layouts.component._form_controls')
+@include('layouts.component._ui_kit')
 </body>
 </html>

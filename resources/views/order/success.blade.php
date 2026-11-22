@@ -44,6 +44,7 @@ h1{font-weight:800;font-size:1.5rem;color:var(--blue-dark);margin-bottom:6px;}
 .btn-secondary{display:block;width:100%;padding:12px;margin-top:10px;background:none;color:var(--blue-mid);font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:.9rem;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;text-decoration:none;text-align:center;transition:background .2s;}
 .btn-secondary:hover{background:var(--surface);}
 </style>
+@include('layouts.component._theme_head')
 </head>
 <body>
 
@@ -123,5 +124,6 @@ h1{font-weight:800;font-size:1.5rem;color:var(--blue-dark);margin-bottom:6px;}
 </div>
 
 @include('layouts.component._form_controls')
+@include('layouts.component._ui_kit')
 </body>
 </html>

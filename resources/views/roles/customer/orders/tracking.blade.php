@@ -266,6 +266,7 @@ body {
 }
 </style>
 <link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}"><script src="{{ asset('js/page-transitions.js') }}" defer></script>
+@include('layouts.component._theme_head')
 </head>
 <body>
 
@@ -559,5 +560,6 @@ body {
 </script>
 
 @include('layouts.component._form_controls')
+@include('layouts.component._ui_kit')
 </body>
 </html>

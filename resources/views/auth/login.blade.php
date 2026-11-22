@@ -98,6 +98,7 @@ html, body {
 </style>
 <link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}"><script src="{{ asset('js/page-transitions.js') }}" defer></script>
 <link rel="stylesheet" href="{{ asset('css/berkah-login-splash.css') }}?v={{ file_exists(public_path('css/berkah-login-splash.css')) ? filemtime(public_path('css/berkah-login-splash.css')) : '1' }}">
+@include('layouts.component._theme_head')
 </head>
 <body@if($errors->any() || session('error') || session('success')) data-no-splash="1"@endif>
 @php
@@ -342,5 +343,6 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 @include('layouts.component._form_controls')
 <script src="{{ asset('js/berkah-login-splash.js') }}?v={{ file_exists(public_path('js/berkah-login-splash.js')) ? filemtime(public_path('js/berkah-login-splash.js')) : '1' }}"></script>
+@include('layouts.component._ui_kit')
 </body>
 </html>

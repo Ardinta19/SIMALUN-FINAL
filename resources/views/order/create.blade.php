@@ -403,6 +403,7 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
   .page-body { padding:24px 24px 120px; }
 }
 </style>
+@include('layouts.component._theme_head')
 </head>
 <body>
 
@@ -1208,5 +1209,6 @@ recalc();
 })();
 </script>
 @include('layouts.component._form_controls')
+@include('layouts.component._ui_kit')
 </body>
 </html>

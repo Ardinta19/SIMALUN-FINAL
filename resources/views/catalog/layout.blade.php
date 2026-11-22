@@ -44,6 +44,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 <link rel="stylesheet" href="{{ $asset('css/berkah-experience.css') }}">
 @endif
 @if(!auth()->check() || auth()->user()->role === 'customer')<link rel="stylesheet" href="{{ $asset('css/page-transitions.css') }}"><script src="{{ $asset('js/page-transitions.js') }}" defer></script>@endif
+@include('layouts.component._theme_head')
 </head><body @if(!auth()->check() || auth()->user()->role === 'customer') class="bk-experience {{ auth()->check() ? 'bk-customer' : 'bk-guest' }}" @endif>
 @if(!auth()->check() || auth()->user()->role === 'customer')
 @include('catalog.customer-navigation')
@@ -71,4 +72,5 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 <script src="{{ $asset('js/berkah-experience.js') }}" defer></script>
 @endif
 @include('layouts.component._form_controls')
+@include('layouts.component._ui_kit')
 </body></html>

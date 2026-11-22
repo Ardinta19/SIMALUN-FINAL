@@ -148,6 +148,7 @@ body {
 .empty-state__title { font-size: 1rem; font-weight: 800; color: var(--ink); margin-bottom: var(--space-2); }
 .empty-state__text { color: var(--ink-muted); font-size: .88rem; font-weight: 600; line-height: 1.5; }
 </style>
+@include('layouts.component._theme_head')
 </head>
 <body>
 
@@ -266,5 +267,6 @@ body {
 @endif
 
 @include('layouts.component._form_controls')
+@include('layouts.component._ui_kit')
 </body>
 </html>

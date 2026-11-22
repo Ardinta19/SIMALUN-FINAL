@@ -22,6 +22,7 @@
                 <a href="{{ route('customer.notifications') }}" class="bk-desktop-action" aria-label="Notifikasi{{ $unreadNotif ? ', '.$unreadNotif.' belum dibaca' : '' }}" @if(request()->routeIs('customer.notifications*')) aria-current="page" @endif>@include('layouts.component._icon', ['name' => 'bell', 'size' => 20]) @if($unreadNotif)<span class="bk-action-badge" aria-hidden="true">{{ $unreadNotif > 99 ? '99+' : $unreadNotif }}</span>@endif</a>
                 <a href="{{ route('customer.profile') }}" class="bk-desktop-action" aria-label="Profil" @if(request()->routeIs('customer.profile', 'customer.addresses.*')) aria-current="page" @endif>@include('layouts.component._icon', ['name' => 'user', 'size' => 20])</a>
                 @endif
+                <span class="bk-theme-host" data-bk-theme-host></span>
             </nav>
             @if(request()->routeIs('welcome'))
             <a class="bk-header-filter bk-filter-fallback" href="#catalog-filter" aria-label="Cari dan filter katalog">@include('layouts.component._icon', ['name' => 'search', 'size' => 21]) <span>Cari &amp; filter</span></a>

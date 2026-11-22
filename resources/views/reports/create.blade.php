@@ -177,6 +177,7 @@ body {
 </style>
 <link rel="stylesheet" href="{{ $asset('css/page-transitions.css') }}"><script src="{{ $asset('js/page-transitions.js') }}" defer></script>
 @if(auth()->user()->role === 'customer')<link rel="stylesheet" href="{{ $asset('css/berkah-experience.css') }}">@endif
+@include('layouts.component._theme_head')
 </head>
 <body @if(auth()->user()->role === 'customer') class="bk-experience bk-customer bk-standalone-report" @endif>
 @if(auth()->user()->role === 'customer')@include('catalog.customer-navigation')@endif
@@ -326,5 +327,6 @@ if (_fileInput) _fileInput.addEventListener('change', function() {
 </script>
 @if(auth()->user()->role === 'customer')<script src="{{ $asset('js/berkah-experience.js') }}" defer></script>@endif
 @include('layouts.component._form_controls')
+@include('layouts.component._ui_kit')
 </body>
 </html>

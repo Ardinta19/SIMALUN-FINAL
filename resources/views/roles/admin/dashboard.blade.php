@@ -255,6 +255,7 @@ body {
 .logout-btn svg { width: 17px; height: 17px; }
 .version-tag { text-align: center; margin: 14px 0 6px; font-size: 0.66rem; font-weight: 700; color: var(--ink-lt); letter-spacing: 0.3px; }
 </style>
+@include('layouts.component._theme_head')
 </head>
 <body>
 @php
@@ -312,5 +313,6 @@ body {
 </main>
 @include('layouts.component.admin._navbar_admin', ['active' => 'beranda'])
 @include('layouts.component._form_controls')
+@include('layouts.component._ui_kit')
 </body>
 </html>

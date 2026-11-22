@@ -150,6 +150,7 @@ body {
 }
 @media (prefers-reduced-motion: reduce){ .contact-btn { transition: none; } }
 </style>
+@include('layouts.component._theme_head')
 </head>
 <body>
 <header class="top reveal d1">
@@ -421,5 +422,6 @@ function switchTab(tabName){
 }
 </script>
 @include('layouts.component._form_controls')
+@include('layouts.component._ui_kit')
 </body>
 </html>

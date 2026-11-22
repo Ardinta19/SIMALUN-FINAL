@@ -443,6 +443,7 @@ body.print-thermal-58 .receipt { width: 100%; }
     .receipt--a5, .receipt--a4 { width: 100%; min-height: auto; padding: 16px; }
 }
 </style>
+@include('layouts.component._theme_head')
 </head>
 <body class="{{ in_array($format, ['58mm','thermal-58']) ? 'print-thermal-58' : (in_array($format, ['80mm','thermal']) ? 'print-thermal-80' : '') }}">
 
@@ -679,5 +680,6 @@ function switchFormat(fmt) {
     window.location.href = url.toString();
 }
 </script>
+@include('layouts.component._ui_kit')
 </body>
 </html>

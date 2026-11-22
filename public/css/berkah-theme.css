@@ -1,0 +1,564 @@
+/*!
+ * Berkah Kreatif — Tema terang/gelap
+ * ------------------------------------------------------------------
+ * Dimuat oleh resources/views/layouts/component/_theme_head.blade.php
+ * sebelum <body> agar tidak ada kedipan warna.
+ *
+ * Aturan penting:
+ *  1. Semua aturan gelap WAJIB di bawah `html[data-theme="dark"]` supaya
+ *     tema terang tidak berubah sedikit pun.
+ *  2. Token halaman (--ink, --card, --surface, --border, --fc-*, --bk-*)
+ *     dipetakan ulang di sini agar halaman yang sudah memakai variabel
+ *     otomatis ikut gelap.
+ *  3. `--surface-raised` TIDAK dipetakan ulang: nilai putihnya juga dipakai
+ *     sebagai warna teks di atas tombol brand (mis. color:var(--surface-raised)).
+ *     Permukaan yang memakainya dioverride per kelas di bawah.
+ *  4. Jangan memakai `!important`; selektor `html[data-theme="dark"] :is(...)`
+ *     sudah mengalahkan aturan halaman satu kelas.
+ */
+
+/* ================================================================
+   1. Palet gelap + pemetaan token
+   ================================================================ */
+
+html[data-theme="dark"] {
+    color-scheme: dark;
+
+    --theme-bg: #140f12;
+    --theme-surface: #201820;
+    --theme-surface-2: #2a2028;
+    --theme-surface-3: #342730;
+    --theme-ink: #f6ece8;
+    --theme-ink-mid: #d0b9c0;
+    --theme-ink-lt: #a68d95;
+    --theme-line: #46333b;
+    --theme-line-soft: #382a31;
+    --theme-brand: #a81f45;
+    --theme-brand-strong: #c12f57;
+    --theme-accent-text: #f2a1b4;
+    --theme-danger-ink: #ffb3bb;
+    --theme-danger-soft: #3a1f24;
+    --theme-danger-line: #5c2c34;
+    --theme-success-ink: #7fe0bb;
+    --theme-success-soft: #12332a;
+    --theme-warning-ink: #f0c67d;
+    --theme-warning-soft: #3a2f1a;
+
+    /* Token yang dipakai halaman (nama lama, nilai baru) */
+    --ink: var(--theme-ink);
+    --ink-mid: var(--theme-ink-mid);
+    --ink-lt: var(--theme-ink-lt);
+    --ink-muted: var(--theme-ink-lt);
+    --text: var(--theme-ink);
+    --muted: var(--theme-ink-mid);
+    --surface: var(--theme-surface);
+    --surface-50: #171114;
+    --surface-100: #1c1518;
+    --surface-200: var(--theme-surface-2);
+    --surface-300: var(--theme-surface-3);
+    --surface-400: #8f7a82;
+    --card: var(--theme-surface);
+    --line: var(--theme-line);
+    --line-soft: var(--theme-line-soft);
+    --border: var(--theme-line);
+    --border-dash: #5a4149;
+    --bg: var(--theme-bg);
+    --shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
+    --shadow-md: 0 10px 26px rgba(0, 0, 0, 0.5);
+    --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.5);
+    --shadow-nav: 0 -2px 16px rgba(0, 0, 0, 0.55);
+
+    /* Tint & warna semantik halaman */
+    --brand-100: #33222a;
+    --brand-tint: #33222a;
+    --brand-900: #0a2a40;
+    --accent-tint: #3a2a20;
+    --accent-lt: #3a2a20;
+    --success-tint: var(--theme-success-soft);
+    --danger-tint: var(--theme-danger-soft);
+    --warning-tint: var(--theme-warning-soft);
+    --blue-lt: #38262c;
+    --teal-lt: #123a35;
+    --orange-lt: #3a2620;
+    --green-lt: #12332a;
+    --red-lt: #3a1f24;
+    --violet-lt: #262a4a;
+    --yellow-lt: #3a331a;
+
+    /* Token khusus halaman katalog/pelanggan */
+    --bk-ink: var(--theme-ink);
+    --bk-line: var(--theme-line);
+    --bk-glass: rgba(32, 24, 32, 0.94);
+    --bk-wine: var(--theme-accent-text);
+
+    /* Kit kontrol form (--fc-*) */
+    --fc-ink: var(--theme-ink);
+    --fc-ink-soft: var(--theme-ink-mid);
+    --fc-blush: #3a2630;
+    --fc-blush-strong: #472e38;
+    --fc-cream: var(--theme-surface);
+    --fc-cream-deep: var(--theme-surface-2);
+    --fc-line: var(--theme-line);
+    --fc-line-strong: #5a4149;
+    --fc-muted: var(--theme-ink-lt);
+    --fc-danger: #f08a92;
+    --fc-danger-soft: var(--theme-danger-soft);
+    --fc-shadow: 0 18px 48px rgba(0, 0, 0, 0.6);
+    --fc-shadow-soft: 0 6px 18px rgba(0, 0, 0, 0.5);
+
+    /* Komponen UI kit */
+    --bk-toggle-bg: var(--theme-surface-2);
+    --bk-toggle-line: var(--theme-line);
+    --bk-toggle-ink: var(--theme-ink);
+}
+
+/* ================================================================
+   2. Dasar halaman
+   ================================================================ */
+
+html[data-theme="dark"],
+html[data-theme="dark"] body {
+    background: var(--theme-bg);
+}
+
+html[data-theme="dark"] body {
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(h1, h2, h3, h4, h5, h6) {
+    color: var(--theme-ink);
+}
+
+/* Tautan di dalam konten dibuat terang, tetapi tautan pada header/hero dan
+   tombol (yang membawa warnanya sendiri) tidak disentuh. */
+html[data-theme="dark"] :is(main, .wrap, .card, .sheet, .panel, footer) a:not(.btn):not(.button):not(.bk-atc):not(.bk-auth):not(.customer-nav__item):not(.admin-nav__item) {
+    color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(.price, .bk-product-name) {
+    color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] ::selection {
+    background: #7a2440;
+    color: #fff;
+}
+
+html[data-theme="dark"] label {
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] .unit {
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(.muted, .text-muted, .text-gray, .subtitle, small) {
+    color: var(--theme-ink-mid);
+}
+
+html[data-theme="dark"] hr,
+html[data-theme="dark"] :is(.divider, .separator) {
+    border-color: var(--theme-line);
+    background-color: var(--theme-line);
+}
+
+/* ================================================================
+   3. Permukaan / kartu / panel
+   ================================================================ */
+
+html[data-theme="dark"] :is(
+    .card, .form-card, .section-card, .stat, .stat-card, .order-card, .profile-card,
+    .menu-card, .task-card, .history-card, .an-card, .summary-card, .driver-card,
+    .info-card, .timeline-card, .proof-card, .eta-card, .activity-card, .help-card,
+    .rating-card, .confirm-card, .cancel-sheet, .sheet, .receipt, .toolbar,
+    .unit-section, .item-row, .quick-item, .order-empty, .driver-empty
+) {
+    background: var(--theme-surface);
+    border-color: var(--theme-line);
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(.items details) {
+    background: var(--theme-surface);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.items-mini, .rating-existing__comment, .manual-locked, .r-box) {
+    background: var(--theme-surface-2);
+    border-color: var(--theme-line);
+    color: var(--theme-ink-mid);
+}
+
+html[data-theme="dark"] :is(.notice) {
+    background: #37271c;
+    border-color: #5a402b;
+    color: #f3d9bd;
+}
+
+html[data-theme="dark"] :is(.bk-dialog, .bk-header-inner, .customer-radial__panel, .bk-top-menu, .bk-guest-tabs) {
+    background: var(--theme-surface);
+    border-color: var(--theme-line);
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(.bk-dialog-head button, .bk-menu-trigger, .bk-command-trigger, .bk-theme-btn) {
+    background: var(--theme-surface-2);
+    color: var(--theme-accent-text);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.bk-menu-links a, .bk-command-links a) {
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(.bk-menu-links a:hover, .bk-command-links a:hover, .bk-command-links a[aria-selected="true"]) {
+    background: var(--theme-surface-2);
+}
+
+html[data-theme="dark"] :is(.bk-dialog input, .bk-dialog select, .bk-dialog textarea) {
+    background: var(--theme-surface-2);
+    color: var(--theme-ink);
+    border-color: var(--theme-line);
+}
+
+/* Header pelanggan & navigasi bawah */
+html[data-theme="dark"] :is(.customer-nav, .admin-nav, .bk-guest-tabs) {
+    background: rgba(32, 24, 32, 0.94);
+    border-color: var(--theme-line);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.5);
+}
+
+html[data-theme="dark"] :is(.customer-nav__item, .admin-nav__item) {
+    color: var(--theme-ink-lt);
+}
+
+html[data-theme="dark"] :is(.customer-nav__item.is-active, .admin-nav__item.is-active) {
+    color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(.customer-radial__glyph, .customer-nav__icon) {
+    background: var(--theme-surface-2);
+    border-color: var(--theme-line);
+    color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(.customer-radial__links a) {
+    background: transparent;
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(.customer-radial__heading strong) {
+    color: var(--theme-ink);
+}
+
+/* ================================================================
+   4. Form
+   ================================================================ */
+
+html[data-theme="dark"] :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="file"]),
+    select, textarea, .form-input, .field-input, .input, .field, .rating-textarea
+) {
+    background: var(--theme-surface-2);
+    border-color: var(--theme-line);
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(input, select, textarea)::placeholder {
+    color: #9d858d;
+    opacity: 1;
+}
+
+html[data-theme="dark"] :is(input, select, textarea):focus {
+    border-color: #b2576f;
+    outline-color: #b2576f;
+}
+
+html[data-theme="dark"] :is(.action-card__input) {
+    background: var(--theme-surface-2);
+    border-color: var(--theme-line);
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(.action-card__input:focus) {
+    background: var(--theme-surface-3);
+}
+
+html[data-theme="dark"] :is(.form-input:focus, .field-input:focus, .input:focus, .rating-textarea:focus) {
+    background: var(--theme-surface-3);
+    border-color: #b2576f;
+}
+
+html[data-theme="dark"] :is(.toggle-switch, .switch) {
+    background: var(--theme-surface-3);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] input[type="checkbox"],
+html[data-theme="dark"] input[type="radio"] {
+    accent-color: #c12f57;
+}
+
+html[data-theme="dark"] :is(.fc-trigger, .fc-layer__close, .fc-stepper, .fc-stepper input[type="number"], .fc-cal__navbtn, .fc-month, .fc-cal__action) {
+    background: var(--theme-surface-2);
+    color: var(--theme-ink);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.fc-segmented__btn[aria-checked="true"]) {
+    background: var(--theme-surface-3);
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(.fc-option--selected) {
+    background: var(--theme-surface-3);
+}
+
+/* ================================================================
+   5. Tombol, tabel, badge
+   ================================================================ */
+
+html[data-theme="dark"] :is(
+    .btn.secondary, .btn-secondary, .action-btn.secondary, .btn--ghost, .btn-google,
+    .btn-back, .read-all, .pill-btn, .btn-logout, .topbar__back, .toolbar__back,
+    .toolbar__btn, .profile-header__notif, .profile-header__back, .icon-btn
+) {
+    background: var(--theme-surface-2);
+    color: var(--theme-ink);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(
+    .btn.secondary:hover, .btn-secondary:hover, .action-btn.secondary:hover,
+    .btn--ghost:hover, .btn-google:hover, .read-all:hover, .icon-btn:hover,
+    .topbar__back:hover, .toolbar__btn:hover
+) {
+    background: var(--theme-surface-3);
+}
+
+html[data-theme="dark"] :is(.btn:not(.secondary):not(.bk-atc):not(.bk-auth)) {
+    background: var(--theme-brand);
+    color: #fff;
+    border-color: var(--theme-brand);
+}
+
+html[data-theme="dark"] :is(.btn:not(.secondary):not(.bk-atc):not(.bk-auth):hover) {
+    background: var(--theme-brand-strong);
+}
+
+html[data-theme="dark"] table {
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] th {
+    background: var(--theme-surface-2);
+    color: var(--theme-ink-mid);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] td {
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.data-table th, .data-table td) {
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(
+    .badge, .chip, .driver-chip, .category-pill, .filter-chip, .stat-pill,
+    .format-tabs, .filter-tabs, .order-code, .context-tag, .svc-mini
+) {
+    background: var(--theme-surface-2);
+    border-color: var(--theme-line);
+    color: var(--theme-ink-mid);
+}
+
+html[data-theme="dark"] :is(.filter-tab.active, .format-tab.active, .step-chip.active) {
+    background: var(--theme-brand);
+    border-color: var(--theme-brand);
+    color: #fff;
+}
+
+html[data-theme="dark"] :is(.order-card__select, .item-stepper-btn, .ws-btn) {
+    background: var(--theme-surface-2);
+    border-color: var(--theme-line);
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(.map-back, .map-recenter, .map-status-chip, .back-fab) {
+    background: var(--theme-surface);
+    border-color: var(--theme-line);
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(.photo, .photo.placeholder, .admin-photo, .cart-image, .placeholder) {
+    background: var(--theme-surface-2);
+    color: var(--theme-ink-lt);
+}
+
+html[data-theme="dark"] :is(.logo, .bk-logo img, .bk-expand img) {
+    background: #fff;
+}
+
+/* Permukaan halaman yang memakai --surface-raised (token ini sengaja
+   TIDAK di-remap karena juga dipakai sebagai warna teks di tombol brand). */
+html[data-theme="dark"] :is(
+    .action-card, .cat-card, .empty-card, .faq-card, .overview-card, .perf-card,
+    .report-card, .svc-row, .v-card, .panel, .affix, .affix__unit, .contact-bar,
+    .log-diff, .segmented, .service-card, .cancel-trigger-btn, .r-total,
+    .filter-wrap, .task-card__btn--outline, .stepper, .stepper__btn,
+    .field-trigger, .select, .textarea, .status-select, .tab-btn,
+    .action-tag, .task-card__chip, .active-task__chip, .zone-pill, .time-pill,
+    .date-chip, .weight-stepper
+) {
+    background: var(--theme-surface);
+    border-color: var(--theme-line);
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(
+    .segmented, .task-card__chip, .active-task__chip, .action-tag, .zone-pill,
+    .time-pill, .date-chip, .weight-stepper, .overview-card__stat, .stepper,
+    .stepper__btn, .field-trigger, .select, .textarea, .status-select, .tab-btn,
+    .svc-section, .task-card__quick
+) {
+    background: var(--theme-surface-2);
+}
+
+/* Teks literal gelap di atas permukaan yang kini gelap */
+html[data-theme="dark"] :is(.badge-muted, .confirm-btn--cancel, .confirm-message, .help-muted, .manual-note, p.lead) {
+    color: var(--theme-ink-mid);
+}
+
+html[data-theme="dark"] :is(.confirm-title) {
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(.help-notice) {
+    color: #f3d9bd;
+}
+
+html[data-theme="dark"] :is(
+    .addr-hint, .alert-success, .ok, .rating-status--ok, .status-badge.selesai,
+    .status-badge.siap, .wa-alt__text, .wa-alt__text strong, .pw-hint.ok, .step-dot.done
+) {
+    color: var(--theme-success-ink);
+}
+
+html[data-theme="dark"] :is(.status-badge.dijemput, .confirm-icon.type-info, a.back) {
+    color: #8fd0ff;
+}
+
+html[data-theme="dark"] :is(.driver-nav__item.is-active) {
+    color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(.confirm-icon.type-success) {
+    color: var(--theme-success-ink);
+}
+
+/* Teks gelap literal di halaman admin/driver */
+html[data-theme="dark"] :is(.appbar__title, .cat-name, .cat-btn, .svc-mini, .v-code, .v-btn,
+    .log-row__action, .ctx-tag, .active-task__title, .notif.is-unread .notif__title) {
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(.modal-card__title) {
+    color: var(--theme-ink);
+}
+
+/* ================================================================
+   6. Halaman katalog / pengalaman pelanggan
+   ================================================================ */
+
+html[data-theme="dark"] .bk-experience {
+    background: var(--theme-bg);
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(.bk-experience .card, .bk-experience .unit-section, .bk-experience .admin-photo) {
+    background: var(--theme-surface);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.bk-experience .btn.secondary) {
+    background: var(--theme-surface-2);
+    color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(.bk-filter-form, .bk-product-add) {
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(.bk-product-unavailable, .bk-product-unavailable:hover) {
+    background: var(--theme-surface-2);
+    color: var(--theme-ink-lt);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.bk-filter-sheet [data-filter-form] > p:last-of-type) {
+    background: linear-gradient(to bottom, rgba(32, 24, 32, 0), var(--theme-surface) 34%);
+}
+
+html[data-theme="dark"] :is(.bk-eyebrow, .bk-kicker) {
+    color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(.bk-like) {
+    color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(.bk-feedback-summary) {
+    color: var(--theme-ink-mid);
+}
+
+/* ================================================================
+   7. Kontrol form kit — lapisan kecil yang masih literal
+   ================================================================ */
+
+html[data-theme="dark"] :is(.fc-backdrop) {
+    background: rgba(8, 5, 7, 0.62);
+}
+
+html[data-theme="dark"] :is(.fc-layer__title, .fc-layer__heading, .fc-option__label, .fc-cal__weekday) {
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(.fc-cal__day) {
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(.fc-cal__day:disabled) {
+    color: #7d6870;
+}
+
+/* ================================================================
+   8. Komponen UI kit (nilai gelap)
+   ================================================================ */
+
+html[data-theme="dark"] {
+    --bk-atc-bg: linear-gradient(180deg, #3a2730, #2c1e26);
+    --bk-atc-ink: #ffd9e3;
+    --bk-atc-line: #5a3b46;
+    --bk-atc-hover: 0 10px 24px rgba(0, 0, 0, 0.45);
+    --bk-del-bg: var(--theme-danger-soft);
+    --bk-del-line: var(--theme-danger-line);
+    --bk-del-ink: var(--theme-danger-ink);
+    --bk-heart: #ff7d95;
+    --bk-auth-on: #fff6f2;
+    --bk-theme-dialog-bg: var(--theme-surface);
+    --bk-theme-svg-panel: #2a2028;
+    --bk-theme-svg-track: #3a2730;
+}
+
+/* ================================================================
+   9. Cetak: selalu terang agar hemat tinta
+   ================================================================ */
+
+@media print {
+    html[data-theme="dark"],
+    html[data-theme="dark"] body {
+        background: #fff;
+        color: #111;
+    }
+}

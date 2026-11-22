@@ -31,6 +31,7 @@ textarea.input{min-height:72px;resize:vertical}
 .meta{font-size:.78rem;color:var(--muted);margin-top:4px}
 @media(max-width:700px){.grid{grid-template-columns:1fr}.wrap{padding:14px}.btn{padding:.5rem .72rem}}
 </style>
+@include('layouts.component._theme_head')
 </head>
 <body>
 <div class="wrap">
@@ -102,5 +103,6 @@ textarea.input{min-height:72px;resize:vertical}
 </div>
 @include('layouts.component.customer._confirm_modal')
 @include('layouts.component._form_controls')
+@include('layouts.component._ui_kit')
 </body>
 </html>

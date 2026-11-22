@@ -221,6 +221,7 @@
 </style>
 <link rel="stylesheet" href="{{ $asset('css/page-transitions.css') }}"><script src="{{ $asset('js/page-transitions.js') }}" defer></script>
 @if($user->role === 'customer')<link rel="stylesheet" href="{{ $asset('css/customer-forms.css') }}"><link rel="stylesheet" href="{{ $asset('css/berkah-experience.css') }}">@endif
+@include('layouts.component._theme_head')
 </head>
 <body @if($user->role === 'customer') class="bk-experience bk-customer bk-standalone" @endif>
 @php
@@ -515,5 +516,6 @@ $oldText = function (string $key, $fallback = '') {
 
 @if($user->role === 'customer')<script src="{{ $asset('js/berkah-experience.js') }}" defer></script>@endif
 @include('layouts.component._form_controls')
+@include('layouts.component._ui_kit')
 </body>
 </html>

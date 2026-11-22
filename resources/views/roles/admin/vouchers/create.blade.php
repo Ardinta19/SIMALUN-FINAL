@@ -153,6 +153,7 @@ body {
 /* Enhanced custom controls fill their field width */
 .field .fc-trigger, .field .fc-segmented { width: 100%; }
 </style>
+@include('layouts.component._theme_head')
 </head>
 <body>
 <header class="appbar reveal d1">
@@ -334,5 +335,6 @@ body {
 })();
 </script>
 
+@include('layouts.component._ui_kit')
 </body>
 </html>

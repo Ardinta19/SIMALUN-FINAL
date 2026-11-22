@@ -326,6 +326,7 @@ html:not(.register-enhanced) #registration-progress{display:none}
 @media(prefers-reduced-motion:reduce){#brand-logo,.ambient-flower,#drum-spin-ring,#drum-wrap::after,.btn-next-step::before,.btn-submit::before{animation:none!important}}
 </style>
 <link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}"><script src="{{ asset('js/page-transitions.js') }}" defer></script>
+@include('layouts.component._theme_head')
 </head>
 <body>
 @php
@@ -533,9 +534,30 @@ $oldText = function (string $key, $fallback = '') {
 
         <div class="btn-row">
           <button type="button" class="btn-back-step" aria-label="Kembali ke akun dan kata sandi" onclick="goStep(2)">&#8592;</button>
-          <button type="submit" class="btn-submit" id="btn-submit">
+          <button type="submit" class="btn-submit bk-auth" id="btn-submit">
             <span class="btn-spinner"></span>
-            <span class="btn-text">Daftar Sekarang</span>
+            <span class="bk-auth__bg" aria-hidden="true"></span>
+            <svg class="bk-auth__splash" viewBox="0 0 342 208" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <g stroke="currentColor" stroke-width="3" stroke-linecap="round">
+                    <path d="M48.5 102.3C48.5 102.3 36.2 92.5 24.8 98.7C13.4 104.9 3 98.7 3 98.7"></path>
+                    <path d="M290.5 102.3C290.5 102.3 302.8 92.5 314.2 98.7C325.6 104.9 339 96.2 339 96.2"></path>
+                    <path d="M278.5 68.2C278.5 68.2 284.3 54.1 298.7 52.8C313.1 51.5 315.5 42.3 315.5 42.3" stroke-opacity=".4"></path>
+                    <path d="M278.5 141.7C278.5 141.7 284.3 155.8 298.7 157.1C313.1 158.4 315.5 167.6 315.5 167.6" stroke-opacity=".4"></path>
+                    <path d="M225.3 60.8C225.3 60.8 221.5 45.2 231.2 35.6C240.9 26 239.8 19.5 239.8 19.5"></path>
+                    <path d="M225.3 153.2C225.3 153.2 221.5 168.8 231.2 178.4C240.9 188 239.8 194.5 239.8 194.5"></path>
+                </g>
+            </svg>
+            <span class="bk-auth__wrap" aria-hidden="true">
+              <svg class="bk-auth__path" viewBox="0 0 221 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M182.674 2H203C211.837 2 219 9.16344 219 18V24C219 32.8366 211.837 40 203 40H18C9.16345 40 2 32.8366 2 24V18C2 9.16344 9.16344 2 18 2H47.8855" stroke="#ffd9e3" stroke-width="3" stroke-linecap="round"></path>
+              </svg>
+              <span class="bk-auth__outline"></span>
+              <span class="bk-auth__content">
+                <span class="bk-auth__icon"><div></div></span>
+                <span class="bk-auth__text"><span class="bk-auth__chars bk-auth__chars--a"><span style="--i: 1">D</span><span style="--i: 2">a</span><span style="--i: 3">f</span><span style="--i: 4">t</span><span style="--i: 5">a</span><span style="--i: 6">r</span></span><span class="bk-auth__chars bk-auth__chars--b"><span style="--i: 1">B</span><span style="--i: 2">u</span><span style="--i: 3">a</span><span style="--i: 4">t</span><span style="--i: 5"> </span><span style="--i: 6">A</span><span style="--i: 7">k</span><span style="--i: 8">u</span><span style="--i: 9">n</span></span></span>
+              </span>
+            </span>
+            <span class="btn-text bk-sr-only">Daftar Sekarang</span>
           </button>
         </div>
       </div>
@@ -761,5 +783,6 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 @include('layouts.component._form_controls')
+@include('layouts.component._ui_kit')
 </body>
 </html>

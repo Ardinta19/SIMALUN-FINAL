@@ -164,6 +164,7 @@ body {
     font-size: .68rem; font-weight: 700; color: var(--ink-muted); letter-spacing: 1px; text-transform: uppercase;
 }
 </style>
+@include('layouts.component._theme_head')
 </head>
 <body>
 
@@ -292,5 +293,6 @@ function previewImage(input) {
 }
 </script>
 
+@include('layouts.component._ui_kit')
 </body>
 </html>

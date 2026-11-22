@@ -408,6 +408,7 @@ body {
     margin-bottom: var(--space-3);
 }
 </style>
+@include('layouts.component._theme_head')
 </head>
 <body>
 @include('layouts.component.admin._navbar_admin', ['active' => 'beranda'])
@@ -804,5 +805,6 @@ body {
     svcModal.addEventListener('click', function(e) { if (e.target === svcModal) closeSvc(); });
 })();
 </script>
+@include('layouts.component._ui_kit')
 </body>
 </html>

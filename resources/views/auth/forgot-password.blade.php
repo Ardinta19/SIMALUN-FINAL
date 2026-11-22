@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#75102e"><link rel="icon" href="{{ asset('images/berkah-kreatif-logo.jpeg') }}">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}"><script src="{{ asset('js/page-transitions.js') }}" defer></script><link rel="stylesheet" href="{{ asset('css/berkah-auth.css') }}">
+@include('layouts.component._theme_head')
 </head>
 <body>
 @php
@@ -42,5 +43,6 @@ $oldText = function (string $key, $fallback = '') {
     </div><p class="auth-foot">© {{ date('Y') }} Berkah Kreatif</p></section>
 </main>
 @include('layouts.component._form_controls')
+@include('layouts.component._ui_kit')
 </body>
 </html>
