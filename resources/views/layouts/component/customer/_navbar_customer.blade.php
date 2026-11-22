@@ -4,7 +4,11 @@
     Active options: beranda | pesanan | pesan | notif | profil
 --}}
 
-@php $navActive = $active ?? 'beranda'; @endphp
+@php
+    $navActive = $active ?? 'beranda';
+    $unreadNotif = 0;
+    try { $unreadNotif = auth()->user()?->unreadNotifications()->count() ?? 0; } catch (\Exception $e) {}
+@endphp
 
 <nav class="customer-nav" id="customer-nav" aria-label="Navigasi pelanggan">
     <div class="customer-nav__inner">
@@ -46,14 +50,10 @@
         <a href="{{ route('customer.notifications') }}"
            class="customer-nav__item {{ $navActive === 'notif' ? 'is-active' : '' }}"
            @if($navActive === 'notif') aria-current="page" @endif
-           aria-label="Notifikasi">
+           aria-label="Notifikasi{{ $unreadNotif > 0 ? ' ('.$unreadNotif.' belum dibaca)' : '' }}">
             <span class="customer-nav__icon" style="position:relative">
-                @php
-                    $unreadNotif = 0;
-                    try { $unreadNotif = auth()->user()?->unreadNotifications()->count() ?? 0; } catch (\Exception $e) {}
-                @endphp
                 @if($unreadNotif > 0)
-                    <span class="customer-nav__badge">{{ $unreadNotif > 9 ? '9+' : $unreadNotif }}</span>
+                    <span class="customer-nav__badge" aria-hidden="true">{{ $unreadNotif > 9 ? '9+' : $unreadNotif }}</span>
                 @endif
                 @include('layouts.component._icon', ['name' => 'notif', 'size' => 24])
             </span>
@@ -75,136 +75,90 @@
 </nav>
 
 <style>
-/* ═══════════════════════════════════════════════
-   CUSTOMER BOTTOM NAVBAR — Global Component
-   Tambahkan ke file CSS utama atau inline di layout
-═══════════════════════════════════════════════ */
+/* Tata letak navbar berdiri sendiri: tidak mengikuti line-height atau reset halaman. */
+.customer-nav, .customer-nav * { box-sizing: border-box; }
 .customer-nav {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    inset: auto 0 0;
     z-index: 999;
-    background: rgba(255,255,255,0.97);
+    margin: 0;
+    padding: 0 0 env(safe-area-inset-bottom, 0px);
+    background: rgba(255,255,255,.97);
+    border-top: 1px solid #f0dfe1;
+    box-shadow: 0 -4px 24px rgba(84,5,31,.08);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid #f0dfe1;
-    box-shadow: 0 -4px 24px rgba(0, 47, 92, 0.08);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    line-height: 1;
 }
 .customer-nav__inner {
     max-width: 520px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
     height: 64px;
+    margin: 0 auto;
     padding: 0 8px;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
 }
-.customer-nav__item {
-    flex: 1;
+.customer-nav__item, .customer-nav__fab {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 3px;
-    text-decoration: none;
+    justify-content: flex-start;
+    min-width: 0;
+    height: 64px;
+    margin: 0;
+    padding: 10px 0 0;
+    gap: 5px;
     color: #756975;
-    position: relative;
-    padding: 6px 0;
-    transition: color 0.2s ease;
+    text-decoration: none;
+    line-height: 1;
     -webkit-tap-highlight-color: transparent;
 }
-.customer-nav__item.is-active {
-    color: #85092d;
-}
-.customer-nav__item.is-active .customer-nav__icon svg {
-    stroke-width: 2.6;
-}
-.customer-nav__icon {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+.customer-nav__item.is-active { color: #85092d; }
+.customer-nav__item.is-active .customer-nav__icon svg { stroke-width: 2.6; }
+.customer-nav__icon { position: relative; display: flex; width: 24px; height: 24px; align-items: center; justify-content: center; flex: none; }
+.customer-nav__icon svg, .customer-nav__fab-btn svg { display: block; width: 24px; height: 24px; flex: none; }
 .customer-nav__badge {
     position: absolute;
-    top: -6px;
-    right: -8px;
-    background: #85092d;
-    color: white;
-    font-size: 0.55rem;
-    font-weight: 900;
-    min-width: 16px;
-    height: 16px;
-    border-radius: 99px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 3px;
-    border: 2px solid white;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    top: -6px; right: -8px;
+    display: flex; align-items: center; justify-content: center;
+    min-width: 16px; height: 16px; padding: 0 3px;
+    border: 2px solid white; border-radius: 99px;
+    background: #85092d; color: white;
+    font-size: 9px; font-weight: 900; line-height: 1;
 }
-.customer-nav__label {
-    font-size: 0.6rem;
+.customer-nav__label, .customer-nav__fab-label {
+    display: block;
+    margin: 0;
+    padding: 0;
+    font-size: 10px;
     font-weight: 800;
+    line-height: 12px;
+    letter-spacing: .4px;
     text-transform: uppercase;
-    letter-spacing: 0.4px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    white-space: nowrap;
 }
-/* FAB Button */
-.customer-nav__fab {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    gap: 3px;
-    -webkit-tap-highlight-color: transparent;
-}
+.customer-nav__fab { padding: 0; gap: 0; color: #85092d; }
 .customer-nav__fab-btn {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
+    position: absolute; top: -16px;
+    display: flex; align-items: center; justify-content: center;
+    width: 52px; height: 52px; border-radius: 50%;
     background: linear-gradient(135deg, #85092d 0%, #b63050 100%);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 6px 20px rgba(133,9,45,0.3);
-    margin-top: -22px;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    color: #fff; box-shadow: 0 6px 20px rgba(133,9,45,.3);
+    transition: transform .15s ease, box-shadow .15s ease;
 }
-.customer-nav__fab-btn svg {
-    stroke-width: 2.5;
-}
-.customer-nav__fab:active .customer-nav__fab-btn {
-    transform: scale(0.94);
-    box-shadow: 0 3px 10px rgba(133,9,45,0.2);
-}
-.customer-nav__fab-label {
-    font-size: 0.6rem;
-    font-weight: 800;
-    color: #85092d;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    margin-top: 2px;
-}
-/* Active indicator dot */
+.customer-nav__fab-btn svg { stroke-width: 2.5; }
+.customer-nav__fab:active .customer-nav__fab-btn { transform: scale(.94); box-shadow: 0 3px 10px rgba(133,9,45,.2); }
+.customer-nav__fab-label { position: absolute; top: 39px; color: #85092d; }
 .customer-nav__item.is-active::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    width: 4px;
-    height: 4px;
-    background: #85092d;
-    border-radius: 50%;
+    content: ''; position: absolute; bottom: 3px;
+    width: 4px; height: 4px; background: #85092d; border-radius: 50%;
 }
-.customer-nav a:focus-visible { outline: 3px solid #bc5b75; outline-offset: 2px; border-radius: 8px; }
+.customer-nav a:focus-visible { outline: 3px solid #bc5b75; outline-offset: -3px; border-radius: 8px; }
 .customer-nav__fab.is-active .customer-nav__fab-label { text-decoration: underline; text-underline-offset: 3px; }
-/* Body padding so content isn't hidden behind nav */
-body {
-    padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
-}
+@media (max-width: 320px) { .customer-nav__label, .customer-nav__fab-label { font-size: 9px; letter-spacing: 0; } }
+@media (prefers-reduced-motion: reduce) { .customer-nav__fab-btn { transition: none; } }
+/* Jaga konten terakhir tetap dapat digulir melewati navbar dan area aman perangkat. */
+body { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
 </style>
