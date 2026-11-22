@@ -20,6 +20,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RentalCatalogController;
 use App\Http\Controllers\RentalCartController;
+use App\Http\Controllers\RentalOrderController;
 use App\Http\Controllers\ServiceCategoryController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\VoucherController;
@@ -101,6 +102,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders/{order}/receipt/pdf', [OrderController::class, 'receiptPdf'])
         ->name('orders.receipt.pdf');
 
+    Route::middleware('role:customer')->group(function () {
+        Route::get('/checkout', [RentalOrderController::class, 'create'])->name('rental.checkout');
+        Route::post('/checkout', [RentalOrderController::class, 'store'])->middleware('throttle:6,1')->name('rental.checkout.store');
+        Route::get('/sewa', [RentalOrderController::class, 'index'])->name('rental.orders.index');
+        Route::get('/sewa/{order}', [RentalOrderController::class, 'show'])->name('rental.orders.show');
+    });
+
     Route::middleware('role:customer')->prefix('customer')->name('customer.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'customer'])->name('dashboard');
 
@@ -138,6 +146,9 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/sewa', [RentalOrderController::class, 'adminIndex'])->name('rental.orders');
+        Route::post('/sewa/unit/{unit}/confirm', [RentalOrderController::class, 'confirm'])->name('rental.confirm');
+        Route::post('/sewa/unit/{unit}/cancel', [RentalOrderController::class, 'cancel'])->name('rental.cancel');
         Route::get('/katalog', [RentalCatalogController::class, 'admin'])->name('catalog.index');
         Route::post('/katalog/kategori', [RentalCatalogController::class, 'categoryStore'])->name('catalog.categories.store');
         Route::post('/katalog', [RentalCatalogController::class, 'productStore'])->name('catalog.store');

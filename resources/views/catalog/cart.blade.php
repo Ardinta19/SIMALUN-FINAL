@@ -20,5 +20,5 @@
     <div class="card body"><p>Keranjangmu masih kosong.</p><a class="btn" href="{{ route('welcome') }}">Jelajahi katalog</a></div>
 @endforelse
 </div>
-@if(count($cart))<div class="notice">Checkout dan penentuan jadwal masih dalam pengembangan. Harga dasar belum termasuk durasi maupun ongkos. Tidak ada pesanan atau reservasi yang dibuat dari keranjang ini.</div>@endif
+@if(count($cart))<div class="notice">Harga dasar belum termasuk durasi maupun ongkos. Stok baru dicadangkan setelah admin mengonfirmasi.</div><a class="btn" href="{{ route('rental.checkout') }}">Lanjut ke checkout</a>@endif
 @endsection

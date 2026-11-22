@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 use App\Models\RentalCategory;
 use App\Models\RentalProduct;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rule;
 
 class RentalCatalogController extends Controller
@@ -49,7 +51,13 @@ class RentalCatalogController extends Controller
     {
         $data = $this->validateProduct($request);
         if ($request->hasFile('image')) $data['image_path'] = $request->file('image')->store('catalog', 'public');
-        $product->update($data);
+        DB::transaction(function () use ($product, $data) {
+            $locked = RentalProduct::lockForUpdate()->findOrFail($product->id);
+            if ((int) $data['stock'] < $locked->stock && \App\Models\RentalOrderUnit::where('rental_product_id', $locked->id)->where('status', 'confirmed')->exists()) {
+                throw ValidationException::withMessages(['stock' => 'Stok tidak dapat dikurangi selama masih ada reservasi terkonfirmasi.']);
+            }
+            $locked->update($data);
+        });
         return back()->with('success', 'Papan berhasil diperbarui.');
     }
 

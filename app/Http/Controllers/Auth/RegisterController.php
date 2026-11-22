@@ -95,7 +95,7 @@ class RegisterController extends Controller
         Auth::guard('web')->login($user);
         request()->session()->regenerate();
 
-        return redirect()->route('customer.dashboard')
-            ->with('success', 'Akun berhasil dibuat. Selamat datang di Azka Laundry!');
+        return redirect()->intended(route('customer.dashboard'))
+            ->with('success', 'Akun berhasil dibuat. Selamat datang!');
     }
 }

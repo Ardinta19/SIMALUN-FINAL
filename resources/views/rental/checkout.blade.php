@@ -1,0 +1,16 @@
+@extends('catalog.layout')
+@section('title', 'Checkout')
+@section('content')
+<h1>Detail penyewaan</h1><p class="muted">Isi kebutuhan untuk setiap unit. Stok belum dicadangkan sampai admin mengonfirmasi. Ongkos antar atau pengambilan kembali belum ditentukan.</p>
+<form class="stack" method="post" action="{{ route('rental.checkout.store') }}">@csrf
+@foreach($cart as $key => $entry)
+@php $product = $products->get($entry['product_id']); @endphp
+<section class="card body" style="margin-bottom:16px"><h2>{{ $product?->name ?? 'Papan tidak tersedia' }}</h2>
+<div class="row"><label>Tanggal penerimaan<input type="date" name="units[{{ $key }}][starts_on]" value="{{ old('units.'.$key.'.starts_on') }}" required></label><label>Tanggal acara<input type="date" name="units[{{ $key }}][event_on]" value="{{ old('units.'.$key.'.event_on') }}" required></label><label>Tanggal pengembalian<input type="date" name="units[{{ $key }}][ends_on]" value="{{ old('units.'.$key.'.ends_on') }}" required></label></div>
+<label>Nama penerima<input name="units[{{ $key }}][recipient_name]" value="{{ old('units.'.$key.'.recipient_name') }}" maxlength="160" required></label><label>Ucapan<textarea name="units[{{ $key }}][greeting]" maxlength="1000" required>{{ old('units.'.$key.'.greeting') }}</textarea></label><label>Permintaan desain<textarea name="units[{{ $key }}][design_notes]" maxlength="2000">{{ old('units.'.$key.'.design_notes') }}</textarea></label>
+<label>Penerimaan<select name="units[{{ $key }}][delivery_method]" required><option value="pickup" @selected(old('units.'.$key.'.delivery_method') === 'pickup')>Diambil di outlet</option><option value="delivery" @selected(old('units.'.$key.'.delivery_method') === 'delivery')>Diantar penjual</option></select></label><label>Alamat pengantaran (wajib jika diantar)<textarea name="units[{{ $key }}][delivery_address]" maxlength="1000">{{ old('units.'.$key.'.delivery_address') }}</textarea></label>
+<label>Pengembalian<select name="units[{{ $key }}][return_method]" required><option value="dropoff" @selected(old('units.'.$key.'.return_method') === 'dropoff')>Dikembalikan ke outlet</option><option value="collection" @selected(old('units.'.$key.'.return_method') === 'collection')>Diambil kembali penjual</option></select></label><label>Alamat pengambilan kembali (wajib jika dijemput)<textarea name="units[{{ $key }}][return_address]" maxlength="1000">{{ old('units.'.$key.'.return_address') }}</textarea></label>
+</section>@endforeach
+<div class="notice">Pesanan masih menunggu konfirmasi. Fitur penawaran ongkos, pembayaran, preview desain dan otomatisasi tenggat belum tersedia; jangan gunakan untuk transaksi nyata.</div>
+<label><input style="width:auto" type="checkbox" name="terms" value="1" required> Saya memahami pesanan ini masih dalam tahap pengembangan dan belum merupakan reservasi.</label><p><button class="btn">Kirim pesanan uji coba</button></p></form>
+@endsection
