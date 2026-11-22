@@ -1,7 +1,7 @@
 @extends('catalog.layout')
 @section('title', 'Checkout')
 @section('content')
-<h1>Detail penyewaan</h1><p class="muted">Isi kebutuhan untuk setiap unit. Stok belum dicadangkan sampai admin mengonfirmasi. Ongkos lokasi lain ditawarkan admin; tarif universitas mengikuti daftar saat checkout.</p>
+<h1>Detail penyewaan</h1><p class="notice">Langkah 1: isi detail setiap unit. Langkah 2: baca dan setujui ketentuan. Langkah 3: kirim pesanan dan tunggu konfirmasi admin.</p><p class="muted">Isi kebutuhan untuk setiap unit. Stok belum dicadangkan sampai admin mengonfirmasi. Ongkos lokasi lain ditawarkan admin; tarif universitas mengikuti daftar saat checkout.</p>
 <form class="stack" method="post" action="{{ route('rental.checkout.store') }}">@csrf
 @foreach($cart as $key => $entry)
 @php $product = $products->get($entry['product_id']); @endphp
