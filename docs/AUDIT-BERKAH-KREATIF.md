@@ -64,3 +64,9 @@ Audit ini membandingkan kode yang ada dengan kebutuhan penyewaan yang disepakati
 - `npm audit` terhadap lockfile melaporkan 13 paket terdampak: 1 low, 2 moderate, 8 high, 2 critical. Nama langsung yang dilaporkan termasuk axios, concurrently, postcss dan vite; severity adalah klasifikasi advisory, bukan bukti eksploitasi aplikasi. Detail dan relevansinya perlu dikaji menurut jalur pemakaian masing-masing.
 - `npm audit --omit=dev` melaporkan 0 paket terdampak menurut klasifikasi dependency npm. Ini **tidak** membuktikan aset produksi aman: axios tercantum sebagai devDependency tetapi diimpor `resources/js/bootstrap.js` dan mungkin ikut dibundel untuk browser. Analisis bundle dan advisory tetap dibutuhkan.
 - Jangan jalankan `npm audit fix --force` tanpa memeriksa perubahan lockfile, kompatibilitas PHP/Node, build dan tes. Jangan mengekspos Vite dev server ke jaringan publik; ada advisory terkait tooling Windows. `composer audit` belum dapat dijalankan di lingkungan audit karena Composer/PHP tidak terpasang.
+
+## Pemeriksaan build frontend
+
+- `npm ci --no-audit --no-fund` dan `npm run build` berhasil di lingkungan audit dengan Node 22; output memperingatkan data Browserslist berusia sekitar enam bulan. Ini bukan pengujian browser, responsivitas, atau pengujian PHP.
+- Meskipun `/public/build` tercantum di `.gitignore`, sebagian output build sudah telanjur terlacak. Build menghasilkan manifest/CSS berbeda dari versi terlacak; deployment perlu strategi yang konsisten (build di deployment atau sengaja mengelola artefak), agar manifest tidak menunjuk file yang tidak diunggah. Jangan commit artefak build secara tidak sengaja.
+- Lockfile mencantumkan Vite 7.3.3, axios 1.16.0, dan concurrently 9.2.1; ketiganya termasuk paket yang dilaporkan pada audit npm saat pemeriksaan. Tidak otomatis berarti seluruh advisory dapat dieksploitasi pada aplikasi ini.
