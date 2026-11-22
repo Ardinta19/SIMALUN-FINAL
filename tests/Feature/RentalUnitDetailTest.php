@@ -48,6 +48,22 @@ class RentalUnitDetailTest extends TestCase
         $unit->update(['status' => 'cancelled', 'cancel_reason' => 'Dibatalkan admin']);
         $this->get($url)->assertOk()->assertSee('Unit ini dibatalkan.')->assertDontSee('Preview desain siap diperiksa');
     }
+    public function test_failed_payment_and_design_responses_preserve_safe_inputs(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer']);
+        $admin = User::factory()->create(['role' => 'admin']);
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 1]);
+        $order = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $customer->id, 'confirmation_deadline' => now()->addDay()]);
+        $unit = $order->units()->create(['rental_product_id' => $product->id, 'product_name' => 'Papan', 'unit_price' => 100, 'price_unit' => 'day', 'rental_amount' => 100, 'starts_on' => now()->addDays(3), 'event_on' => now()->addDays(3), 'ends_on' => now()->addDays(3), 'recipient_name' => 'Nama', 'greeting' => 'Selamat', 'delivery_method' => 'pickup', 'return_method' => 'dropoff', 'status' => 'confirmed']);
+        $url = route('rental.orders.unit', [$order, $unit]);
+        $this->actingAs($customer)->from($url)->post(route('rental.payment.store', $unit), ['amount' => 50])->assertRedirect($url)->assertSessionHasErrors('proof');
+        $this->get($url)->assertOk()->assertSee('value="50"', false)->assertSee('id="proof-error"', false)->assertSee('Pilih ulang berkas bukti');
+        $preview = $unit->previews()->create(['version' => 1, 'image_path' => 'preview.png', 'created_by' => $admin->id, 'status' => 'pending']);
+        $this->from($url)->post(route('rental.design.respond', $preview), ['decision' => 'invalid', 'note' => 'Tolong ubah warna'])->assertRedirect($url)->assertSessionHasErrors('decision');
+        $this->get($url)->assertOk()->assertSee('Tolong ubah warna')->assertSee('href="#rating-'.$unit->id.'"', false);
+    }
+
     public function test_detail_pages_enforce_order_ownership_and_unit_membership(): void
     {
         $customer = User::factory()->create(['role' => 'customer']);
