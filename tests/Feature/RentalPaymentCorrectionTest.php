@@ -30,7 +30,8 @@ class RentalPaymentCorrectionTest extends TestCase
         $this->actingAs($customer)->post($url, $data)->assertRedirect(route('customer.dashboard'));
         $this->actingAs($admin)->post($url, $data)->assertSessionHasNoErrors();
         $this->assertDatabaseHas('rental_payments', ['id' => $payment->id, 'amount' => 70]);
-        $this->assertDatabaseHas('finance_entries', ['id' => $entry->id, 'amount' => 70, 'entry_date' => $date]);
+        $this->assertDatabaseHas('finance_entries', ['id' => $entry->id, 'amount' => 70]);
+        $this->assertSame($date, $entry->fresh()->entry_date->toDateString());
         $this->assertDatabaseHas('rental_payment_corrections', ['rental_payment_id' => $payment->id, 'old_amount' => 50, 'new_amount' => 70, 'reason' => 'Koreksi nominal']);
         $this->post($url, $data)->assertSessionHasErrors('payment');
         $this->post($url, ['expected_amount' => 70, 'amount' => 101, 'reason' => 'Terlalu besar'])->assertSessionHasErrors('payment');
