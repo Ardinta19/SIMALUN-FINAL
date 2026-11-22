@@ -23,7 +23,6 @@
                 <a href="{{ route('customer.profile') }}" class="bk-desktop-action" aria-label="Profil" @if(request()->routeIs('customer.profile', 'customer.addresses.*')) aria-current="page" @endif>@include('layouts.component._icon', ['name' => 'user', 'size' => 20])</a>
                 @endif
             </nav>
-            <button type="button" class="bk-command-trigger" data-open-dialog="bk-command" hidden aria-label="Buka navigasi cepat">Navigasi <kbd>Ctrl K</kbd></button>
             @if(request()->routeIs('welcome'))
             <a class="bk-header-filter bk-filter-fallback" href="#catalog-filter" aria-label="Cari dan filter katalog">@include('layouts.component._icon', ['name' => 'search', 'size' => 21]) <span>Cari &amp; filter</span></a>
             <button type="button" class="bk-header-filter" data-open-dialog="bk-filter" hidden aria-label="Cari dan filter katalog">@include('layouts.component._icon', ['name' => 'search', 'size' => 21]) <span>Cari &amp; filter</span></button>
@@ -37,15 +36,6 @@
         </div>
     </header>
 </div>
-<dialog class="bk-dialog bk-command" id="bk-command" aria-labelledby="bk-command-title">
-    <div class="bk-dialog-head"><div><span class="bk-eyebrow">NAVIGASI CEPAT</span><h2 id="bk-command-title">Mau ke mana?</h2></div><button type="button" data-close-dialog aria-label="Tutup navigasi">×</button></div>
-    <label for="bk-command-search">Cari halaman</label><input id="bk-command-search" type="search" placeholder="Contoh: keranjang" autocomplete="off" data-command-search>
-    <nav aria-label="Hasil navigasi cepat" class="bk-command-links">
-        <a data-command-item href="{{ route('welcome') }}">Katalog <span>Temukan papan bunga →</span></a>
-        <a data-command-item href="{{ route('cart.index') }}">Keranjang <span>Lihat pilihanmu →</span></a>
-        @if($isCustomer)<a data-command-item href="{{ route('rental.orders.index') }}">Pesanan saya <span>Pantau pesanan →</span></a><a data-command-item href="{{ route('customer.dashboard') }}">Beranda akun <span>Ringkasan akun →</span></a><a data-command-item href="{{ route('customer.notifications') }}">Notifikasi <span>Lihat kabar terbaru →</span></a><a data-command-item href="{{ route('customer.profile') }}">Profil <span>Kelola profil →</span></a><a data-command-item href="{{ route('customer.help') }}">Bantuan <span>Panduan penyewaan →</span></a>@else<a data-command-item href="{{ route('login') }}">Masuk <span>Masuk ke akun →</span></a>@endif
-    </nav><p class="bk-no-results" data-command-empty hidden>Tidak ada halaman yang cocok.</p>
-</dialog>
 <dialog class="bk-dialog bk-menu" id="bk-menu" aria-labelledby="bk-menu-title">
     <div class="bk-dialog-head"><div><span class="bk-eyebrow">BERKAH KREATIF</span><h2 id="bk-menu-title">Jelajahi</h2></div><button type="button" data-close-dialog aria-label="Tutup menu">×</button></div>
     <p>Semua yang kamu butuhkan untuk menyiapkan momen istimewa.</p>

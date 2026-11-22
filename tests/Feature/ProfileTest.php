@@ -116,8 +116,8 @@ class ProfileTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin']);
         $this->actingAs($customer)->get(route('customer.profile'))->assertOk()->assertSee('Alamat tersimpan dapat dipilih saat checkout sewa')
             ->assertSee(route('profile.edit'))->assertSee(route('customer.addresses.create'))->assertSee(route('logout'))
-            ->assertSee('Keluar dari akun')->assertSee('id="bk-command"', false)->assertDontSee('ui-avatars.com');
-        $this->get(route('profile.edit'))->assertOk()->assertSee('Data pesanan dan catatan transaksi dapat tetap tersimpan')->assertSee('for="profile-name"', false)->assertSee('for="profile-new-password"', false)->assertSee('id="bk-command"', false)->assertDontSee('Semua data pesanan akan ikut terhapus')->assertDontSee('ui-avatars.com');
+            ->assertSee('Keluar dari akun')->assertSee('aria-label="Navigasi utama"', false)->assertDontSee('ui-avatars.com');
+        $this->get(route('profile.edit'))->assertOk()->assertSee('Data pesanan dan catatan transaksi dapat tetap tersimpan')->assertSee('for="profile-name"', false)->assertSee('for="profile-new-password"', false)->assertSee('aria-label="Navigasi utama"', false)->assertDontSee('Semua data pesanan akan ikut terhapus')->assertDontSee('ui-avatars.com');
         $this->actingAs($admin)->get(route('admin.profile'))->assertOk()->assertSee('Berkah Kreatif')->assertSee('Menunggu konfirmasi')->assertSee('Unit aktif')->assertSee(route('admin.rental.orders'))->assertSee(route('admin.rental.cashbook.index'))->assertDontSee('Tugaskan kurir')->assertDontSee('ui-avatars.com');
         $this->get(route('profile.edit'))->assertOk()->assertSee('Berkah Kreatif')->assertDontSee('ui-avatars.com');
     }

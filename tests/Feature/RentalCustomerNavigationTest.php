@@ -46,7 +46,7 @@ class RentalCustomerNavigationTest extends TestCase
     {
         $this->get(route('welcome'))->assertOk()
             ->assertSee('Langsung ke isi')->assertSee('Navigasi utama')->assertSee('Navigasi cepat')
-            ->assertSee('id="bk-command"', false)->assertSee(route('login'))->assertDontSee(route('admin.rental.orders'));
+            ->assertSee('aria-label="Navigasi utama"', false)->assertSee(route('login'))->assertDontSee(route('admin.rental.orders'));
         $customer = User::factory()->create(['role' => 'customer']);
         $this->actingAs($customer)->get(route('welcome'))->assertOk()
             ->assertSee(route('rental.orders.index'))->assertSee(route('customer.help'))
@@ -67,7 +67,7 @@ class RentalCustomerNavigationTest extends TestCase
             ->assertSee('href="'.route('customer.notifications').'" class="bk-desktop-action"', false)->assertSee('aria-current="page"', false)
             ->assertSee(route('customer.help'));
         $this->get(route('welcome'))->assertOk()->assertSee('data-open-dialog="bk-filter"', false)
-            ->assertSee('data-open-dialog="bk-command"', false);
+            ->assertDontSee('data-open-dialog="bk-command"', false);
     }
 
     public function test_customer_discovery_preserves_filter_and_dashboard_navigation(): void
@@ -77,7 +77,7 @@ class RentalCustomerNavigationTest extends TestCase
         $customer = User::factory()->create(['role' => 'customer']);
         $this->actingAs($customer)->get(route('customer.dashboard'))->assertOk()
             ->assertSee('Temukan papan untuk momenmu')->assertSee('data-catalog-preview', false)->assertDontSee('Aktivitas terbaru')->assertSee(route('cart.index'))->assertSee(route('customer.help'))
-            ->assertSee('id="bk-command"', false)->assertSee('id="customer-nav"', false);
+            ->assertSee('aria-label="Navigasi utama"', false)->assertSee('id="customer-nav"', false);
     }
 
     public function test_customer_back_links_are_descriptive_and_styled_as_buttons(): void
@@ -94,7 +94,7 @@ class RentalCustomerNavigationTest extends TestCase
     {
         $customer = User::factory()->create(['role' => 'customer']);
         $address = $customer->customerAddresses()->create(['label' => "Rumah 'contoh'", 'recipient_name' => 'Nama', 'full_address' => 'Jalan Mawar nomor 10', 'latitude' => -1.6101, 'longitude' => 103.6131, 'is_primary' => true]);
-        $this->actingAs($customer)->get(route('customer.addresses.create'))->assertOk()->assertSee('Berkah Kreatif')->assertSee('Peta bersifat opsional')->assertSee('id="bk-command"', false)->assertSee('type="checkbox" name="is_primary"', false)->assertDontSee('gsap.min.js');
+        $this->actingAs($customer)->get(route('customer.addresses.create'))->assertOk()->assertSee('Berkah Kreatif')->assertSee('Peta bersifat opsional')->assertSee('aria-label="Navigasi utama"', false)->assertSee('type="checkbox" name="is_primary"', false)->assertDontSee('gsap.min.js');
         $this->get(route('customer.addresses.edit', $address))->assertOk()->assertSee('value="-1.6101000"', false)->assertSee('value="103.6131000"', false)->assertSee('Alamat utama saat ini')->assertDontSee('gsap.min.js');
         $this->get(route('customer.addresses.index'))->assertOk()->assertSee('Hapus alamat ini?')->assertSee('Alamat utama')
             ->assertSee(route('customer.addresses.edit', $address))->assertSee(route('customer.addresses.destroy', $address))
@@ -104,7 +104,7 @@ class RentalCustomerNavigationTest extends TestCase
     {
         $customer = User::factory()->create(['role' => 'customer']);
         $this->actingAs($customer)->get(route('customer.report'))->assertOk()
-            ->assertSee('Berkah Kreatif')->assertSee('id="bk-command"', false)->assertDontSee('Azka Laundry')->assertDontSee('wa.me/')->assertDontSee('1x24 jam');
+            ->assertSee('Berkah Kreatif')->assertSee('aria-label="Navigasi utama"', false)->assertDontSee('Azka Laundry')->assertDontSee('wa.me/')->assertDontSee('1x24 jam');
         RentalPaymentSetting::create(['id' => 1, 'whatsapp_number' => '6289876543210']);
         $this->get(route('customer.report'))->assertOk()->assertSee('https://wa.me/6289876543210', false);
     }
