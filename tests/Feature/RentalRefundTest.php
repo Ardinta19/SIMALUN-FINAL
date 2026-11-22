@@ -31,6 +31,9 @@ class RentalRefundTest extends TestCase
         $this->post($url, $data)->assertSessionHasNoErrors();
         $this->assertDatabaseCount('rental_payment_refunds', 1);
         $this->assertSame(60, $unit->verifiedNet());
+        $this->get(route('admin.rental.orders'))->assertOk()->assertSee('Catat pengembalian dana')->assertSee('Pengembalian sebagian');
+        $this->actingAs($customer)->get(route('rental.orders.show', $order))->assertOk()->assertSee('Pengembalian sebagian');
+        $this->actingAs($admin);
         $refund = $payment->refunds()->firstOrFail();
         $this->assertDatabaseHas('finance_entries', ['id' => $refund->finance_entry_id, 'entry_type' => 'expense', 'source_type' => 'rental_refund', 'source_id' => $refund->id, 'amount' => 40]);
         $this->post($url, ['amount' => 61, 'reason' => 'Lebih', 'request_key' => (string) Str::uuid(), 'confirmed' => 1])->assertSessionHasErrors('refund');
