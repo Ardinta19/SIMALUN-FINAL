@@ -1,0 +1,10 @@
+@extends('catalog.layout')
+@section('title', 'Jadwal sewa')
+@section('content')
+<p><a href="{{ route('admin.rental.orders') }}">← Pesanan sewa</a></p>
+<h1>Jadwal sewa</h1>
+<p class="muted">Jadwal menampilkan setiap hari dalam periode sewa termasuk hari penerimaan dan pengembalian. Unit menunggu belum mencadangkan stok; unit terkonfirmasi sudah dicadangkan. Perkiraan jadwal bukan bukti serah terima aktual.</p>
+<form class="stack card body" method="get" action="{{ route('admin.rental.schedule') }}"><label>Bulan<input type="month" name="month" value="{{ $month->format('Y-m') }}" required></label><p><button class="btn">Tampilkan</button></p><div class="row"><a href="{{ route('admin.rental.schedule', ['month' => $month->subMonth()->format('Y-m')]) }}">← Bulan sebelumnya</a><a href="{{ route('admin.rental.schedule', ['month' => $month->addMonth()->format('Y-m')]) }}">Bulan berikutnya →</a></div></form>
+<h2>{{ $month->locale('id')->translatedFormat('F Y') }}</h2>
+<div class="items">@foreach($days as $day)<section class="card body"><h3>{{ $day['date']->locale('id')->translatedFormat('l, d F Y') }}</h3>@forelse($day['units'] as $unit)<div style="padding:10px 0;border-bottom:1px solid #f0dfe1"><p><strong>{{ $unit->product_name }}</strong> · {{ $unit->status === 'confirmed' ? 'Dikonfirmasi · stok dicadangkan' : 'Menunggu · belum dicadangkan' }}</p><p class="muted">{{ $unit->order->customer?->name ?? 'Pelanggan tidak tersedia' }} · {{ $unit->recipient_name }} · Acara {{ $unit->event_on->format('d/m/Y') }}</p><p class="muted">{{ $unit->starts_on->toDateString() === $day['date']->toDateString() ? 'Penerimaan hari ini · ' : '' }}{{ $unit->ends_on->toDateString() === $day['date']->toDateString() ? 'Pengembalian hari ini · ' : '' }}{{ ['waiting'=>'Menunggu pengerjaan', 'production'=>'Dalam pengerjaan', 'ready'=>'Siap diserahkan', 'handed_over'=>'Sudah diserahkan', 'returned'=>'Sudah dikembalikan'][$unit->progress] ?? $unit->progress }}</p><a href="{{ route('admin.rental.orders', ['q' => $unit->order->reference]) }}">Buka pesanan</a></div>@empty<p class="muted">Tidak ada unit terjadwal.</p>@endforelse</section>@endforeach</div>
+@endsection

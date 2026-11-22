@@ -289,6 +289,7 @@ body {
     </section>
     <section class="section reveal"><div class="section__head"><div class="section__title">Aksi Cepat</div></div><div class="quick-grid">
         <a href="{{ route('admin.rental.orders') }}" class="quick-item"><span class="quick-item__icon">📋</span><span class="quick-item__label">Pesanan sewa</span></a>
+        <a href="{{ route('admin.rental.schedule') }}" class="quick-item"><span class="quick-item__icon">🗓️</span><span class="quick-item__label">Jadwal sewa</span></a>
         <a href="{{ route('admin.catalog.index') }}" class="quick-item"><span class="quick-item__icon">🌷</span><span class="quick-item__label">Kelola katalog</span></a>
         <a href="{{ route('admin.rental.universities.index') }}" class="quick-item"><span class="quick-item__icon">📍</span><span class="quick-item__label">Tarif universitas</span></a>
         <a href="{{ route('admin.rental.cashbook.index') }}" class="quick-item"><span class="quick-item__icon">📒</span><span class="quick-item__label">Buku kas</span></a>

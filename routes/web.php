@@ -27,6 +27,7 @@ use App\Http\Controllers\RentalProgressController;
 use App\Http\Controllers\RentalUniversityController;
 use App\Http\Controllers\RentalCashBookController;
 use App\Http\Controllers\RentalPaymentSettingController;
+use App\Http\Controllers\RentalScheduleController;
 use App\Http\Controllers\ServiceCategoryController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\VoucherController;
@@ -163,6 +164,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/pembayaran-sewa/{payment}/verifikasi', [RentalPaymentController::class, 'verify'])->name('rental.payment.verify');
         Route::post('/pembayaran-sewa/{payment}/tolak', [RentalPaymentController::class, 'reject'])->name('rental.payment.reject');
         Route::post('/sewa/unit/{unit}/preview', [RentalDesignController::class, 'store'])->name('rental.design.store');
+        Route::get('/jadwal-sewa', [RentalScheduleController::class, 'index'])->name('rental.schedule');
         Route::get('/sewa', [RentalOrderController::class, 'adminIndex'])->name('rental.orders');
         Route::post('/sewa/unit/{unit}/selesai-tinjau-pembayaran', [RentalPaymentController::class, 'resolveReview'])->name('rental.payment.resolve-review');
         Route::post('/sewa/unit/{unit}/perkembangan', [RentalProgressController::class, 'advance'])->name('rental.progress.advance');
