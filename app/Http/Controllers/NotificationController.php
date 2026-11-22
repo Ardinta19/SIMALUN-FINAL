@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\RentalOrder;
+use App\Models\RentalOrderUnit;
 use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
@@ -36,6 +38,13 @@ class NotificationController extends Controller
         $notif = Auth::user()->notifications()->findOrFail($id);
         $notif->markAsRead();
 
+        $rentalOrderId = $notif->data['rental_order_id'] ?? null;
+        if ($rentalOrderId && Auth::user()->role === 'customer') {
+            $rentalOrder = RentalOrder::where('customer_id', Auth::id())->findOrFail($rentalOrderId);
+            return redirect()->route('rental.orders.show', $rentalOrder);
+        }
+        if ($rentalOrderId && Auth::user()->role === 'admin') return redirect()->route('admin.rental.orders');
+
         $orderId = $notif->data['order_id'] ?? null;
         $role = Auth::user()->role;
 
@@ -64,11 +73,8 @@ class NotificationController extends Controller
             ->notifications()
             ->paginate(20);
 
-        $notifikasiOperasional = Order::with(['customer', 'service'])
-            ->whereIn('status', Order::STATUS_AKTIF)
-            ->latest()
-            ->take(10)
-            ->get();
+        $notifikasiOperasional = RentalOrderUnit::with('order.customer')
+            ->where('status', 'pending')->latest()->take(10)->get();
 
         Auth::user()->unreadNotifications->markAsRead();
 

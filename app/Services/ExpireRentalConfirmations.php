@@ -19,6 +19,7 @@ class ExpireRentalConfirmations
                         if (! $unit || $unit->status !== 'pending' || $unit->order->confirmation_deadline->isFuture()) return false;
                         $unit->cancellationEvents()->create(['action' => 'cancel', 'previous_status' => 'pending', 'new_status' => 'cancelled', 'note' => 'Batas konfirmasi admin 24 jam terlewati.', 'responsibility' => 'seller']);
                         $unit->update(['status_before_cancel' => 'pending', 'cancel_code' => 'confirmation_timeout', 'status' => 'cancelled', 'cancel_reason' => 'Dibatalkan otomatis karena batas konfirmasi admin 24 jam terlewati.', 'cancel_responsibility' => 'seller', 'cancelled_at' => now()]);
+                        app(RentalNotifications::class)->customer($unit->order, 'Konfirmasi melewati tenggat', 'Unit '.$unit->product_name.' dibatalkan karena admin melewati batas konfirmasi.');
                         return true;
                     }, 3);
                     if ($changed) $count++;

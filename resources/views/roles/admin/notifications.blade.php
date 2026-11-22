@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Notifikasi Admin – Azka Laundry</title>
+<title>Notifikasi Admin – Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 @include('layouts.component._tokens')
 <style>
@@ -147,10 +147,10 @@ body {
             @forelse($notifikasiOperasional as $order)
                 <div class="row">
                     <div>
-                        <div class="row__title">{{ $order->order_code }} · {{ $order->service->name ?? 'Layanan' }}</div>
-                        <div class="row__meta">{{ $order->customer->name ?? 'Customer' }} · {{ $order->created_at->translatedFormat('d M Y H:i') }}</div>
+                        <div class="row__title">{{ $order->product_name }} · {{ $order->order->reference }}</div>
+                        <div class="row__meta">{{ $order->order->customer?->name ?? 'Pelanggan tidak tersedia' }} · {{ $order->created_at->translatedFormat('d M Y H:i') }}</div>
                     </div>
-                    <span class="badge">{{ $order->status_label }}</span>
+                    <span class="badge">Menunggu konfirmasi</span>
                 </div>
             @empty
                 <div class="empty-state">
@@ -171,7 +171,7 @@ body {
                 Notifikasi Sistem
             </div>
             @forelse($notifications as $notif)
-                <a href="{{ isset($notif->data['order_id']) ? route('admin.orders') : '#' }}" class="notif {{ is_null($notif->read_at) ? 'is-unread' : '' }}">
+                <a href="{{ isset($notif->data['rental_order_id']) ? route('admin.rental.orders') : (isset($notif->data['order_id']) ? route('admin.orders') : '#') }}" class="notif {{ is_null($notif->read_at) ? 'is-unread' : '' }}">
                     <span class="notif__ico" aria-hidden="true">
                         @include('layouts.component._icon', ['name' => 'notifikasi', 'size' => 16])
                     </span>

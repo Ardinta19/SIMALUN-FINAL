@@ -33,6 +33,7 @@ class ExpireRentalPayments
                         $reason = 'Dibatalkan otomatis karena pelunasan atau bukti pelunasan tepat waktu belum memenuhi tagihan.';
                         $unit->cancellationEvents()->create(['action' => 'cancel', 'previous_status' => 'confirmed', 'new_status' => 'cancelled', 'note' => $reason, 'responsibility' => 'customer']);
                         $unit->update(['status_before_cancel' => 'confirmed', 'status' => 'cancelled', 'cancel_code' => 'payment_timeout', 'cancel_reason' => $reason, 'cancel_responsibility' => 'customer', 'cancelled_at' => now(), 'deposit_forfeited_at' => now('Asia/Jakarta')->toDateString() > $unit->starts_on->toDateString() ? now() : null]);
+                        app(RentalNotifications::class)->customer($unit->order, 'Tenggat pelunasan terlewati', 'Unit '.$unit->product_name.' dibatalkan. Periksa detail dan pilihan kelanjutan.');
                         return 'cancelled';
                     }, 3);
                     if ($change) $result[$change]++;

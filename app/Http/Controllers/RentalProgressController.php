@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\RentalOrderUnit;
+use App\Services\RentalNotifications;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -29,6 +30,7 @@ class RentalProgressController extends Controller
             }
             $unit->update(['progress' => $next]);
             $unit->progressEvents()->create(['progress' => $next, 'recorded_by' => $request->user()->id, 'note' => $data['note'] ?? null]);
+            app(RentalNotifications::class)->customer($unit->order, 'Perkembangan unit', 'Perkembangan unit '.$unit->product_name.' telah diperbarui.');
         }, 3);
         return back()->with('success', 'Perkembangan unit diperbarui.');
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\RentalDesignPreview;
 use App\Models\RentalOrderUnit;
+use App\Services\RentalNotifications;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -27,6 +28,7 @@ class RentalDesignController extends Controller
                 $unit->previews()->where('status', 'pending')->update(['status' => 'superseded']);
                 $version = (int) $unit->previews()->max('version') + 1;
                 $unit->previews()->create(['version' => $version, 'image_path' => $path, 'admin_note' => $data['admin_note'] ?? null, 'created_by' => $request->user()->id]);
+                app(RentalNotifications::class)->customer($unit->order, 'Preview desain tersedia', 'Preview desain unit '.$unit->product_name.' menunggu respons Anda.');
             });
         } catch (\Throwable $e) {
             Storage::disk('local')->delete($path);
@@ -53,6 +55,7 @@ class RentalDesignController extends Controller
             $preview = RentalDesignPreview::lockForUpdate()->findOrFail($preview->id);
             if ($unit->status !== 'confirmed' || $preview->status !== 'pending') throw ValidationException::withMessages(['design' => 'Preview ini tidak lagi menunggu respons.']);
             $preview->update(['status' => $data['decision'], 'customer_note' => $data['note'] ?? null, 'responded_at' => now()]);
+            app(RentalNotifications::class)->admins($unit->order, 'Respons desain', 'Pelanggan '.($data['decision'] === 'approved' ? 'menyetujui desain' : 'meminta revisi').' unit '.$unit->product_name.'.');
         });
         return back()->with('success', $data['decision'] === 'approved' ? 'Desain disetujui.' : 'Permintaan revisi dikirim.');
     }
