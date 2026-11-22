@@ -22,7 +22,8 @@ class RentalUnitDetailTest extends TestCase
         $order = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $customer->id, 'confirmation_deadline' => now()->addDay()]);
         $unit = $order->units()->create(['rental_product_id' => $product->id, 'product_name' => 'Papan', 'unit_price' => 100000, 'price_unit' => 'day', 'rental_amount' => 100000, 'starts_on' => now()->addDays(3), 'event_on' => now()->addDays(3), 'ends_on' => now()->addDays(3), 'recipient_name' => 'Penerima', 'greeting' => 'Selamat', 'design_notes' => 'Bunga merah', 'delivery_method' => 'delivery', 'delivery_address' => 'Alamat penerimaan', 'return_method' => 'collection', 'return_address' => 'Alamat pengembalian', 'transport_quote' => 0, 'transport_approved_at' => now(), 'status' => 'confirmed']);
         $unit->payments()->create(['amount' => 100000, 'proof_path' => 'bukti.jpg', 'status' => 'pending', 'submitted_at' => now()]);
-        $this->actingAs($customer)->get(route('rental.orders.unit', [$order, $unit]))->assertOk()->assertSee('Bunga merah')->assertSee('Alamat penerimaan')->assertSee('Alamat pengembalian')->assertSee('Belum lunas')->assertSee('Bukti menunggu');
+        $this->actingAs($customer)->get(route('rental.orders.unit', [$order, $unit]))->assertOk()->assertSee('Bunga merah')->assertSee('Alamat penerimaan')->assertSee('Alamat pengembalian')->assertSee('Belum lunas')->assertSee('Bukti menunggu')
+            ->assertSee('href="#payment-'.$unit->id.'"', false)->assertSee('id="unit-progress-'.$unit->id.'"', false);
         $unit->payments()->update(['status' => 'verified']);
         $this->get(route('rental.orders.unit', [$order, $unit]))->assertOk()->assertSee('Lunas terverifikasi');
     }

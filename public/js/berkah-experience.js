@@ -1,4 +1,16 @@
 (() => {
+    const revealHash = () => {
+        let id; try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+        if (!id) return;
+        const target = document.getElementById(id);
+        if (!target) return;
+        if (target.tagName === 'DETAILS') target.open = true;
+        let parent = target.parentElement;
+        while (parent) { if (parent.tagName === 'DETAILS') parent.open = true; parent = parent.parentElement; }
+    };
+    window.addEventListener('hashchange', revealHash);
+    document.addEventListener('click', event => { const link = event.target.closest('a[href^="#"]'); if (link && link.hash === location.hash) revealHash(); });
+    revealHash();
     const header = document.querySelector('[data-bk-header]');
     if (!header || typeof HTMLDialogElement === 'undefined' || !HTMLDialogElement.prototype.showModal) return;
     document.documentElement.classList.add('bk-enhanced');
