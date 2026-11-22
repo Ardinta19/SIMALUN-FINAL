@@ -20,20 +20,27 @@ class ExpireRentalPayments
                         $policy = app(RentalPaymentDeadline::class);
                         if ($unit->status === 'cancelled' && $unit->cancel_code === 'payment_timeout' && ! $unit->deposit_forfeited_at && now('Asia/Jakarta')->toDateString() > $unit->starts_on->toDateString()) {
                             $unit->update(['deposit_forfeited_at' => now()]);
+                            app(RentalNotifications::class)->customer($unit->order, 'Masa kelanjutan berakhir', 'Unit '.$unit->product_name.' tidak dilanjutkan sampai batas waktu. Periksa rincian dan ketentuan DP pada pesanan.');
                             return 'forfeited';
                         }
                         if ($unit->status !== 'confirmed' || ! $policy->isDue($unit) || in_array($unit->progress, ['handed_over', 'returned'], true)) return null;
                         if ($unit->payment_late_resumed_at && $unit->payableAmount() !== null && $unit->verifiedNet() >= $unit->payableAmount()) return null;
                         // Unsettled shipping and specially approved same-day orders need a human decision.
                         if ($unit->payableAmount() === null || (! $unit->payment_review_resolved && $unit->special_confirmation && $unit->confirmed_at && $unit->confirmed_at->greaterThanOrEqualTo($policy->cutoff($unit)))) {
-                            $unit->update(['payment_review_hold' => true]);
+                            if (! $unit->payment_review_hold) {
+                                $unit->update(['payment_review_hold' => true]);
+                                app(RentalNotifications::class)->admins($unit->order, 'Peninjauan pembayaran diperlukan', 'Unit '.$unit->product_name.' memerlukan penanganan manual untuk ongkos atau jadwal khusus.');
+                            }
                             return null;
                         }
                         if ($unit->payment_review_hold || $policy->timelyCoverage($unit) >= $unit->payableAmount()) return null;
                         $reason = 'Dibatalkan otomatis karena pelunasan atau bukti pelunasan tepat waktu belum memenuhi tagihan.';
                         $unit->cancellationEvents()->create(['action' => 'cancel', 'previous_status' => 'confirmed', 'new_status' => 'cancelled', 'note' => $reason, 'responsibility' => 'customer']);
                         $unit->update(['status_before_cancel' => 'confirmed', 'status' => 'cancelled', 'cancel_code' => 'payment_timeout', 'cancel_reason' => $reason, 'cancel_responsibility' => 'customer', 'cancelled_at' => now(), 'deposit_forfeited_at' => now('Asia/Jakarta')->toDateString() > $unit->starts_on->toDateString() ? now() : null]);
-                        app(RentalNotifications::class)->customer($unit->order, 'Tenggat pelunasan terlewati', 'Unit '.$unit->product_name.' dibatalkan. Periksa detail dan pilihan kelanjutan.');
+                        $message = $unit->deposit_forfeited_at
+                            ? 'Unit '.$unit->product_name.' dibatalkan dan masa kelanjutannya telah berakhir. Periksa rincian dan ketentuan DP.'
+                            : 'Unit '.$unit->product_name.' dibatalkan. Periksa detail dan pilihan kelanjutan.';
+                        app(RentalNotifications::class)->customer($unit->order, 'Tenggat pelunasan terlewati', $message);
                         return 'cancelled';
                     }, 3);
                     if ($change) $result[$change]++;

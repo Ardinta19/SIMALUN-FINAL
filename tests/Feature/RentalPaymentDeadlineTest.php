@@ -72,4 +72,27 @@ class RentalPaymentDeadlineTest extends TestCase
             $this->assertSame('cancelled', $unit->fresh()->status);
         } finally { Carbon::setTestNow(); }
     }
+    public function test_scheduler_notifies_manual_review_and_end_of_continuation_only_once(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-12-02 00:01:00', 'Asia/Jakarta'));
+        try {
+            $admin = User::factory()->create(); $admin->forceFill(['role' => 'admin'])->save();
+            $customer = User::factory()->create(); $customer->forceFill(['role' => 'customer'])->save();
+            $category = RentalCategory::create(['name' => 'Wisuda']);
+            $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 2]);
+            $order = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $customer->id, 'confirmation_deadline' => now()->addDay()]);
+            $base = ['rental_product_id' => $product->id, 'product_name' => 'Papan', 'unit_price' => 100, 'price_unit' => 'day', 'rental_amount' => 100, 'starts_on' => '2026-12-02', 'event_on' => '2026-12-02', 'ends_on' => '2026-12-02', 'recipient_name' => 'Penerima', 'greeting' => 'Selamat', 'delivery_method' => 'pickup', 'return_method' => 'dropoff', 'status' => 'confirmed'];
+            $hold = $order->units()->create(array_merge($base, ['delivery_method' => 'delivery', 'delivery_address' => 'Alamat']));
+            $late = $order->units()->create($base);
+            $this->artisan('rental:expire-payments')->assertExitCode(0);
+            $this->artisan('rental:expire-payments')->assertExitCode(0);
+            $this->assertTrue($hold->fresh()->payment_review_hold);
+            $this->assertSame(1, $admin->notifications()->get()->filter(fn ($n) => $n->data['title'] === 'Peninjauan pembayaran diperlukan')->count());
+            $this->assertSame('cancelled', $late->fresh()->status);
+            Carbon::setTestNow(Carbon::parse('2026-12-03 00:00:00', 'Asia/Jakarta'));
+            $this->artisan('rental:expire-payments')->assertExitCode(0);
+            $this->artisan('rental:expire-payments')->assertExitCode(0);
+            $this->assertSame(1, $customer->notifications()->get()->filter(fn ($n) => $n->data['title'] === 'Masa kelanjutan berakhir')->count());
+        } finally { Carbon::setTestNow(); }
+    }
 }

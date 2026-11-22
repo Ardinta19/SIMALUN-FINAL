@@ -30,6 +30,7 @@ class RentalRefundTest extends TestCase
         $this->actingAs($admin)->post($url, $data)->assertSessionHasNoErrors();
         $this->post($url, $data)->assertSessionHasNoErrors();
         $this->assertDatabaseCount('rental_payment_refunds', 1);
+        $this->assertSame(1, $customer->notifications()->get()->filter(fn ($notification) => $notification->data['title'] === 'Pengembalian dana dicatat')->count());
         $this->assertSame(60, $unit->verifiedNet());
         $this->get(route('admin.rental.orders'))->assertOk()->assertSee('Catat pengembalian dana')->assertSee('Pengembalian sebagian');
         $this->actingAs($customer)->get(route('rental.orders.show', $order))->assertOk()->assertSee('Pengembalian sebagian');

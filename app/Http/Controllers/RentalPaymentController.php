@@ -89,6 +89,7 @@ class RentalPaymentController extends Controller
             $payment->corrections()->create(['old_amount' => $payment->amount, 'new_amount' => $new, 'reason' => $data['reason'], 'recorded_by' => $request->user()->id]);
             $payment->update(['amount' => $new]);
             $entry->update(['amount' => $new]);
+            app(RentalNotifications::class)->customer($unit->order, 'Nominal pembayaran dikoreksi', 'Admin mengoreksi nominal pembayaran unit '.$unit->product_name.'. Periksa detail dan alasan koreksi.');
         }, 3);
         return back()->with('success', 'Nominal pembayaran dan catatan kas terkait diperbaiki.');
     }
@@ -97,7 +98,7 @@ class RentalPaymentController extends Controller
     {
         $data = $request->validate(['amount' => ['required', 'integer', 'min:1', 'max:100000000'], 'reason' => ['required', 'string', 'max:500'], 'request_key' => ['required', 'uuid'], 'confirmed' => ['accepted']]);
         DB::transaction(function () use ($request, $payment, $data) {
-            RentalOrderUnit::lockForUpdate()->findOrFail($payment->rental_order_unit_id);
+            $unit = RentalOrderUnit::lockForUpdate()->findOrFail($payment->rental_order_unit_id);
             $payment = RentalPayment::lockForUpdate()->findOrFail($payment->id);
             $existing = RentalPaymentRefund::where('request_key', $data['request_key'])->first();
             if ($existing) {
@@ -111,6 +112,7 @@ class RentalPaymentController extends Controller
             $refund = $payment->refunds()->create(['amount' => $data['amount'], 'reason' => $data['reason'], 'request_key' => $data['request_key'], 'refunded_at' => $time, 'recorded_by' => $request->user()->id]);
             $entry = FinanceEntry::create(['entry_date' => $time->toDateString(), 'period_key' => $time->format('Y-m'), 'entry_type' => 'expense', 'category' => 'pengembalian', 'amount' => $refund->amount, 'source_type' => 'rental_refund', 'source_id' => $refund->id, 'notes' => 'Pengembalian pembayaran #'.$payment->id.': '.$refund->reason, 'created_by' => $request->user()->id]);
             $refund->update(['finance_entry_id' => $entry->id]);
+            app(RentalNotifications::class)->customer($unit->order, 'Pengembalian dana dicatat', 'Admin mencatat pengembalian dana unit '.$unit->product_name.'. Periksa rincian pada pesanan.');
         }, 3);
         return back()->with('success', 'Pengembalian dicatat dalam buku kas.');
     }
