@@ -121,4 +121,34 @@ class RentalCheckoutTest extends TestCase
         $order = RentalOrder::create(['reference' => (string) \Illuminate\Support\Str::uuid(), 'customer_id' => $owner->id, 'confirmation_deadline' => now()->addDay()]);
         $this->actingAs($other)->get(route('rental.orders.show', $order))->assertForbidden();
     }
+    public function test_replayed_cart_creates_one_order_and_rejects_changed_details(): void
+    {
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 1]);
+        $customer = User::factory()->create(['role' => 'customer']);
+        $admin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($customer)->post(route('cart.store', $product), ['quantity' => 1]);
+        $cart = session('rental_cart');
+        $key = array_key_first($cart);
+        $date = now('Asia/Jakarta')->addDays(3)->toDateString();
+        $unit = ['event_on' => $date, 'ends_on' => $date, 'recipient_name' => 'Penerima', 'greeting' => 'Selamat', 'delivery_method' => 'pickup', 'return_method' => 'dropoff'];
+        $payload = ['terms' => 1, 'units' => [$key => $unit]];
+        $this->post(route('rental.checkout.store'), $payload)->assertSessionHasNoErrors();
+        $order = RentalOrder::firstOrFail();
+        $this->assertSame(1, $admin->notifications()->count());
+
+        // Simulasi request lain yang telah membaca isi sesi sebelum dikosongkan.
+        $this->withSession(['rental_cart' => $cart])->post(route('rental.checkout.store'), $payload)
+            ->assertSessionHasNoErrors()->assertRedirect(route('rental.orders.show', $order));
+        $this->assertDatabaseCount('rental_orders', 1);
+        $this->assertDatabaseCount('rental_order_units', 1);
+        $this->assertSame(1, $admin->notifications()->count());
+
+        $changed = $payload;
+        $changed['units'][$key]['greeting'] = 'Ucapan berbeda';
+        $this->withSession(['rental_cart' => $cart])->from(route('rental.checkout'))->post(route('rental.checkout.store'), $changed)
+            ->assertSessionHasErrors('cart');
+        $this->assertSame('Selamat', $order->units()->firstOrFail()->greeting);
+        $this->assertDatabaseCount('rental_orders', 1);
+    }
 }

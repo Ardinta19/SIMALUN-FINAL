@@ -7,6 +7,7 @@ use App\Models\RentalProduct;
 use App\Models\RentalDurationPackage;
 use App\Models\RentalUniversity;
 use App\Models\RentalPaymentSetting;
+use App\Models\User;
 use App\Services\RentalAvailability;
 use App\Services\RentalPaymentDeadline;
 use App\Services\RentalNotifications;
@@ -70,9 +71,30 @@ class RentalOrderController extends Controller
             if ($unit['delivery_method'] === 'delivery' && empty($unit['delivery_address'])) throw ValidationException::withMessages(['units' => $label.'alamat pengantaran wajib diisi.']);
             if ($unit['return_method'] === 'collection' && empty($unit['return_address'])) throw ValidationException::withMessages(['units' => $label.'alamat pengambilan kembali wajib diisi.']);
         }
-        $order = DB::transaction(function () use ($request, $cart, $data) {
+        // Identitas unit keranjang tidak berubah saat permintaan diulang.
+        // Data unit juga disimpan sebagai hash agar pengulangan yang berbeda
+        // tidak diam-diam dianggap sebagai perubahan pesanan yang telah dibuat.
+        $cartKeys = array_keys($cart);
+        sort($cartKeys, SORT_STRING);
+        $checkoutKey = hash('sha256', json_encode([$request->user()->id, $cartKeys], JSON_THROW_ON_ERROR));
+        $units = $data['units'];
+        ksort($units);
+        foreach ($units as &$values) ksort($values);
+        unset($values);
+        $payloadHash = hash('sha256', json_encode($units, JSON_THROW_ON_ERROR));
+        [$order, $created] = DB::transaction(function () use ($request, $cart, $data, $checkoutKey, $payloadHash) {
+            // Serialize checkout pelanggan yang sama, termasuk jika dua request
+            // membaca sesi sebelum request pertama mengosongkan keranjang.
+            User::whereKey($request->user()->id)->lockForUpdate()->firstOrFail();
+            $existing = RentalOrder::where('checkout_key', $checkoutKey)->first();
+            if ($existing) {
+                if (! hash_equals($existing->checkout_payload_hash ?? '', $payloadHash)) {
+                    throw ValidationException::withMessages(['cart' => 'Keranjang ini sudah dikirim dengan detail berbeda. Periksa Pesanan saya sebelum membuat pesanan baru.']);
+                }
+                return [$existing, false];
+            }
             $products = RentalProduct::with('category')->whereIn('id', array_column($cart, 'product_id'))->get()->keyBy('id');
-            $order = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $request->user()->id, 'confirmation_deadline' => now()->addHours(24)]);
+            $order = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $request->user()->id, 'confirmation_deadline' => now()->addHours(24), 'checkout_key' => $checkoutKey, 'checkout_payload_hash' => $payloadHash]);
             foreach ($cart as $key => $entry) {
                 $product = $products->get($entry['product_id']);
                 if (! $product || ! $product->is_active || ! $product->category->is_active || $product->stock < 1) throw ValidationException::withMessages(['cart' => 'Ada papan yang tidak tersedia. Perbarui keranjang.']);
@@ -102,10 +124,10 @@ class RentalOrderController extends Controller
                 $order->units()->create(array_merge($unit, $transport, ['rental_product_id' => $product->id, 'product_name' => $product->name, 'unit_price' => $product->base_price, 'price_unit' => $product->price_unit, 'rental_amount' => $amount, 'rental_duration_package_id' => $package?->id, 'package_name' => $package?->name, 'package_days' => $package?->days]));
             }
             app(RentalNotifications::class)->admins($order, 'Pesanan sewa baru', 'Pesanan baru menunggu konfirmasi admin.');
-            return $order;
+            return [$order, true];
         }, 3);
         $request->session()->forget('rental_cart');
-        return redirect()->route('rental.orders.show', $order)->with('success', 'Pesanan dikirim dan menunggu konfirmasi admin. Stok belum dicadangkan.');
+        return redirect()->route('rental.orders.show', $order)->with('success', $created ? 'Pesanan dikirim dan menunggu konfirmasi admin. Stok belum dicadangkan.' : 'Pesanan ini sudah dikirim sebelumnya. Periksa rinciannya di bawah.');
     }
 
     public function show(Request $request, RentalOrder $order)
