@@ -175,7 +175,7 @@ html, body {
             placeholder="Masukkan password"
             autocomplete="current-password"
           >
-          <button type="button" class="pw-toggle" id="pw-toggle" title="Tampilkan password">👁️</button>
+          <button type="button" class="pw-toggle" id="pw-toggle" title="Tampilkan password" aria-label="Tampilkan password" aria-pressed="false">👁️</button>
         </div>
         @error('password')
           <div class="error-msg">{{ $message }}</div>
@@ -250,6 +250,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const show = pwInput.type === 'password';
     pwInput.type = show ? 'text' : 'password';
     this.textContent = show ? '🙈' : '👁️';
+    this.setAttribute('aria-pressed', String(show));
+    this.setAttribute('aria-label', show ? 'Sembunyikan password' : 'Tampilkan password');
+    this.title = show ? 'Sembunyikan password' : 'Tampilkan password';
   });
 
   /* ── CLIENT-SIDE VALIDATION ── */
@@ -288,6 +291,8 @@ document.addEventListener('DOMContentLoaded', function () {
     btnLogin.classList.add('loading');
     btnLogin.disabled = true;
   });
+
+  window.addEventListener('pageshow', () => { btnLogin.disabled = false; btnLogin.classList.remove('loading'); });
 
   /* remove error on input */
   identEl.addEventListener('input', ()=>{ clearErr(errIdent); identEl.classList.remove('error'); });
