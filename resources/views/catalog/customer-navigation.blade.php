@@ -31,7 +31,13 @@
 <dialog class="bk-dialog bk-menu" id="bk-menu" aria-labelledby="bk-menu-title">
     <div class="bk-dialog-head"><div><span class="bk-eyebrow">BERKAH KREATIF</span><h2 id="bk-menu-title">Jelajahi</h2></div><button type="button" data-close-dialog aria-label="Tutup menu">×</button></div>
     <p>Semua yang kamu butuhkan untuk menyiapkan momen istimewa.</p>
-    <nav class="bk-menu-links" aria-label="Menu navigasi"><a href="{{ route('welcome') }}"><span>01</span>Katalog <b>↗</b></a><a href="{{ route('cart.index') }}"><span>02</span>Keranjang <b>↗</b></a>@if($isCustomer)<a href="{{ route('rental.orders.index') }}"><span>03</span>Pesanan saya <b>↗</b></a><a href="{{ route('customer.dashboard') }}"><span>04</span>Beranda akun <b>↗</b></a><a href="{{ route('customer.notifications') }}"><span>05</span>Notifikasi <b>↗</b></a><a href="{{ route('customer.profile') }}"><span>06</span>Profil <b>↗</b></a><a href="{{ route('customer.help') }}"><span>07</span>Bantuan <b>↗</b></a>@else<a href="{{ route('login') }}"><span>03</span>Masuk <b>↗</b></a>@endif</nav>
+    <nav class="bk-menu-links" aria-label="Menu navigasi">
+    @if($isCustomer)
+        <a href="{{ route('cart.index') }}"><span>01</span>Keranjang <b>↗</b></a><a href="{{ route('rental.orders.index') }}"><span>02</span>Pesanan saya <b>↗</b></a><a href="{{ route('customer.notifications') }}"><span>03</span>Notifikasi <b>↗</b></a><a href="{{ route('customer.help') }}"><span>04</span>Bantuan / FAQ <b>↗</b></a>
+    @else
+        <a href="{{ route('welcome') }}"><span>01</span>Katalog <b>↗</b></a><a href="{{ route('cart.index') }}"><span>02</span>Keranjang <b>↗</b></a><a href="{{ route('login') }}"><span>03</span>Masuk <b>↗</b></a>
+    @endif
+    </nav>
 </dialog>
 @if(!$isCustomer)
 <nav class="bk-guest-tabs" aria-label="Navigasi cepat"><a href="{{ route('welcome') }}" @if(request()->routeIs('welcome','catalog.show')) aria-current="page" @endif><span aria-hidden="true">✿</span>Katalog</a><a href="{{ route('cart.index') }}" @if(request()->routeIs('cart.*')) aria-current="page" @endif><span aria-hidden="true">▢</span>Keranjang @if($cartCount)({{ $cartCount }})@endif</a><a href="{{ route('login') }}"><span aria-hidden="true">○</span>Masuk</a></nav>

@@ -30,11 +30,11 @@ class RentalCustomerNavigationTest extends TestCase
         }
         $this->get(route('rental.orders.index'))->assertSee('customer-nav__item is-active', false)->assertSee('aria-current="page"', false);
         $this->get(route('rental.checkout'))->assertSee('customer-nav__item is-active', false)->assertSee('aria-current="page"', false)
-            ->assertSee('aria-label="Keranjang, 1 unit"', false)->assertSee('>Keranjang</span>', false);
+            ->assertSee('aria-label="Keranjang, 1 unit"', false)->assertSee('Bantuan / FAQ')->assertSee('data-customer-radial', false);
         $this->get(route('welcome'))->assertSee('>Katalog</span>', false)->assertDontSee('Buat Pesanan Baru');
         foreach ([route('rental.orders.index'), route('customer.notifications'), route('customer.dashboard'), route('customer.profile'), route('customer.addresses.create'), route('customer.report')] as $url) {
             $this->get($url)->assertOk()
-                ->assertSee('grid-template-columns:repeat(6,minmax(0,1fr))', false)
+                ->assertSee('grid-template-columns:repeat(4,minmax(0,1fr))', false)
                 ->assertSee('line-height:12px', false)
                 ->assertSee('height:68px', false)
                 ->assertSee('env(safe-area-inset-bottom, 0px)', false);
