@@ -218,6 +218,7 @@
     }
     .btn-danger:hover { background:var(--red); color:#fff; }
 </style>
+<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
 </head>
 <body>
 

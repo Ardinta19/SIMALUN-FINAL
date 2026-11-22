@@ -315,7 +315,8 @@ html, body {
 @keyframes flower-float{from{transform:translateY(0) rotate(0)}to{transform:translateY(-14px) rotate(20deg)}}
 @media(prefers-reduced-motion:reduce){#brand-logo,.ambient-flower,#drum-spin-ring,#drum-wrap::after{animation:none!important}}
 </style>
-<noscript><style>.form-step{display:block!important}.btn-next-step,.btn-back-step,.step-indicator{display:none!important}</style></noscript></head>
+<noscript><style>.form-step{display:block!important}.btn-next-step,.btn-back-step,.step-indicator{display:none!important}</style></noscript><link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
+</head>
 <body>
 
 <div id="ambient" aria-hidden="true"><span class="ambient-flower" style="left:12%;top:24%">✿</span><span class="ambient-flower" style="right:12%;top:48%;animation-delay:-2s">✿</span><span class="ambient-flower" style="left:24%;bottom:12%;animation-delay:-4s">✿</span></div>
@@ -504,7 +505,7 @@ html, body {
         </div>
 
         <div class="terms-row">
-          <input type="checkbox" class="terms-cb" id="terms" name="terms">
+          <input type="checkbox" class="terms-cb" id="terms" name="terms" value="1" @checked(old('terms')) required>
           <label class="terms-txt" for="terms">
             Saya menyetujui penggunaan data saya untuk pengelolaan akun dan pesanan Berkah Kreatif.
           </label>

@@ -32,7 +32,7 @@
 <li><strong>Jika tenggat terlewati.</strong> Unit tanpa pelunasan atau bukti pelunasan tepat waktu direncanakan batal dan stok dilepas. Pada hari penerimaan, admin dapat melanjutkan setelah pembayaran diverifikasi dan stok dicek; ada risiko terlambat. Mulai pukul 00.00 WIB hari berikutnya, unit tidak dapat dilanjutkan.</li>
 <li><strong>DP dan pengembalian.</strong> DP lama dihitung jika unit dilanjutkan; jika tidak dilanjutkan hingga batas itu, DP hangus. Jika kesalahan penjual menyebabkan pembatalan, pembayaran dikembalikan. Tindak lanjut pengembalian masih manual.</li>
 </ul><p><strong>Alur ini masih diuji. Jangan kirim pembayaran nyata.</strong></p></section>
-<label><input style="width:auto" type="checkbox" name="terms" value="1" @checked(old('terms')) required> Saya memahami pesanan ini masih dalam tahap pengembangan dan belum merupakan reservasi.</label><p><button class="btn" type="submit" data-checkout-submit>Kirim pesanan uji coba</button></p><p class="muted" data-checkout-status role="status" aria-live="polite"></p></form>
+<label class="bk-consent"><input style="width:auto" type="checkbox" name="terms" value="1" @checked(old('terms')) required><span>Saya memahami pesanan ini masih dalam tahap pengembangan dan belum merupakan reservasi.</span></label><p><button class="btn" type="submit" data-checkout-submit>Kirim pesanan uji coba</button></p><p class="muted" data-checkout-status role="status" aria-live="polite"></p></form>
 <script>
 const checkoutForm = document.querySelector('[data-checkout-form]');
 const checkoutSubmit = document.querySelector('[data-checkout-submit]');

@@ -186,6 +186,7 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
     margin-bottom:14px;
 }
 </style>
+<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
 </head>
 <body>
 

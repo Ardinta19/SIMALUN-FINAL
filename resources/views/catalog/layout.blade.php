@@ -42,6 +42,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 @if(!auth()->check() || auth()->user()->role === 'customer')
 <link rel="stylesheet" href="{{ asset('css/berkah-experience.css') }}">
 @endif
+@if(!auth()->check() || auth()->user()->role === 'customer')<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">@endif
 </head><body @if(!auth()->check() || auth()->user()->role === 'customer') class="bk-experience {{ auth()->check() ? 'bk-customer' : 'bk-guest' }}" @endif>
 @if(!auth()->check() || auth()->user()->role === 'customer')
 @include('catalog.customer-navigation')

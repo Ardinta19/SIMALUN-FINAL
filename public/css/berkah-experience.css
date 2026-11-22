@@ -17,3 +17,4 @@
 @media(prefers-reduced-motion:reduce){.bk-hero-link{transition:none}.bk-hero-link:hover{transform:none}}
 /* Menu mobile mengikuti kelompok tujuan yang sama dengan tab menu pelanggan. */
 @media(max-width:700px){.bk-menu-links{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.bk-menu-links a{min-height:72px;border:1px solid #efded9;border-radius:22px;gap:8px;font-size:.9rem}.bk-menu-links a span{font-size:.7rem}.bk-menu-links a b{margin-left:auto}}
+.bk-consent{display:flex;align-items:flex-start;gap:12px;padding:16px;border:1px solid #eadbd6;border-radius:16px;background:#fffaf7;font-size:.9rem;line-height:1.55;cursor:pointer}.bk-consent input[type=checkbox]{flex:none;width:20px!important;height:20px;margin:2px 0 0;accent-color:#75102e}.bk-consent:focus-within{outline:2px solid #bc5b75;outline-offset:2px}

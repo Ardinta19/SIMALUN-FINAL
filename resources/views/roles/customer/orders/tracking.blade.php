@@ -265,6 +265,7 @@ body {
     50%      { transform: translateY(-6px); }
 }
 </style>
+<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
 </head>
 <body>
 

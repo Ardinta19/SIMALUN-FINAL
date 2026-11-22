@@ -174,6 +174,7 @@ body {
 /* ERROR */
 .field__error { font-size: 0.68rem; font-weight: 700; color: var(--red); margin-top: 4px; }
 </style>
+<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
 </head>
 <body>
 

@@ -1,0 +1,9 @@
+/* Cross-document transitions are progressive enhancement: no click/form interception. */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: bk-page-out 160ms ease both; }
+::view-transition-new(root) { animation: bk-page-in 240ms cubic-bezier(.22,.7,.25,1) both; }
+@keyframes bk-page-out { to { opacity: 0; transform: translateY(-3px); } }
+@keyframes bk-page-in { from { opacity: 0; transform: translateY(5px); } }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+}

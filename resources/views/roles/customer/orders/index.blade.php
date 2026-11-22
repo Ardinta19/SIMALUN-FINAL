@@ -423,6 +423,7 @@ body {
     flex-shrink: 0;
 }
 </style>
+<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
 </head>
 <body>
 

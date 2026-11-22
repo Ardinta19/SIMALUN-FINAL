@@ -166,6 +166,7 @@ html, body {
 #btn-back:active{transform:scale(.92);}
 #footer{margin-top:1.4rem;text-align:center;font-size:.67rem;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:.3px;}
 </style>
+<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
 </head>
 <body>
 

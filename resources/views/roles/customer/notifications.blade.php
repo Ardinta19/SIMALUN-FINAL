@@ -29,6 +29,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--surface);color:
 .empty-title{font-weight:800;font-size:1rem;color:var(--ink);}
 .empty-sub{font-size:.8rem;font-weight:700;color:var(--ink-lt);margin-top:.25rem;}
 </style>
+<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
 </head>
 <body>
 <div class="top-header"><div class="header-inner"><div class="header-top"><a href="{{ route('customer.dashboard') }}" class="back-btn">‹</a><div class="header-title">Notifikasi</div>@if($notifications->count() > 0)<form method="POST" action="{{ route('customer.notifications.read-all') }}" style="margin-left:auto;"><input type="hidden" name="_token" value="{{ csrf_token() }}"><button type="submit" style="background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.25);color:#fff;border-radius:20px;padding:5px 12px;font-size:.7rem;font-weight:800;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Tandai Semua</button></form>@endif</div></div><svg class="header-wave" viewBox="0 0 1440 28" preserveAspectRatio="none" style="height:28px;"><path fill="#faf4f3" d="M0,14 C240,28 480,0 720,14 C960,28 1200,0 1440,14 L1440,28 L0,28Z"/></svg></div>

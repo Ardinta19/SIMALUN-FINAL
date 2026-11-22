@@ -204,6 +204,7 @@ body {
 }
 .btn-add-big:active { transform: scale(0.96); }
 </style>
+<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
 </head>
 <body>
 

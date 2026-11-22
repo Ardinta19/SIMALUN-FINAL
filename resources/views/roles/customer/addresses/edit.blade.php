@@ -69,6 +69,7 @@ textarea.field-input{resize:none;min-height:80px;line-height:1.5;}
 
 .alert-error{background:#fff1f1;border:1.5px solid #fecaca;border-radius:var(--radius-sm);padding:12px 14px;font-size:.82rem;font-weight:700;color:var(--red);margin-bottom:14px;}
 </style>
+<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
 </head>
 <body>
 
