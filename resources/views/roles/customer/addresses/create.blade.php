@@ -2,27 +2,26 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Tambah Alamat – Azka Laundry</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Tambah Alamat – Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <style>
 :root {
-    --blue-dark:  #002f5c;
-    --blue-mid:   #0077b6;
-    --blue-light: #00b4d8;
-    --blue-sky:   #e0f4ff;
+    --blue-dark:  #54051f;
+    --blue-mid:   #85092d;
+    --blue-light: #b6435e;
+    --blue-sky:   #f8e9ed;
     --orange:     #FF6B35;
     --green:      #00C48C;
-    --surface:    #f4f8fc;
+    --surface:    #faf4f3;
     --card:       #ffffff;
     --ink:        #1a2332;
     --ink-mid:    #3d5066;
     --ink-lt:     #8899aa;
-    --border:     #ddeeff;
+    --border:     #f0dfe1;
     --radius:     16px;
     --radius-sm:  10px;
     --red:        #ef4444;
@@ -65,7 +64,7 @@ body {
     margin-bottom:14px;
     overflow:hidden;
     box-shadow:0 2px 12px rgba(0,47,92,.05);
-    opacity:0; transform:translateY(18px);
+
 }
 .section-head {
     display:flex; align-items:center; gap:10px;
@@ -199,7 +198,7 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
         </a>
         <div>
             <div class="header-title">Tambah Alamat</div>
-            <div class="header-sub">ALAMAT JEMPUT & ANTAR</div>
+            <div class="header-sub">ALAMAT PENYERAHAN</div>
         </div>
     </div>
 </header>
@@ -234,7 +233,7 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
                 <div>
                     <div class="field-label">Nama Penerima <span class="required">*</span></div>
                     <input type="text" name="recipient_name" class="field-input {{ $errors->has('recipient_name') ? 'is-error' : '' }}"
-                        placeholder="Nama pemilik pakaian"
+                        placeholder="Nama penerima"
                         value="{{ old('recipient_name', auth()->user()->name) }}" required>
                     @error('recipient_name') <div class="field-error">{{ $message }}</div> @enderror
                 </div>
@@ -257,13 +256,13 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
             <div class="section-body">
                 <div>
                     <div class="field-label">Titik Lokasi di Peta (Opsional)</div>
-                    <div id="addr-map"></div>
+                    <div id="addr-map" hidden></div><p class="field-hint" id="map-fallback">Peta bersifat opsional. Jika tidak tampil, isi alamat lengkap secara manual.</p>
                     <div class="map-hint">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                         Tap atau geser pin untuk menentukan titik akurat
                     </div>
-                    <input type="hidden" name="latitude" id="map-lat">
-                    <input type="hidden" name="longitude" id="map-lng">
+                    <input type="hidden" name="latitude" id="map-lat" value="{{ old('latitude') }}">
+                    <input type="hidden" name="longitude" id="map-lng" value="{{ old('longitude') }}">
                 </div>
 
                 <div>
@@ -294,12 +293,9 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
                     <div class="toggle-wrap">
                         <div>
                             <div class="toggle-label">Jadikan Alamat Utama</div>
-                            <div class="toggle-sub">Otomatis dipilih saat pesan baru</div>
+                            <div class="toggle-sub">Ditampilkan sebagai alamat utama dan dapat dipilih saat checkout</div>
                         </div>
-                        <button type="button" class="toggle-switch {{ old('is_primary') ? 'on' : '' }}"
-                                id="toggle-primary" onclick="togglePrimary()"></button>
-                        <input type="hidden" name="is_primary" id="is-primary-val"
-                               value="{{ old('is_primary', '0') }}">
+                        <label><input type="checkbox" name="is_primary" value="1" @checked(old('is_primary'))> Jadikan utama</label>
                     </div>
                 </div>
             </div>
@@ -325,85 +321,23 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
 @include('layouts.component.customer._navbar_customer', ['active' => 'profil'])
 
 <script>
-/* ── MAP PICKER ──────────────────────── */
-let map, marker;
-const defaultPos = [-1.6101, 103.6131]; // Jambi
-
-function initMap() {
-    map = L.map('addr-map', { zoomControl: true }).setView(defaultPos, 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap'
-    }).addTo(map);
-
-    marker = L.marker(defaultPos, { draggable: true }).addTo(map);
-
-    function updateCoords(lat, lng) {
-        document.getElementById('map-lat').value = lat.toFixed(6);
-        document.getElementById('map-lng').value = lng.toFixed(6);
-    }
-
-    marker.on('dragend', e => {
-        const pos = e.target.getLatLng();
-        updateCoords(pos.lat, pos.lng);
-    });
-
-    map.on('click', e => {
-        marker.setLatLng(e.latlng);
-        updateCoords(e.latlng.lat, e.latlng.lng);
-    });
-
-    // Coba GPS
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(pos => {
-            const loc = [pos.coords.latitude, pos.coords.longitude];
-            map.setView(loc, 16);
-            marker.setLatLng(loc);
-            updateCoords(loc[0], loc[1]);
-        });
-    }
-}
-
-/* Auto-detect zona dihapus — zona tidak lagi dipakai. */
-
-/* ── TOGGLE PRIMARY ──────────────────── */
-function togglePrimary() {
-    const btn = document.getElementById('toggle-primary');
-    const inp = document.getElementById('is-primary-val');
-    if (!btn || !inp) return;
-
-    const isOn = btn.classList.contains('on');
-    btn.classList.toggle('on', !isOn);
-    inp.value = isOn ? '0' : '1';
-
-    if (typeof gsap !== 'undefined') {
-        gsap.from(btn, { scale: 0.9, duration: 0.2, ease: 'back.out(2)' });
-    }
-}
-
-/* ── ANIMATIONS ──────────────────────── */
 document.addEventListener('DOMContentLoaded', function () {
-    initMap();
-
-    if (typeof gsap === 'undefined') return;
-
-    const animate = (selector, options, useFromTo = false) => {
-        const els = document.querySelectorAll(selector);
-        if (els.length === 0) return;
-
-        if (useFromTo) {
-            gsap.to(els, options);
-        } else {
-            gsap.from(els, options);
-        }
-    };
-
-    gsap.to('.js-card', {
-        opacity: 1, y: 0, duration: 0.45,
-        stagger: 0.1, ease: 'power2.out', delay: 0.1,
+    if (typeof L === 'undefined') return;
+    document.getElementById('addr-map').hidden = false;
+    const map = L.map('addr-map').setView([-1.6101, 103.6131], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+    let marker;
+    map.on('click', function (e) {
+        if (!marker) {
+            marker = L.marker(e.latlng, { draggable: true }).addTo(map);
+            marker.on('dragend', function () { save(marker.getLatLng()); });
+        } else marker.setLatLng(e.latlng);
+        save(e.latlng);
     });
-
-    animate('.page-header', { opacity: 0, y: -16, duration: 0.4, ease: 'power2.out' });
-    animate('.bottom-cta', { opacity: 0, y: 20, duration: 0.4, ease: 'power2.out', delay: 0.3 });
+    function save(point) {
+        document.getElementById('map-lat').value = point.lat.toFixed(6);
+        document.getElementById('map-lng').value = point.lng.toFixed(6);
+    }
 });
 </script>
 

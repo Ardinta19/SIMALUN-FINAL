@@ -6,12 +6,13 @@
 
 @php $navActive = $active ?? 'beranda'; @endphp
 
-<nav class="customer-nav" id="customer-nav">
+<nav class="customer-nav" id="customer-nav" aria-label="Navigasi pelanggan">
     <div class="customer-nav__inner">
 
         {{-- Beranda --}}
         <a href="{{ route('customer.dashboard') }}"
            class="customer-nav__item {{ $navActive === 'beranda' ? 'is-active' : '' }}"
+           @if($navActive === 'beranda') aria-current="page" @endif
            aria-label="Beranda">
             <span class="customer-nav__icon">
                 @include('layouts.component._icon', ['name' => 'beranda', 'size' => 24])
@@ -22,6 +23,7 @@
         {{-- Pesanan --}}
         <a href="{{ route('rental.orders.index') }}"
            class="customer-nav__item {{ $navActive === 'pesanan' ? 'is-active' : '' }}"
+           @if($navActive === 'pesanan') aria-current="page" @endif
            aria-label="Pesanan">
             <span class="customer-nav__icon">
                 @include('layouts.component._icon', ['name' => 'pesanan', 'size' => 24])
@@ -31,7 +33,8 @@
 
         {{-- FAB: Pesan Baru --}}
         <a href="{{ route('welcome') }}"
-           class="customer-nav__fab"
+           class="customer-nav__fab {{ $navActive === 'pesan' ? 'is-active' : '' }}"
+           @if($navActive === 'pesan') aria-current="page" @endif
            aria-label="Buat Pesanan Baru">
             <span class="customer-nav__fab-btn">
                 @include('layouts.component._icon', ['name' => 'add', 'size' => 24])
@@ -42,11 +45,12 @@
         {{-- Notifikasi --}}
         <a href="{{ route('customer.notifications') }}"
            class="customer-nav__item {{ $navActive === 'notif' ? 'is-active' : '' }}"
+           @if($navActive === 'notif') aria-current="page" @endif
            aria-label="Notifikasi">
             <span class="customer-nav__icon" style="position:relative">
                 @php
                     $unreadNotif = 0;
-                    try { $unreadNotif = auth()->user()?->unreadNotifications?->count() ?? 0; } catch (\Exception $e) {}
+                    try { $unreadNotif = auth()->user()?->unreadNotifications()->count() ?? 0; } catch (\Exception $e) {}
                 @endphp
                 @if($unreadNotif > 0)
                     <span class="customer-nav__badge">{{ $unreadNotif > 9 ? '9+' : $unreadNotif }}</span>
@@ -59,6 +63,7 @@
         {{-- Profil --}}
         <a href="{{ route('customer.profile') }}"
            class="customer-nav__item {{ $navActive === 'profil' ? 'is-active' : '' }}"
+           @if($navActive === 'profil') aria-current="page" @endif
            aria-label="Profil">
             <span class="customer-nav__icon">
                 @include('layouts.component._icon', ['name' => 'profil', 'size' => 24])
@@ -83,7 +88,7 @@
     background: rgba(255,255,255,0.97);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid #e8f0fe;
+    border-top: 1px solid #f0dfe1;
     box-shadow: 0 -4px 24px rgba(0, 47, 92, 0.08);
     padding-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -103,7 +108,7 @@
     justify-content: center;
     gap: 3px;
     text-decoration: none;
-    color: #94a3b8;
+    color: #756975;
     position: relative;
     padding: 6px 0;
     transition: color 0.2s ease;
@@ -196,8 +201,10 @@
     background: #85092d;
     border-radius: 50%;
 }
+.customer-nav a:focus-visible { outline: 3px solid #bc5b75; outline-offset: 2px; border-radius: 8px; }
+.customer-nav__fab.is-active .customer-nav__fab-label { text-decoration: underline; text-underline-offset: 3px; }
 /* Body padding so content isn't hidden behind nav */
 body {
-    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
 }
 </style>

@@ -2,28 +2,27 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alamat Saya – Azka Laundry</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Alamat Saya – Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <style>
 :root {
-    --blue-dark:  #002f5c;
-    --blue-mid:   #0077b6;
-    --blue-light: #00b4d8;
-    --blue-sky:   #e0f4ff;
+    --blue-dark:  #54051f;
+    --blue-mid:   #85092d;
+    --blue-light: #b6435e;
+    --blue-sky:   #f8e9ed;
     --orange:     #FF6B35;
     --orange-lt:  #fff3ee;
     --green:      #00C48C;
     --green-lt:   #e6fff6;
     --red:        #ef4444;
     --red-lt:     #fff1f1;
-    --surface:    #f4f8fc;
+    --surface:    #faf4f3;
     --card:       #ffffff;
     --ink:        #1a2332;
     --ink-mid:    #3d5066;
     --ink-lt:     #8899aa;
-    --border:     #ddeeff;
+    --border:     #f0dfe1;
     --radius:     20px;
     --radius-sm:  12px;
 }
@@ -99,7 +98,6 @@ body {
     margin-bottom: 12px;
     box-shadow: 0 2px 12px rgba(0,47,92,0.05);
     position: relative;
-    opacity: 0; transform: translateY(16px);
     transition: border-color 0.2s;
 }
 .addr-card.is-primary { border-color: var(--green); }
@@ -219,7 +217,7 @@ body {
         </a>
         <div>
             <div class="header-title">Alamat Saya</div>
-            <div class="header-sub">KELOLA ALAMAT JEMPUT & ANTAR</div>
+            <div class="header-sub">KELOLA ALAMAT PENYERAHAN</div>
         </div>
         <a href="{{ route('customer.addresses.create') }}" class="btn-add" title="Tambah Alamat">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -284,12 +282,9 @@ body {
                     </button>
                 </form>
                 @endif
-                <form method="POST" action="{{ route('customer.addresses.destroy', $address) }}" id="delete-addr-{{ $address->id }}" style="flex:1;display:flex;">
+                <form method="POST" action="{{ route('customer.addresses.destroy', $address) }}" id="delete-addr-{{ $address->id }}" style="flex:1;display:flex;" onsubmit="return confirm('Hapus alamat ini?')">
                     @csrf @method('DELETE')
-                    <button type="button" class="addr-btn delete" style="width:100%;"
-                            onclick="showConfirmModal({ title: 'Hapus Alamat?', message: 'Alamat {{ $address->label }} akan dihapus permanen dan tidak bisa dikembalikan.', confirmText: 'Ya, Hapus', cancelText: 'Batal', type: 'danger', onConfirm: function() { document.getElementById('delete-addr-{{ $address->id }}').submit(); } })">
-                        🗑️ Hapus
-                    </button>
+                    <button type="submit" class="addr-btn delete" style="width:100%;" aria-label="Hapus alamat {{ $address->label }}">🗑️ Hapus</button>
                 </form>
             </div>
         </div>
@@ -311,35 +306,8 @@ body {
 @include('layouts.component.customer._navbar_customer', ['active' => 'profil'])
 
 {{-- CONFIRM MODAL --}}
-@include('layouts.component.customer._confirm_modal')
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        if (typeof gsap === 'undefined') {
-            document.querySelectorAll('.js-card').forEach(function(el) {
-                el.style.opacity = '1';
-                el.style.transform = 'none';
-            });
-            return;
-        }
 
-        var cards = document.querySelectorAll('.js-card');
-        if (cards.length > 0) {
-            gsap.to(cards, {
-                opacity: 1, y: 0,
-                duration: 0.45, stagger: 0.08,
-                ease: 'power2.out', delay: 0.1,
-            });
-        }
 
-        var header = document.querySelector('.page-header');
-        if (header) {
-            gsap.from(header, {
-                opacity: 0, y: -16,
-                duration: 0.4, ease: 'power2.out',
-            });
-        }
-    });
-</script>
 </body>
 </html>

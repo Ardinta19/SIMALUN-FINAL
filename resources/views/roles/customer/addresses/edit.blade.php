@@ -2,18 +2,17 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Edit Alamat – Azka Laundry</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Edit Alamat – Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <style>
 :root {
-    --blue-dark:#002f5c; --blue-mid:#0077b6; --blue-light:#00b4d8;
+    --blue-dark:#54051f; --blue-mid:#85092d; --blue-light:#b6435e;
     --orange:#FF6B35; --green:#00C48C; --red:#ef4444;
-    --surface:#f4f8fc; --card:#ffffff; --ink:#1a2332; --ink-mid:#3d5066;
-    --ink-lt:#8899aa; --border:#ddeeff; --radius:16px; --radius-sm:10px;
+    --surface:#faf4f3; --card:#ffffff; --ink:#1a2332; --ink-mid:#3d5066;
+    --ink-lt:#8899aa; --border:#f0dfe1; --radius:16px; --radius-sm:10px;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--surface);color:var(--ink);min-height:100vh;padding-bottom:calc(96px + env(safe-area-inset-bottom,0px));overflow-x:hidden;}
@@ -27,7 +26,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--surface);color:
 
 .page-body{max-width:520px;margin:0 auto;padding:16px;}
 
-.section-card{background:white;border-radius:var(--radius);border:1.5px solid var(--border);margin-bottom:14px;overflow:hidden;box-shadow:0 2px 12px rgba(0,47,92,.05);opacity:0;transform:translateY(18px);}
+.section-card{background:white;border-radius:var(--radius);border:1.5px solid var(--border);margin-bottom:14px;overflow:hidden;box-shadow:0 2px 12px rgba(0,47,92,.05);}
 .section-head{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1.5px solid var(--border);background:linear-gradient(90deg,rgba(0,119,182,.04) 0%,transparent 100%);}
 .section-num{width:28px;height:28px;border-radius:50%;background:var(--blue-mid);color:white;font-weight:800;font-size:.88rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .section-title{font-weight:800;font-size:.95rem;color:var(--blue-dark);}
@@ -136,13 +135,13 @@ textarea.field-input{resize:none;min-height:80px;line-height:1.5;}
             <div class="section-body">
                 <div>
                     <div class="field-label">Titik Lokasi di Peta (Opsional)</div>
-                    <div id="addr-map"></div>
+                    <div id="addr-map" hidden></div><p class="field-hint" id="map-fallback">Peta bersifat opsional. Jika tidak tampil, isi alamat lengkap secara manual.</p>
                     <div class="map-hint">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                         Tap atau geser pin untuk memperbarui titik
                     </div>
-                    <input type="hidden" name="latitude" id="map-lat" value="">
-                    <input type="hidden" name="longitude" id="map-lng" value="">
+                    <input type="hidden" name="latitude" id="map-lat" value="{{ old('latitude', $address->latitude) }}">
+                    <input type="hidden" name="longitude" id="map-lng" value="{{ old('longitude', $address->longitude) }}">
                 </div>
                 <div>
                     <div class="field-label">Alamat Lengkap <span class="required">*</span></div>
@@ -170,12 +169,9 @@ textarea.field-input{resize:none;min-height:80px;line-height:1.5;}
                     <div class="toggle-wrap">
                         <div>
                             <div class="toggle-label">Jadikan Alamat Utama</div>
-                            <div class="toggle-sub">Otomatis dipilih saat pesan baru</div>
+                            <div class="toggle-sub">Ditampilkan sebagai alamat utama dan dapat dipilih saat checkout</div>
                         </div>
-                        <button type="button" class="toggle-switch {{ old('is_primary', $address->is_primary) ? 'on' : '' }}"
-                                id="toggle-primary" onclick="togglePrimary()"></button>
-                        <input type="hidden" name="is_primary" id="is-primary-val"
-                               value="{{ old('is_primary', $address->is_primary ? '1' : '0') }}">
+                        @if($address->is_primary)<span>Alamat utama saat ini</span>@else<label><input type="checkbox" name="is_primary" value="1" @checked(old('is_primary'))> Jadikan utama</label>@endif
                     </div>
                 </div>
             </div>
@@ -199,62 +195,26 @@ textarea.field-input{resize:none;min-height:80px;line-height:1.5;}
 @include('layouts.component.customer._navbar_customer', ['active' => 'profil'])
 
 <script>
-// MAP
-@php
-    $lat = $address->latitude !== null ? (float) $address->latitude : -1.6101;
-    $lng = $address->longitude !== null ? (float) $address->longitude : 103.6131;
-@endphp
-const initLat = {{ $lat }};
-const initLng = {{ $lng }};
-
 document.addEventListener('DOMContentLoaded', function () {
-    const map = L.map('addr-map').setView([initLat, initLng], 15);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-    const marker = L.marker([initLat, initLng], { draggable: true }).addTo(map);
-
-    function updateCoords(lat, lng) {
-        document.getElementById('map-lat').value = lat.toFixed(6);
-        document.getElementById('map-lng').value = lng.toFixed(6);
-    }
-    updateCoords(initLat, initLng);
-
-    marker.on('dragend', e => {
-        const pos = e.target.getLatLng();
-        updateCoords(pos.lat, pos.lng);
+    if (typeof L === 'undefined') return;
+    document.getElementById('addr-map').hidden = false;
+    const latitude = document.getElementById('map-lat');
+    const longitude = document.getElementById('map-lng');
+    const hasCoordinates = latitude.value !== '' && longitude.value !== '';
+    const point = hasCoordinates ? [Number(latitude.value), Number(longitude.value)] : [-1.6101, 103.6131];
+    const map = L.map('addr-map').setView(point, hasCoordinates ? 15 : 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+    let marker = hasCoordinates ? L.marker(point, { draggable: true }).addTo(map) : null;
+    function save(p) { latitude.value = p.lat.toFixed(6); longitude.value = p.lng.toFixed(6); }
+    if (marker) marker.on('dragend', function () { save(marker.getLatLng()); });
+    map.on('click', function (e) {
+        if (!marker) {
+            marker = L.marker(e.latlng, { draggable: true }).addTo(map);
+            marker.on('dragend', function () { save(marker.getLatLng()); });
+        } else marker.setLatLng(e.latlng);
+        save(e.latlng);
     });
-    map.on('click', e => {
-        marker.setLatLng(e.latlng);
-        updateCoords(e.latlng.lat, e.latlng.lng);
-    });
-
-    // Animate
-    if (typeof gsap !== 'undefined') {
-        gsap.to('.js-card', { opacity: 1, y: 0, duration: 0.45, stagger: 0.1, ease: 'power2.out', delay: 0.1 });
-
-        const header = document.querySelector('.page-header');
-        if (header) gsap.from(header, { opacity: 0, y: -16, duration: 0.4, ease: 'power2.out' });
-
-        const cta = document.querySelector('.bottom-cta');
-        if (cta) gsap.from(cta, { opacity: 0, y: 20, duration: 0.4, ease: 'power2.out', delay: 0.3 });
-    }
 });
-
-// Zona tidak lagi dipakai — auto-detect dihapus.
-
-function togglePrimary() {
-    const btn = document.getElementById('toggle-primary');
-    const inp = document.getElementById('is-primary-val');
-    if (!btn || !inp) return;
-
-    const isOn = btn.classList.contains('on');
-    btn.classList.toggle('on', !isOn);
-    inp.value = isOn ? '0' : '1';
-
-    if (typeof gsap !== 'undefined') {
-        gsap.from(btn, { scale: 0.9, duration: 0.2, ease: 'back.out(2)' });
-    }
-}
 </script>
 
 <script>
