@@ -52,6 +52,16 @@ class RentalCustomerNavigationTest extends TestCase
             ->assertSee(route('admin.rental.orders'))->assertDontSee('id="bk-command"', false);
     }
 
+    public function test_customer_discovery_preserves_filter_and_dashboard_navigation(): void
+    {
+        $this->get(route('welcome'))->assertOk()->assertSee('id="bk-filter"', false)
+            ->assertSee('data-filter-form', false)->assertSee('name="starts_on"', false)->assertSee('name="ends_on"', false);
+        $customer = User::factory()->create(['role' => 'customer']);
+        $this->actingAs($customer)->get(route('customer.dashboard'))->assertOk()
+            ->assertSee('Aktivitas terbaru')->assertSee(route('cart.index'))->assertSee(route('customer.help'))
+            ->assertSee('id="bk-command"', false)->assertSee('id="customer-nav"', false);
+    }
+
     public function test_saved_address_pages_work_without_animation_dependencies_and_preserve_coordinates(): void
     {
         $customer = User::factory()->create(['role' => 'customer']);

@@ -3,6 +3,9 @@
     if (!header || typeof HTMLDialogElement === 'undefined' || !HTMLDialogElement.prototype.showModal) return;
     document.documentElement.classList.add('bk-enhanced');
     const expand = header.querySelector('[data-bk-expand]');
+    const filterForm = document.querySelector('[data-filter-form]');
+    const filterSlot = document.querySelector('[data-filter-slot]');
+    if (filterForm && filterSlot) filterSlot.appendChild(filterForm);
     const triggers = document.querySelectorAll('[data-open-dialog]');
     triggers.forEach(button => { button.hidden = false; });
     let holdOpen = false;
@@ -14,13 +17,13 @@
         if (!dialog || dialog.open) return;
         dialog.dataset.returnFocus = trigger?.dataset.openDialog || '';
         dialog.showModal();
-        (dialog.querySelector('[data-command-search]') || dialog.querySelector('[data-close-dialog]')).focus();
+        (dialog.querySelector('[data-command-search]') || dialog.querySelector('[data-filter-form] input') || dialog.querySelector('[data-close-dialog]')).focus();
     }
     triggers.forEach(button => button.addEventListener('click', () => openDialog(document.getElementById(button.dataset.openDialog), button)));
     document.querySelectorAll('.bk-dialog').forEach(dialog => {
         dialog.querySelector('[data-close-dialog]')?.addEventListener('click', () => dialog.close());
         dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
-        dialog.addEventListener('close', () => { const trigger = document.querySelector(`[data-open-dialog="${dialog.dataset.returnFocus}"]`); if (trigger && !header.classList.contains('is-compact')) trigger.focus(); else expand.focus(); });
+        dialog.addEventListener('close', () => { const trigger = document.querySelector(`[data-open-dialog="${dialog.dataset.returnFocus}"]`); if (trigger && (!header.contains(trigger) || !header.classList.contains('is-compact'))) trigger.focus(); else expand.focus(); });
     });
     const search = document.querySelector('[data-command-search]');
     search?.addEventListener('input', () => {

@@ -162,3 +162,15 @@
 /* Jaga konten terakhir tetap dapat digulir melewati navbar dan area aman perangkat. */
 body { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
 </style>
+<style>
+/* Navigasi mengambang hanya pada layar sentuh sempit; konten tetap punya ruang aman. */
+@media (max-width: 700px) {
+  .customer-nav { inset:auto auto calc(10px + env(safe-area-inset-bottom, 0px)) 50%; transform:translateX(-50%); width:min(520px, calc(100% - 24px)); padding:0; border:1px solid rgba(139,78,89,.2); border-radius:24px; background:rgba(255,252,249,.94); box-shadow:0 10px 32px rgba(84,5,31,.14); }
+  .customer-nav__inner { height:66px; }
+  .customer-nav__item, .customer-nav__fab { height:66px; }
+  .customer-nav__label, .customer-nav__fab-label { letter-spacing:0; text-transform:none; font-size:10px; }
+  .customer-nav__fab-btn { border:3px solid #fffaf7; box-shadow:0 5px 16px rgba(133,9,45,.2); }
+  .customer-nav__item:active { transform:scale(.95); }
+}
+@media (prefers-reduced-motion: reduce) { .customer-nav__item:active { transform:none; } }
+</style>

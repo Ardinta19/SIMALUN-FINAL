@@ -2,7 +2,9 @@
 @section('title', 'Katalog papan bunga')
 @section('hero')<div class="intro"><h1>Rayakan momen, sampaikan cerita.</h1><p>Temukan papan bunga untuk orang tersayang. Bentuk papan dipilih dari katalog, desain dan ucapan disesuaikan dengan permintaanmu.</p></div>@endsection
 @section('content')
-<form class="card body stack" method="get" action="{{ route('welcome') }}">
+<div class="bk-filter-bar"><div><span class="bk-kicker">Temukan yang tepat</span><h2>Papan untuk momenmu</h2><p class="muted">Cari berdasarkan nama, kategori, atau tanggal.</p></div><button class="btn secondary" type="button" data-open-dialog="bk-filter" hidden>⌕ &nbsp; Cari &amp; filter</button></div>
+<dialog class="bk-dialog bk-filter-sheet" id="bk-filter" aria-labelledby="bk-filter-title"><div class="bk-dialog-head"><div><span class="bk-eyebrow">PILIHAN KATALOG</span><h2 id="bk-filter-title">Cari papan</h2></div><button type="button" data-close-dialog aria-label="Tutup pencarian">×</button></div><div data-filter-slot></div></dialog>
+<form class="card body stack bk-filter-form" data-filter-form method="get" action="{{ route('welcome') }}">
     <h2>Cari papan untuk tanggalmu</h2>
     <div class="row"><label>Cari papan<input type="search" name="q" maxlength="160" value="{{ request('q') }}" placeholder="Nama papan bunga"></label>
     <label>Kategori<select name="category"><option value="">Semua kategori</option>@foreach($categories as $category)<option value="{{ $category->id }}" @selected((string) request('category') === (string) $category->id)>{{ $category->name }}</option>@endforeach</select></label></div>
@@ -11,7 +13,7 @@
     <p class="muted">Tanggal bersifat opsional. Isi keduanya untuk menyaring papan yang diperkirakan tersedia selama seluruh periode. Untuk sewa satu hari, pilih tanggal yang sama.</p>
     <p><button class="btn" type="submit">Cari papan</button> <a href="{{ route('welcome') }}">Hapus filter</a></p>
 </form>
-<h2>Jelajahi katalog</h2>
+<div class="bk-section-heading"><div><span class="bk-kicker">KOLEKSI BERKAH KREATIF</span><h2>Jelajahi katalog</h2></div><span class="muted">{{ $products->total() }} pilihan</span></div>
 @if($dates)<p class="notice" role="status">Menampilkan papan yang diperkirakan tersedia pada {{ \Carbon\Carbon::parse($dates['starts_on'])->format('d/m/Y') }}–{{ \Carbon\Carbon::parse($dates['ends_on'])->format('d/m/Y') }}. Stok belum dicadangkan dan dapat berubah sampai admin mengonfirmasi.</p>@else<p class="muted">Foto merupakan contoh; desain akhir mengikuti permintaan pelanggan. Pilih tanggal di atas untuk memeriksa ketersediaan.</p>@endif
 <div class="grid">
 @forelse($products as $product)

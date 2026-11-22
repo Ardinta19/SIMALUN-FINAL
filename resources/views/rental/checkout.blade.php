@@ -2,10 +2,13 @@
 @section('title', 'Checkout')
 @section('content')
 <p><a href="{{ route('cart.index') }}">← Kembali ke keranjang</a></p><h1>Detail penyewaan</h1><p class="notice">Langkah 1: isi detail setiap unit. Langkah 2: baca dan setujui ketentuan. Langkah 3: kirim pesanan dan tunggu konfirmasi admin.</p><p class="muted">Isi kebutuhan untuk setiap unit. Ketersediaan diperiksa saat pesanan dikirim, tetapi stok belum dicadangkan sampai admin mengonfirmasi dan dapat berubah. Ongkos lokasi lain ditawarkan admin; tarif universitas mengikuti daftar saat checkout.</p>
+@if(count($cart) > 1)
+<nav class="bk-jump" aria-label="Lompat ke unit checkout"><strong>Langsung ke</strong><div>@foreach($cart as $key => $entry)<a href="#checkout-unit-{{ $loop->iteration }}">Unit {{ $loop->iteration }}</a>@endforeach <a href="#checkout-terms">Ketentuan</a></div></nav>
+@endif
 <form class="stack checkout-form" data-checkout-form method="post" action="{{ route('rental.checkout.store') }}">@csrf
 @foreach($cart as $key => $entry)
 @php $product = $products->get($entry['product_id']); @endphp
-<section class="card body" style="margin-bottom:16px" data-checkout-unit><h2>Unit {{ $loop->iteration }} dari {{ count($cart) }} · {{ $product->name }}</h2>
+<section class="card body" style="margin-bottom:16px" id="checkout-unit-{{ $loop->iteration }}" data-checkout-unit><h2>Unit {{ $loop->iteration }} dari {{ count($cart) }} · {{ $product->name }}</h2>
 <p class="price">Harga dasar Rp {{ number_format($product->base_price, 0, ',', '.') }} / {{ $product->price_unit === 'day' ? 'hari' : 'acara' }}</p><p class="muted">Harga sewa dihitung berdasarkan tanggal atau paket yang dipilih, belum termasuk ongkos. Harga dan paket diperiksa kembali saat pesanan dikirim.</p><p><a href="{{ route('catalog.show', $product) }}" target="_blank" rel="noopener noreferrer">Periksa perkiraan ketersediaan (buka tab baru)</a></p>
 @if(!$loop->first)<button type="button" class="btn secondary" data-copy-previous hidden>Salin detail dari unit sebelumnya</button><p class="muted" data-copy-help hidden>Menyalin jadwal, penerima, ucapan, desain, dan serah terima; pilihan paket tidak disalin. Periksa kembali sebelum mengirim.</p>@endif
 <h3>Jadwal sewa</h3><p class="muted">Tanggal acara sekaligus menjadi tanggal papan diterima, baik diantar maupun diambil di outlet. Jika sewa hanya satu hari, pilih tanggal pengembalian yang sama.</p><div class="row"><label>Tanggal acara dan penerimaan<input type="date" name="units[{{ $key }}][event_on]" value="{{ old('units.'.$key.'.event_on', $entry['starts_on'] ?? '') }}" min="{{ now('Asia/Jakarta')->toDateString() }}" required></label><label>Tanggal pengembalian<input type="date" name="units[{{ $key }}][ends_on]" value="{{ old('units.'.$key.'.ends_on', $entry['ends_on'] ?? '') }}" required></label></div>
@@ -21,7 +24,7 @@
 <label>Universitas lokasi pengambilan kembali (opsional)<select name="units[{{ $key }}][return_university_id]"><option value="">Lokasi lain / tidak dijemput</option>@foreach($universities as $university)<option value="{{ $university->id }}" @selected((string) old('units.'.$key.'.return_university_id') === (string) $university->id)>{{ $university->name }} · jemput Rp {{ number_format($university->collection_fee, 0, ',', '.') }}</option>@endforeach</select></label></div><p class="muted">Pilihan universitas hanya digunakan jika metode terkait adalah diantar atau dijemput. Isi alamat lengkap agar lokasi dapat ditemukan. Tarif akan ditampilkan kembali untuk disetujui.</p>
 </section>@endforeach
 <div class="notice"><strong>Masih dalam pengujian.</strong> Setelah dikirim, pesanan menunggu konfirmasi admin. Penjadwal perlu berjalan untuk memproses tenggat; jangan gunakan data atau pembayaran nyata.</div>
-<section class="card body checkout-terms">
+<section class="card body checkout-terms" id="checkout-terms">
 <h2>Ketentuan penyewaan</h2>
 <ul>
 <li><strong>Konfirmasi dan stok.</strong> Stok dicadangkan setelah admin mengonfirmasi, paling lambat 24 jam setelah pesanan dikirim. Unit yang belum dikonfirmasi setelah batas tersebut dibatalkan bila penjadwal berjalan. Jadwal dekat membutuhkan persetujuan khusus.</li>
