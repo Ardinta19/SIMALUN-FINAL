@@ -23,6 +23,7 @@ use App\Http\Controllers\RentalCartController;
 use App\Http\Controllers\RentalOrderController;
 use App\Http\Controllers\RentalDesignController;
 use App\Http\Controllers\RentalPaymentController;
+use App\Http\Controllers\RentalProgressController;
 use App\Http\Controllers\ServiceCategoryController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\VoucherController;
@@ -158,6 +159,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/pembayaran-sewa/{payment}/tolak', [RentalPaymentController::class, 'reject'])->name('rental.payment.reject');
         Route::post('/sewa/unit/{unit}/preview', [RentalDesignController::class, 'store'])->name('rental.design.store');
         Route::get('/sewa', [RentalOrderController::class, 'adminIndex'])->name('rental.orders');
+        Route::post('/sewa/unit/{unit}/perkembangan', [RentalProgressController::class, 'advance'])->name('rental.progress.advance');
         Route::post('/sewa/unit/{unit}/ongkos', [RentalOrderController::class, 'quoteTransport'])->name('rental.transport.quote');
         Route::post('/sewa/unit/{unit}/confirm', [RentalOrderController::class, 'confirm'])->name('rental.confirm');
         Route::post('/sewa/unit/{unit}/cancel', [RentalOrderController::class, 'cancel'])->name('rental.cancel');

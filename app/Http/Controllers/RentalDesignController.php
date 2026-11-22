@@ -23,7 +23,7 @@ class RentalDesignController extends Controller
         try {
             DB::transaction(function () use ($request, $unit, $data, $path) {
                 $unit = RentalOrderUnit::lockForUpdate()->findOrFail($unit->id);
-                if ($unit->status !== 'confirmed') throw ValidationException::withMessages(['design' => 'Hanya unit yang sudah dikonfirmasi dapat diberi preview.']);
+                if ($unit->status !== 'confirmed' || $unit->progress !== 'waiting') throw ValidationException::withMessages(['design' => 'Preview hanya dapat diunggah sebelum pengerjaan dimulai pada unit yang dikonfirmasi.']);
                 $unit->previews()->where('status', 'pending')->update(['status' => 'superseded']);
                 $version = (int) $unit->previews()->max('version') + 1;
                 $unit->previews()->create(['version' => $version, 'image_path' => $path, 'admin_note' => $data['admin_note'] ?? null, 'created_by' => $request->user()->id]);
