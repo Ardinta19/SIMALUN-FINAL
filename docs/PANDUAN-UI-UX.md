@@ -1,6 +1,6 @@
 # Panduan UI/UX Berkah Kreatif
 
-Dokumen ini adalah pegangan desain untuk pengembangan tampilan berikutnya. Referensi awal berasal dari folder `ui-ux` hasil Stitch AI; penerapan harus disesuaikan dengan fitur nyata proyek, bukan menyalin interaksi atau informasi yang tidak tersedia. Folder tersebut belum ditemukan di checkout saat dokumen ini dibuat dan perlu diberikan sebelum implementasi berdasarkan referensinya.
+Dokumen ini adalah pegangan desain untuk pengembangan tampilan berikutnya. Arah visual dikembangkan secara orisinal dari identitas Berkah Kreatif dan kebutuhan pengguna, tanpa bergantung pada folder referensi. Penerapan harus sesuai dengan fitur nyata proyek, bukan menjanjikan interaksi atau informasi yang tidak tersedia.
 
 ## Tujuan dan batasan
 
@@ -33,7 +33,7 @@ Pola di bawah adalah pilihan default yang diterapkan jika sesuai konteks, bukan 
 
 ## Pemeriksaan sebelum dianggap selesai
 
-1. Audit referensi Stitch, seluruh halaman dan variasi guest/customer, termasuk kosong, loading, validasi, kesalahan, data panjang, dan banyak item.
+1. Audit seluruh halaman dan variasi guest/customer, termasuk kosong, loading, validasi, kesalahan, data panjang, dan banyak item.
 2. Uji alur katalog → keranjang → login → checkout → detail unit → ongkos, desain, pembayaran dan progres, tanpa melakukan transaksi nyata.
 3. Uji desktop, tablet dan beberapa ukuran mobile, keyboard, zoom, safe area, reduced motion, jaringan lambat, dan fallback tanpa fitur visual tertentu.
 4. Minta screenshot dan umpan balik pengguna; perbaiki berdasarkan hasil pengujian sebelum melanjutkan role berikutnya.

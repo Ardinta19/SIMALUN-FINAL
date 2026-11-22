@@ -38,6 +38,20 @@ class RentalCustomerNavigationTest extends TestCase
                 ->assertSee('env(safe-area-inset-bottom, 0px)', false);
         }
     }
+    public function test_guest_and_customer_have_accessible_catalog_navigation_without_admin_links(): void
+    {
+        $this->get(route('welcome'))->assertOk()
+            ->assertSee('Langsung ke isi')->assertSee('Navigasi utama')->assertSee('Navigasi cepat')
+            ->assertSee('id="bk-command"', false)->assertSee(route('login'))->assertDontSee(route('admin.rental.orders'));
+        $customer = User::factory()->create(['role' => 'customer']);
+        $this->actingAs($customer)->get(route('welcome'))->assertOk()
+            ->assertSee(route('rental.orders.index'))->assertSee(route('customer.help'))
+            ->assertSee('id="customer-nav"', false)->assertDontSee(route('admin.rental.orders'));
+        $admin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($admin)->get(route('welcome'))->assertOk()
+            ->assertSee(route('admin.rental.orders'))->assertDontSee('id="bk-command"', false);
+    }
+
     public function test_saved_address_pages_work_without_animation_dependencies_and_preserve_coordinates(): void
     {
         $customer = User::factory()->create(['role' => 'customer']);
