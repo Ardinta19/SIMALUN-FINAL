@@ -334,6 +334,41 @@ class UiKitTest extends TestCase
         }
     }
 
+    public function test_catalog_secondary_text_has_dark_values(): void
+    {
+        $theme = File::get(public_path('css/berkah-theme.css'));
+
+        // Teks sekunder katalog/pelanggan memakai heksa gelap literal; tanpa
+        // padanan gelap ia jadi abu tua di atas latar gelap.
+        $selectors = [
+            '.bk-wordmark span',
+            '.bk-empty p',
+            '.bk-order-info small',
+            '.bk-order-date',
+            '.bk-inbox-content time',
+            '.bk-inbox-message',
+            '.bk-how small',
+            '.bk-cart-count',
+            '.bk-address-delete p',
+            '.bk-muted-mark',
+            '.bk-order-filter__hint',
+            '.bk-order-date b',
+            '.bk-cart-count strong',
+            '.bk-inbox-arrow',
+            '.bk-how>div>span',
+            '.bk-req',
+            '.bk-field-error',
+            '.bk-address-delete summary',
+            '.driver-nav',
+            '.bottom-cta',
+            '.btn-order:disabled',
+        ];
+
+        $missing = array_values(array_filter($selectors, fn (string $selector) => ! $this->themeMentions($theme, $selector)));
+
+        $this->assertSame([], $missing, "Selector belum punya nilai tema gelap:\n".implode("\n", $missing));
+    }
+
     public function test_light_theme_secondary_text_meets_contrast(): void
     {
         // Teks sekunder pada tema terang harus tetap >= 4.5:1 terhadap

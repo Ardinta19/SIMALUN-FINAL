@@ -480,8 +480,23 @@ html[data-theme="dark"] :is(.status-badge.dijemput, .confirm-icon.type-info, a.b
     color: #8fd0ff;
 }
 
+html[data-theme="dark"] :is(.driver-nav, .bottom-cta) {
+    background: rgba(32, 24, 32, 0.96);
+    border-color: var(--theme-line);
+    box-shadow: var(--shadow-nav);
+}
+
+html[data-theme="dark"] :is(.driver-nav__item) {
+    color: var(--theme-ink-lt);
+}
+
 html[data-theme="dark"] :is(.driver-nav__item.is-active) {
     color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(.btn-order:disabled) {
+    background: var(--theme-surface-3);
+    color: var(--theme-ink-lt);
 }
 
 html[data-theme="dark"] .bk-cal-hint {
@@ -996,6 +1011,38 @@ html[data-theme="dark"] :is(.customer-nav__item.is-active .customer-nav__icon, .
 
 html[data-theme="dark"] :is(.icon-reguler, .icon-express, .icon-prioritas) {
     background: var(--theme-surface-3);
+}
+
+/* 7e. Teks sekunder komponen halaman katalog & pelanggan */
+
+html[data-theme="dark"] :is(
+    .bk-wordmark span,
+    .bk-empty p,
+    .bk-order-info small,
+    .bk-order-date,
+    .bk-inbox-content time,
+    .bk-inbox-message,
+    .bk-how small,
+    .bk-cart-count,
+    .bk-address-delete p,
+    .bk-muted-mark,
+    .bk-order-filter__hint
+) {
+    color: var(--theme-ink-mid);
+}
+
+html[data-theme="dark"] :is(
+    .bk-order-date b,
+    .bk-cart-count strong,
+    .bk-inbox-arrow,
+    .bk-how>div>span,
+    .bk-req
+) {
+    color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(.bk-field-error, .bk-address-delete summary) {
+    color: var(--theme-danger-ink);
 }
 
 /* ================================================================
