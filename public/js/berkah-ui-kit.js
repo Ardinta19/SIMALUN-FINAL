@@ -37,14 +37,22 @@
     };
 
     const currentTheme = () => (root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+
+    /* data-theme dan color-scheme harus selalu sepasang: kalau hanya
+       data-theme yang berubah, kontrol bawaan peramban (scrollbar, date
+       picker) tertinggal di tema sebelumnya. */
+    const setThemeAttribute = (theme) => {
+        const next = theme === 'dark' ? 'dark' : 'light';
+        root.setAttribute('data-theme', next);
+        root.style.colorScheme = next;
+        return next;
+    };
     const isFollowingSystem = () => readStored() === null;
 
     const listeners = new Set();
 
     function applyTheme(theme, { persist = true } = {}) {
-        const next = theme === 'dark' ? 'dark' : 'light';
-        root.setAttribute('data-theme', next);
-        root.style.colorScheme = next;
+        const next = setThemeAttribute(theme);
         if (persist) {
             try { window.localStorage.setItem(STORE_KEY, next); } catch { /* mode privat */ }
         }
@@ -54,8 +62,7 @@
 
     function useSystemTheme() {
         try { window.localStorage.removeItem(STORE_KEY); } catch { /* abaikan */ }
-        const theme = systemDark() ? 'dark' : 'light';
-        root.setAttribute('data-theme', theme);
+        const theme = setThemeAttribute(systemDark() ? 'dark' : 'light');
         listeners.forEach((fn) => { try { fn(theme); } catch { /* abaikan */ } });
         syncThemeControls();
     }
@@ -281,10 +288,10 @@
     window.addEventListener('storage', (event) => {
         if (event.key !== STORE_KEY) return;
         if (event.newValue === 'dark' || event.newValue === 'light') {
-            root.setAttribute('data-theme', event.newValue);
+            setThemeAttribute(event.newValue);
             syncThemeControls();
         } else {
-            root.setAttribute('data-theme', systemDark() ? 'dark' : 'light');
+            setThemeAttribute(systemDark() ? 'dark' : 'light');
             syncThemeControls();
         }
     });
@@ -292,7 +299,7 @@
     try {
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
             if (isFollowingSystem()) {
-                root.setAttribute('data-theme', systemDark() ? 'dark' : 'light');
+                setThemeAttribute(systemDark() ? 'dark' : 'light');
                 syncThemeControls();
             }
         });

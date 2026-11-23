@@ -523,6 +523,19 @@ class UiKitTest extends TestCase
         }
     }
 
+    public function test_theme_javascript_keeps_color_scheme_in_sync(): void
+    {
+        $js = File::get(public_path('js/berkah-ui-kit.js'));
+
+        $this->assertStringContainsString('root.style.colorScheme', $js);
+        $this->assertStringContainsString('const setThemeAttribute', $js);
+
+        // Hanya helper yang boleh menyetel data-theme langsung; jalur lain
+        // (penyimpanan antar-tab, media query, mode ikut sistem) wajib lewat
+        // helper agar color-scheme tidak tertinggal.
+        $this->assertSame(1, substr_count($js, "root.setAttribute('data-theme'"));
+    }
+
     public function test_print_view_stays_light_in_dark_theme(): void
     {
         $css = File::get(public_path('css/berkah-theme.css'));
