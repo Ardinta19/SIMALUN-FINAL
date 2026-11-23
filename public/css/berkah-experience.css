@@ -64,7 +64,7 @@ html:not(.bk-enhanced) .bk-header-space{height:auto!important;min-height:0;paddi
 .bk-star-rating legend{padding:0;font-size:.875rem;font-weight:700;margin:0 0 8px}
 .bk-star-rating__options{display:flex;flex-direction:row-reverse;justify-content:flex-end;gap:4px}
 .bk-star-rating__options input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
-.bk-star-rating__options label{display:grid;place-items:center;min-width:44px;min-height:44px;margin:0;border:1px solid #eadbd6;border-radius:12px;background:#fffaf8;color:#c9aeb4;font-size:1.5rem;line-height:1;cursor:pointer;transition:color .15s ease,background .15s ease,border-color .15s ease}
+.bk-star-rating__options label{display:grid;place-items:center;min-width:44px;min-height:44px;margin:0;border:1px solid #eadbd6;border-radius:12px;background:#fffaf8;color:#9d8590;font-size:1.5rem;line-height:1;cursor:pointer;transition:color .15s ease,background .15s ease,border-color .15s ease}
 .bk-star-rating__options label:hover,.bk-star-rating__options label:hover~label,
 .bk-star-rating__options input:checked~label{color:#b6435e;background:#f9ecee;border-color:#deb8c0}
 .bk-star-rating__options input:focus-visible+label{outline:3px solid #bc5b75;outline-offset:2px}
