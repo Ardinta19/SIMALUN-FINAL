@@ -18,6 +18,6 @@
 <details><summary>Bagaimana mencatat pengembalian?</summary><p>Kembalikan dana terlebih dahulu, lalu catat pengembalian pada pembayaran terverifikasi yang terkait. Form pengembalian hanya mencatat; sistem tidak mengirim dana.</p></details>
 <details><summary>Apa yang dilakukan jika ada peninjauan manual?</summary><p>Periksa ongkos, jadwal dan bukti. Jika ada bukti yang perlu diperbaiki, berikan alasan. Lepaskan peninjauan setelah penanganan selesai dengan memahami bahwa penjadwal akan memeriksa kembali tenggat.</p></details>
 </section>
-<section class="help-card"><h2>Pengingat operasional</h2><p>Penjadwal harus berjalan untuk pembatalan otomatis dan tindak lanjut tenggat. Periksa pembatalan akibat kesalahan penjual dan pengembalian dana secara manual. Hasil cetak dan jadwal hanya mencerminkan keadaan saat dibuka.</p></section>
+<section class="help-card"><h2>Pengingat operasional</h2><p>Penjadwal harus berjalan untuk pembatalan otomatis, pengingat (<code>rental:remind</code>), dan tindak lanjut tenggat. Bukti yang masuk setelah tenggat pelunasan masih dapat diverifikasi sampai H+1 pukul 12.00 WIB; setelah itu DP hangus. Bila pelanggan tidak merespons desain sampai batasnya, gunakan "Lanjutkan dengan catatan" pada bagian preview. Periksa pembatalan akibat kesalahan penjual dan pengembalian dana secara manual. Hasil cetak dan jadwal hanya mencerminkan keadaan saat dibuka.</p></section>
 @endsection
 @section('navigation')@include('layouts.component.admin._navbar_admin', ['active' => ''])@endsection

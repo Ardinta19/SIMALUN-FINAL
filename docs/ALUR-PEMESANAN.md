@@ -17,7 +17,7 @@ Tiga lapis status hidup berdampingan dan masing-masing punya pemilik berbeda:
 | `rental_design_previews.status` | `pending` → `approved` / `revision` / `superseded` | gerbang mulai pengerjaan |
 
 `progress` hanya bisa maju satu langkah per aksi dan harus cocok dengan nilai
-yang dilihat admin saat halaman dimuat (`RentalProgressController.php:15-21`).
+yang dilihat admin saat halaman dimuat (`RentalProgressController.php:15-19`).
 Tidak ada lompatan, tidak ada mundur.
 
 ```
@@ -33,12 +33,13 @@ checkout ───────────────────────�
    │  (jika perlu ongkos) ◄───────────── penawaran ongkos ──► pelanggan setujui
    │                                        │                 (tidak ada opsi tolak)
    │  unggah preview desain ◄───────────────┘
-   │        └─► pelanggan setujui / minta revisi   ← tidak ada tenggat
-   │                                        │
-   │  bayar (bukti) ───────────────────────► verifikasi admin ← tidak ada tenggat
-   │                                        ▼
+   │        └─► pelanggan setujui / minta revisi   ← tenggat 48 jam / H-3
+   │                                        │         (lewat: admin "lanjutkan dengan catatan")
+   │  bayar (bukti) ───────────────────────► verifikasi admin ← tanpa SLA, tetapi
+   │                                        ▼                    pengingat tiap 6 jam
    │            progress: waiting → production → ready → handed_over → returned
-   │            (production butuh preview approved; handed_over butuh lunas verified)
+   │            (production butuh preview approved atau keputusan admin;
+   │             handed_over butuh lunas verified)
    ▼                                        ▼
 beri rating produk & pesanan  ◄───── unit returned
 ```
@@ -50,12 +51,13 @@ beri rating produk & pesanan  ◄───── unit returned
 | Konfirmasi pesanan | pelanggan | admin | **ada**: 24 jam, `ExpireRentalConfirmations` | unit batal + tanggal dilepas (benar) |
 | Penawaran ongkos | pelanggan | admin | tidak ada (pengingat: eskalasi desain belum mencakup ongkos) | `payableAmount()` = `null`, pembayaran ditolak, unit tidak bisa dibatalkan otomatis |
 | Persetujuan ongkos | admin | pelanggan | tidak ada | sama seperti di atas |
-| Preview desain | admin (tidak bisa mulai pengerjaan) | pelanggan | tidak ada, tetapi ada pengingat harian + eskalasi admin (babak A) | unit tetap `waiting` sampai acara, pembayaran penuh pun tidak menolong |
-| Verifikasi bukti bayar | pelanggan (tidak bisa lunas) | admin | tidak ada, tetapi ada pengingat bila bukti menganggur > 6 jam (babak A) | serah terima tidak bisa ditandai |
+| Preview desain | admin (tidak bisa mulai pengerjaan) | pelanggan | **ada** (babak B): 48 jam sejak unggah / H-3, lalu admin boleh "lanjutkan dengan catatan"; pengingat harian sejak babak A | unit tidak lagi terkunci; pengerjaan berjalan dengan catatan tertulis |
+| Verifikasi bukti bayar | pelanggan (tidak bisa lunas) | admin | tidak ada SLA, tetapi pengingat bila bukti menganggur > 6 jam (babak A) | serah terima tidak bisa ditandai |
+| Pelunasan terlambat | pelanggan | admin (verifikasi) | **ada** (babak B): toleransi sampai H+1 pukul 12.00 WIB, sesudahnya DP hangus | bukti & kelanjutan ditolak setelah batas |
 | Tandai kembali | pelanggan (tidak bisa rating) | admin | tidak ada | unit menggantung `handed_over` selamanya |
 | Rating | admin (indikator kualitas) | pelanggan | tidak ada | wajar; bukan penghambat |
 
-Empat baris tanpa tenggat itulah inti "saling menunggu".
+Baris tanpa tenggat yang tersisa (ongkos, verifikasi bukti, tandai kembali) itulah inti "saling menunggu" yang belum tertutup.
 
 ## 3. Temuan A — alur bolak-balik
 
@@ -73,34 +75,40 @@ Untuk pesanan 3 unit, mengubah jumlah unit berarti mengetik ulang penerima,
 ucapan, dan alamat tiga kali.
 _Dampak_: tinggi pada pesanan multiunit.
 
-**RT-3. Revisi desain tanpa batas dan tanpa pengingat.**
+**RT-3. Revisi desain tanpa batas versi (sebagian ditutup).**
 Setiap revisi membuat preview baru berstatus `pending` dan men-supersede yang lama
-(`RentalDesignController.php:28-30`). Tidak ada batas versi, tidak ada pengingat,
-dan pelanggan harus membuka ulang halaman unit untuk melihat versi baru.
-_Dampak_: sedang; menambah panjang siklus tanpa jaminan selesai.
+(`RentalDesignController.php:29-31`). Tidak ada batas jumlah versi, tetapi sejak
+babak A pelanggan mendapat pengingat preview dan sejak babak B ada tenggat respons
+serta keputusan admin, sehingga siklus tidak lagi bisa berjalan tanpa ujung.
+_Dampak_: rendah-sedang; tinggal keputusan bisnis berapa versi maksimal.
 
 **RT-4. Ongkos hanya bisa naik satu arah.**
 Setelah pelanggan menyetujui, admin tidak bisa mengirim penawaran baru
-(`RentalOrderController.php:283` menolak jika `transport_approved_at` sudah terisi),
+(`RentalOrderController.php:263` menolak jika `transport_approved_at` sudah terisi),
 dan pelanggan tidak punya tombol menolak — hanya menyetujui. Negosiasi harga
 pasti keluar aplikasi (WhatsApp), lalu berakhir di pembatalan manual.
 _Dampak_: tinggi ketika tarif salah, karena satu-satunya jalan adalah membatalkan unit.
 
 **RT-5. Pembatalan dan perubahan data hanya lewat admin.**
-Rute `rental.cancel` hanya ada di grup admin (`routes/web.php:189`); halaman unit
+Rute `rental.cancel` hanya ada di grup admin (`routes/web.php:190`); halaman unit
 pelanggan hanya memuat 4 form: respons desain, bukti bayar, setujui ongkos, rating.
 Salah ketik nama penerima atau ucapan tidak bisa diperbaiki sendiri, dan
 membatalkan berarti menghubungi admin. Tidak ada tombol "pesan ulang" dari unit
 yang dibatalkan, jadi pesanan baru dimulai dari nol.
 _Dampak_: tinggi, karena ini jalur paling sering dipakai saat ada kesalahan.
 
-**RT-6. Pelunasan terlambat bergantung pada verifikasi di hari yang sama.**
-`eligibleForLatePayment` hanya berlaku tepat pada `starts_on`
-(`RentalPaymentDeadline.php:24-28`), dan `resume` mensyaratkan pembayaran
-**terverifikasi** pada hari itu juga (`RentalOrderController.php:321`).
-Kiriman bukti pukul 23.50 dan verifikasi pukul 00.05 berarti uang masuk tetapi unit
-tetap batal dan DP hangus — harus diselesaikan manual.
-_Dampak_: tinggi (uang pelanggan menggantung).
+**RT-6. Pelunasan terlambat bergantung pada verifikasi di hari yang sama (selesai di babak B).**
+Dulu `eligibleForLatePayment` hanya berlaku tepat pada `starts_on`, dan `resume`
+mensyaratkan pembayaran **terverifikasi** pada hari itu juga. Kiriman bukti pukul
+23.50 dan verifikasi pukul 00.05 berarti uang masuk tetapi unit tetap batal dan DP
+hangus.
+
+Sekarang toleransinya H+1 pukul 12.00 WIB (`RentalPaymentDeadline::graceDeadline()`):
+selama batas itu bukti masih diterima, admin masih dapat memverifikasi dan
+melanjutkan unit, dan penjadwal belum menghanguskan DP. Sesudahnya `rental:expire-payments`
+menandai `deposit_forfeited_at`, sehingga bukti baru dan kelanjutan ditolak.
+_Dampak_: tinggi (uang pelanggan menggantung) — sudah ditutup, dengan risiko yang
+dicatat di bawah.
 
 **RT-7. Semua pemberitahuan hanya di dalam aplikasi.**
 `RentalUpdate::via()` mengembalikan `['database']` (satu-satunya kanal). Tidak ada
@@ -123,19 +131,28 @@ tidak pernah merespons preview membuat unit mustahil diserahkan, mustahil
 dikembalikan, dan mustahil dinilai. Satu-satunya jalan keluar adalah membatalkan
 unit (refund) — padahal acaranya mungkin besok. Pembatalan otomatis juga tidak
 akan menolong karena `timelyCoverage` sudah menutup tagihan
-(`ExpireRentalPayments.php:36`).
+(`ExpireRentalPayments.php:38`).
 
 _Babak A_: pelanggan diingatkan setiap hari setelah preview menganggur 24 jam, dan
-admin dieskalasi setelah 48 jam atau bila acara tinggal 3 hari. Status tetap tidak
-berubah — keputusan "lanjut dengan catatan" menunggu babak B.
+admin dieskalasi setelah 48 jam atau bila acara tinggal 3 hari.
+
+_Babak B (selesai)_: tenggat respons kini dihitung `RentalDesignDeadline` — 48 jam
+setelah preview diunggah, dimajukan ke 3 hari sebelum acara, tetapi tidak pernah
+sebelum preview diunggah. Setelah tenggat lewat, admin dapat menekan **"Lanjutkan
+dengan catatan"**: wajib alasan minimal 10 karakter dan centang konfirmasi, dicatat
+di `rental_unit_progress_events`, lalu `production` boleh dimulai memakai preview
+yang masih `pending`. Keputusan itu terikat pada versi preview
+(`design_override_version`), sehingga preview baru, persetujuan pelanggan, atau
+permintaan revisi otomatis membatalkannya. Pengingat eskalasi berhenti setelah
+keputusan diambil.
 
 **DL-2. Verifikasi bukti bayar tanpa tenggat menahan serah terima (sedang-berat).**
 `handed_over` mensyaratkan `verifiedNet() >= payableAmount()`
-(`RentalProgressController.php:25-28`). Bukti yang hanya `pending` tidak menolong,
+(`RentalProgressController.php:26-29`). Bukti yang hanya `pending` tidak menolong,
 meski pengiriman tepat waktu mencegah pembatalan. Bila admin tidak memverifikasi,
 papan tidak bisa diserahkan walau pelanggan sudah membayar. Tidak ada pengingat
 otomatis untuk bukti yang menunggu lebih dari X jam; hanya satu notifikasi saat bukti
-dikirim (`RentalPaymentController.php:37`).
+dikirim (`RentalPaymentController.php:41`).
 
 _Babak A_: `rental:remind` mengingatkan admin sekali sehari untuk setiap bukti yang
 menganggur lebih dari 6 jam, sehingga antrean tidak lagi hanya bergantung pada
@@ -144,8 +161,8 @@ kartu dasbor.
 **DL-3. Penawaran ongkos yang tidak pernah dikirim membuat unit tak bisa dibatalkan
 otomatis (sedang-berat).**
 Selama `payableAmount()` = `null` (ongkos belum ada atau belum disetujui),
-pembayaran ditolak (`RentalPaymentController.php:33`), dan penjadwal hanya memasang
-`payment_review_hold` tanpa membatalkan (`ExpireRentalPayments.php:29-34`). Unit
+pembayaran ditolak (`RentalPaymentController.php:37`), dan penjadwal hanya memasang
+`payment_review_hold` tanpa membatalkan (`ExpireRentalPayments.php:28-35`). Unit
 tetap `confirmed` dan menahan tanggal tanpa ada tenggat. Admin melihat antreannya di
 dasbor (`rentalQuoteNeeded`), jadi tidak sepenuhnya gelap, tetapi tidak ada
 eskalasi bila antrean bertambah.
@@ -162,12 +179,12 @@ selamanya.
 
 **DL-6. `payment_review_hold` lengket (sudah diperbaiki di babak A).**
 Hold dipasang saat konfirmasi jadwal dekat, saat penjadwal menandai ongkos manual,
-dan saat bukti ditolak (`RentalPaymentController.php:146`). Dulu hanya dilepas oleh
+dan saat bukti ditolak (`RentalPaymentController.php:150`). Dulu hanya dilepas oleh
 `resolveReview`, sehingga kartu "perlu peninjauan" menghitung unit yang sebenarnya
 beres — termasuk unit yang sudah `returned`.
 
 Sekarang `verify()` melepas hold otomatis begitu `verifiedNet() >= payableAmount()`
-(`RentalPaymentController.php:69-70`; pembayaran sebagian tidak melepasnya), dan
+(`RentalPaymentController.php:73-74`; pembayaran sebagian tidak melepasnya), dan
 antrean memakai scope bersama
 `RentalOrderUnit::needsPaymentReview()` yang mengabaikan unit `returned`. Scope yang
 sama dipakai kartu dasbor dan filter "review" daftar pesanan admin, jadi angkanya
@@ -196,13 +213,11 @@ sudah ada (transaksi, notifikasi dalam transaksi, perintah penjadwal idempoten).
 ### P0 — mencegah uang atau jadwal menggantung
 
 1. **Tenggat respons desain + eskalasi.**
-   Tambah `design_deadline` per unit (mis. H-3 atau 48 jam setelah preview) dan aksi
-   admin **"lanjutkan dengan catatan"** yang tetap butuh konfirmasi ulang tertulis
-   (audit di `progress_events`) supaya pelanggan yang tidak responsif tidak mengunci
-   operasional.
+   _Selesai (babak A + B)_: pengingat harian dan eskalasi admin (babak A), lalu
+   tenggat `RentalDesignDeadline` (48 jam / H-3, tidak sebelum unggah) dan aksi admin
+   **"Lanjutkan dengan catatan"** dengan alasan wajib, audit di
+   `rental_unit_progress_events`, dan pengikat versi preview (babak B).
    _Menyelesaikan_: DL-1, RT-3.
-   _Sudah dikerjakan sebagian (babak A)_: pelanggan diingatkan tiap hari dan admin
-   dieskalasi pada ambang 48 jam / H-3; tenggat dan aksi admin belum ada.
 2. **Auto-bersihkan hold saat tagihan tertutup.**
    _Selesai (babak A)_: `verify()` melepas hold ketika `verifiedNet() >=
    payableAmount()`, dan antrean memakai `needsPaymentReview()` yang mengecualikan
@@ -212,9 +227,9 @@ sudah ada (transaksi, notifikasi dalam transaksi, perintah penjadwal idempoten).
    `pending` lebih dari 6 jam dan pengingat pelanggan H-1 bila tagihan belum tertutup.
    _Menyelesaikan_: DL-2, RT-7.
 4. **Jendela pembayaran terlambat yang aman.**
-   Entah larang bukti baru setelah pukul 21.00 di hari acara, atau beri tenggang
-   verifikasi sampai H+1 pukul 12.00 sebelum DP hangus. Pilih satu; sekarang
-   pelanggan bisa membayar pada detik terakhir yang mustahil diverifikasi.
+   _Selesai (babak B)_: tenggang verifikasi sampai H+1 pukul 12.00 WIB sebelum DP
+   hangus, sesuai keputusan pemilik. Bukti sesudah batas ditolak, kelanjutan ditolak,
+   dan penjadwal mencetak `deposit_forfeited_at` sekali.
    _Menyelesaikan_: RT-6.
 
 ### P1 — menghapus bolak-balik yang paling mahal
@@ -260,13 +275,36 @@ sudah ada (transaksi, notifikasi dalam transaksi, perintah penjadwal idempoten).
 - `payment_review_hold` dilepas otomatis saat tagihan tertutup; antrean memakai
   `needsPaymentReview()` (dasbor + filter admin).
 - Perintah `rental:remind` (dijadwalkan tiap lima menit) mengirim empat jenis
-  pengingat dengan dedupe `rental_unit_reminders` (unit + jenis + penerima + tanggal).
+  pengingat (babak B menambah dua jenis toleransi) dengan dedupe `rental_unit_reminders` (unit + jenis + penerima + tanggal).
 - Tanggal pengingat, ambang, dan pesannya dijelaskan di `docs/PENJADWAL-SEWA.md`.
 - Tes: `tests/Feature/RentalReminderTest.php`.
 
-**Babak B — menunggu keputusan.** Tenggat respons desain + aksi admin "lanjutkan
-dengan catatan" (DL-1), dan aturan pembayaran terlambat (RT-6): larang bukti setelah
-pukul 21.00 di hari acara, atau beri toleransi verifikasi sampai H+1 pukul 12.00.
+**Babak B — selesai (keputusan pemilik: toleransi H+1 pukul 12.00 WIB).**
+
+- `RentalPaymentDeadline::graceDeadline()` = H+1 pukul 12.00 WIB. Selama toleransi,
+  `eligibleForLatePayment()` membuka unggah bukti, `resume` menerima kelanjutan
+  setelah pembayaran lunas terverifikasi, dan `rental:expire-payments` belum
+  menghanguskan DP. Sesudah batas itu `deposit_forfeited_at` diisi, bukti baru dan
+  kelanjutan ditolak. Pembatalan manual tetap hanya dapat dilanjutkan sampai hari
+  penerimaan berakhir.
+- Pengingat baru: `payment_grace` (pelanggan) dan `payment_grace_admin` (admin) tiap
+  hari selama toleransi; keduanya berhenti otomatis setelah batas lewat atau tagihan
+  tertutup.
+- `RentalDesignDeadline` menghitung tenggat respons desain (48 jam setelah unggah,
+  dimajukan ke H-3, tidak pernah sebelum unggah). Aksi admin **"Lanjutkan dengan
+  catatan"** (`admin.rental.design.override`) mewajibkan alasan + konfirmasi,
+  mencatat event di riwayat progres, dan mengikat keputusan pada versi preview
+  (`design_override_*`). Preview baru, persetujuan, atau revisi otomatis
+  membatalkannya.
+- Tombol **Lanjutkan unit** kini tersedia di detail pesanan admin untuk unit batal
+  yang masih dalam batas, lengkap dengan alasan wajib; sebelumnya aksi ini hanya ada
+  di rute tanpa antarmuka.
+- Tes: `tests/Feature/RentalLatePaymentGraceTest.php`,
+  `tests/Feature/RentalDesignDeadlineTest.php`; tes tenggat lama disesuaikan.
+- Risiko yang tersisa: stok tanggal sudah dilepas saat pembatalan, jadi kelanjutan
+  bisa gagal bila unit lain sudah mengambil stok pada tanggal itu. Pelanggan yang
+  terlambat membayar karena itu dapat kehilangan DP setelah batas toleransi — ini
+  konsekuensi kebijakan yang dipilih, bukan bug.
 
 **Babak C — belum dikerjakan.** Ongkos dua arah (RT-4/DL-3), pembatalan mandiri
 pelanggan (DL-4/RT-5), perbaikan data unit sebelum diproses, pesan ulang, filter
@@ -289,9 +327,9 @@ katalog dan draf checkout yang bertahan (RT-1/RT-2), pengingat penandaan kembali
 
 | Temuan | Bukti yang harus ada |
 | --- | --- |
-| DL-1 | tes: pelanggan tidak merespons → perintah pengingat jalan, admin bisa lanjut dengan catatan, event tercatat |
-| DL-2/DL-6 | tes: verifikasi penuh membersihkan hold; kartu dasbor tidak menghitung unit `returned` |
+| DL-1 | **ada**: `RentalDesignDeadlineTest` (tenggat, keputusan wajib beralasan, versi preview baru membatalkan keputusan) + `RentalReminderTest` |
+| DL-2/DL-6 | **ada**: `RentalReminderTest` (hold dibersihkan saat tagihan tertutup, scope `returned` diabaikan) |
 | DL-3/RT-4 | tes: tolak ongkos → admin kirim versi baru → pelanggan setujui versi terbaru; versi lama ditolak |
 | RT-5 | tes: pelanggan batal sendiri; perubahan data unit tercatat; pesan ulang mengisi keranjang |
-| RT-6 | tes: bukti pukul 23.50 + verifikasi H+1 sesuai kebijakan yang dipilih |
+| RT-6 | **ada**: `RentalLatePaymentGraceTest` (bukti H+1 diterima sampai 12.00, ditolak sesudahnya, DP hangus, pengingat toleransi) |
 | RT-1/RT-2 | tes: tautan kembali membawa query; draf checkout bertahan setelah kembali ke keranjang |

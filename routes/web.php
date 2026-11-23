@@ -177,6 +177,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/pembayaran-sewa/{payment}/verifikasi', [RentalPaymentController::class, 'verify'])->name('rental.payment.verify');
         Route::post('/pembayaran-sewa/{payment}/tolak', [RentalPaymentController::class, 'reject'])->name('rental.payment.reject');
         Route::post('/sewa/unit/{unit}/preview', [RentalDesignController::class, 'store'])->name('rental.design.store');
+        Route::post('/sewa/unit/{unit}/desain/lanjutkan', [RentalDesignController::class, 'override'])->name('rental.design.override');
         Route::get('/jadwal-sewa', [RentalScheduleController::class, 'index'])->name('rental.schedule');
         Route::get('/jadwal-sewa/lembar-harian', [RentalScheduleController::class, 'dailySheet'])->name('rental.schedule.daily-sheet');
         Route::get('/sewa', [RentalOrderController::class, 'adminIndex'])->name('rental.orders');

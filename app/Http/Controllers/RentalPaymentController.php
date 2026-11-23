@@ -27,7 +27,11 @@ class RentalPaymentController extends Controller
                 $unit = RentalOrderUnit::lockForUpdate()->findOrFail($unit->id);
                 $policy = app(RentalPaymentDeadline::class);
                 $late = $policy->eligibleForLatePayment($unit);
-                if ($unit->status !== 'confirmed' && ! $late) throw ValidationException::withMessages(['payment' => 'Unit tidak dapat menerima bukti pembayaran saat ini.']);
+                if ($unit->status !== 'confirmed' && ! $late) {
+                    throw ValidationException::withMessages(['payment' => $unit->status === 'cancelled' && $unit->cancel_code === 'payment_timeout'
+                        ? 'Masa toleransi pembayaran telah berakhir; bukti tidak dapat dikirim lagi.'
+                        : 'Unit tidak dapat menerima bukti pembayaran saat ini.']);
+                }
                 if (! $late && $policy->isDue($unit) && ! $unit->payment_review_hold) throw ValidationException::withMessages(['payment' => 'Tenggat pelunasan telah lewat. Tunggu pembaruan status atau hubungi admin.']);
                 $total = $unit->payableAmount();
                 if ($total === null) throw ValidationException::withMessages(['payment' => 'Setujui penawaran ongkos terlebih dahulu.']);

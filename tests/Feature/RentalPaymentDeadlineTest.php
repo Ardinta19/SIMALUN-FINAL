@@ -44,7 +44,11 @@ class RentalPaymentDeadlineTest extends TestCase
             $this->post(route('admin.rental.resume', $late), ['reason' => 'Lanjut'])->assertSessionHasNoErrors();
             $this->artisan('rental:expire-payments')->assertExitCode(0);
             $this->assertSame('confirmed', $late->fresh()->status);
-            Carbon::setTestNow(Carbon::parse('2026-12-03 00:00:00', 'Asia/Jakarta'));
+            // Toleransi verifikasi masih berlaku sampai H+1 pukul 12.00 WIB.
+            Carbon::setTestNow(Carbon::parse('2026-12-03 11:59:00', 'Asia/Jakarta'));
+            $this->artisan('rental:expire-payments')->assertExitCode(0);
+            $this->assertNull($expired->fresh()->deposit_forfeited_at);
+            Carbon::setTestNow(Carbon::parse('2026-12-03 12:00:01', 'Asia/Jakarta'));
             $this->artisan('rental:expire-payments')->assertExitCode(0);
             $this->assertNotNull($expired->fresh()->deposit_forfeited_at);
             $this->post(route('admin.rental.resume', $expired), ['reason' => 'Terlambat'])->assertSessionHasErrors('unit');
@@ -89,7 +93,7 @@ class RentalPaymentDeadlineTest extends TestCase
             $this->assertTrue($hold->fresh()->payment_review_hold);
             $this->assertSame(1, $admin->notifications()->get()->filter(fn ($n) => $n->data['title'] === 'Peninjauan pembayaran diperlukan')->count());
             $this->assertSame('cancelled', $late->fresh()->status);
-            Carbon::setTestNow(Carbon::parse('2026-12-03 00:00:00', 'Asia/Jakarta'));
+            Carbon::setTestNow(Carbon::parse('2026-12-03 12:00:01', 'Asia/Jakarta'));
             $this->artisan('rental:expire-payments')->assertExitCode(0);
             $this->artisan('rental:expire-payments')->assertExitCode(0);
             $this->assertSame(1, $customer->notifications()->get()->filter(fn ($n) => $n->data['title'] === 'Masa kelanjutan berakhir')->count());

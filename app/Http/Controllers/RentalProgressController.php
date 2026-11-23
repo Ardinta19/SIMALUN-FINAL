@@ -19,8 +19,8 @@ class RentalProgressController extends Controller
                 throw ValidationException::withMessages(['progress' => 'Status unit berubah atau tidak lagi aktif. Muat ulang halaman.']);
             }
             $next = ['waiting' => 'production', 'production' => 'ready', 'ready' => 'handed_over', 'handed_over' => 'returned'][$unit->progress];
-            if ($next === 'production' && $unit->previews()->first()?->status !== 'approved') {
-                throw ValidationException::withMessages(['progress' => 'Preview terbaru harus disetujui pelanggan sebelum pengerjaan.']);
+            if ($next === 'production' && ! $unit->designApprovedForProduction()) {
+                throw ValidationException::withMessages(['progress' => 'Preview terbaru harus disetujui pelanggan, atau admin melanjutkan dengan catatan setelah tenggat respons desain.']);
             }
             if ($next === 'handed_over') {
                 $total = $unit->payableAmount();

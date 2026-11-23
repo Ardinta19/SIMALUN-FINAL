@@ -24,8 +24,8 @@ class RentalOrderUnit extends Model
     /** Status yang sudah pasti memakai unit; dipakai saat admin mengonfirmasi. */
     public const COMMITTED_STATUSES = [self::STATUS_CONFIRMED];
 
-    protected $fillable = ['rental_order_id', 'rental_product_id', 'product_name', 'unit_price', 'price_unit', 'rental_amount', 'starts_on', 'event_on', 'ends_on', 'recipient_name', 'greeting', 'design_notes', 'delivery_method', 'delivery_address', 'return_method', 'return_address', 'status', 'status_before_cancel', 'cancel_code', 'payment_review_hold', 'payment_review_resolved', 'deposit_forfeited_at', 'payment_late_resumed_at', 'progress', 'cancel_reason', 'cancel_responsibility', 'cancelled_at', 'cancelled_by', 'confirmed_at', 'special_confirmation', 'rental_duration_package_id', 'package_name', 'package_days', 'delivery_university', 'delivery_university_fee', 'return_university', 'return_university_fee', 'transport_quote', 'transport_quote_version', 'transport_quote_note', 'transport_approved_at'];
-    protected $casts = ['starts_on' => 'date', 'event_on' => 'date', 'ends_on' => 'date', 'payment_review_hold' => 'boolean', 'payment_review_resolved' => 'boolean', 'payment_late_resumed_at' => 'datetime', 'deposit_forfeited_at' => 'datetime', 'cancelled_at' => 'datetime', 'special_confirmation' => 'boolean', 'confirmed_at' => 'datetime', 'transport_approved_at' => 'datetime'];
+    protected $fillable = ['rental_order_id', 'rental_product_id', 'product_name', 'unit_price', 'price_unit', 'rental_amount', 'starts_on', 'event_on', 'ends_on', 'recipient_name', 'greeting', 'design_notes', 'delivery_method', 'delivery_address', 'return_method', 'return_address', 'status', 'status_before_cancel', 'cancel_code', 'payment_review_hold', 'payment_review_resolved', 'deposit_forfeited_at', 'payment_late_resumed_at', 'progress', 'cancel_reason', 'cancel_responsibility', 'cancelled_at', 'cancelled_by', 'confirmed_at', 'special_confirmation', 'rental_duration_package_id', 'package_name', 'package_days', 'delivery_university', 'delivery_university_fee', 'return_university', 'return_university_fee', 'transport_quote', 'transport_quote_version', 'transport_quote_note', 'transport_approved_at', 'design_override_at', 'design_override_by', 'design_override_version', 'design_override_note'];
+    protected $casts = ['starts_on' => 'date', 'event_on' => 'date', 'ends_on' => 'date', 'payment_review_hold' => 'boolean', 'payment_review_resolved' => 'boolean', 'payment_late_resumed_at' => 'datetime', 'deposit_forfeited_at' => 'datetime', 'cancelled_at' => 'datetime', 'special_confirmation' => 'boolean', 'confirmed_at' => 'datetime', 'transport_approved_at' => 'datetime', 'design_override_at' => 'datetime'];
     public function needsSpecialConfirmation(): bool
     {
         // Waktu serah-terima belum dipilih: perlakukan seluruh hari sebagai dekat jadwal.
@@ -65,4 +65,26 @@ class RentalOrderUnit extends Model
             ->where('progress', '!=', 'returned');
     }
     public function previews(): HasMany { return $this->hasMany(RentalDesignPreview::class)->orderByDesc('version'); }
+
+    /**
+     * Preview terbaru boleh dipakai untuk pengerjaan bila pelanggan menyetujui,
+     * atau bila admin sudah memutuskan melanjutkan tanpa persetujuan pada versi
+     * yang sama setelah tenggat respons lewat.
+     */
+    public function designApprovedForProduction(): bool
+    {
+        $latest = $this->previews()->first();
+        if (! $latest) return false;
+        if ($latest->status === 'approved') return true;
+
+        return $this->design_override_at !== null && (int) $this->design_override_version === (int) $latest->version;
+    }
+
+    public function designOverrideActive(): bool
+    {
+        if ($this->design_override_at === null) return false;
+        $latest = $this->previews()->first();
+
+        return $latest !== null && (int) $this->design_override_version === (int) $latest->version;
+    }
 }

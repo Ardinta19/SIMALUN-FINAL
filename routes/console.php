@@ -20,12 +20,13 @@ Artisan::command('rental:expire-payments', function (\App\Services\ExpireRentalP
 })->purpose('Proses tenggat pelunasan sewa');
 \Illuminate\Support\Facades\Schedule::command('rental:expire-payments')->everyMinute()->withoutOverlapping();
 
-// Pengingat dua arah: bukti bayar yang menganggur, pelunasan H-1, dan respons
-// desain. Tidak mengubah status apa pun; hanya memberi tahu pihak yang
-// seharusnya bergerak. Idempoten per unit+jenis+penerima+tanggal.
+// Pengingat dua arah: bukti bayar yang menganggur, pelunasan H-1, toleransi
+// pembayaran terlambat (H+1 pukul 12.00 WIB), dan respons desain. Tidak mengubah
+// status apa pun; hanya memberi tahu pihak yang seharusnya bergerak. Idempoten
+// per unit+jenis+penerima+tanggal.
 Artisan::command('rental:remind', function (\App\Services\RentalReminders $reminders) {
     $result = $reminders->run();
-    $this->info('Pengingat terkirim: bukti='.$result['proof'].', pelunasan='.$result['due'].', desain='.$result['design'].', eskalasi='.$result['design_escalation']);
+    $this->info('Pengingat terkirim: bukti='.$result['proof'].', pelunasan='.$result['due'].', toleransi='.$result['grace'].' (admin '.$result['grace_admin'].'), desain='.$result['design'].', eskalasi='.$result['design_escalation']);
 })->purpose('Kirim pengingat bukti bayar, pelunasan H-1, dan respons desain');
 
 \Illuminate\Support\Facades\Schedule::command('rental:remind')->everyFiveMinutes()->withoutOverlapping();

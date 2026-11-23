@@ -311,15 +311,23 @@ class RentalOrderController extends Controller
             if ($unit->status !== 'cancelled' || ! in_array($unit->status_before_cancel, ['pending', 'confirmed'], true)) {
                 throw ValidationException::withMessages(['unit' => 'Unit ini tidak dapat dilanjutkan otomatis.']);
             }
-            $today = now('Asia/Jakarta')->toDateString();
-            $starts = $unit->starts_on->toDateString();
-            if ($unit->deposit_forfeited_at || $today > $starts) throw ValidationException::withMessages(['unit' => 'Batas melanjutkan unit telah terlewati.']);
+            $policy = app(RentalPaymentDeadline::class);
+            // Pembatalan karena tenggat pelunasan memakai toleransi H+1 pukul 12.00 WIB;
+            // pembatalan lain hanya dapat dilanjutkan sampai hari penerimaan berakhir.
+            $limit = $unit->cancel_code === 'payment_timeout'
+                ? $policy->graceDeadline($unit)
+                : \Carbon\CarbonImmutable::parse($unit->starts_on->toDateString(), 'Asia/Jakarta')->addDay()->subSecond();
+            if ($unit->deposit_forfeited_at || now('Asia/Jakarta')->greaterThan($limit)) {
+                throw ValidationException::withMessages(['unit' => $unit->cancel_code === 'payment_timeout'
+                    ? 'Batas melanjutkan unit telah terlewati (toleransi sampai H+1 pukul 12.00 WIB).'
+                    : 'Batas melanjutkan unit telah terlewati.']);
+            }
             if ($unit->status_before_cancel === 'pending') {
                 if (! $unit->order->confirmation_deadline->isFuture()) throw ValidationException::withMessages(['unit' => 'Tenggat konfirmasi telah terlewati.']);
                 $next = 'pending';
             } else {
-                if ($today === $starts && ($unit->payableAmount() === null || $unit->verifiedNet() < $unit->payableAmount())) {
-                    throw ValidationException::withMessages(['unit' => 'Pada hari penerimaan pembayaran harus lunas terverifikasi untuk melanjutkan.']);
+                if ($policy->isDue($unit) && ($unit->payableAmount() === null || $unit->verifiedNet() < $unit->payableAmount())) {
+                    throw ValidationException::withMessages(['unit' => 'Pembayaran harus lunas dan terverifikasi sebelum unit dilanjutkan setelah tenggat pelunasan.']);
                 }
                 app(RentalAvailability::class)->assertAvailable($product, $unit);
                 $next = 'confirmed';
