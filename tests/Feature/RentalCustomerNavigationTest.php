@@ -78,7 +78,10 @@ class RentalCustomerNavigationTest extends TestCase
     {
         $this->get(route('welcome'))->assertOk()
             ->assertSee('Langsung ke isi')->assertSee('Navigasi utama')->assertSee('Navigasi cepat')
-            ->assertSee('aria-label="Navigasi utama"', false)->assertSee(route('login'))->assertDontSee(route('admin.rental.orders'));
+            ->assertSee('aria-label="Navigasi utama"', false)->assertSee(route('login'))->assertDontSee(route('admin.rental.orders'))
+            // Tamu memakai busur yang sama; dialog "Jelajahi" sudah dicabut.
+            ->assertSee('data-customer-radial', false)->assertSee('bk-header-radial', false)
+            ->assertSee(route('register'))->assertDontSee('id="bk-menu"', false);
         $customer = User::factory()->create(['role' => 'customer']);
         $this->actingAs($customer)->get(route('welcome'))->assertOk()
             ->assertSee(route('rental.orders.index'))->assertSee(route('customer.help'))

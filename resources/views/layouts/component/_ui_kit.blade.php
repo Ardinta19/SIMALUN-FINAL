@@ -5,9 +5,11 @@
 | Di-@include sekali di akhir setiap halaman (sebelum tag penutup body). Semua bagian
 | dibungkus @once sehingga aman bila partial ini ikut ter-include dua kali.
 |
-| Tombol tema dipindahkan otomatis oleh JS ke `[data-bk-theme-host]`
-| (mis. header katalog) atau tetap melayang di kanan bawah bila halaman
-| tidak punya slot header.
+| Tombol tema dipindahkan otomatis oleh JS ke slot yang tersedia:
+|   · <=700 px : ke dalam menu radial (`[data-bk-theme-host="radial"]`) —
+|                satu tombol, bukan dua;
+|   · >700 px  : ke header (`[data-bk-theme-host]`, mis. header katalog);
+|   · tanpa slot: tetap melayang di kanan bawah.
 |--------------------------------------------------------------------------
 --}}
 @php

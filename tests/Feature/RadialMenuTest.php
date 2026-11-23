@@ -20,18 +20,32 @@ class RadialMenuTest extends TestCase
         $this->assertStringContainsString('<details class="customer-radial', $view);
         $this->assertStringContainsString('id="bk-menu-goo"', $view);
         $this->assertStringContainsString('Bantuan / FAQ', $view);
-        $this->assertStringContainsString('aria-label="Keranjang{{', $view);
+        // Label tiap tujuan dirender dari data, termasuk jumlah unit.
+        $this->assertStringContainsString("'Keranjang'.(\$cartCount ? ', '.\$cartCount.' unit' : '')", $view);
+        $this->assertStringContainsString("aria-label=\"{{ \$item['label'] }}\"", $view);
 
-        // Busur: lima tujuan pada radius 112 px, sudut 180/154/128/102/76°.
-        foreach (['--rx:-112px;--ry:0px', '--rx:-101px;--ry:49px', '--rx:-69px;--ry:88px', '--rx:-23px;--ry:110px', '--rx:27px;--ry:109px'] as $offset) {
-            $this->assertStringContainsString($offset, $view);
-        }
+        // Geometri dihitung: sudut dibagi rata 180° → 79°, radius dipilih agar
+        // jarak antarpusat 50 px. Jumlah tujuan boleh berubah tanpa mengubah CSS.
+        $this->assertStringContainsString('$span = 101;', $view);
+        $this->assertStringContainsString('round(25 / sin(deg2rad($step / 2)))', $view);
+        $this->assertStringContainsString('style="--rx:{{ $offsets[$slot][0] }}px;--ry:{{ $offsets[$slot][1] }}px"', $view);
+        $this->assertStringNotContainsString('nth-of-type(', $view, 'Posisi busur tidak boleh ditulis tangan per slot.');
         $this->assertStringContainsString('width:46px;height:46px', $view, 'Sasaran sentuh menu harus >= 44 px.');
-        $this->assertStringContainsString('nth-of-type(5)', $view);
 
-        // Tujuan kelima adalah halaman yang belum ada di pita bawah.
-        $this->assertStringContainsString("route('customer.addresses.index')", $view);
-        $this->assertStringContainsString('aria-label="Alamat pengiriman"', $view);
+        // Tujuan pelanggan, termasuk halaman yang belum ada di pita bawah.
+        foreach (["route('cart.index')", "route('rental.orders.index')", "route('customer.notifications')", "route('customer.addresses.index')", "route('customer.help')"] as $route) {
+            $this->assertStringContainsString($route, $view);
+        }
+        $this->assertStringContainsString("'label' => 'Alamat pengiriman'", $view);
+
+        // Tamu memakai busur yang sama, bukan dialog "Jelajahi".
+        $this->assertStringContainsString("route('register')", $view);
+        $this->assertStringContainsString("route('login')", $view);
+        $this->assertStringContainsString("Menu: katalog, keranjang, daftar, dan masuk", $view);
+
+        // Slot tema: satu tombol, dipindahkan ke dalam busur di ponsel.
+        $this->assertStringContainsString('data-bk-theme-host="radial"', $view);
+        $this->assertStringContainsString('.customer-radial__item', $view);
 
         // Hubungan tombol–panel harus eksplisit untuk pembaca layar.
         $this->assertStringContainsString('aria-controls="bk-radial-panel"', $view);
@@ -39,11 +53,11 @@ class RadialMenuTest extends TestCase
 
         // Satu variabel menggerakkan busur; transform tetap milik CSS.
         $this->assertStringContainsString('--p:0', $view);
-        $this->assertStringContainsString('translate(calc(var(--rx) * var(--p)), calc(var(--ry) * var(--p)))', $view);
-        $this->assertStringContainsString('.customer-radial[open] .customer-radial__links a{--p:1}', $view);
+        $this->assertStringContainsString('translate(calc(var(--rx,0px) * var(--p)), calc(var(--ry,0px) * var(--p)))', $view);
+        $this->assertStringContainsString('.customer-radial[open] .customer-radial__item{--p:1}', $view);
 
         // Tema gelap: lingkaran, lencana, dan tombol pusat tetap terbedakan.
-        $this->assertStringContainsString('html[data-theme="dark"] .bk-header-radial .customer-radial__links a', $view);
+        $this->assertStringContainsString('html[data-theme="dark"] .bk-header-radial .customer-radial__item{background:', $view);
         $this->assertStringContainsString('html[data-theme="dark"] .customer-radial__badge', $view);
     }
 
@@ -77,6 +91,10 @@ class RadialMenuTest extends TestCase
         $this->assertStringContainsString('restoreFocus', $js);
         $this->assertStringContainsString("summary.focus({ preventScroll: true })", $js);
 
+        // Slot tema ikut menyebar, dan menekannya menutup busur lebih dulu.
+        $this->assertStringContainsString("'.customer-radial__item'", $js);
+        $this->assertStringContainsString('.customer-radial__item--theme', $js);
+
         // Tanpa CDN, dan berkas lama tetap menghormati pengendali baru.
         $this->assertStringNotContainsString('http://', $js);
         $this->assertStringNotContainsString('https://', $js);
@@ -100,5 +118,11 @@ class RadialMenuTest extends TestCase
         // Pil ringkas tidak boleh melebar saat busur terbuka: titik tumpunya bergeser.
         $script = File::get(public_path('js/berkah-experience.js'));
         $this->assertStringContainsString("radialMenu && radialMenu.open && header.classList.contains('is-compact')", $script);
+
+        // Tombol tema pindah ke busur di ponsel; header menyisakan slotnya
+        // untuk layar lebar (dan admin, yang tidak punya busur).
+        $kit = File::get(public_path('js/berkah-ui-kit.js'));
+        $this->assertStringContainsString("'[data-bk-theme-host=\"radial\"]'", $kit);
+        $this->assertStringContainsString("window.matchMedia('(max-width: 700px)').matches", $kit);
     }
 }

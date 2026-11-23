@@ -70,6 +70,13 @@
     }
     html[data-theme="light"] .mock-filter { border-color: rgba(84,5,31,.14); background: #fff; }
 
+    /* Tombol tema: di aplikasi, rupa ini datang dari berkah-ui-kit.css.
+       Salinan kecil di sini hanya supaya ikon matahari/bulan berganti. */
+    .bk-theme-btn { display: inline-grid; place-items: center; width: 46px; height: 46px; padding: 0; border-radius: 50%; border: 0; background: none; color: inherit; cursor: pointer; }
+    .bk-theme-btn .bk-theme-btn__moon { display: none; }
+    html[data-theme="dark"] .bk-theme-btn .bk-theme-btn__sun { display: none; }
+    html[data-theme="dark"] .bk-theme-btn .bk-theme-btn__moon { display: block; }
+
     /* Busur hanya tampil <=700 px di aplikasi; pratinjau memaksanya tampil. */
     .demo-page .bk-header-radial { display: block; }
 
@@ -141,28 +148,34 @@
                     <div class="customer-radial__heading"><strong>Menu pelanggan</strong><span>Pilih tujuan</span></div>
                     <div class="customer-radial__links">
                         <svg class="customer-radial__goo" viewBox="0 0 320 150" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs><filter id="bk-menu-goo" x="-20%" y="-30%" width="140%" height="160%"><feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/><feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 14 -5"/></filter></defs><g filter="url(#bk-menu-goo)" fill="#ead4d4"><circle cx="42" cy="86" r="26"/><circle cx="118" cy="36" r="26"/><circle cx="202" cy="36" r="26"/><circle cx="278" cy="86" r="26"/><path d="M42 86 Q160 8 278 86 L160 125 Z"/></g></svg>
-                        <a href="#" aria-label="Keranjang, 2 unit">
+                        <a href="#" class="customer-radial__item" style="--rx:-143px;--ry:0px" aria-label="Keranjang, 2 unit">
                             <span class="customer-radial__glyph" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10a4 4 0 0 1-8 0"/><path d="M3.103 6.034h17.794"/><path d="M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z"/></svg></span>
                             <span class="customer-radial__badge" aria-hidden="true">2</span>
                             <span class="customer-radial__text">Keranjang <small>2 unit</small></span>
                         </a>
-                        <a href="#" aria-label="Pesanan">
+                        <a href="#" class="customer-radial__item" style="--rx:-134px;--ry:49px" aria-label="Pesanan">
                             <span class="customer-radial__glyph" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span>
                             <span class="customer-radial__text">Pesanan</span>
                         </a>
-                        <a href="#" aria-label="Notifikasi, 7 belum dibaca">
+                        <a href="#" class="customer-radial__item" style="--rx:-109px;--ry:93px" aria-label="Notifikasi, 7 belum dibaca">
                             <span class="customer-radial__glyph" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg></span>
                             <span class="customer-radial__badge" aria-hidden="true">7</span>
                             <span class="customer-radial__text">Notifikasi <small>7 baru</small></span>
                         </a>
-                        <a href="#" aria-label="Alamat pengiriman">
+                        <a href="#" class="customer-radial__item" style="--rx:-70px;--ry:125px" aria-label="Alamat pengiriman">
                             <span class="customer-radial__glyph" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg></span>
                             <span class="customer-radial__text">Alamat</span>
                         </a>
-                        <a href="#" aria-label="Bantuan dan FAQ">
+                        <a href="#" class="customer-radial__item" style="--rx:-23px;--ry:141px" aria-label="Bantuan dan FAQ">
                             <span class="customer-radial__glyph" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 9.5a3 2.5 0 016 0c0 2-2 2-3 3.5"/><path d="M12 17h.01"/></svg></span>
                             <span class="customer-radial__text">Bantuan / FAQ</span>
                         </a>
+                        <span class="customer-radial__item customer-radial__item--theme" data-bk-theme-host="radial" style="--rx:27px;--ry:140px">
+                            <button type="button" class="bk-theme-btn" data-demo-theme-toggle aria-pressed="true" aria-label="Ganti tema">
+                                <svg class="bk-theme-btn__sun" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+                                <svg class="bk-theme-btn__moon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>
+                            </button>
+                        </span>
                     </div>
                 </div>
             </details>
@@ -171,13 +184,14 @@
 
     <main class="mock-content">
         <h1>Tekan tombol menu di kanan atas</h1>
-        <p class="lead">Lima tujuan menyebar dalam busur ke kiri-bawah — arah yang tidak keluar layar bahkan pada ponsel 320&nbsp;px. Busur menyusut kembali ke tombol saat ditutup, ikon menu bertukar menjadi silang, dan lencana angka memantul masuk.</p>
+        <p class="lead">Lima tujuan dan satu tombol tema menyebar dalam busur ke kiri-bawah — arah yang tidak keluar layar bahkan pada ponsel 320&nbsp;px. Busur menyusut kembali ke tombol saat ditutup, ikon menu bertukar menjadi silang, dan lencana angka memantul masuk.</p>
         <div class="mock-grid">
             <div class="mock-card"><b>Keranjang</b><span>Lencana 2 unit</span></div>
             <div class="mock-card"><b>Pesanan</b><span>Riwayat sewa</span></div>
             <div class="mock-card"><b>Notifikasi</b><span>Lencana 7 belum dibaca</span></div>
             <div class="mock-card"><b>Alamat</b><span>Alamat pengiriman</span></div>
             <div class="mock-card"><b>Bantuan / FAQ</b><span>Panduan pemesanan</span></div>
+            <div class="mock-card"><b>Mode gelap / terang</b><span>Tombol tema pindah ke dalam busur</span></div>
         </div>
         <section class="demo-phone-wrap">
             <h2>Pada ponsel 320 px</h2>
@@ -204,6 +218,13 @@
         };
         document.querySelectorAll('[data-demo-theme]').forEach((button) => {
             button.addEventListener('click', () => paintTheme(button.dataset.demoTheme));
+        });
+        // Tombol tema di dalam busur: satu klik langsung mengganti tema
+        // (di aplikasi asli, tombol ini membuka dialog sakelar robot).
+        document.querySelectorAll('[data-demo-theme-toggle]').forEach((button) => {
+            button.addEventListener('click', () => {
+                paintTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+            });
         });
         // ?embed=1 dipakai oleh bingkai 320 px di bawah.
         if (!window.frameElement && new URLSearchParams(location.search).get('embed') === '1') {

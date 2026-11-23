@@ -18,7 +18,9 @@
 
     const summary = menu.querySelector('summary');
     const panel = menu.querySelector('.customer-radial__panel');
-    const items = Array.prototype.slice.call(menu.querySelectorAll('.customer-radial__links a'));
+    // `.customer-radial__item` mencakup tautan tujuan dan slot tombol tema,
+    // jadi keduanya ikut menyebar dan menyusut bersama.
+    const items = Array.prototype.slice.call(menu.querySelectorAll('.customer-radial__item'));
     if (!summary || !items.length) return;
     const badges = Array.prototype.slice.call(menu.querySelectorAll('.customer-radial__badge'));
 
@@ -154,6 +156,15 @@
         freezeScroll(false);
         if (!menu.classList.contains('is-gsap')) setProgress(0);
     });
+
+    /* Tombol tema tinggal di dalam busur (lihat berkah-ui-kit.js). Saat ia
+       ditekan, tutup busur lebih dulu supaya dialog tema tidak bertumpuk
+       dengan panel yang masih terbuka. */
+    document.addEventListener('click', event => {
+        if (!menu.open) return;
+        if (!event.target.closest || !event.target.closest('.customer-radial__item--theme')) return;
+        close();
+    }, true);
 
     document.addEventListener('pointerdown', event => {
         if (!menu.open) return;

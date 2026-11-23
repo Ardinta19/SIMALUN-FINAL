@@ -28,26 +28,14 @@
             <a class="bk-header-filter bk-filter-fallback" href="#catalog-filter" aria-label="Cari dan filter katalog">@include('layouts.component._icon', ['name' => 'search', 'size' => 21]) <span>Cari &amp; filter</span></a>
             <button type="button" class="bk-header-filter" data-open-dialog="bk-filter" hidden aria-haspopup="dialog" aria-expanded="false" aria-label="Cari dan filter katalog">@include('layouts.component._icon', ['name' => 'search', 'size' => 21]) <span>Cari &amp; filter</span></button>
             @endif
-            @if($isCustomer)
-                @include('layouts.component.customer._radial_customer', ['inHeader' => true])
-            @else
-                <button type="button" class="bk-menu-trigger" data-open-dialog="bk-menu" hidden aria-haspopup="dialog" aria-expanded="false" aria-label="Buka menu navigasi"><span class="bk-i" aria-hidden="true">@include('layouts.component._icon', ['name' => 'menu', 'size' => 24])</span></button>
-            @endif
+            {{-- Satu menu radial untuk semua peran. Tamu tidak lagi memakai
+                 dialog "Jelajahi": tujuan mereka (katalog, keranjang, daftar,
+                 masuk) kini berada di busur yang sama. --}}
+            @include('layouts.component.customer._radial_customer', ['inHeader' => true])
             <button type="button" class="bk-expand" data-bk-expand hidden aria-label="Kembali ke atas"><img src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt=""></button>
         </div>
     </header>
 </div>
-<dialog class="bk-dialog bk-menu" id="bk-menu" aria-labelledby="bk-menu-title">
-    <div class="bk-dialog-head"><div><span class="bk-eyebrow">BERKAH KREATIF</span><h2 id="bk-menu-title">Jelajahi</h2></div><button type="button" data-close-dialog aria-label="Tutup menu">×</button></div>
-    <p>Semua yang kamu butuhkan untuk menyiapkan momen istimewa.</p>
-    <nav class="bk-menu-links" aria-label="Menu navigasi">
-    @if($isCustomer)
-        <a href="{{ route('cart.index') }}"><span>01</span>Keranjang <b>↗</b></a><a href="{{ route('rental.orders.index') }}"><span>02</span>Pesanan saya <b>↗</b></a><a href="{{ route('customer.notifications') }}"><span>03</span>Notifikasi <b>↗</b></a><a href="{{ route('customer.help') }}"><span>04</span>Bantuan / FAQ <b>↗</b></a>
-    @else
-        <a href="{{ route('welcome') }}"><span>01</span>Katalog <b>↗</b></a><a href="{{ route('cart.index') }}"><span>02</span>Keranjang <b>↗</b></a><a href="{{ route('login') }}"><span>03</span>Masuk <b>↗</b></a>
-    @endif
-    </nav>
-</dialog>
 @if(!$isCustomer)
 <nav class="bk-guest-tabs" aria-label="Navigasi cepat"><a href="{{ route('welcome') }}" @if(request()->routeIs('welcome','catalog.show')) aria-current="page" @endif><span aria-hidden="true" class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span>Katalog</a><a href="{{ route('cart.index') }}" @if(request()->routeIs('cart.*')) aria-current="page" @endif><span aria-hidden="true" class="bk-i">@include('layouts.component._icon', ['name' => 'cart', 'size' => 24])</span>Keranjang @if($cartCount)({{ $cartCount }})@endif</a><a href="{{ route('login') }}"><span aria-hidden="true" class="bk-i">@include('layouts.component._icon', ['name' => 'account', 'size' => 24])</span>Masuk</a></nav>
 @endif

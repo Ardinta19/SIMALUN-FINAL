@@ -168,7 +168,21 @@
 
     function placeToggle() {
         if (!toggleButton) return;
-        const host = document.querySelector('[data-bk-theme-host]');
+
+        // Di ponsel tombol tema pindah ke dalam menu radial — satu tombol,
+        // bukan dua. Slotnya ikut tersembunyi saat menu tertutup (memang
+        // begitu maksudnya), jadi pemeriksaan offsetParent tidak dipakai di
+        // sini; yang menentukan hanya lebar layar dan ada/tidaknya slot.
+        const radialHost = document.querySelector('[data-bk-theme-host="radial"]');
+        const narrow = typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 700px)').matches;
+        if (radialHost && narrow) {
+            if (toggleButton.parentElement !== radialHost) radialHost.appendChild(toggleButton);
+            toggleButton.classList.remove('bk-theme-dock');
+            toggleButton.hidden = false;
+            return;
+        }
+
+        const host = document.querySelector('[data-bk-theme-host]:not([data-bk-theme-host="radial"])');
         // offsetParent null berarti host disembunyikan lewat CSS (mis. header ponsel).
         if (host && host.offsetParent !== null) {
             host.appendChild(toggleButton);

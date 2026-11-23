@@ -1039,3 +1039,64 @@ Penjaga tambahan di `RadialMenuTest`: lima offset busur, `nth-of-type(5)`,
 `route('customer.addresses.index')`, `aria-controls`/`id` panel, aturan pil
 ringkas 44 px, dan tidak adanya lagi `display:none` untuk radial di header
 ringkas, plus penanda `syncHeader` yang menahan pil.
+
+### 9.24 Tamu memakai busur yang sama, dan tombol tema pindah ke dalamnya
+
+Dua keluhan yang benar dari tangkapan layar: halaman tamu masih memakai dialog
+"Jelajahi" bergaya daftar, dan tombol tema duduk terpisah di header.
+
+**A. Satu komponen untuk dua peran.** `catalog/customer-navigation.blade.php`
+dulu bercabang: pelanggan mendapat radial, tamu mendapat tombol pemicu dialog.
+Sekarang keduanya memakai `_radial_customer.blade.php`; dialog `#bk-menu`
+beserta tombol pemicunya dihapus karena tidak ada lagi yang membukanya.
+Tujuan menurut peran:
+
+| Peran | Tujuan di busur |
+|---|---|
+| Tamu | Katalog, Keranjang, Daftar, Masuk |
+| Pelanggan | Keranjang, Pesanan, Notifikasi, Alamat, Bantuan |
+
+Pita bawah tamu (`bk-guest-tabs`) tetap ada; busur memberi pintu yang sama
+plus "Daftar" yang sebelumnya hanya bisa dicapai lewat halaman masuk.
+
+**B. Geometri dihitung, bukan ditulis per slot.** Dulu lima aturan
+`:nth-of-type(n)` menulis posisi tetap; sekarang sudut dibagi rata dari 180°
+ke 79° (batas kanan layar 320 px) dan radius dipilih dari target jarak
+antarpusat 50 px:
+
+```php
+$step   = 101 / ($slots - 1);                       // derajat
+$radius = (int) round(25 / sin(deg2rad($step / 2))); // 25 = setengah jarak
+```
+
+| Slot | Radius | Posisi (--rx, --ry) |
+|---|---|---|
+| 5 (tamu) | 114 px | (−114,0) (−103,49) (−73,88) (−28,110) (22,112) |
+| 6 (pelanggan) | 143 px | (−143,0) (−134,49) (−109,93) (−70,125) (−23,141) (27,140) |
+
+Titik terkanan 27 px + 23 px = **50 px** < 52 px ruang bebas; jarak antarpusat
+tepat 50 px sehingga lingkaran 46 px tidak bertumpuk. Menambah atau mengurangi
+tujuan cukup mengubah isi array — CSS tidak disentuh.
+
+**C. Tombol tema di dalam busur.** Slot terakhir busur adalah
+`[data-bk-theme-host="radial"]`. `placeToggle()` di `berkah-ui-kit.js` sekarang
+punya tiga tujuan, berurutan:
+
+1. **≤700 px** → slot radial (satu tombol, bukan dua);
+2. **>700 px** → slot header (`[data-bk-theme-host]`), seperti sebelumnya;
+3. tanpa slot → tetap melayang (`bk-theme-dock`).
+
+Pemeriksaan `offsetParent` sengaja dilewati untuk slot radial: panel memang
+tersembunyi saat menu tertutup, dan tombol baru terlihat ketika busur dibuka —
+itu maksudnya, bukan kegagalan tata letak. Karena tombolnya sama, `aria-pressed`,
+ikon matahari/bulan, dan dialog sakelar robot tidak diduplikasi.
+
+Saat tombol itu ditekan, `berkah-radial.js` menutup busur lebih dulu (animasi
+menyusut 240 ms) baru dialog tema tampil — dua lapisan tidak bertumpuk, dan
+kunci gulir Lenis dilepas sebelum dialog mengambil alih.
+
+**D. Verifikasi.** `themehost.test.js` (jsdom, 8 pemeriksaan) menguji
+perpindahan tombol: ponsel → slot radial, layar melebar → kembali ke header,
+halaman tanpa busur → tetap di header. `RadialMenuTest` menambah penjaga untuk
+geometri terhitung, tujuan tamu (`register`, `login`), slot tema, dan
+`placeToggle` tiga tujuan.
