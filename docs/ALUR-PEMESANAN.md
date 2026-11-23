@@ -124,9 +124,11 @@ yang menunggu. Ini memperpanjang semua titik tunggu di atas.
 _Babak A–D_: `rental:remind` membuat pemberitahuan menjadi proaktif (bukti
 menganggur, pelunasan H-1, toleransi, respons desain, eskalasi admin, ongkos dua
 arah, acara lewat, pengembalian) dan `rental:close-events` menutup unit yang
-menggantung. Kanalnya **tetap hanya di dalam aplikasi**; email/WhatsApp sengaja
-belum dikerjakan karena butuh keputusan pemilik usaha dan kredensial kanal
-(SMTP/WhatsApp gateway) — ini keputusan lingkup, bukan temuan yang terlewat.
+menggantung. Pemberitahuan di dalam aplikasi tetap kanal utama; sebagai jembatan,
+`RentalWhatsApp` menambahkan **tautan WhatsApp siap kirim** (pelanggan→admin dan
+admin→pelanggan) dengan pesan yang sudah memuat konteks unit. Pengiriman otomatis
+(email/gateway) tetap menunggu kredensial kanal dari pemilik usaha — keputusan
+lingkup, bukan temuan yang terlewat.
 _Dampak_: tinggi, karena menjadi pengali bagi temuan lain.
 
 ## 4. Temuan B — saling menunggu yang benar-benar mengunci
@@ -297,8 +299,12 @@ sudah ada (transaksi, notifikasi dalam transaksi, perintah penjadwal idempoten).
     "bukti menunggu pemeriksaan".
 12. **Kanal pemberitahuan kedua** (email atau tautan WhatsApp siap kirim) karena
     semua titik tunggu bergantung pada pelanggan membuka aplikasi.
-    _Belum dikerjakan — keputusan lingkup_: butuh kredensial SMTP/WhatsApp gateway
-    dari pemilik usaha; lihat RT-7.
+    _Sebagian selesai (keputusan pemilik: tautan WhatsApp)_: `RentalWhatsApp`
+    menyiapkan chat pelanggan→admin dan admin→pelanggan dengan pesan yang sudah
+    memuat referensi pesanan, nama unit, dan status tunggunya; nomor dinormalkan
+    (`0812…` → `62812…`) dan tombol disembunyikan bila nomor tidak valid. Pengiriman
+    otomatis via email/WhatsApp gateway tetap **belum** dikerjakan karena butuh
+    kredensial kanal dari pemilik usaha (lihat RT-7).
 13. **Gerbang serah terima** ikut memeriksa `latestPreview->status === 'approved'`
     agar konsisten bila alur diubah kelak.
     _Selesai (babak C)_: `handed_over` memeriksa `designApprovedForProduction()`.
@@ -395,9 +401,16 @@ sudah ada (transaksi, notifikasi dalam transaksi, perintah penjadwal idempoten).
   `tests/Feature/RentalAutoCloseTest.php`.
 - Sisa yang belum ditutup: batas jumlah revisi desain (RT-3) — keputusan bisnis,
   bukan bug; serta hal-hal yang memang butuh uji manual/konkurensi MySQL.
+- **Keputusan pemilik tentang RT-3:** revisi desain **tetap tanpa batas jumlah
+  versi**; pengaman yang ada (pengingat respons, tenggat 48 jam/H-3, keputusan admin
+  beralasan, dan pengikat versi) dianggap cukup. Tidak ada perubahan kode.
+- **Keputusan pemilik tentang RT-7:** tambahkan **tautan WhatsApp siap kirim**
+  (tanpa kredensial gateway) — selesai di `RentalWhatsApp` + tombol di halaman unit
+  pelanggan dan detail pesanan admin.
 - **Verifikasi:** pengguna menjalankan `php artisan test` di Windows pada commit
-  `d13f6b7` — **326 tes lulus (2.683 assertion)**. Perubahan sesudah itu hanya umur
-  tunggu pada kartu dasbor beserta asersinya.
+  `d13f6b7` — **326 tes lulus (2.683 assertion)**. Perubahan sesudah itu: umur
+  tunggu pada kartu dasbor dan tautan WhatsApp, masing-masing dengan tesnya
+  (`RentalWhatsAppLinkTest`).
 
 ## 8. Yang sudah benar dan sebaiknya tidak diubah
 
@@ -424,3 +437,4 @@ sudah ada (transaksi, notifikasi dalam transaksi, perintah penjadwal idempoten).
 | DL-5/P2 | **ada**: `RentalWaitingQueuesTest` (dasbor "menunggu pelanggan", filter toleransi & lewat kembali, pengingat kembali sekali per hari) |
 | DL-3 sisa | **ada**: `RentalTransportWaitTest` (admin diingatkan bila ongkos tak pernah ditawar, pelanggan diingatkan bila penawaran tak dijawab, keduanya sekali per hari dan berhenti setelah ada tindakan) |
 | G-2/G-3 | **ada**: `RentalAutoCloseTest` (tutup otomatis H+7 + riwayat Sistem + notifikasi, idempoten, tidak menyentuh unit dalam tenggang/`ready`, rating pesanan terbuka) |
+| RT-7 (jalur WhatsApp) | **ada**: `RentalWhatsAppLinkTest` (nomor dinormalkan, pesan memuat referensi + status unit, tombol disembunyikan bila nomor kosong/tidak valid) |
