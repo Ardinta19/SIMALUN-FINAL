@@ -294,6 +294,46 @@ class UiKitTest extends TestCase
         $this->assertStringContainsString('color: var(--theme-ink-mid);', $theme);
     }
 
+    public function test_status_chips_alerts_and_legacy_pages_have_dark_surfaces(): void
+    {
+        $theme = File::get(public_path('css/berkah-theme.css'));
+
+        // Chip pastel + teks yang sudah jadi terang = tidak terbaca; latarnya
+        // harus ikut digelapkan.
+        $selectors = [
+            '.btn-danger',
+            '.logout-btn',
+            '.alert-error',
+            '.rating-status--err',
+            '.ok',
+            '.alert-success',
+            '.rating-status--ok',
+            '.driver-btn.wa',
+            '.da-btn.wa',
+            '.status-badge.dijemput',
+            '.status-badge.disetrika',
+            '.status-badge.dikirim',
+            '.badge-muted',
+            '.confirm-btn--cancel',
+            '.cancel-btn--secondary',
+            '.confirm-icon.type-danger',
+            '.confirm-icon.type-warning',
+            '.confirm-icon.type-success',
+            '.confirm-icon.type-info',
+            '.step-circle',
+            '.step-chip.active',
+            '.customer-radial__links a',
+            '.bk-header-radial>summary',
+            '.auth-back',
+        ];
+
+        foreach ($selectors as $selector) {
+            $pattern = '/html\[data-theme="dark"\][^{]*'.preg_quote($selector, '/').'[^{]*\{[^{}]*background(?:-color)?\s*:/';
+
+            $this->assertMatchesRegularExpression($pattern, $theme, 'Permukaan chip/alert belum digelapkan: '.$selector);
+        }
+    }
+
     public function test_light_theme_secondary_text_meets_contrast(): void
     {
         $css = File::get(public_path('css/berkah-experience.css'));

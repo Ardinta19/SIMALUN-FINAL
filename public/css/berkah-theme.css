@@ -825,6 +825,8 @@ html[data-theme="dark"] :is(.auth-card .auth-eyebrow) {
 }
 
 html[data-theme="dark"] :is(.auth-back) {
+    /* Tautan kembali tidak memakai keping krem (#fffaf8) di atas halaman gelap. */
+    background: transparent;
     color: var(--theme-accent-text);
 }
 
@@ -877,6 +879,115 @@ html[data-theme="dark"] :is(.section-num) {
 
 html[data-theme="dark"] :is(.field-label, .page-body) {
     color: var(--theme-ink);
+}
+
+/* ================================================================
+   7d. Chip status, alert, dan kartu halaman pelanggan lama
+   ================================================================
+
+/* Halaman pesanan/alamat/profil pelanggan masih memakai chip pastel dengan
+   teks gelap. Di tema gelap teksnya sudah jadi terang, jadi latarnya ikut
+   digelapkan memakai token status supaya pasangannya tetap terbaca. */
+
+/* peringatan/kesalahan */
+
+html[data-theme="dark"] :is(.btn-danger, .logout-btn, .alert-error, .rating-status--err, .cancel-trigger-btn, .input.is-error) {
+    background: var(--theme-danger-soft);
+    color: var(--theme-danger-ink);
+    border-color: var(--theme-danger-line);
+}
+
+html[data-theme="dark"] :is(.logout-btn:active, .cancel-trigger-btn:active) {
+    background: var(--theme-surface-3);
+}
+
+/* keberhasilan */
+
+html[data-theme="dark"] :is(.ok, .alert-success, .rating-status--ok, .driver-btn.wa, .da-btn.wa) {
+    background: var(--theme-success-soft);
+    color: var(--theme-success-ink);
+    border-color: var(--theme-line);
+}
+
+/* menunggu / info hangat */
+
+html[data-theme="dark"] :is(.status-badge, .status-badge.menunggu, .status-badge.dikirim, .driver-rating, .rating-card__icon, .help-notice) {
+    background: var(--theme-warning-soft);
+    color: var(--theme-warning-ink);
+    border-color: var(--theme-line);
+}
+
+/* netral / chip informasi */
+
+html[data-theme="dark"] :is(.status-badge.dijemput, .confirm-icon.type-info) {
+    background: var(--theme-surface-3);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.status-badge.disetrika) {
+    background: var(--theme-surface-3);
+    color: #d8b4fe;
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.badge, .badge-muted, .manual-locked, .items-mini, .rating-existing__comment, .confirm-btn--cancel, .cancel-btn--secondary) {
+    background: var(--theme-surface-2);
+    color: var(--theme-ink-mid);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.confirm-btn--cancel:hover, .cancel-btn--secondary:hover) {
+    background: var(--theme-surface-3);
+}
+
+html[data-theme="dark"] :is(.step-circle, .step-chip.active) {
+    background: var(--theme-surface-3);
+    color: var(--theme-ink);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.confirm-icon.type-danger) {
+    background: var(--theme-danger-soft);
+    color: var(--theme-danger-ink);
+    border-color: var(--theme-danger-line);
+}
+
+html[data-theme="dark"] :is(.confirm-icon.type-warning) {
+    background: var(--theme-warning-soft);
+    color: var(--theme-warning-ink);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.confirm-icon.type-success) {
+    background: var(--theme-success-soft);
+    color: var(--theme-success-ink);
+    border-color: var(--theme-line);
+}
+
+/* navigasi radial pelanggan */
+
+html[data-theme="dark"] :is(.customer-radial__links a, .customer-radial__glyph) {
+    background: var(--theme-surface-2);
+    color: var(--theme-ink);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.customer-radial__links a:hover, .customer-radial__links a[aria-current]) {
+    background: var(--theme-surface-3);
+    color: var(--theme-accent-text);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.customer-nav__item.is-active .customer-nav__icon, .customer-radial[open]>summary .customer-nav__icon, .bk-header-radial>summary) {
+    background: var(--theme-surface-3);
+    color: var(--theme-accent-text);
+    border-color: var(--theme-line);
+}
+
+/* ikon layanan (tanpa teks) */
+
+html[data-theme="dark"] :is(.icon-reguler, .icon-express, .icon-prioritas) {
+    background: var(--theme-surface-3);
 }
 
 /* ================================================================
