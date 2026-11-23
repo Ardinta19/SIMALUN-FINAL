@@ -1100,3 +1100,54 @@ perpindahan tombol: ponsel → slot radial, layar melebar → kembali ke header,
 halaman tanpa busur → tetap di header. `RadialMenuTest` menambah penjaga untuk
 geometri terhitung, tujuan tamu (`register`, `login`), slot tema, dan
 `placeToggle` tiga tujuan.
+
+### 9.25 Busur menyesuaikan posisi tombol: bentuk U saat pemicu di tengah
+
+**Masalah.** Busur sebelumnya selalu menyapu dari 180° ke 79°: satu setengah
+lingkaran ke **kiri** tombol. Itu benar ketika tombol menempel di ujung kanan
+header, tetapi salah begitu header menjadi ringkas (pil). Di pil, tombol menu
+berada di tengah dan lima tujuan bertumpuk ke kiri sampai menutupi kartu profil
+di bawahnya — persis yang tampak pada tangkapan layar pengguna.
+
+**Keputusan.** Bentuk busur sekarang dihitung saat menu dibuka, dari posisi
+tombol di layar:
+
+| Posisi tombol | Bentuk | Sudut |
+| --- | --- | --- |
+| Rapat ke kanan (header penuh) | busur kiri-bawah dari server | 180° → 79° |
+| Di tengah (pil ringkas, banner) | **U** simetris di bawah tombol | 180° → 0° |
+
+Geometri U tidak ditulis di CSS. `layoutArc()` di `berkah-radial.js` mencari
+radius terbesar (150 px, turun 2 px sampai 88 px) yang masih memenuhi dua hal:
+jarak antarpusat lingkaran 46 px tetap ≈50 px, dan seluruh busur masuk layar
+dengan sisa 10 px di kiri-kanan. Sudut tiap slot dihitung dari langkah
+`2·asin(25/radius)`, lalu `--rx`/`--ry` ditulis per tujuan. Bila tidak ada radius
+yang muat (tombol sudah di ujung kanan), nilai dari server dipulihkan apa adanya —
+jadi busur lama tetap menjadi jaring pengaman, bukan dibuang.
+
+**Yang ikut menyesuaikan.** Cincin orbit (`--bk-orbit`, bawaan 244 px) dan
+gumpalan goo memakai peubah yang sama, dipasang pada `<details>`; saat busur U
+dipakai keduanya membesar mengikuti radius, sehingga bentuk U tidak terlihat
+sempit di dalam cincin lama. `useServerArc()` menghapus peubah itu kembali.
+Tidak ada perubahan `aria-*`, tidak ada tujuan yang hilang, dan sasaran tetap
+46 px (>44 px).
+
+**Kapan dihitung ulang.** Saat menu dibuka, saat `resize`, dan saat
+`orientationchange` (ditunda 120 ms agar tidak dihitung tiap piksel). Rotasi
+ponsel mengubah posisi pil, jadi bentuk busurnya harus ikut berubah. Bila
+`getBoundingClientRect()` memberi ukuran nol (mis. jsdom), nilai server
+dipertahankan — tidak ada tata letak yang bisa diukur.
+
+**Pratinjau.** `docs/preview/radial.html` kini memakai pil ringkas di dalam
+bingkai 320 px: wordmark disembunyikan dan filter menjadi ikon saja, sehingga
+tombol menu berada di tengah dan busur U terlihat. Di halaman lebar, tombol
+tetap di ujung kanan dan busur kiri-bawah masih bisa dibandingkan.
+
+**Verifikasi.** `radial.test.js` bertambah 13 pemeriksaan: U punya tujuan di
+kiri *dan* kanan, simetris, semuanya di bawah tombol, tidak keluar layar 320 px,
+jarak antarpusat ≥46 px, kelas `is-arc-u` dipasang, orbit ikut membesar; tombol
+di ujung kanan memulihkan `--rx` server dan melepas kelasnya; `layoutArc()`
+mengembalikan `null` untuk satu tujuan dan untuk ruang sempit. `RadialMenuTest`
+menambah penjaga untuk `var(--bk-orbit,244px)`, `is-arc-u`, `ARC_GAP = 50`, dan
+`orientationchange`. Harness: phpstub 75/0/200, `.tmp-verify` 26/0, blade-scan
+93 view 0/0, jsdom 225/0.

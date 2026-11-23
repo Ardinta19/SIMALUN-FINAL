@@ -112,6 +112,13 @@
     body.demo-embed .demo-foot,
     body.demo-embed .demo-phone-wrap { display: none; }
     body.demo-embed .mock-header { padding: 10px 8px; }
+    /* Di dalam bingkai 320 px, tiru pil ringkas: tanpa wordmark dan filter
+       berikon saja, sehingga tombol menu berada di tengah layar — kasus yang
+       membuat busur berubah menjadi bentuk U. */
+    body.demo-embed .mock-brand { display: none; }
+    body.demo-embed .mock-header-inner { width: auto; justify-content: center; }
+    body.demo-embed .mock-filter span { display: none; }
+    body.demo-embed .mock-filter { width: 44px; padding: 0; justify-content: center; }
     body.demo-embed .mock-header-inner { min-height: 56px; padding: 6px 8px; border-radius: 22px; }
     body.demo-embed .mock-brand small { display: none; }
     body.demo-embed .mock-content { padding: 14px 12px 40px; }
@@ -195,7 +202,7 @@
         </div>
         <section class="demo-phone-wrap">
             <h2>Pada ponsel 320 px</h2>
-            <p>Jika dibuka lebar seperti tadi, tombol menu memang dipaksa tampil agar mudah dicoba. Di dalam bingkai ini aturan aslinya berlaku: menu hanya muncul di bawah 700 px, dan busur tetap berada di dalam layar.</p>
+            <p>Di dalam bingkai ini aturan aslinya berlaku: menu hanya muncul di bawah 700 px. Pilnya berada di tengah, jadi tombol menu punya ruang di kiri <em>dan</em> kanan — busurnya berubah menjadi <strong>bentuk U</strong> yang simetris, bukan menyapu ke kiri seperti saat tombol menempel di ujung kanan header.</p>
             <div class="demo-phone"><iframe src="?embed=1" title="Pratinjau menu radial pada lebar 320 piksel" width="320" height="620" loading="lazy"></iframe></div>
         </section>
     </main>

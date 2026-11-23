@@ -29,6 +29,77 @@
     const gsapCore = () => (window.gsap && typeof window.gsap.timeline === 'function') ? window.gsap : null;
     const lenisCore = () => (window.BkMotion && window.BkMotion.lenis) || null;
 
+    // Posisi bawaan datang dari server (busur kiri-bawah). Disimpan supaya
+    // bisa dipulihkan bila layar tidak cukup lebar untuk busur bentuk U.
+    const defaults = items.map(item => [
+        item.style.getPropertyValue('--rx') || '0px',
+        item.style.getPropertyValue('--ry') || '0px'
+    ]);
+
+    const ARC_GAP = 50;          // jarak antarpusat lingkaran 46 px
+    const ARC_RADIUS_MAX = 150;
+    const ARC_RADIUS_MIN = 88;
+    const ARC_EDGE = 23;         // setengah lingkaran, untuk batas layar
+
+    /* Busur bentuk U: titik-titik dibagi simetris di bawah tombol (90° di
+       tengah), dipakai saat tombol punya ruang di KIRI dan KANAN — keadaan
+       pil ringkas atau tombol yang berada di tengah. Radius dipilih dari
+       yang terbesar ke terkecil sampai seluruh busur masuk layar; null
+       berarti tidak muat, dan pemanggil memakai busur kiri-bawah server. */
+    const layoutArc = (count, left, right) => {
+        if (count < 2) return null;
+        const avail = Math.min(left, right) - 10;
+        for (let radius = ARC_RADIUS_MAX; radius >= ARC_RADIUS_MIN; radius -= 2) {
+            const step = 2 * Math.asin(Math.min((ARC_GAP / 2) / radius, 1));
+            const span = (count - 1) * step;
+            if (radius * Math.sin(span / 2) + ARC_EDGE > avail) continue;
+            const points = [];
+            for (let index = 0; index < count; index++) {
+                const angle = (Math.PI / 2) + (span / 2) - (index * step);
+                points.push([
+                    Math.round(radius * Math.cos(angle)),
+                    Math.round(radius * Math.sin(angle))
+                ]);
+            }
+            return { radius: radius, points: points };
+        }
+        return null;
+    };
+
+    const useServerArc = () => {
+        items.forEach((item, index) => {
+            item.style.setProperty('--rx', defaults[index][0]);
+            item.style.setProperty('--ry', defaults[index][1]);
+        });
+        menu.classList.remove('is-arc-u');
+        menu.style.removeProperty('--bk-orbit');
+    };
+
+    const applyArc = () => {
+        if (!summary.getBoundingClientRect) {
+            useServerArc();
+            return;
+        }
+        const rect = summary.getBoundingClientRect();
+        const width = window.innerWidth || document.documentElement.clientWidth || 0;
+        // Tanpa tata letak (mis. jsdom) ukuran 0: pertahankan nilai server.
+        if (!rect.width || !width) return;
+        const center = rect.left + (rect.width / 2);
+        const arc = layoutArc(items.length, center, width - center);
+        if (!arc) {
+            useServerArc();
+            return;
+        }
+        items.forEach((item, index) => {
+            item.style.setProperty('--rx', arc.points[index][0] + 'px');
+            item.style.setProperty('--ry', arc.points[index][1] + 'px');
+        });
+        menu.classList.add('is-arc-u');
+        // Cincin orbit dan gumpalan ikut membesar bersama busur; dipasang di
+        // <details> supaya diwarisi seluruh isi panel.
+        menu.style.setProperty('--bk-orbit', Math.round((arc.radius + 12) * 2) + 'px');
+    };
+
     let timeline = null;
     let closing = false;
 
@@ -69,6 +140,10 @@
     const open = () => {
         syncAria();
         if (!menu.open) return;
+        // Posisi busur ditentukan saat membuka: pil ringkas berada di tengah,
+        // header penuh menaruh tombol di ujung kanan. Keduanya butuh bentuk
+        // yang berbeda, dan lebarnya bisa berubah setelah rotasi.
+        applyArc();
         freezeScroll(true);
 
         const gsap = gsapCore();
@@ -195,6 +270,16 @@
             syncAria();
         }
     };
+    /* Rotasi/lebar berubah saat menu terbuka: hitung ulang bentuk busurnya. */
+    let arcTimer = 0;
+    const queueArc = () => {
+        if (!menu.open) return;
+        window.clearTimeout(arcTimer);
+        arcTimer = window.setTimeout(applyArc, 120);
+    };
+    window.addEventListener('resize', queueArc);
+    window.addEventListener('orientationchange', queueArc);
+
     /* Halaman tanpa Lenis tetap harus menutup menu saat digulir: busur
        menggantung di atas konten, jadi membiarkannya terbuka saat halaman
        bergerak membuat sasarannya berpindah dari bawah jari. */
@@ -209,7 +294,7 @@
         narrow.addListener(onViewportChange);
     }
 
-    window.bkRadial = { open: open, close: close, element: menu };
+    window.bkRadial = { open: open, close: close, element: menu, layoutArc: layoutArc };
     syncAria();
     if (menu.open) open();
 })();

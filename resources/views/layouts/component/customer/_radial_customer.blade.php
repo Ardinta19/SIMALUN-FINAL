@@ -94,9 +94,9 @@
 html[data-theme] .bk-header-radial .customer-radial__panel{position:absolute;top:50%;right:50%;width:0;height:0;padding:0;margin:0;border:0;border-radius:0;background:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;transform:translate(50%,-50%);overflow:visible;max-height:none;z-index:1200}
 .bk-header-radial .customer-radial__heading{display:none}
 .bk-header-radial .customer-radial__links{position:relative;display:block;width:0;height:0;margin:0;padding:0;overflow:visible}
-.bk-header-radial .customer-radial__links::before{content:"";position:absolute;left:0;top:0;width:244px;height:244px;transform:translate(-50%,-50%) scale(.72);border:1px solid rgba(133,9,45,.16);border-radius:50%;opacity:0;pointer-events:none;transition:opacity .26s ease,transform .5s cubic-bezier(.34,1.4,.64,1)}
+.bk-header-radial .customer-radial__links::before{content:"";position:absolute;left:0;top:0;width:var(--bk-orbit,244px);height:var(--bk-orbit,244px);transform:translate(-50%,-50%) scale(.72);border:1px solid rgba(133,9,45,.16);border-radius:50%;opacity:0;pointer-events:none;transition:opacity .26s ease,transform .5s cubic-bezier(.34,1.4,.64,1)}
 .bk-header-radial[open] .customer-radial__links::before{opacity:1;transform:translate(-50%,-50%) scale(1)}
-.bk-header-radial .customer-radial__goo{position:absolute;left:0;top:0;width:238px;height:238px;margin:-119px 0 0 -119px;opacity:.16;pointer-events:none;transition:opacity .3s ease}
+.bk-header-radial .customer-radial__goo{position:absolute;left:0;top:0;width:calc(var(--bk-orbit,238px) * .98);height:calc(var(--bk-orbit,238px) * .98);margin:calc(var(--bk-orbit,238px) * -.49) 0 0 calc(var(--bk-orbit,238px) * -.49);opacity:.16;pointer-events:none;transition:opacity .3s ease}
 
 /* Satu tujuan: lingkaran kaca 46 px (>44 px sasaran sentuh). */
 .bk-header-radial .customer-radial__item{

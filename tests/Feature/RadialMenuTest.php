@@ -125,4 +125,29 @@ class RadialMenuTest extends TestCase
         $this->assertStringContainsString("'[data-bk-theme-host=\"radial\"]'", $kit);
         $this->assertStringContainsString("window.matchMedia('(max-width: 700px)').matches", $kit);
     }
+
+    public function test_busur_menyesuaikan_posisi_tombol(): void
+    {
+        $view = File::get(resource_path('views/layouts/component/customer/_radial_customer.blade.php'));
+        $js = File::get(public_path('js/berkah-radial.js'));
+
+        // Cincin orbit dan gumpalan tidak lagi berukuran tetap: ukurannya
+        // mengikuti busur yang sedang dipakai, supaya bentuk U tidak terlihat
+        // sempit di dalam cincin 244 px.
+        $this->assertStringContainsString('width:var(--bk-orbit,244px)', $view);
+        $this->assertStringContainsString('calc(var(--bk-orbit,238px) * .98)', $view);
+        $this->assertStringNotContainsString('width:238px;height:238px', $view);
+
+        // Tombol di tengah (pil ringkas) memakai busur U; tombol di ujung
+        // kanan kembali ke busur kiri-bawah dari server.
+        $this->assertStringContainsString('is-arc-u', $js);
+        $this->assertStringContainsString('layoutArc', $js);
+        $this->assertStringContainsString('const ARC_GAP = 50', $js);
+        $this->assertStringContainsString("setProperty('--rx'", $js);
+        $this->assertStringContainsString("addEventListener('orientationchange'", $js);
+        $this->assertStringContainsString('prefers-reduced-motion', File::get(public_path('js/berkah-radial.js')), 'Gerak harus tetap bisa dikurangi.');
+
+        // Nilai awal dari server disimpan, bukan ditimpa langsung.
+        $this->assertStringContainsString("getPropertyValue('--rx')", $js);
+    }
 }
