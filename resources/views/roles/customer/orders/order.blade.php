@@ -384,7 +384,7 @@ body {
     background: #fff;
     border: 1.5px solid #fecaca;
     border-radius: var(--radius-sm);
-    color: #dc2626;
+    color: #c62828;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 900;
     font-size: .85rem;
