@@ -17,6 +17,13 @@
 
     const STORE_KEY = 'bk-theme';
     const root = document.documentElement;
+    // Warna bilah peramban mobile mengikuti tema; nilai terang disimpan dulu
+    // karena tiap halaman memakai warna mereknya sendiri.
+    const themeColorMetas = Array.from(document.querySelectorAll('meta[name="theme-color"]')).map((el) => ({
+        el,
+        light: el.getAttribute('content') || '',
+    }));
+    const DARK_THEME_COLOR = '#140f12';
     const prefersReduced = () => {
         try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; }
     };
@@ -45,6 +52,9 @@
         const next = theme === 'dark' ? 'dark' : 'light';
         root.setAttribute('data-theme', next);
         root.style.colorScheme = next;
+        themeColorMetas.forEach(({ el, light }) => {
+            el.setAttribute('content', next === 'dark' ? DARK_THEME_COLOR : light);
+        });
         return next;
     };
     const isFollowingSystem = () => readStored() === null;

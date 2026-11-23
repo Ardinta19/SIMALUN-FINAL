@@ -534,6 +534,11 @@ class UiKitTest extends TestCase
         // (penyimpanan antar-tab, media query, mode ikut sistem) wajib lewat
         // helper agar color-scheme tidak tertinggal.
         $this->assertSame(1, substr_count($js, "root.setAttribute('data-theme'"));
+
+        // Bilah peramban mobile ikut tema tapi warna merek per halaman tetap
+        // dipulihkan saat kembali ke tema terang.
+        $this->assertStringContainsString('meta[name="theme-color"]', $js);
+        $this->assertStringContainsString("DARK_THEME_COLOR = '#140f12'", $js);
     }
 
     public function test_print_view_stays_light_in_dark_theme(): void
