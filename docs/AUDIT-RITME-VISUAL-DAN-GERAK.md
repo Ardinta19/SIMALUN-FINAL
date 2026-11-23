@@ -645,3 +645,29 @@ sunting profil versi ringkas, dan daftar alamat — sehingga pintasan "langsung
 ke isi" tidak punya tujuan. Wadah utamanya kini `role="main"`, pola yang sudah
 dipakai halaman admin lain. Halaman surel sengaja dilewati: klien surel tidak
 mengenali landmark.
+
+### 9.17 Tombol tema di halaman masuk, daftar, dan lupa sandi
+
+Tombol tema dipindahkan `berkah-ui-kit.js` ke `[data-bk-theme-host]` bila
+halaman punya slot header (katalog, beranda pelanggan, bilah admin). Halaman
+auth tidak punya slot itu, jadi tombol jatuh ke mode melayang: `position:fixed`
+di kanan bawah. Di layar ponsel posisi itu persis menimpa pil footer
+"© 2026 Berkah Kreatif · Papan Bunga" — tombol tampak menempel di atas teks
+footer, dan footer ikut tertutup sebagian.
+
+Halaman auth kini menandai dirinya dengan `class="auth-page"` pada `<body>`
+(login, register, lupa sandi). Aturan `.auth-page .bk-theme-btn.bk-theme-dock`
+memindahkan tombol ke sudut kanan atas — seberang tombol kembali yang sudah
+`fixed` di kiri atas — dengan bentuk yang sama: bulat 44 px, kaca
+`rgba(255,255,255,.15)`, garis tipis putih, ikon putih, tanpa bayangan.
+Bentuk itu terbaca di latar wine pada mode terang maupun gelap, jadi tidak ada
+dua wajah tombol yang berbeda saat tema berganti.
+
+Halaman tamu (`layouts/guest` — konfirmasi kata sandi, verifikasi email) juga
+memakai aturan sudut kanan atas lewat `body.guest-body`, tetapi tanpa gaya
+kaca: latarnya terang, jadi tombol tetap memakai token `--bk-toggle-*`.
+
+Dialog tema tidak berubah; ia tetap modal di tengah. `UiKitTest::
+test_theme_button_never_covers_the_footer_on_auth_screens` mengunci pasangan
+kelas penanda, aturan CSS, dan pemuatan `_ui_kit` supaya tombol tidak kembali
+melayang di atas footer.

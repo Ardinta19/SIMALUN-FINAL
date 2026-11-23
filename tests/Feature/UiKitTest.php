@@ -884,6 +884,27 @@ class UiKitTest extends TestCase
         $this->assertStringContainsString('data-bk-theme-host', $nav);
     }
 
+    public function test_theme_button_never_covers_the_footer_on_auth_screens(): void
+    {
+        // Tombol tema melayang di kanan bawah dan dulu menutupi pil footer
+        // halaman masuk/daftar. Di halaman tanpa slot header, tombol harus
+        // pindah ke sudut kanan atas — seberang tombol kembali.
+        $css = File::get(public_path('css/berkah-ui-kit.css'));
+
+        $this->assertMatchesRegularExpression(
+            '/\.auth-page \.bk-theme-btn\.bk-theme-dock\s*\{[^}]*top:[^}]*right:[^}]*bottom: auto/',
+            $css,
+            'Halaman auth perlu aturan sudut kanan atas.'
+        );
+        $this->assertStringContainsString('body.guest-body .bk-theme-btn.bk-theme-dock', $css);
+
+        foreach (['auth/login', 'auth/register', 'auth/forgot-password'] as $view) {
+            $html = File::get(resource_path('views/'.$view.'.blade.php'));
+            $this->assertMatchesRegularExpression('/<body[^>]*class="auth-page"/', $html, $view);
+            $this->assertStringContainsString("layouts.component._ui_kit", $html, $view);
+        }
+    }
+
     public function test_ui_kit_javascript_respects_reduced_motion_and_submit_contracts(): void
     {
         $js = File::get(public_path('js/berkah-ui-kit.js'));

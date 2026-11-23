@@ -853,6 +853,59 @@ html[data-theme="dark"] .bk-theme-btn .bk-theme-btn__moon {
     }
 }
 
+/* Halaman masuk, daftar, dan lupa sandi tidak punya slot header, jadi tombol
+   tema jatuh ke mode melayang. Di sana ia dulu menutupi pil footer di kanan
+   bawah. Sekarang ia menemani tombol kembali di sudut kiri atas dengan bentuk
+   yang sama: bulat, kaca, ikon putih — terbaca di latar wine pada mode terang
+   maupun gelap. */
+.auth-page .bk-theme-btn.bk-theme-dock {
+    top: max(1rem, env(safe-area-inset-top));
+    right: 1rem;
+    bottom: auto;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    box-shadow: none;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+}
+
+.auth-page .bk-theme-btn.bk-theme-dock:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: none;
+    box-shadow: none;
+}
+
+.auth-page .bk-theme-btn.bk-theme-dock:active {
+    transform: scale(0.92);
+}
+
+.auth-page .bk-theme-btn.bk-theme-dock:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .auth-page .bk-theme-btn.bk-theme-dock,
+    .auth-page .bk-theme-btn.bk-theme-dock:hover,
+    .auth-page .bk-theme-btn.bk-theme-dock:active {
+        transition: none;
+        transform: none;
+    }
+}
+
+/* Halaman tamu (konfirmasi kata sandi, verifikasi email) berlatar terang:
+   tombol tetap bergaya token biasa, hanya dipindah ke sudut kanan atas agar
+   tidak menutupi catatan kaki. */
+body.guest-body .bk-theme-btn.bk-theme-dock {
+    top: max(1rem, env(safe-area-inset-top));
+    right: 1rem;
+    bottom: auto;
+}
+
 /* Slot di header: tombol dipindahkan ke sini oleh JS. */
 .bk-theme-host {
     display: flex;

@@ -340,7 +340,7 @@ html:not(.register-enhanced) #registration-progress{display:none}
 <link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}?v={{ filemtime(public_path('css/page-transitions.css')) }}"><script src="{{ asset('js/page-transitions.js') }}?v={{ filemtime(public_path('js/page-transitions.js')) }}" defer></script>
 @include('layouts.component._theme_head')
 </head>
-<body>
+<body class="auth-page">
 @php
 $oldText = function (string $key, $fallback = '') {
     $value = old($key, $fallback);
