@@ -1040,6 +1040,10 @@ class UiKitTest extends TestCase
         // Rentang yang melewati tanggal milik unit lain juga menyebut sebabnya.
         $this->assertStringContainsString('kurangi jumlah unit', $js);
 
+        // Tanggal kembali tidak boleh mendahului tanggal acara.
+        $this->assertStringContainsString('syncRangeBounds', $js);
+        $this->assertStringContainsString('tidak boleh sebelum tanggal acara', $js);
+
         $checkout = File::get(resource_path('views/rental/checkout.blade.php'));
         $this->assertStringContainsString('data-fc-range="unit-', $checkout);
         $this->assertStringContainsString('data-fc-stock=', $checkout);

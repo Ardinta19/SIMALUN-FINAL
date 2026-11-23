@@ -599,7 +599,7 @@
         controls.forEach(function (control) {
             if (bad) return;
             var node = control.node;
-            if ((node.__fcRangeError || node.__fcValueError) && form.contains(node)) bad = node;
+            if ((node.__fcRangeError || node.__fcValueError || node.__fcOrderError) && form.contains(node)) bad = node;
         });
         if (!bad) return true;
         var trigger = bad.__fcTrigger || null;
@@ -1027,6 +1027,7 @@
         if (group.indexOf(input) === -1) group.push(input);
         function onValueChange() {
             refreshProductPeers(input);
+            syncRangeBounds(name);
             checkRange(name);
         }
         input.addEventListener('change', onValueChange);
@@ -1043,6 +1044,32 @@
             cursor = addDays(cursor, 1);
         }
         return null;
+    }
+
+    /* Tanggal kembali tidak boleh mendahului tanggal acara. Batas min
+       kolom kedua ikut disetel supaya kalender tidak menawarkan hari
+       sebelum tanggal acara yang baru dipilih. */
+    function syncRangeBounds(name) {
+        var group = rangeGroups[name];
+        if (!group || group.length < 2) return false;
+        var start = group[0];
+        var end = group[group.length - 1];
+        if (!end.__fcBaseMin) end.__fcBaseMin = end.getAttribute('min') || '';
+        var from = parseISO(start.value);
+        if (from) end.setAttribute('min', isoOf(from));
+        else if (end.__fcBaseMin) end.setAttribute('min', end.__fcBaseMin);
+        else end.removeAttribute('min');
+        var picked = parseISO(end.value);
+        if (from && picked && picked.getTime() < from.getTime()) {
+            end.__fcOrderError = true;
+            if (end.__fcSetError) end.__fcSetError('Tanggal pengembalian tidak boleh sebelum tanggal acara dan penerimaan.');
+            return true;
+        }
+        if (end.__fcOrderError) {
+            end.__fcOrderError = false;
+            if (end.__fcSetError) end.__fcSetError('');
+        }
+        return false;
     }
 
     function checkRange(name) {
@@ -1159,7 +1186,10 @@
         input.__fcExtraBlocked = peerBlockedFor(input);
         reportDateProblem(input);
         var name = (input.getAttribute('data-fc-range') || '').trim();
-        if (name) checkRange(name);
+        if (name) {
+            syncRangeBounds(name);
+            checkRange(name);
+        }
     }
 
     /* Satu unit berubah → unit lain dengan produk sama ikut dihitung ulang. */
