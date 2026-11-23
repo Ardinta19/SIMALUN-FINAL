@@ -594,9 +594,34 @@
         return false;
     }
 
+    function validateRangeConflicts(form) {
+        var bad = null;
+        controls.forEach(function (control) {
+            if (bad) return;
+            if (control.node.__fcRangeError && form.contains(control.node)) bad = control.node;
+        });
+        if (!bad) return true;
+        var trigger = bad.__fcTrigger || null;
+        if (trigger) {
+            var target = focusableTarget(trigger);
+            focusQuiet(target);
+            if (typeof target.scrollIntoView === 'function') {
+                try {
+                    target.scrollIntoView({ block: 'center', behavior: reducedMotion() ? 'auto' : 'smooth' });
+                } catch (e) { /* browser lama: lewati animasi scroll */ }
+            }
+        }
+        return false;
+    }
+
     document.addEventListener('submit', function (event) {
         var form = event.target;
         if (!form || form.nodeName !== 'FORM') return;
+        if (!validateRangeConflicts(form)) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            return;
+        }
         if (!form.querySelector('[data-fc-required="1"]')) return;
         if (!validateForm(form)) {
             event.preventDefault();
@@ -985,10 +1010,150 @@
         return Object.keys(map).length ? map : null;
     }
 
+    /* Rentang tanggal: dua kolom (mulai & selesai) tetap bisa membentuk
+       rentang yang melewati hari penuh, jadi rentangnya diperiksa sebelum
+       formulir dikirim, bukan cuma tanggal ujungnya. */
+    var rangeGroups = Object.create(null);
+
+    function registerRange(input) {
+        var name = (input.getAttribute('data-fc-range') || '').trim();
+        if (!name) return;
+        var group = rangeGroups[name] || (rangeGroups[name] = []);
+        if (group.indexOf(input) === -1) group.push(input);
+        function onValueChange() {
+            refreshProductPeers(input);
+            checkRange(name);
+        }
+        input.addEventListener('change', onValueChange);
+        input.addEventListener('input', onValueChange);
+        checkRange(name);
+    }
+
+    function firstBlockedBetween(map, from, to) {
+        if (!map || !from || !to) return null;
+        var cursor = stripTime(from);
+        var last = stripTime(to);
+        while (cursor.getTime() <= last.getTime()) {
+            if (map[isoOf(cursor)]) return new Date(cursor.getTime());
+            cursor = addDays(cursor, 1);
+        }
+        return null;
+    }
+
+    function checkRange(name) {
+        var group = rangeGroups[name];
+        if (!group || group.length < 2) return;
+        var from = null;
+        var to = null;
+        group.forEach(function (node) {
+            var day = parseISO(node.value);
+            if (!day) return;
+            if (!from || day.getTime() < from.getTime()) from = day;
+            if (!to || day.getTime() > to.getTime()) to = day;
+        });
+        var target = group[group.length - 1];
+        if (!target || !target.__fcSetError) return;
+        if (!from || !to) {
+            if (target.__fcRangeError) {
+                target.__fcRangeError = false;
+                target.__fcSetError('');
+            }
+            return;
+        }
+        var hit = null;
+        group.forEach(function (node) {
+            if (hit) return;
+            hit = firstBlockedBetween(node.__fcBlocked, from, to);
+        });
+        if (hit) {
+            target.__fcRangeError = true;
+            target.__fcSetError('Rentang tanggal memuat ' + friendly(hit) + ' yang sudah penuh. Pilih tanggal lain atau pecah jadi dua pesanan.');
+        } else if (target.__fcRangeError) {
+            target.__fcRangeError = false;
+            target.__fcSetError('');
+        }
+    }
+
+    /* Unit lain di halaman yang sama dengan produk sama: kalau stok produk
+       tinggal sedikit, tanggal yang sudah dipakai unit lain otomatis penuh
+       untuk unit ini, jadi kalender menolaknya lebih awal. */
+    function unitRanges() {
+        var nodes = document.querySelectorAll('[data-fc-product][data-fc-unit]');
+        var spans = Object.create(null);
+        for (var i = 0; i < nodes.length; i += 1) {
+            var node = nodes[i];
+            var day = parseISO(node.value);
+            if (!day) continue;
+            var key = node.getAttribute('data-fc-product') + '|' + node.getAttribute('data-fc-unit');
+            var span = spans[key] || (spans[key] = { from: day, to: day });
+            if (day.getTime() < span.from.getTime()) span.from = day;
+            if (day.getTime() > span.to.getTime()) span.to = day;
+        }
+        return spans;
+    }
+
+    function peerBlockedFor(input) {
+        var product = (input.getAttribute('data-fc-product') || '').trim();
+        var unit = (input.getAttribute('data-fc-unit') || '').trim();
+        var stock = parseInt(input.getAttribute('data-fc-stock') || '', 10);
+        if (!product || !unit || !(stock > 0)) return null;
+        var ownKey = product + '|' + unit;
+        var spans = unitRanges();
+        var counts = Object.create(null);
+        Object.keys(spans).forEach(function (key) {
+            if (key === ownKey || key.indexOf(product + '|') !== 0) return;
+            var span = spans[key];
+            var cursor = span.from;
+            while (cursor.getTime() <= span.to.getTime()) {
+                var iso = isoOf(cursor);
+                counts[iso] = (counts[iso] || 0) + 1;
+                cursor = addDays(cursor, 1);
+            }
+        });
+        var map = null;
+        Object.keys(counts).forEach(function (iso) {
+            if (counts[iso] + 1 > stock) {
+                map = map || Object.create(null);
+                map[iso] = true;
+            }
+        });
+        return map;
+    }
+
+    function refreshPeerBlocked(input) {
+        input.__fcExtraBlocked = peerBlockedFor(input);
+        if (!input.__fcSetError) return;
+        var picked = parseISO(input.value);
+        var clash = picked && input.__fcExtraBlocked && input.__fcExtraBlocked[isoOf(picked)];
+        if (clash) {
+            input.__fcPeerError = true;
+            input.__fcSetError('Tanggal ini sudah dipakai unit lain dengan papan yang sama. Stok tidak cukup untuk keduanya, jadi pilih tanggal lain.');
+        } else if (input.__fcPeerError) {
+            input.__fcPeerError = false;
+            input.__fcSetError('');
+        }
+    }
+
+    /* Satu unit berubah → unit lain dengan produk sama ikut dihitung ulang. */
+    function refreshProductPeers(input) {
+        var product = (input.getAttribute('data-fc-product') || '').trim();
+        if (!product) {
+            refreshPeerBlocked(input);
+            return;
+        }
+        var nodes = document.querySelectorAll('[data-fc-product]');
+        for (var i = 0; i < nodes.length; i += 1) {
+            if ((nodes[i].getAttribute('data-fc-product') || '').trim() === product) refreshPeerBlocked(nodes[i]);
+        }
+    }
+
     function enhanceDate(input) {
         if (!input || input.getAttribute('data-fc-enhanced') === '1') return;
 
         var blocked = parseBlockedDates(input.getAttribute('data-fc-disabled'));
+        input.__fcBlocked = blocked;
+        input.__fcExtraBlocked = null;
+        refreshPeerBlocked(input);
         var title = resolveTitle(input, 'Pilih tanggal');
         var placeholder = (input.getAttribute('data-fc-placeholder') || '').trim() || 'Pilih tanggal';
         var trigger = el('button', 'fc-trigger', {
@@ -1047,7 +1212,9 @@
                 var day = stripTime(date);
                 if (min && day.getTime() < stripTime(min).getTime()) return true;
                 if (max && day.getTime() > stripTime(max).getTime()) return true;
-                if (blocked && blocked[isoOf(day)]) return true;
+                var iso = isoOf(day);
+                if (blocked && blocked[iso]) return true;
+                if (input.__fcExtraBlocked && input.__fcExtraBlocked[iso]) return true;
                 return false;
             }
 
@@ -1120,6 +1287,10 @@
                                 cell.classList.add('is-blocked');
                                 cell.setAttribute('aria-label', fullDate(date) + ', sudah dibooking');
                                 cell.setAttribute('title', 'Sudah dibooking');
+                            } else if (input.__fcExtraBlocked && input.__fcExtraBlocked[isoOf(date)]) {
+                                cell.classList.add('is-blocked');
+                                cell.setAttribute('aria-label', fullDate(date) + ', sudah dipakai unit lain di keranjang ini');
+                                cell.setAttribute('title', 'Sudah dipakai unit lain di keranjang ini');
                             }
                         } else {
                             cell.addEventListener('click', function () {
@@ -1205,6 +1376,7 @@
                 if (min && min.getTime() > today.getTime()) notes.push('Tanggal paling awal ' + friendly(min) + '.');
                 if (max) notes.push('Tanggal paling akhir ' + friendly(max) + '.');
                 if (blocked) notes.push('Tanggal bergaris sudah dibooking dan tidak bisa dipilih.');
+                if (input.__fcExtraBlocked) notes.push('Tanggal yang sudah dipakai unit lain di keranjang ini juga tidak bisa dipilih.');
                 if (notes.length) {
                     var note = el('p', 'fc-cal__note');
                     note.textContent = notes.join(' ');
@@ -1230,6 +1402,7 @@
             event.preventDefault();
             event.stopPropagation();
             if (trigger.disabled) return;
+            refreshPeerBlocked(input);
             openLayer({ anchor: trigger, title: title, subtitle: 'Pilih tanggal pada kalender', build: buildCalendar });
         });
 
@@ -1254,6 +1427,8 @@
         mirrorDisabled(input, trigger);
         input.addEventListener('change', syncTrigger);
         input.addEventListener('input', syncTrigger);
+        registerRange(input);
+        refreshPeerBlocked(input);
         syncTrigger();
     }
 

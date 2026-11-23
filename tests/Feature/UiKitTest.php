@@ -1013,6 +1013,17 @@ class UiKitTest extends TestCase
         $this->assertStringContainsString('is-blocked', $js);
         $this->assertStringContainsString('sudah dibooking', $js);
 
+        // Rentang yang melewati hari penuh dan tanggal yang sudah dipakai
+        // unit lain di keranjang juga ditolak sebelum formulir dikirim.
+        $this->assertStringContainsString('validateRangeConflicts', $js);
+        $this->assertStringContainsString('peerBlockedFor', $js);
+        $this->assertStringContainsString('Rentang tanggal memuat', $js);
+
+        $checkout = File::get(resource_path('views/rental/checkout.blade.php'));
+        $this->assertStringContainsString('data-fc-range="unit-', $checkout);
+        $this->assertStringContainsString('data-fc-stock=', $checkout);
+        $this->assertStringContainsString('data-fc-unit=', $checkout);
+
         $css = File::get(public_path('css/berkah-controls.css'));
         $this->assertStringContainsString('.fc-cal__day.is-blocked', $css);
     }
