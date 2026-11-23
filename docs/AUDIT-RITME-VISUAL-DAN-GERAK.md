@@ -671,3 +671,27 @@ Dialog tema tidak berubah; ia tetap modal di tengah. `UiKitTest::
 test_theme_button_never_covers_the_footer_on_auth_screens` mengunci pasangan
 kelas penanda, aturan CSS, dan pemuatan `_ui_kit` supaya tombol tidak kembali
 melayang di atas footer.
+
+### 9.18 `/profile` yang menjawab 405
+
+Membuka `GET /profile` berakhir `MethodNotAllowedHttpException` dengan pesan
+"The GET method is not supported for route profile. Supported methods: PATCH,
+DELETE". Penyebabnya: `/profile` hanya didaftarkan untuk `PATCH`
+(`profile.update`) dan `DELETE` (`profile.destroy`); halaman profil yang
+sebenarnya ada di `/customer/profile` (`customer.profile`) dan
+`/admin/profile` (`admin.profile`), sedangkan formulir sunting di
+`/profile/edit` (`profile.edit`).
+
+Tidak ada satu pun tautan di aplikasi yang memanggil `route('profile')` —
+permintaan itu datang dari alamat yang diketik langsung atau penanda lama —
+tetapi URL sering-diketik tetap tidak boleh menjawab 405.
+
+Sekarang ada `GET /profile` di dalam grup `auth` yang mengarahkan sesuai peran:
+admin → `admin.profile`, pelanggan → `customer.profile`, peran lain →
+`profile.edit`. Tamu tetap diarahkan middleware ke halaman masuk. Nama rutenya
+`profile.show` supaya tidak bertabrakan dengan nama `profile` milik
+`PATCH`/`DELETE`.
+
+`ProfileTest::test_alamat_pendek_profile_mengarahkan_ke_profil_sesuai_peran`
+dan `test_tamu_yang_membuka_profile_diarahkan_ke_halaman_masuk` mengunci
+perilaku ini.

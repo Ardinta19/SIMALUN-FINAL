@@ -26,6 +26,29 @@ class ProfileTest extends TestCase
         $response->assertOk();
     }
 
+    public function test_alamat_pendek_profile_mengarahkan_ke_profil_sesuai_peran(): void
+    {
+        // /profile hanya punya PATCH dan DELETE, jadi GET dulu berakhir 405.
+        // Alamat pendek ini sering diketik langsung atau dibuka dari penanda.
+        $customer = User::factory()->create([
+            'role' => 'customer',
+            'phone' => '81234567890',
+        ]);
+        $this->actingAs($customer)
+            ->get('/profile')
+            ->assertRedirect(route('customer.profile'));
+
+        $admin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($admin)
+            ->get('/profile')
+            ->assertRedirect(route('admin.profile'));
+    }
+
+    public function test_tamu_yang_membuka_profile_diarahkan_ke_halaman_masuk(): void
+    {
+        $this->get('/profile')->assertRedirect(route('login'));
+    }
+
     public function test_profil_dapat_diperbarui_dengan_nama_email_dan_phone(): void
     {
         $user = User::factory()->create([

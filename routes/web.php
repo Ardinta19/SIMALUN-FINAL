@@ -87,6 +87,18 @@ Route::middleware('auth')->group(function () {
     Route::put('/password', [PasswordController::class, 'update'])->name('password.update');
 
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+
+    // Alamat pendek yang sering diketik atau dibuka dari penanda lama. Tanpa
+    // rute GET, /profile jatuh ke PATCH/DELETE (perbarui & hapus akun) dan
+    // berakhir 405 Method Not Allowed. Arahkan ke halaman profil sesuai peran.
+    Route::get('/profile', function () {
+        return match (request()->user()->role) {
+            'admin' => redirect()->route('admin.profile'),
+            'customer' => redirect()->route('customer.profile'),
+            default => redirect()->route('profile.edit'),
+        };
+    })->name('profile.show');
+
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.avatar.delete');
