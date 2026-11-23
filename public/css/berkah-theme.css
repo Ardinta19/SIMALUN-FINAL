@@ -345,6 +345,20 @@ html[data-theme="dark"] :is(.fc-option--selected) {
     background: var(--theme-surface-3);
 }
 
+html[data-theme="dark"] :is(.fc-layer__title, .fc-cal__month, .fc-opt[aria-selected="true"], .fc-segmented__btn:hover) {
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(.fc-cal__day.is-today, .fc-month.is-today, .fc-opt__check, .fc-trigger__icon) {
+    color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(.fc-cal__day.is-selected, .fc-cal__day[aria-selected="true"], .fc-month.is-selected, .fc-month[aria-selected="true"]) {
+    background: var(--theme-brand-strong);
+    border-color: var(--theme-brand-strong);
+    color: #fff;
+}
+
 /* ================================================================
    5. Tombol, tabel, badge
    ================================================================ */
@@ -1041,8 +1055,142 @@ html[data-theme="dark"] :is(
     color: var(--theme-accent-text);
 }
 
-html[data-theme="dark"] :is(.bk-field-error, .bk-address-delete summary) {
+html[data-theme="dark"] :is(.bk-field-error, .bk-address-delete summary, .status-badge.dibatalkan) {
     color: var(--theme-danger-ink);
+}
+
+html[data-theme="dark"] :is(footer, .field label) {
+    color: var(--theme-ink-lt);
+}
+
+/* 7f. Halaman pesanan, alamat, profil, dan laporan (palet --blue-*) */
+
+html[data-theme="dark"] :is(
+    .card-title,
+    .section-title,
+    .sum-total-label,
+    .dr-value,
+    .review__av,
+    .order-card__avatar,
+    .driver-chip__av,
+    .timeline-card__title,
+    .info-card__title,
+    .eta-value,
+    .activity-title
+) {
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(
+    .addr-link,
+    .cat-heading,
+    .service-price,
+    .item-stepper-btn,
+    .item-note-toggle,
+    .ws-btn,
+    .sum-total-value,
+    .oc-value,
+    .order-card__code,
+    .progress-lbl.active,
+    .order-card__price,
+    .order-card__cta,
+    .step-label.active,
+    .ir-value.highlight,
+    .items-mini-price,
+    .avatar-action,
+    .section__link,
+    .zone-pill:has(input:checked) .zone-name,
+    .zone-pill:has(input:checked) .zone-price,
+    .time-pill:has(input:checked) .tp-label
+) {
+    color: var(--theme-accent-text);
+}
+
+/* 7g. Warna merek literal halaman admin, driver, dan laporan */
+
+html[data-theme="dark"] :is(
+    .avatar-file,
+    .btn-add-item,
+    .card-title svg,
+    .card__title svg,
+    .contact-bar__btn--call,
+    .data-row__value--primary,
+    .empty-state__ico,
+    .empty__icon,
+    .faq-q span,
+    .filter-summary__badge,
+    .filter-tab.active,
+    .input-icon,
+    .menu-card__icon,
+    .menu-card__icon--blue,
+    .notif.is-unread .notif__time,
+    .notif__ico,
+    .order-card__badge--proses,
+    .order-card__code,
+    .overview-card__stat-num,
+    .report-card__avatar,
+    .report-card__category,
+    .section-card__icon,
+    .section-link,
+    .section-title svg,
+    .stat-card__icon,
+    .stat-card__icon--blue,
+    .stat-card__num,
+    .stat__num,
+    .stepper__btn,
+    .summary-card__value.balance,
+    .task-card__address svg,
+    .task-card__code,
+    .task-card__weight,
+    .tx-head__title svg
+) {
+    color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(
+    .alert--error,
+    .btn-logout,
+    .error,
+    .form-label__req,
+    .item-remove,
+    .log-diff__before,
+    .order-card__badge--batal,
+    .summary-card__value.expense,
+    .tx-amount.expense
+) {
+    color: var(--theme-danger-ink);
+}
+
+html[data-theme="dark"] :is(
+    .alert--success,
+    .data-row__value--accent,
+    .empty-card__ico,
+    .log-diff__after,
+    .order-card__badge--selesai,
+    .order-card__total,
+    .stat__num--success,
+    .summary-card__value.income,
+    .tx-amount.income
+) {
+    color: var(--theme-success-ink);
+}
+
+html[data-theme="dark"] :is(
+    .order-card__badge--menunggu,
+    .stat-card__num--amber,
+    .rate__stars,
+    .review__rate
+) {
+    color: var(--theme-warning-ink);
+}
+
+html[data-theme="dark"] :is(
+    .active-task__title svg,
+    .form-card__icon,
+    .stat__num--accent,
+    .v-code svg
+) {
+    color: var(--theme-warning-ink);
 }
 
 /* ================================================================
