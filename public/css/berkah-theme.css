@@ -201,10 +201,12 @@ html[data-theme="dark"] :is(.items-mini, .rating-existing__comment, .manual-lock
     color: var(--theme-ink-mid);
 }
 
+/* Token, bukan heksa literal: blok @media print mengembalikan token ke nilai
+   terang, jadi catatan ini tidak ikut tercetak sebagai kotak gelap. */
 html[data-theme="dark"] :is(.notice, .note) {
-    background: #37271c;
-    border-color: #5a402b;
-    color: #f3d9bd;
+    background: var(--theme-warning-soft);
+    border-color: var(--theme-line);
+    color: var(--theme-warning-ink);
 }
 
 html[data-theme="dark"] :is(.bk-dialog, .bk-header-inner, .customer-radial__panel, .bk-top-menu, .bk-guest-tabs) {

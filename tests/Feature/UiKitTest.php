@@ -670,6 +670,13 @@ class UiKitTest extends TestCase
         }
 
         $this->assertStringContainsString('color-scheme: light;', $print);
+
+        // Catatan bantuan memakai token, bukan heksa literal, supaya ikut
+        // kembali terang saat dicetak dari mode gelap.
+        $this->assertMatchesRegularExpression(
+            '/html\[data-theme="dark"\] :is\(\.notice, \.note\) \{[^}]*background: var\(--theme-warning-soft\)/s',
+            $css
+        );
     }
 
     public function test_theme_never_uses_important(): void
