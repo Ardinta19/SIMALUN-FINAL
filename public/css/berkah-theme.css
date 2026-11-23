@@ -500,7 +500,7 @@ html[data-theme="dark"] :is(
 }
 
 /* Teks literal gelap di atas permukaan yang kini gelap */
-html[data-theme="dark"] :is(.badge-muted, .help-muted, .manual-note, p.lead) {
+html[data-theme="dark"] :is(.badge-muted, .confirm-message, .help-muted, .manual-note, p.lead) {
     color: var(--theme-ink-mid);
 }
 
@@ -1019,13 +1019,13 @@ html[data-theme="dark"] :is(.status-badge.disetrika) {
     border-color: var(--theme-line);
 }
 
-html[data-theme="dark"] :is(.badge, .badge-muted, .manual-locked, .items-mini, .rating-existing__comment, .cancel-btn--secondary) {
+html[data-theme="dark"] :is(.badge, .badge-muted, .manual-locked, .items-mini, .rating-existing__comment, .confirm-btn--cancel, .cancel-btn--secondary) {
     background: var(--theme-surface-2);
     color: var(--theme-ink-mid);
     border-color: var(--theme-line);
 }
 
-html[data-theme="dark"] :is(.cancel-btn--secondary:hover) {
+html[data-theme="dark"] :is(.confirm-btn--cancel:hover, .cancel-btn--secondary:hover) {
     background: var(--theme-surface-3);
 }
 
@@ -1033,6 +1033,33 @@ html[data-theme="dark"] :is(.step-circle, .step-chip.active) {
     background: var(--theme-surface-3);
     color: var(--theme-ink);
     border-color: var(--theme-line);
+}
+
+/* Dialog konfirmasi: tipe status membaca token gelap di atas, jadi tidak ada
+   satu pun warna literal di sini. Selektornya tetap ditulis eksplisit karena
+   UiKitTest mengunci keberadaan permukaan gelap untuk tiap tipe. */
+html[data-theme="dark"] :is(.confirm-icon.type-danger) {
+    background: var(--bk-state-danger-soft);
+    color: var(--bk-state-danger-ink);
+    border-color: var(--bk-state-danger-line);
+}
+
+html[data-theme="dark"] :is(.confirm-icon.type-warning) {
+    background: var(--bk-state-warning-soft);
+    color: var(--bk-state-warning-ink);
+    border-color: var(--bk-state-warning-line);
+}
+
+html[data-theme="dark"] :is(.confirm-icon.type-info) {
+    background: var(--bk-state-info-soft);
+    color: var(--bk-state-info-ink);
+    border-color: var(--bk-state-info-line);
+}
+
+html[data-theme="dark"] :is(.confirm-icon.type-success) {
+    background: var(--bk-state-success-soft);
+    color: var(--bk-state-success-ink);
+    border-color: var(--bk-state-success-line);
 }
 
 /* navigasi radial pelanggan */
