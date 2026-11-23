@@ -23,20 +23,50 @@ class RentalReminders
     /** Bukti pembayaran dianggap menganggur setelah sekian jam. */
     public const PROOF_WAITING_HOURS = 6;
 
+    /** Unit yang sudah lewat sekian hari dari tanggal kembali diingatkan. */
+    public const RETURN_GRACE_DAYS = 2;
+
     /**
-     * @return array{proof:int, due:int, grace:int, grace_admin:int, design:int, design_escalation:int}
+     * @return array{proof:int, due:int, grace:int, grace_admin:int, design:int, design_escalation:int, return:int}
      */
     public function run(): array
     {
-        $counts = ['proof' => 0, 'due' => 0, 'grace' => 0, 'grace_admin' => 0, 'design' => 0, 'design_escalation' => 0];
+        $counts = ['proof' => 0, 'due' => 0, 'grace' => 0, 'grace_admin' => 0, 'design' => 0, 'design_escalation' => 0, 'return' => 0];
         $adminsReachable = User::where('role', 'admin')->where('is_active', true)->exists();
 
         if ($adminsReachable) $this->remindProofs($counts);
         $this->remindPaymentDue($counts);
         $this->remindGrace($counts, $adminsReachable);
         $this->remindDesign($counts, $adminsReachable);
+        $this->remindReturns($counts, $adminsReachable);
 
         return $counts;
+    }
+
+    /**
+     * Unit yang sudah diserahkan tetapi belum ditandai kembali beberapa hari
+     * setelah tanggal kembali. Pengingat hanya untuk admin karena penandaan
+     * pengembalian adalah tindakan operasional.
+     */
+    private function remindReturns(array &$counts, bool $adminsReachable): void
+    {
+        if (! $adminsReachable) return;
+        $threshold = CarbonImmutable::now('Asia/Jakarta')->startOfDay()->subDays(self::RETURN_GRACE_DAYS)->toDateString();
+        RentalOrderUnit::query()->with('order')
+            ->where('status', RentalOrderUnit::STATUS_CONFIRMED)
+            ->where('progress', 'handed_over')
+            ->whereDate('ends_on', '<=', $threshold)
+            ->chunkById(200, function ($units) use (&$counts) {
+                foreach ($units as $unit) {
+                    if (! $this->claim($unit, 'return_pending', 'admins')) continue;
+                    app(RentalNotifications::class)->admins(
+                        $unit->order,
+                        'Unit belum ditandai kembali',
+                        'Unit '.$unit->product_name.' sudah lewat '.self::RETURN_GRACE_DAYS.' hari dari tanggal kembali tetapi belum ditandai dikembalikan. Tandai agar pelanggan dapat memberi rating.'
+                    );
+                    $counts['return']++;
+                }
+            });
     }
 
     /**

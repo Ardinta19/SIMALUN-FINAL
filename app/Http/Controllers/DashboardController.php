@@ -157,10 +157,18 @@ class DashboardController extends Controller
             ->whereNull('transport_quote')->whereNull('transport_approved_at')->count();
         $rentalDesignNeeded = RentalOrderUnit::where('status', 'confirmed')->where('progress', 'waiting')->whereDoesntHave('previews')->count();
         $rentalSellerCancelled = RentalOrderUnit::where('status', 'cancelled')->where('cancel_responsibility', 'seller')->count();
+        // Antrean dua arah: unit yang menunggu tindakan pelanggan, bukan admin.
+        $rentalWaitingDesign = RentalOrderUnit::where('status', 'confirmed')->where('progress', 'waiting')
+            ->whereHas('previews', fn ($query) => $query->where('status', 'pending'))->count();
+        $rentalWaitingTransport = RentalOrderUnit::where('status', 'confirmed')->whereNotNull('transport_quote')->whereNull('transport_approved_at')->count();
+        $rentalWaitingGrace = RentalOrderUnit::where('status', 'cancelled')->where('cancel_code', 'payment_timeout')->whereNull('deposit_forfeited_at')->count();
+        $rentalReturnOverdue = RentalOrderUnit::where('status', 'confirmed')->where('progress', 'handed_over')
+            ->whereDate('ends_on', '<', now('Asia/Jakarta')->toDateString())->count();
         $recentRentalOrders = RentalOrder::with('customer')->withCount('units')->latest()->take(5)->get();
 
         return view('roles.admin.dashboard', compact(
-            'rentalPending', 'rentalActive', 'rentalPaymentPending', 'rentalReview', 'rentalQuoteNeeded', 'rentalDesignNeeded', 'rentalSellerCancelled', 'recentRentalOrders',
+            'rentalPending', 'rentalActive', 'rentalPaymentPending', 'rentalReview', 'rentalQuoteNeeded', 'rentalDesignNeeded', 'rentalSellerCancelled',
+            'rentalWaitingDesign', 'rentalWaitingTransport', 'rentalWaitingGrace', 'rentalReturnOverdue', 'recentRentalOrders',
             'jumlahDiproses',
             'jumlahPrioritas',
             'jumlahSelesaiHari',

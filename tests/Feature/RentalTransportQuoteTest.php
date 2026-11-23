@@ -16,7 +16,7 @@ class RentalTransportQuoteTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_transport_quote_requires_owner_approval_and_is_locked_afterwards(): void
+    public function test_transport_quote_requires_owner_approval_and_is_locked_after_payment(): void
     {
         Storage::fake('local');
         $admin = User::factory()->create(); $admin->forceFill(['role' => 'admin'])->save();
@@ -33,10 +33,21 @@ class RentalTransportQuoteTest extends TestCase
         $this->actingAs($owner)->post(route('rental.transport.approve', $unit), ['version' => 1])->assertSessionHasErrors('transport');
         $this->post(route('rental.transport.approve', $unit), ['version' => 2])->assertSessionHasNoErrors();
         $this->assertSame(125000, $unit->fresh()->payableAmount());
-        $this->actingAs($admin)->post(route('admin.rental.transport.quote', $unit), ['amount' => 1])->assertSessionHasErrors('transport');
-        $this->actingAs($owner)->post(route('rental.payment.store', $unit), ['amount' => 125000, 'proof' => UploadedFile::fake()->image('bukti.jpg')])->assertSessionHasNoErrors();
+
+        // Sejak babak C penawaran masih boleh direvisi selama belum ada pembayaran;
+        // persetujuan lama otomatis gugur dan pelanggan menyetujui versi terbaru.
+        $this->actingAs($admin)->post(route('admin.rental.transport.quote', $unit), ['amount' => 20000, 'note' => 'Antar dan jemput'])->assertSessionHasNoErrors();
+        $this->assertNull($unit->fresh()->transport_approved_at);
+        $this->assertSame(3, $unit->fresh()->transport_quote_version);
+        $this->post(route('rental.transport.approve', $unit), ['version' => 3])->assertSessionHasNoErrors();
+        $this->assertSame(120000, $unit->fresh()->payableAmount());
+
+        $this->actingAs($owner)->post(route('rental.payment.store', $unit), ['amount' => 120000, 'proof' => UploadedFile::fake()->image('bukti.jpg')])->assertSessionHasNoErrors();
         $payment = $unit->payments()->firstOrFail();
         $this->actingAs($admin)->post(route('admin.rental.payment.verify', $payment))->assertSessionHasNoErrors();
         $this->assertDatabaseHas('rental_payments', ['id' => $payment->id, 'status' => 'verified']);
+
+        // Setelah ada pembayaran, ongkos terkunci.
+        $this->actingAs($admin)->post(route('admin.rental.transport.quote', $unit), ['amount' => 1])->assertSessionHasErrors('transport');
     }
 }

@@ -36,6 +36,12 @@ class RentalOrderController extends Controller
             ->filter(fn ($address) => mb_strlen($address->full_address) <= 1000);
         // Tanggal yang sudah penuh per produk, agar kalender unit menolaknya.
         $bookedDates = $products->mapWithKeys(fn ($product) => [$product->id => $availability->fullyBookedDates($product)])->all();
+        // Isian terakhir dipulihkan bila pelanggan sempat kembali ke keranjang,
+        // selama keranjangnya masih sama dan tidak ada isian yang baru gagal.
+        $draft = $request->session()->get('rental_checkout_draft');
+        if ($draft && ($draft['cart_key'] ?? null) === $this->checkoutCartKey($cart) && ! $request->session()->hasOldInput()) {
+            $request->session()->flashInput($draft['input']);
+        }
         return view('rental.checkout', compact('cart', 'products', 'universities', 'savedAddresses', 'bookedDates'));
     }
 
@@ -43,6 +49,8 @@ class RentalOrderController extends Controller
     {
         $cart = $request->session()->get('rental_cart', []);
         if (! $cart) throw ValidationException::withMessages(['cart' => 'Keranjang kosong.']);
+        // Draf bertahan sampai pesanan berhasil atau keranjang berubah.
+        $request->session()->put('rental_checkout_draft', ['cart_key' => $this->checkoutCartKey($cart), 'input' => $request->except(['_token'])]);
         $data = $request->validate([
             'units' => ['required', 'array'], 'terms' => ['accepted'],
             'units.*.package_id' => ['nullable', 'integer', 'min:1'],
@@ -145,8 +153,16 @@ class RentalOrderController extends Controller
             app(RentalNotifications::class)->admins($order, 'Pesanan sewa baru', 'Pesanan baru menunggu konfirmasi admin.');
             return [$order, true];
         }, 3);
-        $request->session()->forget('rental_cart');
+        $request->session()->forget(['rental_cart', 'rental_checkout_draft']);
         return redirect()->route('rental.orders.show', $order)->with('success', $created ? 'Pesanan dikirim dan menunggu konfirmasi admin. Tanggal sudah ditahan sampai tenggat konfirmasi.' : 'Pesanan ini sudah dikirim sebelumnya. Periksa rinciannya di bawah.');
+    }
+
+    /** Kunci keranjang: draf hanya dipulihkan untuk isi keranjang yang sama. */
+    private function checkoutCartKey(array $cart): string
+    {
+        $keys = array_keys($cart);
+        sort($keys, SORT_STRING);
+        return hash('sha256', json_encode($keys, JSON_THROW_ON_ERROR));
     }
 
     public function show(Request $request, RentalOrder $order)
@@ -163,7 +179,7 @@ class RentalOrderController extends Controller
     {
         abort_unless($order->customer_id === $request->user()->id, 403);
         abort_unless($unit->rental_order_id === $order->id, 404);
-        $unit->load('previews', 'payments.refunds', 'payments.corrections', 'progressEvents', 'cancellationEvents');
+        $unit->load('previews', 'payments.refunds', 'payments.corrections', 'progressEvents', 'cancellationEvents', 'transportQuoteEvents.recorder');
         $paymentSettings = RentalPaymentSetting::find(1);
         $unitNumber = $order->units()->where('id', '<=', $unit->id)->count();
         $productRating = DB::table('rental_product_reviews')->where('rental_order_unit_id', $unit->id)->value('rating');
@@ -194,7 +210,7 @@ class RentalOrderController extends Controller
     {
         $filters = $request->validate([
             'q' => ['nullable', 'string', 'max:160'],
-            'status' => ['nullable', Rule::in(['pending', 'confirmed', 'cancelled', 'payment_pending', 'design_pending', 'review', 'transport_quote', 'transport_approval', 'design_initial', 'design_revision', 'seller_cancelled'])],
+            'status' => ['nullable', Rule::in(['pending', 'confirmed', 'cancelled', 'payment_pending', 'design_pending', 'review', 'transport_quote', 'transport_approval', 'design_initial', 'design_revision', 'seller_cancelled', 'grace', 'return_overdue'])],
             'from' => ['nullable', 'date_format:Y-m-d'],
             'to' => ['nullable', 'date_format:Y-m-d'],
         ]);
@@ -211,6 +227,8 @@ class RentalOrderController extends Controller
                     $status = $filters['status'] ?? null;
                     if (in_array($status, ['pending', 'confirmed', 'cancelled'], true)) $unit->where('status', $status);
                     if ($status === 'seller_cancelled') $unit->where('status', 'cancelled')->where('cancel_responsibility', 'seller');
+                    if ($status === 'grace') $unit->where('status', 'cancelled')->where('cancel_code', 'payment_timeout')->whereNull('deposit_forfeited_at');
+                    if ($status === 'return_overdue') $unit->where('status', 'confirmed')->where('progress', 'handed_over')->whereDate('ends_on', '<', now('Asia/Jakarta')->toDateString());
                     if ($status === 'review') $unit->needsPaymentReview();
                     if ($status === 'payment_pending') $unit->whereHas('payments', fn ($payment) => $payment->where('status', 'pending'));
                     if ($status === 'design_pending') $unit->where('status', 'confirmed')->whereHas('previews', fn ($preview) => $preview->where('status', 'pending'));
@@ -233,7 +251,7 @@ class RentalOrderController extends Controller
 
     public function adminShow(RentalOrder $order)
     {
-        $order->load(['customer', 'units.previews', 'units.payments.refunds', 'units.payments.corrections', 'units.progressEvents.recorder', 'units.cancellationEvents']);
+        $order->load(['customer', 'units.previews', 'units.payments.refunds', 'units.payments.corrections', 'units.progressEvents.recorder', 'units.cancellationEvents', 'units.transportQuoteEvents.recorder']);
         return view('rental.admin-detail', ['order' => $order, 'filters' => []]);
     }
 
@@ -258,18 +276,21 @@ class RentalOrderController extends Controller
     public function quoteTransport(Request $request, RentalOrderUnit $unit)
     {
         $data = $request->validate(['amount' => ['required', 'integer', 'min:0', 'max:200000000'], 'note' => ['nullable', 'string', 'max:1000']]);
-        DB::transaction(function () use ($unit, $data) {
+        DB::transaction(function () use ($unit, $data, $request) {
             $unit = RentalOrderUnit::lockForUpdate()->findOrFail($unit->id);
-            if (! $unit->transportRequired() || $unit->status === 'cancelled' || $unit->transport_approved_at || $unit->payments()->exists()) {
-                throw ValidationException::withMessages(['transport' => 'Ongkos tidak dapat diubah untuk unit ini.']);
+            // Revisi boleh selama belum ada pembayaran sama sekali; persetujuan
+            // lama otomatis gugur sehingga pelanggan wajib menyetujui versi baru.
+            if (! $unit->transportRequired() || $unit->status === 'cancelled' || $unit->payments()->exists()) {
+                throw ValidationException::withMessages(['transport' => 'Ongkos tidak dapat diubah setelah ada pembayaran. Periksa pembayaran atau batalkan unit bila perlu.']);
             }
             $fixed = (int) ($unit->delivery_university_fee ?? 0) + (int) ($unit->return_university_fee ?? 0);
             $allFixed = ($unit->delivery_method !== 'delivery' || $unit->delivery_university_fee !== null) && ($unit->return_method !== 'collection' || $unit->return_university_fee !== null);
             if (($allFixed && (int) $data['amount'] !== $fixed) || (! $allFixed && (int) $data['amount'] < $fixed)) {
                 throw ValidationException::withMessages(['transport' => 'Penawaran harus mencakup tarif tetap universitas sesuai pesanan.']);
             }
-            $unit->update(['transport_quote' => $data['amount'], 'transport_quote_version' => $unit->transport_quote_version + 1, 'transport_quote_note' => $data['note'] ?? null]);
-            app(RentalNotifications::class)->customer($unit->order, 'Penawaran ongkos', 'Ongkos untuk unit '.$unit->product_name.' siap diperiksa.');
+            $unit->update(['transport_quote' => $data['amount'], 'transport_quote_version' => $unit->transport_quote_version + 1, 'transport_quote_note' => $data['note'] ?? null, 'transport_approved_at' => null]);
+            $unit->transportQuoteEvents()->create(['action' => 'quote', 'version' => $unit->transport_quote_version, 'amount' => (int) $data['amount'], 'note' => $data['note'] ?? null, 'recorded_by' => $request->user()->id]);
+            app(RentalNotifications::class)->customer($unit->order, 'Penawaran ongkos', 'Ongkos untuk unit '.$unit->product_name.' siap diperiksa. Setujui atau ajukan keberatan dengan alasan.');
         });
         return back()->with('success', 'Penawaran ongkos dikirim kepada pelanggan.');
     }
@@ -284,9 +305,108 @@ class RentalOrderController extends Controller
                 throw ValidationException::withMessages(['transport' => 'Penawaran berubah atau tidak lagi tersedia. Periksa kembali.']);
             }
             $unit->update(['transport_approved_at' => now()]);
+            $unit->transportQuoteEvents()->create(['action' => 'approve', 'version' => $unit->transport_quote_version, 'amount' => (int) $unit->transport_quote, 'note' => null, 'recorded_by' => $request->user()->id]);
             app(RentalNotifications::class)->admins($unit->order, 'Ongkos disetujui', 'Pelanggan menyetujui ongkos unit '.$unit->product_name.'.');
         });
         return back()->with('success', 'Ongkos disetujui.');
+    }
+
+    /** Pelanggan menolak penawaran ongkos dan meminta versi baru. */
+    public function rejectTransport(Request $request, RentalOrderUnit $unit)
+    {
+        abort_unless($unit->order->customer_id === $request->user()->id, 403);
+        $data = $request->validate(['version' => ['required', 'integer', 'min:1'], 'note' => ['required', 'string', 'max:500']]);
+        DB::transaction(function () use ($request, $unit, $data) {
+            $unit = RentalOrderUnit::lockForUpdate()->findOrFail($unit->id);
+            if (! $unit->transportRequired() || $unit->status === 'cancelled' || $unit->transport_approved_at || $unit->transport_quote === null || (int) $unit->transport_quote_version !== (int) $data['version']) {
+                throw ValidationException::withMessages(['transport' => 'Penawaran berubah atau tidak lagi tersedia. Muat ulang halaman.']);
+            }
+            $unit->transportQuoteEvents()->create(['action' => 'reject', 'version' => $unit->transport_quote_version, 'amount' => (int) $unit->transport_quote, 'note' => $data['note'], 'recorded_by' => $request->user()->id]);
+            $unit->update(['transport_quote' => null, 'transport_quote_note' => null, 'transport_approved_at' => null]);
+            app(RentalNotifications::class)->admins($unit->order, 'Ongkos ditolak pelanggan', 'Pelanggan menolak ongkos unit '.$unit->product_name.'. Alasan: '.$data['note']);
+        }, 3);
+        return back()->with('success', 'Penawaran ongkos ditolak. Admin akan mengirim penawaran baru.');
+    }
+
+    /** Pelanggan membatalkan unitnya sendiri sebelum pengerjaan dimulai. */
+    public function cancelByCustomer(Request $request, RentalOrderUnit $unit)
+    {
+        abort_unless($unit->order->customer_id === $request->user()->id, 403);
+        $data = $request->validate(['reason' => ['required', 'string', 'max:500'], 'confirmed' => ['accepted']]);
+        DB::transaction(function () use ($request, $unit, $data) {
+            RentalProduct::lockForUpdate()->findOrFail($unit->rental_product_id);
+            $unit = RentalOrderUnit::lockForUpdate()->findOrFail($unit->id);
+            if (! in_array($unit->status, ['pending', 'confirmed'], true) || $unit->progress !== 'waiting') {
+                throw ValidationException::withMessages(['cancel' => 'Unit ini tidak dapat dibatalkan sendiri. Hubungi admin.']);
+            }
+            $unit->cancellationEvents()->create(['action' => 'cancel', 'previous_status' => $unit->status, 'new_status' => 'cancelled', 'note' => $data['reason'], 'responsibility' => 'customer', 'recorded_by' => $request->user()->id]);
+            $unit->update(['status_before_cancel' => $unit->status, 'status' => 'cancelled', 'cancel_code' => 'customer_request', 'cancel_reason' => $data['reason'], 'cancel_responsibility' => 'customer', 'cancelled_at' => now(), 'cancelled_by' => $request->user()->id]);
+            app(RentalNotifications::class)->customer($unit->order, 'Unit dibatalkan', 'Unit '.$unit->product_name.' dibatalkan atas permintaan Anda. Admin akan menindaklanjuti pembayaran yang sudah masuk.');
+            app(RentalNotifications::class)->admins($unit->order, 'Pembatalan oleh pelanggan', 'Pelanggan membatalkan unit '.$unit->product_name.'. Alasan: '.$data['reason'].'. Periksa pembayaran dan pengembalian dana.');
+        }, 3);
+        return back()->with('success', 'Unit dibatalkan. DP mengikuti ketentuan; hubungi admin untuk pengembalian dana bila sudah membayar.');
+    }
+
+    /** Pelanggan memperbaiki data unit sebelum pengerjaan dan sebelum ada pembayaran terverifikasi. */
+    public function updateUnitDetails(Request $request, RentalOrderUnit $unit)
+    {
+        abort_unless($unit->order->customer_id === $request->user()->id, 403);
+        $data = $request->validate([
+            'recipient_name' => ['required', 'string', 'max:160'],
+            'greeting' => ['required', 'string', 'max:1000'],
+            'design_notes' => ['nullable', 'string', 'max:2000'],
+            'delivery_address' => ['nullable', 'string', 'max:1000'],
+            'return_address' => ['nullable', 'string', 'max:1000'],
+        ]);
+        DB::transaction(function () use ($request, $unit, $data) {
+            $unit = RentalOrderUnit::lockForUpdate()->findOrFail($unit->id);
+            if ($unit->status !== 'confirmed' || $unit->progress !== 'waiting') throw ValidationException::withMessages(['unit' => 'Data unit hanya dapat diubah sebelum pengerjaan dimulai.']);
+            if ($unit->verifiedNet() > 0) throw ValidationException::withMessages(['unit' => 'Data unit tidak dapat diubah setelah ada pembayaran terverifikasi. Hubungi admin.']);
+            if ($unit->delivery_method === 'delivery' && empty($data['delivery_address'])) throw ValidationException::withMessages(['delivery_address' => 'Alamat pengantaran wajib diisi.']);
+            if ($unit->return_method === 'collection' && empty($data['return_address'])) throw ValidationException::withMessages(['return_address' => 'Alamat pengambilan kembali wajib diisi.']);
+            $changes = [];
+            foreach (['recipient_name', 'greeting', 'design_notes', 'delivery_address', 'return_address'] as $field) {
+                $new = $data[$field] ?? null;
+                $new = $new === '' ? null : $new;
+                if ($new !== $unit->{$field}) $changes[$field] = $new;
+            }
+            if (! $changes) return;
+            $labels = ['recipient_name' => 'nama penerima', 'greeting' => 'ucapan', 'design_notes' => 'permintaan desain', 'delivery_address' => 'alamat pengantaran', 'return_address' => 'alamat pengambilan'];
+            $designFields = array_intersect(array_keys($changes), ['recipient_name', 'greeting', 'design_notes']);
+            if ($designFields && $unit->designApprovedForProduction()) {
+                throw ValidationException::withMessages(['unit' => 'Desain sudah disetujui atau dikerjakan; perubahan nama, ucapan, atau permintaan desain harus melalui admin.']);
+            }
+            $unit->update($changes);
+            $changed = implode(', ', array_map(fn ($field) => $labels[$field], array_keys($changes)));
+            $unit->progressEvents()->create(['progress' => $unit->progress, 'recorded_by' => $request->user()->id, 'note' => 'Pelanggan memperbarui '.$changed.'.']);
+            app(RentalNotifications::class)->admins($unit->order, 'Data unit diperbarui pelanggan', 'Pelanggan memperbarui '.$changed.' pada unit '.$unit->product_name.'.');
+        }, 3);
+        return back()->with('success', 'Data unit diperbarui dan dicatat di riwayat.');
+    }
+
+    /** Isi ulang keranjang dari unit yang dibatalkan, tanpa tanggal. */
+    public function reorder(Request $request, RentalOrderUnit $unit)
+    {
+        abort_unless($unit->order->customer_id === $request->user()->id, 403);
+        if ($unit->status !== 'cancelled') throw ValidationException::withMessages(['reorder' => 'Pesan ulang hanya tersedia untuk unit yang dibatalkan.']);
+        $product = RentalProduct::with('category')->find($unit->rental_product_id);
+        if (! $product || ! $product->is_active || ! $product->category?->is_active || $product->stock < 1) {
+            throw ValidationException::withMessages(['reorder' => 'Papan ini tidak lagi tersedia di katalog.']);
+        }
+        $cart = $request->session()->get('rental_cart', []);
+        if (count($cart) >= 50) throw ValidationException::withMessages(['reorder' => 'Keranjang maksimal 50 unit.']);
+        $cart[(string) Str::uuid()] = [
+            'product_id' => $product->id,
+            'recipient_name' => $unit->recipient_name,
+            'greeting' => $unit->greeting,
+            'design_notes' => $unit->design_notes,
+            'delivery_method' => $unit->delivery_method,
+            'delivery_address' => $unit->delivery_address,
+            'return_method' => $unit->return_method,
+            'return_address' => $unit->return_address,
+        ];
+        $request->session()->put('rental_cart', $cart);
+        return redirect()->route('rental.checkout')->with('success', 'Unit dimasukkan lagi ke keranjang. Pilih tanggal baru sebelum mengirim.');
     }
 
     public function cancel(Request $request, RentalOrderUnit $unit)

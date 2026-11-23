@@ -26,7 +26,7 @@ Artisan::command('rental:expire-payments', function (\App\Services\ExpireRentalP
 // per unit+jenis+penerima+tanggal.
 Artisan::command('rental:remind', function (\App\Services\RentalReminders $reminders) {
     $result = $reminders->run();
-    $this->info('Pengingat terkirim: bukti='.$result['proof'].', pelunasan='.$result['due'].', toleransi='.$result['grace'].' (admin '.$result['grace_admin'].'), desain='.$result['design'].', eskalasi='.$result['design_escalation']);
-})->purpose('Kirim pengingat bukti bayar, pelunasan H-1, dan respons desain');
+    $this->info('Pengingat terkirim: bukti='.$result['proof'].', pelunasan='.$result['due'].', toleransi='.$result['grace'].' (admin '.$result['grace_admin'].'), desain='.$result['design'].', eskalasi='.$result['design_escalation'].', kembali='.$result['return']);
+})->purpose('Kirim pengingat bukti bayar, pelunasan H-1, toleransi, desain, dan pengembalian');
 
 \Illuminate\Support\Facades\Schedule::command('rental:remind')->everyFiveMinutes()->withoutOverlapping();

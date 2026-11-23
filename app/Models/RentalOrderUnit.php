@@ -66,6 +66,8 @@ class RentalOrderUnit extends Model
     }
     public function previews(): HasMany { return $this->hasMany(RentalDesignPreview::class)->orderByDesc('version'); }
 
+    public function transportQuoteEvents(): HasMany { return $this->hasMany(RentalTransportQuoteEvent::class)->orderBy('id'); }
+
     /**
      * Preview terbaru boleh dipakai untuk pengerjaan bila pelanggan menyetujui,
      * atau bila admin sudah memutuskan melanjutkan tanpa persetujuan pada versi

@@ -22,6 +22,7 @@
 <section class="notice" aria-label="Langkah berikutnya untuk unit {{ $unitNumber }}"><strong>Langkah berikutnya</strong>
 @if($unit->status === 'pending')<p>Menunggu konfirmasi admin. Tanggal sudah ditahan sampai tenggat konfirmasi.</p>
 @elseif($unit->status === 'cancelled')<p>Unit ini dibatalkan. Periksa alasan dan tindak lanjut di bawah.</p>@if($lateEligible && $payable !== null && $netPaid + $pendingAmount < $payable)<p><a class="btn secondary" href="#payment-{{ $unit->id }}">Lihat pilihan pembayaran terlambat</a></p>@endif
+<form method="post" action="{{ route('rental.unit.reorder', $unit) }}">@csrf<p><button class="btn secondary">Pesan ulang unit ini</button></p><p class="muted">Isian unit disalin ke keranjang; pilih tanggal baru di checkout.</p></form>
 @else
 @if($unit->transportRequired() && !$unit->transport_approved_at)
 <p>{{ $unit->transport_quote === null ? 'Menunggu penawaran ongkos dari admin.' : 'Penawaran ongkos siap diperiksa dan disetujui.' }}</p><p><a class="btn secondary" href="#transport-{{ $unit->id }}">Lihat ongkos</a></p>
@@ -41,8 +42,45 @@
 @endif
 </section><details class="unit-section" id="unit-info-{{ $unit->id }}"><summary>Jadwal, ucapan, dan serah terima</summary><p>@if($unit->starts_on->isSameDay($unit->event_on)) Acara dan penerimaan: {{ $unit->event_on->format('d/m/Y') }} @else Penerimaan: {{ $unit->starts_on->format('d/m/Y') }} · Acara: {{ $unit->event_on->format('d/m/Y') }} @endif · Pengembalian: {{ $unit->ends_on->format('d/m/Y') }}</p><p>Untuk {{ $unit->recipient_name }} · {{ $unit->greeting }}</p><p>Permintaan desain: {{ $unit->design_notes ?: 'Tidak ada catatan tambahan' }}</p><p>Penerimaan: {{ $unit->delivery_method === 'delivery' ? 'Diantar penjual' : 'Diambil di outlet' }}@if($unit->delivery_method === 'delivery') · {{ $unit->delivery_address }}@endif</p><p>Pengembalian: {{ $unit->return_method === 'collection' ? 'Diambil kembali penjual' : 'Dikembalikan ke outlet' }}@if($unit->return_method === 'collection') · {{ $unit->return_address }}@endif</p>@if($unit->package_name)<p>Paket: {{ $unit->package_name }} · {{ $unit->package_days }} hari</p>@endif<p>Biaya sewa: Rp {{ number_format($unit->rental_amount, 0, ',', '.') }} (belum termasuk ongkos)</p><p>Status: {{ ['pending'=>'Menunggu konfirmasi','confirmed'=>'Dikonfirmasi','cancelled'=>'Dibatalkan'][$unit->status] }}</p>@if($unit->cancel_reason)<p>Alasan: {{ $unit->cancel_reason }}</p>@if($unit->cancel_responsibility === 'seller')<p>Jika ada pembayaran, admin akan menindaklanjuti pengembalian dana.</p>@endif @endif
 @if($unit->delivery_university)<p>Universitas pengantaran: {{ $unit->delivery_university }} · Rp {{ number_format($unit->delivery_university_fee, 0, ',', '.') }}</p>@endif @if($unit->return_university)<p>Universitas pengambilan kembali: {{ $unit->return_university }} · Rp {{ number_format($unit->return_university_fee, 0, ',', '.') }}</p>@endif
+@if($unit->status === 'confirmed' && $unit->progress === 'waiting' && (int) $netPaid === 0)
+<details><summary>Perbaiki nama, ucapan, atau alamat</summary><p class="muted">Perubahan dicatat di riwayat unit dan dikirim ke admin. Setelah ada pembayaran terverifikasi atau desain disetujui, perubahan nama/ucapan/permintaan desain harus melalui admin.</p>
+<form class="stack" method="post" action="{{ route('rental.unit.update', $unit) }}">@csrf
+<label>Nama penerima<input name="recipient_name" maxlength="160" value="{{ is_scalar(old('recipient_name', $unit->recipient_name)) ? old('recipient_name', $unit->recipient_name) : '' }}" required @error('recipient_name') aria-invalid="true" aria-describedby="unit-recipient-error" @enderror>@error('recipient_name')<p class="bk-field-error" id="unit-recipient-error">{{ $message }}</p>@enderror</label>
+<label>Ucapan<textarea name="greeting" maxlength="1000" required @error('greeting') aria-invalid="true" aria-describedby="unit-greeting-error" @enderror>{{ is_scalar(old('greeting', $unit->greeting)) ? old('greeting', $unit->greeting) : '' }}</textarea>@error('greeting')<p class="bk-field-error" id="unit-greeting-error">{{ $message }}</p>@enderror</label>
+<label>Permintaan desain (opsional)<textarea name="design_notes" maxlength="2000">{{ is_scalar(old('design_notes', $unit->design_notes)) ? old('design_notes', $unit->design_notes) : '' }}</textarea></label>
+@if($unit->delivery_method === 'delivery')<label>Alamat pengantaran<textarea name="delivery_address" maxlength="1000" required @error('delivery_address') aria-invalid="true" aria-describedby="unit-delivery-error" @enderror>{{ is_scalar(old('delivery_address', $unit->delivery_address)) ? old('delivery_address', $unit->delivery_address) : '' }}</textarea>@error('delivery_address')<p class="bk-field-error" id="unit-delivery-error">{{ $message }}</p>@enderror</label>@endif
+@if($unit->return_method === 'collection')<label>Alamat pengambilan kembali<textarea name="return_address" maxlength="1000" required @error('return_address') aria-invalid="true" aria-describedby="unit-return-error" @enderror>{{ is_scalar(old('return_address', $unit->return_address)) ? old('return_address', $unit->return_address) : '' }}</textarea>@error('return_address')<p class="bk-field-error" id="unit-return-error">{{ $message }}</p>@enderror</label>@endif
+@error('unit')<p class="bk-field-error">{{ $message }}</p>@enderror
+<p><button class="btn secondary">Simpan perubahan data unit</button></p>
+</form></details>
+@endif
 </details>
-@if($unit->transportRequired())<details class="unit-section" id="transport-{{ $unit->id }}" @if(!$unit->transport_approved_at || $errors->hasAny(['transport', 'version'])) open @endif><summary>Ongkos antar dan/atau penjemputan</summary>@if($unit->transport_quote === null)<p>Menunggu penawaran admin.</p>@else<p>Penawaran: Rp {{ number_format($unit->transport_quote, 0, ',', '.') }} · {{ $unit->transport_approved_at ? 'Disetujui' : 'Menunggu persetujuan' }}</p>@if($unit->transport_quote_note)<p>{{ $unit->transport_quote_note }}</p>@endif @if(!$unit->transport_approved_at && $unit->status !== 'cancelled')<form method="post" action="{{ route('rental.transport.approve', $unit) }}">@csrf<input type="hidden" name="version" value="{{ $unit->transport_quote_version }}"><button class="btn">Setujui ongkos</button></form>@endif @endif </details>@endif
+@if(in_array($unit->status, ['pending', 'confirmed'], true) && $unit->progress === 'waiting')
+<details class="unit-section" id="cancel-{{ $unit->id }}" @if($errors->has('cancel')) open @endif><summary>Batalkan unit ini</summary>
+<p class="muted">Pembatalan langsung melepas tanggal. DP mengikuti ketentuan dan tidak dikembalikan otomatis; bila sudah ada pembayaran, admin akan menindaklanjuti pengembalian dana secara manual.</p>
+<form class="stack" method="post" action="{{ route('rental.cancel.customer', $unit) }}">@csrf
+<label>Alasan pembatalan<textarea name="reason" maxlength="500" required @error('reason') aria-invalid="true" aria-describedby="cancel-reason-error" @enderror>{{ is_scalar(old('reason')) ? old('reason') : '' }}</textarea></label>@error('reason')<p class="bk-field-error" id="cancel-reason-error">{{ $message }}</p>@enderror
+@error('cancel')<p class="bk-field-error">{{ $message }}</p>@enderror
+<label><input style="width:auto" type="checkbox" name="confirmed" value="1" required> Saya memahami DP tidak dikembalikan dan tanggal akan dilepas.</label>
+<p><button class="btn secondary">Batalkan unit</button></p>
+</form></details>
+@endif
+@if($unit->transportRequired())<details class="unit-section" id="transport-{{ $unit->id }}" @if(!$unit->transport_approved_at || $errors->hasAny(['transport', 'version'])) open @endif><summary>Ongkos antar dan/atau penjemputan</summary>
+@php $lastTransportEvent = $unit->transportQuoteEvents->last(); @endphp
+@if($unit->transport_quote === null)
+<p>Menunggu penawaran admin.</p>
+@if($lastTransportEvent && $lastTransportEvent->action === 'reject')<p class="muted">Penawaran versi {{ $lastTransportEvent->version }} ditolak pada {{ $lastTransportEvent->created_at->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB. Alasanmu: {{ $lastTransportEvent->note }}</p>@endif
+@else
+<p>Penawaran versi {{ $unit->transport_quote_version }}: Rp {{ number_format($unit->transport_quote, 0, ',', '.') }} · {{ $unit->transport_approved_at ? 'Disetujui' : 'Menunggu persetujuan' }}</p>
+@if($unit->transport_quote_note)<p>{{ $unit->transport_quote_note }}</p>@endif
+@if(!$unit->transport_approved_at && $unit->status !== 'cancelled')
+<form class="stack" method="post" action="{{ route('rental.transport.approve', $unit) }}">@csrf<input type="hidden" name="version" value="{{ $unit->transport_quote_version }}"><p><button class="btn">Setujui ongkos</button></p></form>
+<form class="stack" method="post" action="{{ route('rental.transport.reject', $unit) }}">@csrf<input type="hidden" name="version" value="{{ $unit->transport_quote_version }}"><label>Ajukan keberatan atau tolak ongkos<textarea name="note" maxlength="500" required @error('transport') aria-invalid="true" aria-describedby="transport-error" @enderror>{{ is_scalar(old('note')) ? old('note') : '' }}</textarea></label>@error('transport')<p class="bk-field-error" id="transport-error">{{ $message }}</p>@enderror<p class="muted">Setelah ditolak, admin dapat mengirim penawaran baru. Pembayaran belum dapat dikirim selama ongkos belum disetujui.</p><p><button class="btn secondary">Tolak dan minta penawaran baru</button></p></form>
+@endif
+@endif
+@if($unit->transportQuoteEvents->isNotEmpty())<h4>Riwayat penawaran</h4><ul>@foreach($unit->transportQuoteEvents as $event)<li>{{ ['quote' => 'Penawaran dikirim', 'approve' => 'Disetujui', 'reject' => 'Ditolak'][$event->action] ?? $event->action }} · versi {{ $event->version }}@if($event->amount !== null) · Rp {{ number_format($event->amount, 0, ',', '.') }}@endif · {{ $event->created_at->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB
+@if($event->note) — {{ $event->note }}@endif</li>@endforeach</ul>@endif
+</details>@endif
 @if($unit->payment_review_hold)<p class="notice">Bukti pembayaran atau jadwal khusus sedang ditinjau manual oleh admin.</p>@endif
 @if($unit->cancel_code === 'payment_timeout')<p class="notice">Unit dibatalkan karena tenggat pelunasan. @if($graceDeadline)Anda masih dapat mengirim bukti paling lambat {{ $graceDeadline->format('d/m/Y H:i') }} WIB; kelanjutan memerlukan pembayaran terverifikasi dan pemeriksaan stok oleh admin. Setelah batas itu DP hangus dan unit tidak dapat dilanjutkan.@else Masa toleransi sudah berakhir; DP hangus dan unit tidak dapat dilanjutkan.@endif</p>@endif
 <details class="unit-section" id="unit-progress-{{ $unit->id }}"><summary>Riwayat dan perkembangan</summary>

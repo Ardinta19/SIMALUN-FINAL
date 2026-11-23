@@ -126,6 +126,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/sewa/{order}/bagikan-suka', [RentalFeedbackController::class, 'share'])->middleware('throttle:10,1')->name('rental.order.share');
         Route::post('/apresiasi/{token}/suka', [RentalFeedbackController::class, 'orderLike'])->where('token', '[A-Za-z0-9]{64}')->middleware('throttle:30,1')->name('rental.order.like');
         Route::post('/sewa/unit/{unit}/setujui-ongkos', [RentalOrderController::class, 'approveTransport'])->name('rental.transport.approve');
+        Route::post('/sewa/unit/{unit}/tolak-ongkos', [RentalOrderController::class, 'rejectTransport'])->name('rental.transport.reject');
+        Route::post('/sewa/unit/{unit}/batal', [RentalOrderController::class, 'cancelByCustomer'])->name('rental.cancel.customer');
+        Route::post('/sewa/unit/{unit}/ubah-data', [RentalOrderController::class, 'updateUnitDetails'])->name('rental.unit.update');
+        Route::post('/sewa/unit/{unit}/pesan-ulang', [RentalOrderController::class, 'reorder'])->name('rental.unit.reorder');
         Route::post('/sewa/unit/{unit}/pembayaran', [RentalPaymentController::class, 'store'])->middleware('throttle:10,1')->name('rental.payment.store');
         Route::post('/preview-desain/{preview}/respons', [RentalDesignController::class, 'respond'])->name('rental.design.respond');
         Route::get('/checkout', [RentalOrderController::class, 'create'])->name('rental.checkout');

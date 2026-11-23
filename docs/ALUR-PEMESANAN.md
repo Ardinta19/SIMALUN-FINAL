@@ -23,15 +23,16 @@ Tidak ada lompatan, tidak ada mundur.
 ```
 pelanggan                              admin
 ---------                              -----
-pilih tanggal di katalog
-tambah ke keranjang (boleh tanpa tanggal)
+pilih tanggal di katalog (filter dipertahankan saat kembali)
+tambah ke keranjang (boleh tanpa tanggal; bisa dari "Pesan ulang" unit batal)
 checkout ─────────────────────────────► pesanan pending + tenggat 24 jam
    ▲                                        │  lewat 24 jam → cancelled otomatis
    │                                        ▼
    │                                    konfirmasi (jadwal dekat: centang khusus)
    │                                        ▼
-   │  (jika perlu ongkos) ◄───────────── penawaran ongkos ──► pelanggan setujui
-   │                                        │                 (tidak ada opsi tolak)
+   │  (jika perlu ongkos) ◄───────────── penawaran ongkos ──► pelanggan setujui/tolak
+   │                                        │                 (tolak → admin kirim versi baru
+   │                                        │                  selama belum ada pembayaran)
    │  unggah preview desain ◄───────────────┘
    │        └─► pelanggan setujui / minta revisi   ← tenggat 48 jam / H-3
    │                                        │         (lewat: admin "lanjutkan dengan catatan")
@@ -49,31 +50,29 @@ beri rating produk & pesanan  ◄───── unit returned
 | Titik tunggu | Yang menunggu | Yang harus bertindak | Tenggat otomatis | Kalau tidak bertindak |
 | --- | --- | --- | --- | --- |
 | Konfirmasi pesanan | pelanggan | admin | **ada**: 24 jam, `ExpireRentalConfirmations` | unit batal + tanggal dilepas (benar) |
-| Penawaran ongkos | pelanggan | admin | tidak ada (pengingat: eskalasi desain belum mencakup ongkos) | `payableAmount()` = `null`, pembayaran ditolak, unit tidak bisa dibatalkan otomatis |
-| Persetujuan ongkos | admin | pelanggan | tidak ada | sama seperti di atas |
+| Penawaran ongkos | pelanggan | admin | tidak ada (belum ada pengingat khusus ongkos) | `payableAmount()` = `null`, pembayaran ditolak, unit tidak bisa dibatalkan otomatis |
+| Persetujuan ongkos | admin | pelanggan | tidak ada, tetapi pelanggan dapat menolak dan meminta versi baru | sama seperti di atas |
 | Preview desain | admin (tidak bisa mulai pengerjaan) | pelanggan | **ada** (babak B): 48 jam sejak unggah / H-3, lalu admin boleh "lanjutkan dengan catatan"; pengingat harian sejak babak A | unit tidak lagi terkunci; pengerjaan berjalan dengan catatan tertulis |
 | Verifikasi bukti bayar | pelanggan (tidak bisa lunas) | admin | tidak ada SLA, tetapi pengingat bila bukti menganggur > 6 jam (babak A) | serah terima tidak bisa ditandai |
 | Pelunasan terlambat | pelanggan | admin (verifikasi) | **ada** (babak B): toleransi sampai H+1 pukul 12.00 WIB, sesudahnya DP hangus | bukti & kelanjutan ditolak setelah batas |
-| Tandai kembali | pelanggan (tidak bisa rating) | admin | tidak ada | unit menggantung `handed_over` selamanya |
+| Tandai kembali | pelanggan (tidak bisa rating) | admin | pengingat harian setelah H+2 dari tanggal kembali (babak C) | unit tetap `handed_over`; hanya mengingatkan, tidak menutup otomatis |
 | Rating | admin (indikator kualitas) | pelanggan | tidak ada | wajar; bukan penghambat |
 
-Baris tanpa tenggat yang tersisa (ongkos, verifikasi bukti, tandai kembali) itulah inti "saling menunggu" yang belum tertutup.
+Baris tanpa tenggat yang tersisa (ongkos dan verifikasi bukti) masih menjadi titik tunggu utama; pengingat dan jalur dua arah mengurangi risikonya.
 
 ## 3. Temuan A — alur bolak-balik
 
-**RT-1. Kembali dari detail papan membuang filter.**
-`resources/views/catalog/show.blade.php:5` memakai `route('welcome')` tanpa query,
-padahal kartu produk membawa `starts_on`/`ends_on` (`catalog/index.blade.php`).
-Pelanggan yang menyaring "12 Des 2026 + kategori Wisuda + kata kunci" harus
-memasang ulang filternya setelah melihat satu papan.
-_Dampak_: sedang, terjadi setiap kali membandingkan papan.
+**RT-1. Kembali dari detail papan membuang filter (selesai di babak C).**
+Dulu `catalog/show.blade.php` memakai `route('welcome')` tanpa query. Sekarang kartu
+produk membawa `q`/`category` bersama tanggal, dan tautan kembali menyusun ulang
+query yang sama, sehingga filter tidak perlu dipasang ulang.
 
-**RT-2. Keranjang ⇄ checkout kehilangan isian.**
-`resources/views/rental/checkout.blade.php:4` secara eksplisit memberi tahu bahwa
-menambah/mengurangi unit harus lewat keranjang dan isian di checkout akan hilang.
-Untuk pesanan 3 unit, mengubah jumlah unit berarti mengetik ulang penerima,
-ucapan, dan alamat tiga kali.
-_Dampak_: tinggi pada pesanan multiunit.
+**RT-2. Keranjang ⇄ checkout kehilangan isian (selesai di babak C).**
+Dulu semua isian hilang ketika pelanggan kembali ke keranjang. Sekarang isian
+terakhir disimpan sebagai draf di sesi (kunci = isi keranjang), dipulihkan otomatis
+saat checkout dibuka lagi, dan dihapus setelah pesanan berhasil atau keranjang
+berubah. Petunjuk di halaman checkout tetap mengingatkan karena perubahan keranjang
+memang memulai draf baru.
 
 **RT-3. Revisi desain tanpa batas versi (sebagian ditutup).**
 Setiap revisi membuat preview baru berstatus `pending` dan men-supersede yang lama
@@ -82,20 +81,26 @@ babak A pelanggan mendapat pengingat preview dan sejak babak B ada tenggat respo
 serta keputusan admin, sehingga siklus tidak lagi bisa berjalan tanpa ujung.
 _Dampak_: rendah-sedang; tinggal keputusan bisnis berapa versi maksimal.
 
-**RT-4. Ongkos hanya bisa naik satu arah.**
-Setelah pelanggan menyetujui, admin tidak bisa mengirim penawaran baru
-(`RentalOrderController.php:263` menolak jika `transport_approved_at` sudah terisi),
-dan pelanggan tidak punya tombol menolak — hanya menyetujui. Negosiasi harga
-pasti keluar aplikasi (WhatsApp), lalu berakhir di pembatalan manual.
-_Dampak_: tinggi ketika tarif salah, karena satu-satunya jalan adalah membatalkan unit.
+**RT-4. Ongkos hanya bisa naik satu arah (selesai di babak C).**
+Pelanggan kini dapat **menolak penawaran dengan alasan**; penawaran dikosongkan
+sehingga tagihan kembali "belum pasti". Admin boleh mengirim versi baru selama
+**belum ada pembayaran sama sekali**; persetujuan lama otomatis gugur
+(`transport_approved_at` dikosongkan) dan pelanggan wajib menyetujui versi terbaru
+(pengecekan versi yang sudah ada). Semua langkah tercatat di tabel
+`rental_transport_quote_events` dan tampil sebagai riwayat di halaman unit (pelanggan
+dan admin). Setelah ada pembayaran, ongkos terkunci.
 
-**RT-5. Pembatalan dan perubahan data hanya lewat admin.**
-Rute `rental.cancel` hanya ada di grup admin (`routes/web.php:190`); halaman unit
-pelanggan hanya memuat 4 form: respons desain, bukti bayar, setujui ongkos, rating.
-Salah ketik nama penerima atau ucapan tidak bisa diperbaiki sendiri, dan
-membatalkan berarti menghubungi admin. Tidak ada tombol "pesan ulang" dari unit
-yang dibatalkan, jadi pesanan baru dimulai dari nol.
-_Dampak_: tinggi, karena ini jalur paling sering dipakai saat ada kesalahan.
+**RT-5. Pembatalan dan perubahan data hanya lewat admin (selesai di babak C).**
+Halaman unit pelanggan kini punya tiga jalur mandiri:
+- **Batalkan unit** (status `pending`/`confirmed` dan `progress = waiting`) dengan
+  alasan wajib + centang "DP tidak dikembalikan"; tercatat sebagai event pembatalan
+  dengan `cancel_responsibility = customer` dan `cancel_code = customer_request`.
+  Admin tetap dapat melanjutkan unit yang batal keliru selama batas kelanjutan.
+- **Perbaiki nama, ucapan, permintaan desain, dan alamat** selama `progress = waiting`
+  dan belum ada pembayaran terverifikasi. Setiap perubahan dicatat di riwayat progres.
+  Bila desain sudah disetujui/diputuskan admin, hanya alamat yang masih bisa diubah.
+- **Pesan ulang** unit yang dibatalkan: isian unit disalin ke keranjang tanpa tanggal,
+  lalu pelanggan memilih tanggal baru di checkout dan ketersediaan diperiksa ulang.
 
 **RT-6. Pelunasan terlambat bergantung pada verifikasi di hari yang sama (selesai di babak B).**
 Dulu `eligibleForLatePayment` hanya berlaku tepat pada `starts_on`, dan `resume`
@@ -166,16 +171,27 @@ pembayaran ditolak (`RentalPaymentController.php:37`), dan penjadwal hanya memas
 tetap `confirmed` dan menahan tanggal tanpa ada tenggat. Admin melihat antreannya di
 dasbor (`rentalQuoteNeeded`), jadi tidak sepenuhnya gelap, tetapi tidak ada
 eskalasi bila antrean bertambah.
+_Sebagian ditutup di babak C_: pelanggan kini dapat menolak penawaran (dengan alasan)
+dan membatalkan unit sendiri sebelum dikerjakan, sehingga kebuntuan tidak lagi
+berakhir di WhatsApp. Eskalasi otomatis untuk antrean ongkos belum dibuat —
+pengingat khusus ongkos masih menjadi sisa.
 
-**DL-4. Pelanggan tidak punya jalan keluar selain WhatsApp (sedang).**
-Tidak ada rute batal untuk pelanggan. Bila admin tidak merespons, unit menahan
-tanggal sampai acara dan pelanggan tidak punya cara mundur yang tercatat.
+**DL-4. Pelanggan tidak punya jalan keluar selain WhatsApp (selesai di babak C).**
+Rute `rental.cancel.customer` + form "Batalkan unit ini" memberi jalan mundur yang
+tercatat (alasan, centang konsekuensi DP, event pembatalan, tanggung jawab pelanggan).
+Admin tetap dapat melanjutkan unit yang batal keliru selama batas kelanjutan
+berlaku, sehingga pembatalan keliru tidak permanen.
 
 **DL-5. Unit yang lupa ditandai kembali tidak pernah selesai (ringan-sedang).**
 `handed_over → returned` murni manual (`RentalProgressController.php:21`). Tanpa
 tanda itu, rating produk dan rating pesanan terkunci
 (`RentalFeedbackController.php:57`), dan unit tetap dihitung "aktif" di dasbor
 selamanya.
+_Ditutup sebagian di babak C_: `rental:remind` mengirim pengingat harian ke admin
+untuk unit yang masih `handed_over` dua hari setelah `ends_on` (`return_pending`),
+dasbor menampilkan kartu "unit sudah lewat tanggal kembali", dan filter
+`return_overdue` menyaring daftar pesanan. Penandaan tetap manual agar admin
+memastikan fisik papan sudah diterima.
 
 **DL-6. `payment_review_hold` lengket (sudah diperbaiki di babak A).**
 Hold dipasang saat konfirmasi jadwal dekat, saat penjadwal menandai ongkos manual,
@@ -192,10 +208,10 @@ konsisten.
 
 ## 5. Temuan C — celah konsistensi yang memperparah
 
-**G-1. Gerbang serah terima tidak memeriksa desain, hanya pembayaran.**
-`handed_over` hanya memeriksa tagihan. Konsistensinya masih terjaga karena
-`production` wajib lewat `approved`, tetapi bila kelak ada tombol "lewati", gerbang
-desain hilang tanpa peringatan.
+**G-1. Gerbang serah terima tidak memeriksa desain, hanya pembayaran (selesai di babak C).**
+`handed_over` kini memeriksa ulang `designApprovedForProduction()` sebelum tagihan,
+sehingga jalur apa pun yang mencoba menyerahkan unit tanpa desain disetujui akan
+ditolak dengan pesan yang jelas.
 
 **G-2. Tidak ada penyelesaian otomatis setelah acara.**
 Tidak ada perintah yang menandai `returned` atau menutup unit `confirmed` yang
@@ -306,10 +322,42 @@ sudah ada (transaksi, notifikasi dalam transaksi, perintah penjadwal idempoten).
   terlambat membayar karena itu dapat kehilangan DP setelah batas toleransi — ini
   konsekuensi kebijakan yang dipilih, bukan bug.
 
-**Babak C — belum dikerjakan.** Ongkos dua arah (RT-4/DL-3), pembatalan mandiri
-pelanggan (DL-4/RT-5), perbaikan data unit sebelum diproses, pesan ulang, filter
-katalog dan draf checkout yang bertahan (RT-1/RT-2), pengingat penandaan kembali
-(DL-5), kartu dasbor "menunggu pelanggan" (P2).
+**Babak C — selesai.**
+
+- **Ongkos dua arah (RT-4/DL-3).** Pelanggan menolak penawaran dengan alasan; admin
+  mengirim versi baru selama belum ada pembayaran (`payableAmount()` tetap `null`
+  selama belum disetujui). Riwayat penawaran tersimpan di
+  `rental_transport_quote_events` (`quote`/`approve`/`reject`, versi, nominal,
+  catatan, pencatat) dan tampil di halaman unit pelanggan maupun detail admin.
+- **Pembatalan mandiri (DL-4/RT-5).** `rental.cancel.customer` menerima alasan +
+  centang konsekuensi, hanya untuk unit `pending`/`confirmed` yang belum dikerjakan
+  (`progress = waiting`). Tercatat sebagai `cancel_code = customer_request` dengan
+  tanggung jawab pelanggan, dan admin tetap bisa melanjutkan bila batal keliru.
+- **Perbaikan data unit (RT-5).** `rental.unit.update` memperbaiki nama penerima,
+  ucapan, permintaan desain, alamat antar/kembali, dan metode antar/kembali selama
+  belum ada pembayaran terverifikasi dan unit belum diproses. Setelah desain
+  disetujui/diputuskan, hanya alamat dan metode yang masih bisa diubah. Semua
+  perubahan dicatat di riwayat progres.
+- **Pesan ulang (RT-5).** `rental.unit.reorder` menyalin isian unit batal ke
+  keranjang tanpa tanggal, dengan pemeriksaan produk aktif, stok, dan batas 50 unit.
+- **Filter katalog (RT-1).** Kartu produk membawa `q`/`category`, dan detail produk
+  mengembalikan pelanggan ke katalog berfilter yang sama.
+- **Draf checkout (RT-2).** Isian terakhir disimpan di sesi dan dipulihkan saat
+  checkout dibuka lagi; kunci keranjang memastikan draf tidak dipulihkan untuk
+  keranjang yang berbeda, dan draf dihapus setelah pesanan berhasil.
+- **Pengingat penandaan kembali (DL-5).** `rental:remind` menambah jenis
+  `return_pending` untuk unit `handed_over` yang dua hari lewat tanggal kembali;
+  dasbor menampilkan kartu "sudah lewat tanggal kembali" dan filter admin
+  `return_overdue` menyaringnya.
+- **Kartu dasbor "menunggu pelanggan" (P2).** Tiga kartu berisi jumlah unit yang
+  menunggu persetujuan desain, persetujuan ongkos, dan toleransi pembayaran.
+- **Gerbang serah terima (G-1).** `handed_over` memeriksa desain sebelum tagihan.
+- Tes: `tests/Feature/RentalCustomerControlsTest.php`,
+  `tests/Feature/RentalWaitingQueuesTest.php`,
+  `tests/Feature/RentalCheckoutDraftTest.php`.
+- Sisa yang belum ditutup: eskalasi otomatis untuk antrean ongkos yang tidak pernah
+  ditawar (DL-3), penutupan otomatis setelah acara (G-2), rating pesanan yang masih
+  menuntut semua unit selesai (G-3), dan batas jumlah revisi desain (RT-3).
 
 ## 8. Yang sudah benar dan sebaiknya tidak diubah
 
@@ -329,7 +377,8 @@ katalog dan draf checkout yang bertahan (RT-1/RT-2), pengingat penandaan kembali
 | --- | --- |
 | DL-1 | **ada**: `RentalDesignDeadlineTest` (tenggat, keputusan wajib beralasan, versi preview baru membatalkan keputusan) + `RentalReminderTest` |
 | DL-2/DL-6 | **ada**: `RentalReminderTest` (hold dibersihkan saat tagihan tertutup, scope `returned` diabaikan) |
-| DL-3/RT-4 | tes: tolak ongkos → admin kirim versi baru → pelanggan setujui versi terbaru; versi lama ditolak |
-| RT-5 | tes: pelanggan batal sendiri; perubahan data unit tercatat; pesan ulang mengisi keranjang |
+| DL-3/RT-4 | **ada**: `RentalCustomerControlsTest` (tolak ongkos → versi baru → setujui versi terbaru, versi lama ditolak, ongkos terkunci setelah ada pembayaran) |
+| RT-5 | **ada**: `RentalCustomerControlsTest` (batal sendiri + stok kembali, perbaikan data tercatat & terkunci, pesan ulang mengisi keranjang) |
 | RT-6 | **ada**: `RentalLatePaymentGraceTest` (bukti H+1 diterima sampai 12.00, ditolak sesudahnya, DP hangus, pengingat toleransi) |
-| RT-1/RT-2 | tes: tautan kembali membawa query; draf checkout bertahan setelah kembali ke keranjang |
+| RT-1/RT-2 | **ada**: `RentalCheckoutDraftTest` (tautan kembali membawa query; draf bertahan setelah mampir ke keranjang; keranjang & draf bersih setelah pesanan berhasil) |
+| DL-5/P2 | **ada**: `RentalWaitingQueuesTest` (dasbor "menunggu pelanggan", filter toleransi & lewat kembali, pengingat kembali sekali per hari) |

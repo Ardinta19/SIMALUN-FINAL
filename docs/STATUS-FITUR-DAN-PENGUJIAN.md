@@ -1,6 +1,6 @@
 # Status fitur dan pemeriksaan Berkah Kreatif
 
-Snapshot setelah pengujian Windows pada commit `bdb1101`: **215 tes lulus, 1.225 assertion**. Perubahan setelah commit tersebut belum termasuk hasil itu. Ini adalah inventaris berdasarkan kode dan tes yang ada, bukan pernyataan bahwa seluruh kebutuhan sudah selesai, aman, atau siap produksi. Dokumen audit awal `AUDIT-BERKAH-KREATIF.md` adalah snapshot historis; status fitur di sana dapat sudah berubah.
+Snapshot kode setelah babak C alur pemesanan (ongkos dua arah, batal mandiri, pesan ulang, draf checkout, pengingat kembali). Hasil `php artisan test` terakhir yang dilaporkan pengguna adalah pada commit `943494e`: **306 lulus, 4 gagal**; kegagalannya diperbaiki di `01b6f4b` tetapi belum diuji ulang, dan perubahan babak C sesudahnya belum dijalankan di Windows. Ini adalah inventaris berdasarkan kode dan tes yang ada, bukan pernyataan bahwa seluruh kebutuhan sudah selesai, aman, atau siap produksi. Dokumen audit awal `AUDIT-BERKAH-KREATIF.md` adalah snapshot historis; status fitur di sana dapat sudah berubah.
 
 ## Inventaris alur sewa
 
@@ -10,13 +10,13 @@ Snapshot setelah pengujian Windows pada commit `bdb1101`: **215 tes lulus, 1.225
 | Katalog admin | Kelola produk, kategori, stok, paket durasi dan tarif universitas | Uji perubahan katalog bersamaan dengan transaksi; foto produk yang diganti dibersihkan bila tidak direferensikan produk lain, dan perubahan produk, kategori serta paket yang baru dilakukan dicatat di audit. |
 | Checkout | Beberapa unit terpisah, tanggal acara sekaligus penerimaan per unit dan tanggal pengembalian, rincian desain/serah terima, harga dan tarif snapshot, persetujuan ketentuan; pesanan lama tetap mempertahankan tanggalnya | Uji banyak unit dan input batas di browser; tombol dinonaktifkan saat pengiriman jika JavaScript aktif; pengulangan untuk unit keranjang yang sama diperiksa di server, tetapi penguncian dan interleaving sesi tetap perlu uji proses bersamaan di MySQL; checkout memeriksa stok terkonfirmasi dan overlap antarunit, tetapi tidak mencadangkan stok; unit pending lain tidak dihitung sebagai reservasi dan perlu konfirmasi admin. |
 | Reservasi | Tanggal ditahan sejak pesanan dikirim (pending), stok berdasarkan irisan tanggal, konfirmasi, pembatalan dan riwayat, pelanjutan, pembatalan otomatis setelah 24 jam, jendela pemesanan 366 hari | Uji transaksi bersamaan pada MySQL dan scheduler nyata. Periksa penanganan jadwal dekat dan semua interleaving pembatalan/pelanjutan. |
-| Ongkos | Tarif universitas atau penawaran manual per unit dan persetujuan pelanggan | Uji perubahan penawaran, metode, batas nominal dan peninjauan manual dalam alur lengkap. |
+| Ongkos | Tarif universitas atau penawaran manual per unit; pelanggan menyetujui atau **menolak beralasan**, admin mengirim versi baru selama belum ada pembayaran, riwayat penawaran tersimpan | Uji negosiasi dua arah, penolakan setelah pembayaran masuk (harus ditolak), dan tampilan riwayat di dua peran. |
 | Desain | Preview privat berversi, persetujuan/revisi, kontrol sebelum pengerjaan, tenggat respons (48 jam / H-3) dan keputusan admin "lanjutkan dengan catatan" beralasan yang tercatat di riwayat | Uji unggahan, akses silang, kegagalan storage dan penggunaan nyata pada perangkat. |
 | Pembayaran | Bukti privat per unit, DP fleksibel, verifikasi, koreksi dan refund tercatat, toleransi bukti terlambat sampai H+1 pukul 12.00 WIB sebelum DP hangus | Uji batas H-1 WIB, bukti terlambat/ditolak, race saat unggah dan verifikasi serta konsistensi setelah kegagalan. Refund adalah pencatatan manual, bukan transfer otomatis. |
-| Operasional | Progres per unit, jadwal bulanan dan filter kegiatan, ringkasan cetak | Periksa kesesuaian alur bisnis di perangkat; jadwal bukan bukti serah terima. |
+| Operasional | Progres per unit (serah terima memeriksa desain dan tagihan), jadwal bulanan dan filter kegiatan, ringkasan cetak, filter "toleransi" dan "lewat tanggal kembali", kartu dasbor "menunggu pelanggan" | Periksa kesesuaian alur bisnis di perangkat; jadwal bukan bukti serah terima. |
 | Buku kas | Entri manual, perbandingan periode, ekspor CSV, pemasukan dari verifikasi dan pengeluaran dari refund | Audit konsistensi dan duplikasi secara menyeluruh, termasuk data finance lama yang ikut ditampilkan. |
 | Notifikasi | Pemberitahuan rental dalam aplikasi untuk beberapa perubahan | Periksa seluruh transisi, penjadwal dan ketersediaan penerima; bukan jaminan email, WhatsApp, atau pemberitahuan push. |
-| Pengingat | Perintah `rental:remind` dijadwalkan tiap lima menit: bukti menganggur lebih dari 6 jam (admin), pelunasan H-1 (pelanggan), respons desain lebih dari 24 jam (pelanggan), eskalasi 48 jam atau H-3 (admin); satu pesan per unit, jenis, penerima dan tanggal | Uji pada data nyata bahwa pesan tidak menumpuk, penerima nonaktif benar-benar dilewati, dan isi pesan sesuai tagihan; pengingat tidak mengubah status apa pun |
+| Pengingat | Perintah `rental:remind` dijadwalkan tiap lima menit: bukti menganggur lebih dari 6 jam (admin), pelunasan H-1 (pelanggan), toleransi H+1 (pelanggan dan admin), respons desain lebih dari 24 jam (pelanggan), eskalasi 48 jam atau H-3 (admin), unit belum ditandai kembali H+2 (admin); satu pesan per unit, jenis, penerima dan tanggal | Uji pada data nyata bahwa pesan tidak menumpuk, penerima nonaktif benar-benar dilewati, dan isi pesan sesuai tagihan; pengingat tidak mengubah status apa pun |
 
 ## Pemeriksaan sebelum penggunaan nyata
 
@@ -29,13 +29,24 @@ Snapshot setelah pengujian Windows pada commit `bdb1101`: **215 tes lulus, 1.225
 
 Jangan jalankan transaksi atau pembayaran nyata sebelum pemeriksaan dan keputusan tersebut selesai. Jangan menjalankan seeder atau migrasi destruktif terhadap database yang berisi data penting.
 
+### Uji manual babak C (belum dijalankan)
+
+1. **Ongkos dua arah.** Buat unit dengan metode antar; admin kirim penawaran, pelanggan tekan "Tolak" tanpa alasan (harus ditolak) lalu dengan alasan. Pastikan tagihan kembali "belum pasti" dan riwayat menampilkan penolakan. Admin kirim versi 2, pelanggan setujui, lalu coba setujui versi 1 lewat alat pengembang (harus ditolak). Setelah pelanggan mengunggah bukti, admin tidak boleh lagi mengubah ongkos.
+2. **Batal mandiri.** Pada unit `pending`/`confirmed` yang belum dikerjakan, tekan "Batalkan unit ini" tanpa centang (harus ditolak), lalu dengan alasan + centang. Unit harus `cancelled` dengan kode `customer_request`, tanggal kembali tersedia di katalog, dan admin masih bisa "Lanjutkan unit" pada hari acara. Unit yang sudah "Dikerjakan" tidak boleh dibatalkan sendiri.
+3. **Perbaiki data.** Ubah nama/ucapan/alamat sebelum bayar: harus tersimpan dan muncul di riwayat progres. Setelah desain disetujui, ubah nama (harus ditolak) dan ubah alamat (harus diterima). Setelah pembayaran terverifikasi, semua perubahan ditolak.
+4. **Pesan ulang.** Dari unit batal, tekan "Pesan ulang": keranjang berisi unit dengan isian lama tanpa tanggal, checkout menampilkan isian itu, dan tanggal baru tetap diperiksa ketersediaannya.
+5. **Filter katalog.** Saring katalog (kata kunci + kategori + tanggal), buka satu papan, tekan "← Kembali ke katalog": filter harus sama. Halaman lain di detail juga harus kembali ke katalog berfilter.
+6. **Draf checkout.** Isi checkout sebagian, kirim (gagal), buka keranjang, lalu kembali ke checkout: isian tadi harus muncul lagi. Setelah pesanan berhasil, keranjang dan draf harus kosong.
+7. **Pengingat kembali.** Tandai unit serah terima, atur `ends_on` dua hari ke belakang, jalankan `php artisan rental:remind` dua kali: hanya satu notifikasi `return_pending`, dan dasbor menampilkan kartu "sudah lewat tanggal kembali". Filter `return_overdue` dan `grace` di daftar pesanan admin harus menyaring dengan benar.
+8. **Gerbang serah terima.** Coba majukan unit `ready → handed_over` tanpa desain disetujui (ubah data lewat database): harus ditolak dengan pesan desain.
+
 ## Lampiran laporan kendala
 
 Lampiran laporan baru disimpan pada disk lokal privat dan ditampilkan melalui rute admin terautentikasi. Lampiran historis pada `storage/app/public/reports` tetap berada di lokasi publik lama agar tidak rusak; tautan langsung lama masih dapat diakses jika `public/storage` tersedia. Untuk melindungi lampiran lama, cadangkan dan rencanakan migrasi berkas serta pembaruan jalurnya secara teruji; perubahan ini tidak memindahkan atau menghapus data lama. Bukti laundry lama juga perlu audit terpisah.
 
 ## Hasil tes pengguna terbaru
 
-Pada commit `4870668`, pengguna menjalankan `php artisan test` di Windows: **230 passed, 1469 assertions**, 8,01 detik. Hasil ini mencakup tes fitur rating dan suka serta kebijakan referrer tautan publik. Perubahan setelah commit tersebut belum termasuk hasil ini. Tes otomatis tersebut bukan pengganti uji visual browser, uji konkurensi MySQL, atau pemeriksaan kesiapan produksi.
+Pada commit `943494e`, pengguna menjalankan `php artisan test` di Windows: **306 lulus, 4 gagal (2.539 assertion)**; empat kegagalan itu diperbaiki di `01b6f4b` dengan `RentalCategory::firstOrCreate` dan `actingAs($admin)` pada tes tenggat desain, tetapi hasil ulangnya belum dilaporkan. Hasil stabil terakhir sebelum rangkaian perbaikan alur adalah **230 passed, 1.469 assertions** pada commit `4870668`. Hasil ini mencakup tes fitur rating dan suka serta kebijakan referrer tautan publik. Perubahan setelah commit tersebut belum termasuk hasil ini. Tes otomatis tersebut bukan pengganti uji visual browser, uji konkurensi MySQL, atau pemeriksaan kesiapan produksi.
 
 ### Perubahan setelah `4870668` yang belum diuji di Windows
 
