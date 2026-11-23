@@ -1,5 +1,9 @@
 * text=auto eol=lf
 
+# Pustaka pihak ketiga disimpan apa adanya: baris baru CRLF milik paket
+# tidak boleh dinormalisasi, supaya checksum tetap sama dengan rilis resmi.
+public/vendor/** -text
+
 *.blade.php diff=html
 *.css diff=css
 *.html diff=html
