@@ -864,6 +864,16 @@ html[data-theme="dark"] :is(.cart-number, .cart-item .cart-placeholder, .tip) {
     color: var(--theme-ink-lt);
 }
 
+/* Halaman galat memakai kartu terang di atas gradien; saat kartunya ikut
+   menggelap, kode besar dan pil kode harus ikut jadi terang. */
+html[data-theme="dark"] :is(.code-big, .code-pill) {
+    color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(.code-pill) {
+    background: var(--theme-surface-3);
+}
+
 html[data-theme="dark"] :is(.rating-stars label) {
     color: #7e8aa0;
 }
@@ -1121,7 +1131,8 @@ html[data-theme="dark"] :is(
     .order-card__footer,
     .history-item,
     .tip,
-    .auth-back
+    .auth-back,
+    .help-card details
 ) {
     border-color: var(--theme-line);
 }

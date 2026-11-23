@@ -330,6 +330,9 @@ class UiKitTest extends TestCase
             '.rating-existing__star',
             '.rating-stars label',
             '.rating-existing__star--off',
+            '.code-big',
+            '.code-pill',
+            '.help-card details',
         ];
 
         foreach ($selectors as $selector) {
@@ -549,6 +552,41 @@ class UiKitTest extends TestCase
         // dipulihkan saat kembali ke tema terang.
         $this->assertStringContainsString('meta[name="theme-color"]', $js);
         $this->assertStringContainsString("DARK_THEME_COLOR = '#140f12'", $js);
+    }
+
+    public function test_themed_pages_never_hardcode_dark_inline_text_colors(): void
+    {
+        $offenders = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            $html = File::get($file->getPathname());
+
+            if (! str_contains($html, '_theme_head')) {
+                continue;
+            }
+
+            preg_match_all('/style="([^"]*)"/s', $html, $matches);
+
+            foreach ($matches[1] as $css) {
+                if (! preg_match('/(?<![\w-])color\s*:\s*(#[0-9a-fA-F]{6})/', $css, $color)) {
+                    continue;
+                }
+
+                // Gaya inline menang atas aturan tema, jadi tinta gelap akan
+                // hilang di mode gelap. Chip yang punya latar sendiri aman.
+                if ($this->relativeLuminance($color[1]) >= 0.30) {
+                    continue;
+                }
+
+                if (preg_match('/background(?:-color)?\s*:\s*#[0-9a-fA-F]{6}/', $css)) {
+                    continue;
+                }
+
+                $offenders[] = $file->getRelativePathname().' → '.$color[0];
+            }
+        }
+
+        $this->assertSame([], $offenders, 'Gunakan var(--theme-*, cadangan-terang) untuk warna teks inline di halaman bertema.');
     }
 
     public function test_auth_pages_keep_text_readable_over_the_gradient(): void

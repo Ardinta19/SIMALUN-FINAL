@@ -75,7 +75,7 @@
         @csrf
         @method('put')
         <div class="card">
-            <h2 style="font-size:1rem; margin-bottom:12px; color:#002f5c;">Ganti Password</h2>
+            <h2 style="font-size:1rem; margin-bottom:12px; color:var(--theme-ink, #002f5c);">Ganti Password</h2>
             <div class="field">
                 <label>Password Saat Ini</label>
                 <input type="password" name="current_password" autocomplete="current-password">
