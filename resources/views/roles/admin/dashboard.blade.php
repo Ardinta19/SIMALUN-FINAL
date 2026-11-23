@@ -11,8 +11,8 @@
 <style>
 /* ═══════════════════════════════════════════════════════════
    BERKAH KREATIF · DASBOR ADMIN
-   Catatan: nama CSS variable di :root dipakai juga oleh
-   _analytics_section.blade.php — jangan di-rename.
+   Catatan: nama CSS variable di :root dipakai anak-anak blok
+   di halaman ini — jangan di-rename tanpa menyisir seluruh berkas.
 ═══════════════════════════════════════════════════════════ */
 :root {
     --blue:       #85092d;
@@ -69,8 +69,8 @@ body {
     position: relative;
     overflow: hidden;
     background:
-        radial-gradient(135% 110% at 88% -25%, rgba(72,202,228,0.55) 0%, transparent 48%),
-        linear-gradient(140deg, #85092d 0%, #0090cd 52%, #00a6d6 100%);
+        radial-gradient(135% 110% at 88% -25%, rgba(255,255,255,0.22) 0%, transparent 48%),
+        linear-gradient(140deg, #54051f 0%, #85092d 55%, #b63050 100%);
     padding-top: max(env(safe-area-inset-top, 0px), 12px);
     padding-bottom: 46px;
 }
@@ -95,7 +95,7 @@ body {
 }
 .brand__logo svg { width: 21px; height: 21px; }
 .brand__name { display: block; font-size: 0.95rem; font-weight: 800; color: #fff; line-height: 1; letter-spacing: 0.2px; }
-.brand__tag { display: block; font-size: 0.5rem; font-weight: 800; color: rgba(255,255,255,0.72); letter-spacing: 2.5px; text-transform: uppercase; margin-top: 3px; }
+.brand__tag { display: block; font-size: 0.68rem; font-weight: 700; color: rgba(255,255,255,0.82); letter-spacing: 0.02em; margin-top: 3px; }
 .notif-btn {
     width: 38px; height: 38px; border-radius: 11px;
     background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.24);
@@ -106,10 +106,10 @@ body {
 .notif-btn svg { width: 19px; height: 19px; stroke: #fff; }
 .notif-badge {
     position: absolute; top: 5px; right: 5px;
-    background: var(--orange); color: #fff; font-size: 0.52rem; font-weight: 900;
-    min-width: 16px; height: 16px; border-radius: 99px;
+    background: var(--orange); color: #fff; font-size: 0.66rem; font-weight: 800;
+    min-width: 18px; height: 18px; border-radius: 99px;
     display: flex; align-items: center; justify-content: center;
-    border: 2px solid #0086c4; padding: 0 3px;
+    border: 2px solid var(--blue-dark); padding: 0 4px;
 }
 
 /* Greeting */
@@ -124,7 +124,7 @@ body {
 .greet__text { min-width: 0; flex: 1; }
 .greet__hi { font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.78); letter-spacing: 0.2px; }
 .greet__name { font-size: 1.4rem; font-weight: 800; color: #fff; line-height: 1.12; margin-top: 1px; text-shadow: 0 1px 10px rgba(0,0,0,0.12); }
-.greet__date { display: inline-flex; align-items: center; gap: 5px; font-size: 0.68rem; font-weight: 700; color: rgba(255,255,255,0.82); margin-top: 4px; }
+.greet__date { display: inline-flex; align-items: center; gap: 5px; font-size: 0.74rem; font-weight: 700; color: rgba(255,255,255,0.82); margin-top: 4px; }
 .greet__date svg { width: 12px; height: 12px; }
 
 /* Operational summary pill */
@@ -166,12 +166,13 @@ body {
 .stat__ico--orange { background: var(--orange-lt); color: var(--orange); }
 .stat__ico--green  { background: var(--green-lt);  color: var(--green); }
 .stat__val { font-size: 1.6rem; font-weight: 800; color: var(--ink); line-height: 1; }
-.stat__lbl { font-size: 0.6rem; font-weight: 700; color: var(--ink-lt); margin-top: 5px; line-height: 1.25; text-transform: uppercase; letter-spacing: 0.3px; }
+.stat__lbl { font-size: 0.74rem; font-weight: 700; color: var(--ink-lt); margin-top: 5px; line-height: 1.3; }
 
 /* ═══════════════════════════════════════════════
    BODY
 ═══════════════════════════════════════════════ */
 .body { max-width: 520px; margin: 16px auto 0; padding: 0 16px; }
+.body-side > .section { margin-top: 24px; }
 
 /* Section header */
 .section { margin-top: 24px; }
@@ -180,26 +181,28 @@ body {
     margin-bottom: 13px; padding: 0 2px;
 }
 .section__title { font-size: 1rem; font-weight: 800; color: var(--ink); letter-spacing: 0.1px; }
-.section__title-sm { font-size: 0.7rem; font-weight: 700; color: var(--ink-lt); margin-top: 2px; }
+.section__title-sm { font-size: 0.78rem; font-weight: 700; color: var(--ink-lt); margin-top: 2px; }
 .section__link { display: inline-flex; align-items: center; gap: 2px; font-size: 0.74rem; font-weight: 800; color: var(--blue); text-decoration: none; }
 .section__link svg { width: 14px; height: 14px; }
 
 /* Revenue card */
 .revenue {
-    background: linear-gradient(135deg, #073b63 0%, #0a4d7a 100%);
+    background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 58%, var(--blue-mid) 100%);
     border-radius: var(--radius); padding: 17px 18px;
     position: relative; overflow: hidden;
-    box-shadow: 0 12px 30px rgba(7,59,99,0.32);
+    box-shadow: 0 12px 30px rgba(84,5,31,0.28);
 }
-.revenue::after { content: ''; position: absolute; width: 150px; height: 150px; border-radius: 50%; background: rgba(72,202,228,0.14); top: -56px; right: -40px; }
+.revenue::after { content: ''; position: absolute; width: 150px; height: 150px; border-radius: 50%; background: rgba(255,255,255,0.12); top: -56px; right: -40px; }
 .revenue__head { display: flex; align-items: center; gap: 9px; position: relative; z-index: 1; }
 .revenue__ico { width: 34px; height: 34px; border-radius: 10px; background: rgba(255,255,255,0.16); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.revenue__ico svg { width: 18px; height: 18px; stroke: #7fe0c4; }
-.revenue__cap { font-size: 0.68rem; font-weight: 700; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.5px; }
+.revenue__ico svg { width: 18px; height: 18px; stroke: #ffd9e2; }
+.revenue__cap { font-size: 0.8rem; font-weight: 700; color: rgba(255,255,255,0.82); }
 .revenue__val { font-size: 1.85rem; font-weight: 800; color: #fff; line-height: 1.05; margin-top: 12px; position: relative; z-index: 1; }
 .revenue__val span { font-size: 0.95rem; font-weight: 700; color: rgba(255,255,255,0.66); }
 .revenue__foot { display: flex; align-items: center; gap: 7px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.14); position: relative; z-index: 1; }
-.revenue__foot svg { width: 15px; height: 15px; stroke: #7fe0c4; flex-shrink: 0; }
+.revenue__foot svg { width: 15px; height: 15px; stroke: #ffd9e2; flex-shrink: 0; }
+.revenue__foot-link { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; font-size: 0.8rem; font-weight: 800; color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.45); padding-bottom: 1px; }
+.revenue__foot-link:hover { border-bottom-color: #fff; }
 .revenue__foot-txt { font-size: 0.74rem; font-weight: 700; color: rgba(255,255,255,0.82); }
 .revenue__foot-txt b { color: #fff; font-weight: 800; }
 
@@ -232,11 +235,10 @@ body {
 .order-empty__ico svg { width: 27px; height: 27px; stroke: var(--green); }
 .order-empty p { color: var(--ink-lt); font-size: 0.82rem; font-weight: 700; line-height: 1.5; }
 
-/* ── Quick actions ── */
-.quick-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+/* ── Baris antrean kerja ── */
 .quick-item { display: flex; align-items: center; gap: 12px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; text-decoration: none; color: inherit; box-shadow: var(--shadow); transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s; }
-.quick-item:active { transform: scale(0.97); border-color: #cfe0f0; box-shadow: 0 6px 18px rgba(0,47,92,0.08); }
-.quick-item__icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.quick-item:active { transform: scale(0.97); border-color: var(--blue-lt); box-shadow: 0 6px 18px rgba(84,5,31,0.10); }
+.quick-item__icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--blue-lt); color: var(--theme-accent-text, var(--blue)); }
 .quick-item__icon svg { width: 20px; height: 20px; }
 .quick-item__label { font-size: 0.8rem; font-weight: 700; color: var(--ink); line-height: 1.25; }
 
@@ -255,7 +257,6 @@ body {
 @media (min-width: 600px) {
     .hero__inner, .stats, .body { max-width: 680px; }
     .stats { gap: 12px; }
-    .quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (min-width: 900px) {
@@ -280,9 +281,11 @@ body {
     .body > .revenue { grid-column: 1 / -1; margin-top: 0; }
     .body > .section { margin-top: 22px; }
     .body > .section:nth-of-type(2) { grid-column: 1; }
-    .body > .section:nth-of-type(3) { grid-column: 2; }
-    .body > .section:nth-of-type(4) { grid-column: 1; }
-    .body > .section:nth-of-type(5) { grid-column: 2; }
+    /* Kolom kanan: dua antrean yang tindakannya bukan milik admin, ditumpuk
+       supaya tidak ada lajur kosong panjang di sebelah kiri. */
+    .body-side { grid-column: 2; }
+    .body-side > .section { margin-top: 22px; }
+    .body-side > .section:first-child { margin-top: 22px; }
     .body > p,
     .body > .logout-section,
     .body > .version-tag { grid-column: 1 / -1; }
@@ -290,7 +293,6 @@ body {
     .logout-section { max-width: 360px; }
     .revenue { padding: 22px 24px; }
     .revenue__val { font-size: 2.2rem; }
-    .quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 }
 </style>
 @include('layouts.component._theme_head')
@@ -316,12 +318,12 @@ body {
     <svg class="hero__wave" viewBox="0 0 414 46" preserveAspectRatio="none" aria-hidden="true"><path fill="#faf4f3" d="M0,24 C70,46 150,6 230,24 C300,40 360,12 414,22 L414,46 L0,46Z"/></svg>
 </header>
 <section class="stats" aria-label="Ringkasan unit sewa">
-    <div class="stat reveal d1"><div class="stat__ico stat__ico--blue" aria-hidden="true">🌸</div><div class="stat__val" data-adm-count data-to="{{ (int) $rentalActive }}" data-duration="1">{{ $rentalActive }}</div><div class="stat__lbl">Unit aktif</div></div>
-    <div class="stat reveal d2"><div class="stat__ico stat__ico--orange" aria-hidden="true">📋</div><div class="stat__val" data-adm-count data-to="{{ (int) $rentalPending }}" data-duration="1">{{ $rentalPending }}</div><div class="stat__lbl">Menunggu</div></div>
-    <div class="stat reveal d3"><div class="stat__ico stat__ico--green" aria-hidden="true">🔎</div><div class="stat__val" data-adm-count data-to="{{ (int) $rentalReview }}" data-duration="1">{{ $rentalReview }}</div><div class="stat__lbl">Tinjau manual</div></div>
+    <div class="stat reveal d1"><div class="stat__ico stat__ico--blue" aria-hidden="true">@include('layouts.component._icon', ['name' => 'package', 'size' => 18])</div><div class="stat__val" data-adm-count data-to="{{ (int) $rentalActive }}" data-duration="1">{{ $rentalActive }}</div><div class="stat__lbl">Unit aktif</div></div>
+    <div class="stat reveal d2"><div class="stat__ico stat__ico--orange" aria-hidden="true">@include('layouts.component._icon', ['name' => 'orders', 'size' => 18])</div><div class="stat__val" data-adm-count data-to="{{ (int) $rentalPending }}" data-duration="1">{{ $rentalPending }}</div><div class="stat__lbl">Menunggu</div></div>
+    <div class="stat reveal d3"><div class="stat__ico stat__ico--green" aria-hidden="true">@include('layouts.component._icon', ['name' => 'search', 'size' => 18])</div><div class="stat__val" data-adm-count data-to="{{ (int) $rentalReview }}" data-duration="1">{{ $rentalReview }}</div><div class="stat__lbl">Tinjau manual</div></div>
 </section>
 <main class="body">
-    <section class="revenue reveal d3" style="margin-top:18px"><div class="revenue__head"><span class="revenue__cap">Pemasukan hari ini · seluruh buku kas</span></div><div class="revenue__val"><span>Rp</span> {{ number_format($pemasukanHari ?? 0, 0, ',', '.') }}</div><div class="revenue__foot"><span class="revenue__foot-txt">Bulan ini <b>Rp {{ number_format($pemasukanBulan ?? 0, 0, ',', '.') }}</b></span></div></section>
+    <section class="revenue reveal d3" style="margin-top:18px"><div class="revenue__head"><span class="revenue__ico" aria-hidden="true">@include('layouts.component._icon', ['name' => 'finance', 'size' => 18])</span><span class="revenue__cap">Pemasukan hari ini · seluruh buku kas</span></div><div class="revenue__val"><span>Rp</span> {{ number_format($pemasukanHari ?? 0, 0, ',', '.') }}</div><div class="revenue__foot"><span class="revenue__foot-txt">Bulan ini <b>Rp {{ number_format($pemasukanBulan ?? 0, 0, ',', '.') }}</b></span><a class="revenue__foot-link" href="{{ route('admin.rental.cashbook.index') }}">Buku kas →</a></div></section>
     <section class="section reveal"><div class="section__head"><div><div class="section__title">Perlu perhatian</div><div class="section__title-sm">Buka tugas untuk memeriksa detail tiap unit</div></div></div>
         <a href="{{ route('admin.rental.orders', ['status' => 'pending']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'orders', 'size' => 18])</span><span class="quick-item__label">{{ $rentalPending }} unit menunggu konfirmasi</span></a>
         <a href="{{ route('admin.rental.orders', ['status' => 'payment_pending']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'payment', 'size' => 18])</span><span class="quick-item__label">{{ $rentalPaymentPending }} bukti menunggu pemeriksaan</span></a>
@@ -332,6 +334,7 @@ body {
         <a href="{{ route('admin.rental.orders', ['status' => 'seller_cancelled']) }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'arrow-left', 'size' => 18])</span><span class="quick-item__label">{{ $rentalSellerCancelled }} unit dibatalkan karena penjual · periksa tindak lanjut</span></a>
         <p style="font-size:.78rem;line-height:1.6;color:var(--theme-ink-mid,#705963);margin:10px 2px 0">Pembatalan karena penjual mencakup seluruh riwayat, termasuk yang sudah ditindaklanjuti.</p>
     </section>
+    <div class="body-side">
     <section class="section reveal"><div class="section__head"><div><div class="section__title">Menunggu pelanggan</div><div class="section__title-sm">Tindakannya ada di pihak pelanggan, bukan admin</div></div></div>
         <a href="{{ route('admin.rental.orders', ['status' => 'design_pending']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'package', 'size' => 18])</span><span class="quick-item__label">{{ $rentalWaitingDesign }} unit menunggu persetujuan desain
 @if($rentalWaitingDesignSince)· menunggu sejak {{ \Carbon\Carbon::parse($rentalWaitingDesignSince)->timezone('Asia/Jakarta')->format('d/m H:i') }} WIB
@@ -351,18 +354,7 @@ body {
         <div class="rental-empty">Belum ada pesanan sewa.</div>
         @endforelse
     </section>
-    <section class="section reveal"><div class="section__head"><div class="section__title">Aksi Cepat</div></div><div class="quick-grid">
-        <a href="{{ route('admin.rental.orders') }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'orders', 'size' => 18])</span><span class="quick-item__label">Pesanan sewa</span></a>
-        <a href="{{ route('admin.rental.schedule') }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'calendar', 'size' => 18])</span><span class="quick-item__label">Jadwal sewa</span></a>
-        <a href="{{ route('admin.catalog.index') }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'package', 'size' => 18])</span><span class="quick-item__label">Kelola katalog</span></a>
-        <a href="{{ route('admin.rental.universities.index') }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'location', 'size' => 18])</span><span class="quick-item__label">Tarif universitas</span></a>
-        <a href="{{ route('admin.rental.cashbook.index') }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'finance', 'size' => 18])</span><span class="quick-item__label">Buku kas</span></a>
-        <a href="{{ route('admin.rental.vouchers.index') }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'voucher', 'size' => 18])</span><span class="quick-item__label">Voucher</span></a>
-        <a href="{{ route('admin.rental.payment-settings.edit') }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'payment', 'size' => 18])</span><span class="quick-item__label">Petunjuk pembayaran</span></a><a href="{{ route('admin.rental.vouchers.index') }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'voucher', 'size' => 18])</span><span class="quick-item__label">Voucher</span></a>
-        <a href="{{ route('admin.help') }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'help', 'size' => 18])</span><span class="quick-item__label">Panduan admin</span></a>
-        <a href="{{ route('admin.notifications') }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'notifikasi', 'size' => 18])</span><span class="quick-item__label">Notifikasi</span></a>
-        <a href="{{ route('admin.audit.index') }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'audit', 'size' => 18])</span><span class="quick-item__label">Audit trail</span></a>
-    </div></section>
+    </div>
     <p style="color:var(--ink-lt,#806975);font-size:.78rem;margin-top:20px">Sistem masih dalam pengujian dan belum untuk transaksi nyata. Ringkasan buku kas dapat mencakup data lama.</p>
     <div class="logout-section"><form action="{{ route('logout') }}" method="POST">@csrf<button type="submit" class="logout-btn">Keluar dari Akun</button></form></div>
     <div class="version-tag">Berkah Kreatif · Admin Panel</div>
