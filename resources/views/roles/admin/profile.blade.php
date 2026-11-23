@@ -378,6 +378,16 @@ body {
             </div>
             <span class="menu-card__arrow">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>
         </a>
+        <a href="{{ route('admin.help') }}" class="menu-card__item">
+            <div class="menu-card__icon">
+                @include('layouts.component._icon', ['name' => 'help', 'size' => 20])
+            </div>
+            <div class="menu-card__body">
+                <div class="menu-card__label">Panduan admin</div>
+                <div class="menu-card__sub">Langkah harian dan jawaban pertanyaan operasional</div>
+            </div>
+            <span class="menu-card__arrow">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>
+        </a>
     </div>
 
     {{-- Banner --}}

@@ -27,4 +27,19 @@ class RentalAdminDashboardTest extends TestCase
         $this->get(route('dashboard.admin'))->assertOk()->assertSee('Pelanggan tidak tersedia');
         $this->get(route('admin.rental.orders'))->assertOk()->assertSee('Pelanggan tidak tersedia');
     }
+
+    public function test_admin_navigation_reaches_the_help_guide(): void
+    {
+        $admin = User::factory()->create();
+        $admin->forceFill(['role' => 'admin'])->save();
+        $helpUrl = route('admin.help');
+
+        $this->actingAs($admin)->get(route('dashboard.admin'))->assertOk()
+            ->assertSee('href="'.$helpUrl.'"', false);
+
+        $this->get(route('admin.profile'))->assertOk()
+            ->assertSee('href="'.$helpUrl.'"', false);
+
+        $this->get($helpUrl)->assertOk()->assertSee('Panduan admin');
+    }
 }

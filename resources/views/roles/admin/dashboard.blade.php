@@ -317,6 +317,7 @@ body {
         <a href="{{ route('admin.rental.universities.index') }}" class="quick-item"><span class="quick-item__icon">📍</span><span class="quick-item__label">Tarif universitas</span></a>
         <a href="{{ route('admin.rental.cashbook.index') }}" class="quick-item"><span class="quick-item__icon">📒</span><span class="quick-item__label">Buku kas</span></a>
         <a href="{{ route('admin.rental.payment-settings.edit') }}" class="quick-item"><span class="quick-item__icon">💳</span><span class="quick-item__label">Petunjuk pembayaran</span></a><a href="{{ route('admin.rental.vouchers.index') }}" class="quick-item"><span class="quick-item__icon">🎟️</span><span class="quick-item__label">Voucher</span></a>
+        <a href="{{ route('admin.help') }}" class="quick-item"><span class="quick-item__icon">❓</span><span class="quick-item__label">Panduan admin</span></a>
         <a href="{{ route('admin.notifications') }}" class="quick-item"><span class="quick-item__icon">🔔</span><span class="quick-item__label">Notifikasi</span></a>
         <a href="{{ route('admin.audit.index') }}" class="quick-item"><span class="quick-item__icon">🔐</span><span class="quick-item__label">Audit trail</span></a>
     </div></section>

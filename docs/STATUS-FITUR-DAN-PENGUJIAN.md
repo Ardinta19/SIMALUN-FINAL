@@ -114,3 +114,13 @@ Pemeriksaan yang perlu dilakukan di Windows setelah `php artisan migrate`:
 5. Coba kode yang kuotanya sudah habis dan kode nonaktif; keranjang harus tetap utuh.
 
 Penghapusan modul laundry lama (pesanan, walk-in, keuangan, voucher laundry, kategori, laporan, kurir) **ditunda** sesuai keputusan pemilik. Rute dan halamannya masih ada tetapi tidak tertaut dari navigasi; rencananya dikerjakan sebagai babak tersendiri setelah voucher stabil.
+
+### Babak H — audit alur dan jalur (`statis, belum diuji di Windows`)
+
+Laporan lengkap: `docs/AUDIT-ALUR-DAN-JALUR.md`. Ringkasnya:
+
+1. Seluruh **168 statement rute** diperiksa: 167 bernama, 0 nama/URI ganda, semua aksi controller dan semua `view()` ada, 0 rute admin/kurir tanpa middleware peran, dan **semua formulir** punya `action`, metode yang cocok dengan verb rute, serta `@csrf`.
+2. Dua belas alur sewa ditelusuri ujung ke ujung (katalog → keranjang → checkout → konfirmasi → ongkos → desain → pembayaran → progres → serah terima → pengembalian → rating, ditambah voucher, notifikasi/pengingat, buku kas, profil, dan autentikasi). Tidak ada langkah yang buntu.
+3. Temuan yang diperbaiki: halaman **Panduan admin** (`admin.help`) berisi panduan sewa lengkap tetapi tidak tertaut sama sekali. Sekarang tertaut dari *Aksi Cepat* dasbor admin dan menu *Pengaturan Operasional* di profil admin, dikunci tes baru `test_admin_navigation_reaches_the_help_guide` (total menjadi **±346 tes**).
+4. Temuan yang menunggu keputusan: 7 agregat dasbor dihitung tetapi tidak dirender (partial `_analytics_section` tidak di-`@include`), profil kurir memakai tampilan profil pelanggan, dua URL dasbor admin, alur verifikasi email dorman, konfirmasi kata sandi tidak dipakai, serta endpoint dan view sisa modul laundry yang kini menjadi kepulauan tertutup (tidak punya jalan masuk dari UI sewa).
+5. Tidak ada perubahan pada aturan bisnis, skema database, atau rute. Perubahan kode pada babak ini hanya dua tautan dan satu tes.
