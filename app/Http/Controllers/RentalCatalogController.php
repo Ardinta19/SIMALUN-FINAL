@@ -49,19 +49,24 @@ class RentalCatalogController extends Controller
             $page = max(1, (int) LengthAwarePaginator::resolveCurrentPage());
             $products = new LengthAwarePaginator($matching->forPage($page, 12)->values(), $matching->count(), 12, $page, ['path' => $request->url(), 'query' => $request->query()]);
         }
-        return view('catalog.index', compact('products', 'categories', 'dates'));
+        // Kalender filter hanya memblokir tanggal yang penuh untuk SEMUA papan,
+        // bukan untuk satu produk: filter ini mencari papan mana saja yang kosong.
+        $blockedDates = $availability->datesWithNoAvailableProduct(
+            RentalProduct::where('is_active', true)->whereHas('category', fn ($q) => $q->where('is_active', true))->get(['id', 'stock'])
+        );
+        return view('catalog.index', compact('products', 'categories', 'dates', 'blockedDates'));
     }
 
     private function validateRentalPeriod(array $data): void
     {
         $start = CarbonImmutable::createFromFormat('!Y-m-d', $data['starts_on'], 'Asia/Jakarta');
         $end = CarbonImmutable::createFromFormat('!Y-m-d', $data['ends_on'], 'Asia/Jakarta');
+        // Urutan tanggal menempel pada kolom pengembalian; sisa aturannya
+        // (masa lalu, jendela satu tahun, durasi) dipusatkan di service.
         if ($end->lt($start)) {
             throw ValidationException::withMessages(['ends_on' => 'Tanggal pengembalian tidak boleh sebelum tanggal acara dan penerimaan.']);
         }
-        if ($start->isBefore(CarbonImmutable::now('Asia/Jakarta')->startOfDay()) || $start->diffInDays($end) >= 366) {
-            throw ValidationException::withMessages(['starts_on' => 'Tanggal acara tidak boleh di masa lalu dan periode maksimal 366 hari.']);
-        }
+        RentalAvailability::assertBookablePeriod($data['starts_on'], $data['ends_on']);
     }
 
     public function show(Request $request, RentalProduct $product, RentalAvailability $availability)

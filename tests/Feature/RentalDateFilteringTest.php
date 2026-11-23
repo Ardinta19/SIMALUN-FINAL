@@ -51,7 +51,7 @@ class RentalDateFilteringTest extends TestCase
 
             $this->actingAs($customer)->get(route('catalog.show', $product))->assertOk()
                 ->assertSee('data-fc-disabled=\'["2026-12-05","2026-12-06"]\'', false)
-                ->assertSee('max="2027-03-30"', false)
+                ->assertSee('max="2027-12-01"', false)
                 ->assertSee('id="detail-booked-hint"', false)
                 // Kedua kolom tanggal satu rentang, supaya rentang yang
                 // melewati hari penuh bisa ditolak sebelum dikirim.
@@ -67,7 +67,7 @@ class RentalDateFilteringTest extends TestCase
             $this->post(route('cart.store', $product), ['quantity' => 1]);
             $this->get(route('rental.checkout'))->assertOk()
                 ->assertSee('data-fc-disabled=\'["2026-12-05","2026-12-06"]\'', false)
-                ->assertSee('max="2027-03-30"', false)
+                ->assertSee('max="2027-12-01"', false)
                 ->assertSee('Tanggal yang sudah dibooking tidak bisa dipilih', false)
                 ->assertSee('data-fc-range="unit-', false)
                 ->assertSee('data-fc-stock="1"', false);

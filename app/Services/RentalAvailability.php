@@ -10,6 +10,51 @@ use Illuminate\Validation\ValidationException;
 class RentalAvailability
 {
     /**
+     * Jendela pemesanan: hari ini sampai hari ini + 365 (satu tahun).
+     *
+     * Satu angka ini dipakai untuk tiga hal yang harus selalu sama:
+     * tanggal yang ditandai penuh di kalender, batas `max` input tanggal,
+     * dan validasi server. Sebelumnya kalender hanya memeriksa 120 hari
+     * tetapi server menerima tanggal jauh di luar itu, sehingga pesanan
+     * berjarak lebih dari 120 hari tidak pernah tampil sebagai terblokir.
+     */
+    public const BOOKING_HORIZON_DAYS = 366;
+
+    /** Hari pertama dan terakhir yang masih boleh dipesan. */
+    public static function bookingWindow(): array
+    {
+        $from = CarbonImmutable::now('Asia/Jakarta')->startOfDay();
+
+        return ['from' => $from, 'to' => $from->addDays(self::BOOKING_HORIZON_DAYS - 1)];
+    }
+
+    /**
+     * Validasi rentang tanggal pesanan terhadap jendela pemesanan.
+     *
+     * $field dan $prefix disesuaikan dengan formulir pemanggil agar pesan
+     * galat tetap menempel pada kolom yang benar (mis. "Unit 2: ...").
+     */
+    public static function assertBookablePeriod(string $startsOn, string $endsOn, string $field = 'starts_on', string $prefix = ''): void
+    {
+        $start = CarbonImmutable::createFromFormat('!Y-m-d', $startsOn, 'Asia/Jakarta');
+        $end = CarbonImmutable::createFromFormat('!Y-m-d', $endsOn, 'Asia/Jakarta');
+        $window = self::bookingWindow();
+
+        if ($end->lessThan($start)) {
+            throw ValidationException::withMessages([$field => $prefix.'tanggal pengembalian tidak boleh sebelum tanggal acara dan penerimaan.']);
+        }
+        if ($start->lessThan($window['from'])) {
+            throw ValidationException::withMessages([$field => $prefix.'tanggal acara tidak boleh di masa lalu.']);
+        }
+        if ($start->greaterThan($window['to']) || $end->greaterThan($window['to'])) {
+            throw ValidationException::withMessages([$field => $prefix.'tanggal pemesanan paling jauh '.self::BOOKING_HORIZON_DAYS.' hari dari hari ini.']);
+        }
+        if ($start->diffInDays($end) >= self::BOOKING_HORIZON_DAYS) {
+            throw ValidationException::withMessages([$field => $prefix.'periode sewa maksimal '.self::BOOKING_HORIZON_DAYS.' hari.']);
+        }
+    }
+
+    /**
      * Perkiraan sisa unit pada rentang tanggal. Secara bawaan status yang
      * menahan stok ikut dihitung: pesanan pending sudah mengunci tanggal
      * sampai admin mengonfirmasi atau tenggatnya lewat.
@@ -75,7 +120,7 @@ class RentalAvailability
      */
     public function fullyBookedDates(
         RentalProduct $product,
-        int $days = 120,
+        int $days = self::BOOKING_HORIZON_DAYS,
         array $statuses = RentalOrderUnit::RESERVING_STATUSES
     ): array {
         $stock = (int) $product->stock;
@@ -98,6 +143,52 @@ class RentalAvailability
         $full = array_keys(array_filter($counts, fn (int $used): bool => $used >= $stock));
         sort($full);
         return $full;
+    }
+
+    /**
+     * Tanggal yang tidak bisa dipakai satu pun produk aktif.
+     *
+     * Dipakai input tanggal di halaman katalog: filter di sana mencari papan
+     * mana saja yang tersedia, jadi tanggal baru layak diblokir bila semua
+     * papan sudah penuh. Kalau masih ada satu papan kosong, tanggalnya tetap
+     * bisa dipilih karena hasil filternya akan berisi papan itu.
+     *
+     * @param  \Illuminate\Support\Collection<int, RentalProduct>  $products
+     * @return array<int, string> daftar tanggal Y-m-d yang tidak tersedia
+     */
+    public function datesWithNoAvailableProduct($products, int $days = self::BOOKING_HORIZON_DAYS): array
+    {
+        $products = $products->filter(fn ($product): bool => (int) $product->stock > 0);
+        if ($products->isEmpty()) return [];
+        $from = CarbonImmutable::now('Asia/Jakarta')->startOfDay();
+        $to = $from->addDays(max(1, $days) - 1);
+        $units = RentalOrderUnit::whereIn('rental_product_id', $products->modelKeys())->whereIn('status', RentalOrderUnit::RESERVING_STATUSES)
+            ->whereDate('starts_on', '<=', $to->toDateString())->whereDate('ends_on', '>=', $from->toDateString())
+            ->get(['rental_product_id', 'starts_on', 'ends_on']);
+        $used = [];
+        foreach ($units as $unit) {
+            $cursor = CarbonImmutable::parse(max($unit->starts_on->toDateString(), $from->toDateString()));
+            $last = CarbonImmutable::parse(min($unit->ends_on->toDateString(), $to->toDateString()));
+            while ($cursor->lessThanOrEqualTo($last)) {
+                $date = $cursor->toDateString();
+                $used[$unit->rental_product_id][$date] = ($used[$unit->rental_product_id][$date] ?? 0) + 1;
+                $cursor = $cursor->addDay();
+            }
+        }
+        $stocks = $products->mapWithKeys(fn ($product): array => [$product->id => (int) $product->stock]);
+        $result = [];
+        for ($cursor = $from; $cursor->lessThanOrEqualTo($to); $cursor = $cursor->addDay()) {
+            $date = $cursor->toDateString();
+            $allFull = true;
+            foreach ($stocks as $productId => $stock) {
+                if (($used[$productId][$date] ?? 0) < $stock) {
+                    $allFull = false;
+                    break;
+                }
+            }
+            if ($allFull) $result[] = $date;
+        }
+        return $result;
     }
 
     /** Periksa seluruh unit pada satu produk, termasuk overlap antarunit sendiri. */

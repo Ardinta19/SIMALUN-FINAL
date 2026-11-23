@@ -855,7 +855,7 @@ class UiKitTest extends TestCase
         $this->assertStringContainsString('class="bk-qty" data-bk-qty', $show);
         $this->assertStringContainsString("data-fc-disabled='@json(\$bookedDates)'", $show);
         $this->assertStringContainsString('id="detail-booked-hint"', $show);
-        $this->assertStringContainsString("addDays(119)", $show);
+        $this->assertStringContainsString('BOOKING_HORIZON_DAYS - 1', $show);
 
         $cart = File::get(resource_path('views/catalog/cart.blade.php'));
         $this->assertStringContainsString('bk-del', $cart);

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\RentalProduct;
 use App\Services\RentalAvailability;
-use Carbon\CarbonImmutable;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -38,11 +37,9 @@ class RentalCartController extends Controller
         }
         $entry = ['product_id' => $product->id];
         if (! empty($data['starts_on'])) {
-            $start = CarbonImmutable::parse($data['starts_on'], 'Asia/Jakarta');
-            $end = CarbonImmutable::parse($data['ends_on'], 'Asia/Jakarta');
-            if ($start->isBefore(now('Asia/Jakarta')->startOfDay()) || $start->diffInDays($end) >= 366) {
-                throw ValidationException::withMessages(['starts_on' => 'Tanggal acara tidak boleh di masa lalu dan periode maksimal 366 hari.']);
-            }
+            // Masa lalu, jendela satu tahun, dan durasi memakai aturan yang sama
+            // dengan filter katalog dan halaman detail.
+            RentalAvailability::assertBookablePeriod($data['starts_on'], $data['ends_on']);
             $entry += ['starts_on' => $data['starts_on'], 'ends_on' => $data['ends_on']];
             $this->checkDatedCart($product, $cart, $entry, (int) $data['quantity']);
         }

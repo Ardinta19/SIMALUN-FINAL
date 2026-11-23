@@ -67,6 +67,10 @@ class RentalOrderController extends Controller
             $label = 'Unit '.($index + 1).': ';
             if (! empty($unit['starts_on']) && $unit['starts_on'] !== $unit['event_on']) throw ValidationException::withMessages(['units' => $label.'tanggal acara dan penerimaan harus sama. Muat ulang halaman checkout.']);
             if ($unit['ends_on'] < $unit['event_on']) throw ValidationException::withMessages(['units' => $label.'tanggal pengembalian tidak boleh sebelum tanggal acara dan penerimaan.']);
+            // Jendela pemesanan dan durasi memakai aturan yang sama dengan
+            // katalog dan keranjang, supaya tanggal di luar kalender tidak
+            // bisa lolos lewat permintaan yang disusun manual.
+            RentalAvailability::assertBookablePeriod($unit['event_on'], $unit['ends_on'], 'units', $label);
             $data['units'][$key]['starts_on'] = $unit['event_on'];
             if ($unit['delivery_method'] !== 'delivery') $data['units'][$key]['delivery_address'] = null;
             if ($unit['return_method'] !== 'collection') $data['units'][$key]['return_address'] = null;
@@ -114,8 +118,8 @@ class RentalOrderController extends Controller
                 $product = $products->get($entry['product_id']);
                 if (! $product || ! $product->is_active || ! $product->category->is_active || $product->stock < 1) throw ValidationException::withMessages(['cart' => 'Ada papan yang tidak tersedia. Perbarui keranjang.']);
                 $unit = $data['units'][$key];
+                // Durasi sudah divalidasi assertBookablePeriod() sebelum transaksi.
                 $days = (int) Carbon::parse($unit['starts_on'])->diffInDays(Carbon::parse($unit['ends_on'])) + 1;
-                if ($days > 366) throw ValidationException::withMessages(['units' => 'Periode sewa maksimal 366 hari.']);
                 $package = null;
                 if (! empty($unit['package_id'])) {
                     $package = RentalDurationPackage::where('rental_product_id', $product->id)->where('is_active', true)->lockForUpdate()->find($unit['package_id']);
