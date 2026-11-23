@@ -37,7 +37,11 @@ class RentalCustomerNavigationTest extends TestCase
         foreach ([route('rental.orders.index'), route('customer.notifications'), route('customer.dashboard'), route('customer.profile'), route('customer.addresses.create')] as $url) {
             $this->get($url)->assertOk()
                 ->assertSee('grid-template-columns:repeat(4,minmax(0,1fr))', false)
-                ->assertSee('line-height:12px', false)
+                // Label bawah memakai token sejak tangga tipe disatukan:
+                // ukuran huruf 12 px (--bk-fs-2xs) dengan leading rapat
+                // (--bk-lh-tight) — bukan lagi angka 10px/12px yang lepas.
+                ->assertSee('font-size:var(--bk-fs-2xs)', false)
+                ->assertSee('line-height:var(--bk-lh-tight)', false)
                 ->assertSee('height:68px', false)
                 ->assertSee('env(safe-area-inset-bottom, 0px)', false);
         }

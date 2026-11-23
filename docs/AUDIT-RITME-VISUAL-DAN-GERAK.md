@@ -402,10 +402,18 @@ seterusnya) karena `UiKitTest` mengunci keberadaan setiap permukaan — tetapi
 isinya hanya `var(--bk-state-*)`, jadi tetap satu sumber warna.
 
 Halaman yang membawa CSS sendiri (auth, alamat, profil) tidak menulis blok
-`prefers-reduced-motion`; `berkah-theme.css` — dimuat di semua halaman
-bertema — kini punya jaring pengaman `animation-duration/transition-duration:
-.01ms !important` dan `animation-iteration-count: 1`, supaya preferensi sistem
-tidak bergantung pada disiplin tiap halaman.
+`prefers-reduced-motion`; `berkah-motion.css` — dimuat di semua halaman lewat
+`_form_controls` — memegang jaring pengaman `animation-duration/
+transition-duration: .01ms !important` dan `animation-iteration-count: 1`,
+supaya preferensi sistem tidak bergantung pada disiplin tiap halaman.
+
+Jaring itu semula ditulis di `berkah-theme.css`, dan di sana `UiKitTest`
+menolaknya: berkas pemetaan warna dijaga bebas `!important` (aturan tema cukup
+mengganti nilai token). Pengaman gerak justru wajib `!important` untuk
+mengalahkan aturan komponen yang lebih spesifik, jadi tempatnya memang berkas
+gerak. `MotionAssetsTest` kini membaca `berkah-motion.css` — sekaligus mengunci
+bentuk selektornya (`*, *::before, *::after`) agar pengaman tidak menyusut
+jadi satu komponen saja.
 
 Pemeriksaan `MotionAssetsTest` untuk lantai 12 px dulu hanya mencari literal
 `font-size: .NNNrem` di `berkah-admin.css`; begitu ukuran pindah ke

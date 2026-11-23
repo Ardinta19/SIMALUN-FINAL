@@ -125,8 +125,27 @@ label[for],
     }
 }
 
-/* ── 5. Pengaman gerak minimal ──────────────────────────────────────────── */
+/* ── 5. Pengaman gerak minimal ────────────────────────────────────────────
+   Sebagian komponen mematikan geraknya sendiri, tetapi halaman yang membawa
+   CSS-nya sendiri (auth, alamat, profil) belum tentu menuliskan bloknya.
+   Berkas ini dimuat di semua halaman bertema lewat `_form_controls`, jadi
+   aturan `*` di sini menjamin tidak ada transisi/animasi yang lolos.
+   `animation-iteration-count: 1` mencegah animasi berulang berkedip.
+
+   Catatan: pengaman ini memang butuh `!important` untuk mengalahkan aturan
+   komponen yang lebih spesifik. Karena itu ia tinggal di berkas gerak, bukan
+   di berkas pemetaan warna (berkah-theme.css) yang dijaga bebas `!important`
+   oleh UiKitTest. */
 @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+
     [data-bk-reveal],
     [data-bk-reveal-group] > *,
     [data-bk-tilt] {
@@ -134,10 +153,6 @@ label[for],
         transform: none !important;
         transition: none !important;
         will-change: auto !important;
-    }
-
-    html {
-        scroll-behavior: auto !important;
     }
 }
 

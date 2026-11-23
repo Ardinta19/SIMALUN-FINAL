@@ -141,12 +141,16 @@ class MotionAssetsTest extends TestCase
     public function test_shared_motion_respects_reduced_motion_and_avoids_blanket_transitions(): void
     {
         // Halaman yang membawa CSS sendiri (auth, alamat, profil) tidak menulis
-        // blok reduced-motion; stylesheet tema yang dimuat di semua halaman
-        // menyediakan jaring pengamannya.
-        $theme = $this->source('css/berkah-theme.css');
-        $this->assertStringContainsString('@media (prefers-reduced-motion: reduce)', $theme);
-        $this->assertStringContainsString('transition-duration: .01ms !important', $theme);
-        $this->assertStringContainsString('animation-iteration-count: 1 !important', $theme);
+        // blok reduced-motion; `berkah-motion.css` — dimuat di semua halaman
+        // lewat `_form_controls` — menyediakan jaring pengamannya. Jaring itu
+        // sengaja tinggal di sini, bukan di berkah-theme.css: berkas pemetaan
+        // warna dijaga bebas `!important` oleh UiKitTest, sedangkan pengaman
+        // gerak memang butuh `!important` untuk mengalahkan aturan komponen.
+        $motion = $this->source('css/berkah-motion.css');
+        $this->assertStringContainsString('@media (prefers-reduced-motion: reduce)', $motion);
+        $this->assertStringContainsString('transition-duration: .01ms !important', $motion);
+        $this->assertStringContainsString('animation-iteration-count: 1 !important', $motion);
+        $this->assertMatchesRegularExpression('/\*,\s*\*::before,\s*\*::after\s*\{[^}]*transition-duration/', $motion);
 
         // `transition: all` ikut menganimasikan properti tata letak; setiap
         // transisi wajib menyebut properti yang berubah.
