@@ -201,7 +201,7 @@ html[data-theme="dark"] :is(.items-mini, .rating-existing__comment, .manual-lock
     color: var(--theme-ink-mid);
 }
 
-html[data-theme="dark"] :is(.notice) {
+html[data-theme="dark"] :is(.notice, .note) {
     background: #37271c;
     border-color: #5a402b;
     color: #f3d9bd;

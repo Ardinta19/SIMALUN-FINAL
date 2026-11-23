@@ -247,7 +247,7 @@
         <div class="an-card">
             <div class="an-card__head">
                 <div class="an-card__name">
-                    <span class="an-card__ico" style="background:#fff7e6;color:#d97706;" aria-hidden="true">
+                    <span class="an-card__ico" style="background:#fff7e6;color:#b45309;" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 3.2 13.7 8l5.3.5c.8 0 1.1 1 .5 1.5l-4 3.5 1.2 5.2c.2.8-.7 1.4-1.4 1l-4.6-2.8-4.6 2.8c-.7.4-1.6-.2-1.4-1l1.2-5.2-4-3.5c-.6-.5-.3-1.5.5-1.5L10.3 8l2.2-4.8z"/></svg>
                     </span>
                     Kepuasan Pelanggan

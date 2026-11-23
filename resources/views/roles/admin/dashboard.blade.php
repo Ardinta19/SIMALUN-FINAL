@@ -288,7 +288,7 @@ body {
         <a href="{{ route('admin.rental.orders', ['status' => 'design_initial']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">🌷</span><span class="quick-item__label">{{ $rentalDesignNeeded }} unit memerlukan preview awal</span></a>
         <a href="{{ route('admin.rental.orders', ['status' => 'review']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">🔎</span><span class="quick-item__label">{{ $rentalReview }} unit dalam peninjauan manual</span></a>
         <a href="{{ route('admin.rental.orders', ['status' => 'seller_cancelled']) }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">↩️</span><span class="quick-item__label">{{ $rentalSellerCancelled }} unit dibatalkan karena penjual · periksa tindak lanjut</span></a>
-        <p style="font-size:.78rem;line-height:1.6;color:#705963;margin:10px 2px 0">Pembatalan karena penjual mencakup seluruh riwayat, termasuk yang sudah ditindaklanjuti.</p>
+        <p style="font-size:.78rem;line-height:1.6;color:var(--theme-ink-mid,#705963);margin:10px 2px 0">Pembatalan karena penjual mencakup seluruh riwayat, termasuk yang sudah ditindaklanjuti.</p>
     </section>
     <section class="section reveal"><div class="section__head"><div><div class="section__title">Pesanan sewa terbaru</div><div class="section__title-sm">Periksa setiap unit secara terpisah</div></div><a href="{{ route('admin.rental.orders') }}" class="section__link">Semua →</a></div>
         @forelse($recentRentalOrders as $order)

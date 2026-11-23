@@ -690,8 +690,8 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
             <span class="sum-value" id="sum-pickup-cost">Rp 5.000</span>
           </div>
           <div class="sum-row" id="sum-discount-row" style="display: none;">
-            <span class="sum-label" style="color: #047857;">Diskon Voucher</span>
-            <span class="sum-value" id="sum-discount" style="color: #047857;">- Rp 0</span>
+            <span class="sum-label" style="color: var(--theme-success-ink, #047857);">Diskon Voucher</span>
+            <span class="sum-value" id="sum-discount" style="color: var(--theme-success-ink, #047857);">- Rp 0</span>
           </div>
           <hr class="sum-divider">
           <div class="sum-row">
@@ -709,18 +709,18 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
             <input type="text" name="voucher_code" id="voucher-input"
                    value="{{ old('voucher_code') }}" maxlength="30" autocomplete="off"
                    placeholder="Masukkan kode (mis. WELCOME10)"
-                   style="flex: 1; padding: 9px 11px; border: 1px solid #fdba74; border-radius: 9px;
+                   style="flex: 1; padding: 9px 11px; border: 1px solid var(--theme-line, #fdba74); border-radius: 9px;
                           font-family: 'Courier New', monospace; text-transform: uppercase;
-                          letter-spacing: 1px; font-weight: 700; font-size: .85rem; background: #fff;">
+                          letter-spacing: 1px; font-weight: 700; font-size: .85rem; background: var(--theme-surface-2, #fff);">
             <button type="button" id="voucher-check-btn"
-                    style="background: #ea580c; color: #fff; border: none; padding: 0 16px; border-radius: 9px;
+                    style="background: #c2410c; color: #fff; border: none; padding: 0 16px; border-radius: 9px;
                            font-weight: 700; font-size: .8rem; cursor: pointer;">
               Cek
             </button>
           </div>
           <div id="voucher-result" style="margin-top: 8px; font-size: .76rem; font-weight: 600;"></div>
           @error('voucher_code')
-            <div style="color: #dc2626; font-size: .72rem; margin-top: 6px; font-weight: 600;">{{ $message }}</div>
+            <div style="color: var(--theme-danger-ink, #c62f2f); font-size: .72rem; margin-top: 6px; font-weight: 600;">{{ $message }}</div>
           @enderror
         </div>
         <p style="margin-top:10px; font-size:.7rem; color:var(--ink-lt); font-weight:700; line-height:1.4;">
@@ -959,12 +959,12 @@ const voucherBtn = document.getElementById('voucher-check-btn');
 const voucherResult = document.getElementById('voucher-result');
 
 function setVoucherSuccess(data) {
-  voucherResult.innerHTML = '<span style="color: #047857;">✓ ' + data.description
+  voucherResult.innerHTML = '<span style="color: var(--theme-success-ink, #047857);">✓ ' + data.description
     + ' &mdash; potongan ' + data.discount_label + '</span>';
 }
 
 function setVoucherError(msg) {
-  voucherResult.innerHTML = '<span style="color: #dc2626;">✕ ' + msg + '</span>';
+  voucherResult.innerHTML = '<span style="color: var(--theme-danger-ink, #c62f2f);">✕ ' + msg + '</span>';
 }
 
 function setVoucherWarning(msg) {
