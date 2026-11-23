@@ -31,7 +31,7 @@
         --surface-50: #f8fafc;
         --surface-100: #f1f5f9;
         --surface-200: #e2e8f0;
-        --surface-400: #94a3b8;
+        --surface-400: #5f7082;
         --surface-raised: #ffffff;
 
         /* Radius (tailwind: borderRadius) */

@@ -15,7 +15,7 @@
 :root {
     --ink: #1a1a2e;
     --ink-mid: #4a5568;
-    --ink-lt: #8896a6;
+    --ink-lt: #5f7082;
     --accent: #0b5394;
     --accent-lt: #e8f4fd;
     --green: #047857;

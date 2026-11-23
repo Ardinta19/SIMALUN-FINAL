@@ -35,7 +35,7 @@
     --card:       #ffffff;
     --ink:        #112030;
     --ink-mid:    #46586c;
-    --ink-lt:     #8b9bad;
+    --ink-lt:     #5f7082;
     --border:     #e4ecf4;
     --line-soft:  #f0f5fa;
     --radius:     var(--radius-card); /* canonical 16px (reconciled from 20px) */
