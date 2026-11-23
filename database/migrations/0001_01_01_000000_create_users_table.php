@@ -32,7 +32,6 @@ return new class extends Migration
 
             // Field tambahan per role
             $table->string('alamat')->nullable();          // untuk customer
-            $table->string('zona_driver')->nullable();     // untuk driver (zona antar)
             $table->boolean('is_active')->default(true);  // bisa nonaktifkan akun
 
             $table->rememberToken();

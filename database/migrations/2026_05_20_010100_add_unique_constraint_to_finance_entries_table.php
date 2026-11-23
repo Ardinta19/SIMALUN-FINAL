@@ -6,13 +6,24 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Kunci anti-dobel pencatatan kas.
+     *
+     * Dulu kombinasi yang dijaga adalah (order_id, entry_type, source_type)
+     * karena sumber pemasukan utamanya pesanan laundry. Setelah modul laundry
+     * dicabut, sumber pencatatan bergeser ke pembayaran & pengembalian sewa,
+     * jadi kuncinya memakai pasangan sumber yang sebenarnya:
+     * (source_type, source_id, entry_type).
+     *
+     * Catatan manual tidak punya source_id (NULL), dan NULL tidak dianggap
+     * duplikat oleh unique index — beberapa catatan manual tetap boleh ada.
+     */
     public function up(): void
     {
         Schema::table('finance_entries', function (Blueprint $table) {
-            // Prevent duplicate income records for the same order (TOCTOU race condition guard)
             $table->unique(
-                ['order_id', 'entry_type', 'source_type'],
-                'uniq_finance_order_type_source'
+                ['source_type', 'source_id', 'entry_type'],
+                'uniq_finance_source_type_entry'
             );
         });
     }
@@ -20,7 +31,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('finance_entries', function (Blueprint $table) {
-            $table->dropUnique('uniq_finance_order_type_source');
+            $table->dropUnique('uniq_finance_source_type_entry');
         });
     }
 };

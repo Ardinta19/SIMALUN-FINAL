@@ -604,7 +604,10 @@ class UiKitTest extends TestCase
             }
         }
 
-        $this->assertGreaterThan(50, $themed, 'Deteksi halaman bertema gagal.');
+        // Ambang diturunkan dari 50 ke 25 setelah modul laundry dicabut
+        // (±30 view ikut hilang). Tujuannya tetap sama: memastikan deteksi
+        // halaman bertema tidak diam-diam berhenti menemukan apa pun.
+        $this->assertGreaterThan(25, $themed, 'Deteksi halaman bertema gagal.');
         $this->assertSame([], $offenders, 'Gunakan var(--theme-*, cadangan-terang) untuk warna teks inline di halaman bertema.');
     }
 
