@@ -7,6 +7,10 @@
 --}}
 @php
     $admTopName = trim(auth()->user()->name ?? 'Admin');
+    /* Halaman anak boleh menentukan halaman induknya sendiri lewat
+       @section('back', route('...')). Tanpa itu, kembali ke dasbor. */
+    $admBackHref = trim($__env->yieldContent('back')) ?: route('dashboard.admin');
+    $admOnHome = request()->routeIs('dashboard.admin', 'admin.dashboard');
     $admTopInitial = mb_strtoupper(mb_substr(explode(' ', $admTopName)[0] ?: 'A', 0, 1));
 @endphp
 
@@ -14,6 +18,13 @@
     <button type="button" class="adm-topbar__menu" data-adm-nav-toggle aria-controls="adm-sidebar" aria-expanded="false" aria-label="Buka menu admin">
         @include('layouts.component._icon', ['name' => 'menu', 'size' => 18])
     </button>
+
+    @unless($admOnHome)
+        <a class="adm-iconbtn adm-topbar__back" href="{{ $admBackHref }}" data-smart-back
+           aria-label="Kembali" title="Kembali">
+            @include('layouts.component._icon', ['name' => 'arrow-left', 'size' => 18])
+        </a>
+    @endunless
 
     <nav class="adm-crumbs" aria-label="Remah roti">
         <a class="adm-crumbs__home" href="{{ route('dashboard.admin') }}">Dasbor</a>

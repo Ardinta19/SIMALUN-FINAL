@@ -156,7 +156,7 @@ body {
 <header class="top reveal d1">
   <div class="top-in">
     <div class="top-row">
-      <a href="{{ route('driver.dashboard') }}" class="back-btn" aria-label="Kembali">
+      <a data-smart-back href="{{ route('driver.dashboard') }}" class="back-btn" aria-label="Kembali">
         @include('layouts.component._icon', ['name' => 'back', 'size' => 20, 'label' => 'Kembali'])
       </a>
       <div class="tt">Pusat Bantuan Kurir</div>

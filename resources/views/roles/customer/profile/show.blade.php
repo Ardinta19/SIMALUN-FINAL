@@ -2,7 +2,7 @@
 @section('title', 'Profil saya')
 @section('content')
 <div class="bk-profile">
-    <a class="bk-back" href="{{ route('customer.dashboard') }}">← Kembali ke beranda</a>
+    <a data-smart-back class="bk-back" href="{{ route('customer.dashboard') }}">← Kembali ke beranda</a>
     @if(session('status') === 'profile-updated')<div class="notice" role="status">Profil berhasil diperbarui.</div>
     @elseif(session('status') === 'address-saved')<div class="notice" role="status">Alamat utama berhasil disimpan.</div>@endif
     <div class="bk-page-heading"><div><span class="bk-kicker">AKUN PELANGGAN</span><h1>Profil saya</h1><p class="muted">Kelola informasi dan alamat untuk pesananmu.</p></div><a class="btn secondary" href="{{ route('profile.edit') }}">Edit profil ↗</a></div>

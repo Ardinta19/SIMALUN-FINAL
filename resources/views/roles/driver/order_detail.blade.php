@@ -173,7 +173,7 @@ body {
 <div class="detail-hero">
     <div class="detail-hero__inner">
         <div class="detail-hero__nav">
-            <a href="{{ route('driver.orders') }}" class="detail-hero__back" aria-label="Kembali ke daftar tugas">
+            <a data-smart-back href="{{ route('driver.orders') }}" class="detail-hero__back" aria-label="Kembali ke daftar tugas">
                 @include('layouts.component._icon', ['name' => 'back', 'size' => 20, 'label' => 'Kembali'])
             </a>
             <div class="detail-hero__code">#{{ strtoupper($order->order_code) }}</div>

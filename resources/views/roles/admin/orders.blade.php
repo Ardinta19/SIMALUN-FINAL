@@ -213,7 +213,7 @@ body {
 <header class="topbar">
     <div class="topbar__inner">
         <div class="topbar__left">
-            <a href="{{ route('dashboard.admin') }}" class="topbar__back" aria-label="Kembali ke dashboard">
+            <a data-smart-back href="{{ route('dashboard.admin') }}" class="topbar__back" aria-label="Kembali ke dashboard">
                 @include('layouts.component._icon', ['name' => 'back', 'size' => 20])
             </a>
             <div>

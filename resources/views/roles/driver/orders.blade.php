@@ -154,7 +154,7 @@ body {
 
 {{-- ══════════════ HEADER ══════════════ --}}
 <header class="appbar">
-    <a href="{{ route('driver.dashboard') }}" class="icon-btn" aria-label="Kembali ke dashboard">
+    <a data-smart-back href="{{ route('driver.dashboard') }}" class="icon-btn" aria-label="Kembali ke dashboard">
         @include('layouts.component._icon', ['name' => 'back', 'size' => 20, 'label' => 'Kembali'])
     </a>
     <div class="appbar__titles">

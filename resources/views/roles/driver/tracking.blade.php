@@ -165,7 +165,7 @@ body {
         ->count();
 @endphp
 
-<a href="{{ route('driver.dashboard') }}" class="back-fab" aria-label="Kembali">
+<a data-smart-back href="{{ route('driver.dashboard') }}" class="back-fab" aria-label="Kembali">
     @include('layouts.component._icon', ['name' => 'back', 'size' => 20, 'label' => 'Kembali'])
 </a>
 

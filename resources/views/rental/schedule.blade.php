@@ -1,8 +1,9 @@
 @extends('layouts.admin')
+@section('back', route('dashboard.admin'))
 @section('title', 'Jadwal sewa')
 @section('crumbs')<a href="{{ route('admin.rental.orders') }}">Pesanan sewa</a><span class="adm-crumbs__sep" aria-hidden="true">/</span><strong>Jadwal sewa</strong>@endsection
 @section('content')
-<a class="bk-back" href="{{ route('admin.rental.orders') }}">← Pesanan sewa</a>
+<a data-smart-back class="bk-back" href="{{ route('admin.rental.orders') }}">← Pesanan sewa</a>
 @php
     $prevMonth = $month->copy()->subMonth()->format('Y-m');
     $nextMonth = $month->copy()->addMonth()->format('Y-m');

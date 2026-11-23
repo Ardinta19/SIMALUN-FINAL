@@ -197,4 +197,23 @@ html[data-theme="dark"] .admin-nav__badge { border-color: #1d171b; }
     .admin-nav__item { transition: none; }
     .admin-nav__item:active { transform: none; }
 }
+
+/* Layar sempit: rapatkan label agar tidak ada yang terpotong di tengah huruf.
+   `text-overflow: ellipsis` hanya jaring pengaman bila nama tujuan panjang. */
+@media (max-width: 560px) {
+    .admin-nav__inner { padding: 0 2px; }
+    .admin-nav__item { padding: 6px 0; gap: 2px; }
+    .admin-nav__label {
+        font-size: .55rem;
+        letter-spacing: 0;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .admin-nav__item .admin-nav__icon svg { width: 20px; height: 20px; }
+}
+@media (max-width: 380px) {
+    .admin-nav__label { font-size: .52rem; }
+}
 </style>

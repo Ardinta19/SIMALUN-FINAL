@@ -234,7 +234,7 @@ body {
 
 <header class="topbar">
     <div class="topbar__inner">
-        <a href="{{ route('admin.orders') }}" class="topbar__back" aria-label="Kembali ke daftar pesanan">
+        <a data-smart-back href="{{ route('admin.orders') }}" class="topbar__back" aria-label="Kembali ke daftar pesanan">
             @include('layouts.component._icon', ['name' => 'back', 'size' => 20])
         </a>
         <div>

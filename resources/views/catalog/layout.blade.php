@@ -42,12 +42,17 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 @media(max-width:420px){.cart-item{grid-template-columns:76px minmax(0,1fr);gap:12px}.cart-image{width:76px}.cart-actions .btn{width:100%}}
 @media(max-width:650px){.top .nav{width:100%;margin-left:0;gap:6px 16px}.nav a{font-size:.85rem;padding:8px 0}.wrap h1{margin-top:4px}.row>*{min-width:min(100%,150px)}}
 </style>
-@if(!auth()->check() || auth()->user()->role === 'customer')
+{{-- Gaya katalog berlaku untuk semua peran. Sebelumnya admin yang membuka
+     katalog publik melihat halaman tanpa desain sama sekali. --}}
 <link rel="stylesheet" href="{{ $asset('css/berkah-experience.css') }}">
-@endif
 @if(!auth()->check() || auth()->user()->role === 'customer')<link rel="stylesheet" href="{{ $asset('css/page-transitions.css') }}"><script src="{{ $asset('js/page-transitions.js') }}" defer></script>@endif
 @include('layouts.component._theme_head')
-</head><body @if(!auth()->check() || auth()->user()->role === 'customer') class="bk-experience {{ auth()->check() ? 'bk-customer' : 'bk-guest' }}" @endif>
+@php
+    /* Satu kelas per peran supaya gaya katalog berlaku juga saat admin
+       meninjau halaman publik sebagai tamu. */
+    $bkRole = auth()->check() ? preg_replace('/[^a-z]/', '', strtolower(auth()->user()->role ?? 'user')) : 'guest';
+@endphp
+</head><body class="bk-experience bk-{{ $bkRole }}">
 @if(!auth()->check() || auth()->user()->role === 'customer')
 @include('catalog.customer-navigation')
 <div class="hero">@yield('hero')</div>

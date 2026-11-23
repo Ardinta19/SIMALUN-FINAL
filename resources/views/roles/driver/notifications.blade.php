@@ -120,7 +120,7 @@ body {
 
 {{-- ══════════════ HEADER ══════════════ --}}
 <header class="appbar reveal d1">
-    <a href="{{ route('driver.dashboard') }}" class="icon-btn" aria-label="Kembali">
+    <a data-smart-back href="{{ route('driver.dashboard') }}" class="icon-btn" aria-label="Kembali">
         @include('layouts.component._icon', ['name' => 'back', 'size' => 20, 'label' => 'Kembali'])
     </a>
     <h1 class="appbar__title">Notifikasi</h1>

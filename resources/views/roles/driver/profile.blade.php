@@ -287,7 +287,7 @@ body {
 
 <header class="profile-header reveal d1">
     <div class="profile-header__left">
-        <a href="{{ route('driver.dashboard') }}" class="profile-header__back" aria-label="Kembali">
+        <a data-smart-back href="{{ route('driver.dashboard') }}" class="profile-header__back" aria-label="Kembali">
             @include('layouts.component._icon', ['name' => 'back', 'size' => 16, 'label' => 'Kembali'])
         </a>
         <img src="{{ $driver->avatar ? asset('storage/'.$driver->avatar) : 'https://ui-avatars.com/api/?name='.urlencode($driver->name).'&background=0d6fb8&color=fff&size=72' }}"

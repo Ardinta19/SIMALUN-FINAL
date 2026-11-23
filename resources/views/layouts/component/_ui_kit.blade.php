@@ -88,5 +88,7 @@
     </div>
 </dialog>
 
+{{-- Kembali pintar: dipakai semua tombol [data-smart-back] di seluruh situs. --}}
+<script src="{{ $kitAsset('js/berkah-smart-back.js') }}"></script>
 <script src="{{ $kitAsset('js/berkah-ui-kit.js') }}"></script>
 @endonce

@@ -1,8 +1,9 @@
 @extends('layouts.admin')
+@section('back', route('admin.rental.orders'))
 @section('title', 'Detail pesanan admin')
 @section('crumbs')<a href="{{ route('admin.rental.orders') }}">Pesanan sewa</a><span class="adm-crumbs__sep" aria-hidden="true">/</span><strong>Detail pesanan</strong>@endsection
 @section('content')
-<a class="bk-back" href="{{ route('admin.rental.orders') }}">← Daftar pesanan</a>
+<a data-smart-back class="bk-back" href="{{ route('admin.rental.orders') }}">← Daftar pesanan</a>
 @php
     $unitStatusLabels = ['pending' => 'Menunggu konfirmasi', 'confirmed' => 'Dikonfirmasi', 'cancelled' => 'Dibatalkan'];
     $unitStatusTones = ['pending' => 'adm-badge--pending', 'confirmed' => 'adm-badge--confirmed', 'cancelled' => 'adm-badge--cancelled'];

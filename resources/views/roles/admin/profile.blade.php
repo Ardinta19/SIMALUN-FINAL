@@ -285,7 +285,7 @@ body {
 
 <header class="profile-header reveal d1">
     <div class="profile-header__left">
-        <a href="{{ \App\Support\BackUrl::resolve(request(), 'admin.dashboard') }}" class="profile-header__back" aria-label="Kembali">
+        <a data-smart-back href="{{ \App\Support\BackUrl::resolve(request(), 'admin.dashboard') }}" class="profile-header__back" aria-label="Kembali">
             @include('layouts.component._icon', ['name' => 'back', 'size' => 16, 'label' => 'Kembali'])
         </a>
         <img src="{{ $user->avatar ? asset('storage/'.$user->avatar) : asset('images/berkah-kreatif-logo.jpeg') }}"

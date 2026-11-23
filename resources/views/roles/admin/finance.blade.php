@@ -232,7 +232,7 @@ body {
 {{-- ══════════════ HEADER ══════════════ --}}
 <header class="appbar">
     <div class="appbar__left">
-        <a href="{{ \App\Support\BackUrl::resolve(request(), 'admin.dashboard') }}" class="icon-btn" aria-label="Kembali ke dashboard">
+        <a data-smart-back href="{{ \App\Support\BackUrl::resolve(request(), 'admin.dashboard') }}" class="icon-btn" aria-label="Kembali ke dashboard">
             @include('layouts.component._icon', ['name' => 'back', 'size' => 20, 'label' => 'Kembali'])
         </a>
         <h1 class="appbar__title">Laporan Keuangan</h1>

@@ -1,4 +1,5 @@
 @extends('layouts.admin')
+@section('back', route('dashboard.admin'))
 @section('title', 'Katalog papan')
 @section('crumbs')<strong>Katalog papan</strong>@endsection
 @push('head')
@@ -25,7 +26,7 @@
     </div>
 </div>
 
-<div class="adm-grid" style="grid-template-columns:minmax(0,1fr) minmax(0,1.35fr)">
+<div class="adm-grid adm-grid--split">
     <section class="adm-card" data-adm-reveal="kategori">
         <div class="adm-card__head">
             <h2>Kategori</h2>

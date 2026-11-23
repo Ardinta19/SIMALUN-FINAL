@@ -3,7 +3,7 @@
 @section('content')
 @php $orderFilterValue = fn ($key) => is_scalar(old($key, $filters[$key] ?? '')) ? (string) old($key, $filters[$key] ?? '') : ''; @endphp
 <div class="bk-orders">
-    <a class="bk-back" href="{{ route('customer.dashboard') }}">← Kembali ke beranda</a>
+    <a data-smart-back class="bk-back" href="{{ route('customer.dashboard') }}">← Kembali ke beranda</a>
     <div class="bk-page-heading"><div><span class="bk-kicker">RUANG PELANGGAN</span><h1>Pesanan sewa</h1><p class="muted">Lihat status dan langkah berikutnya untuk setiap pesanan.</p></div><a href="{{ route('welcome') }}" class="btn secondary">Jelajahi katalog ↗</a></div>
     <details class="bk-order-filter" @if(!empty($filters['q']) || !empty($filters['status']) || $errors->hasAny(['q', 'status'])) open @endif>
         <summary><span>⌕ &nbsp; Cari dan filter pesanan</span><span class="bk-order-filter__hint">{{ !empty($filters['q']) || !empty($filters['status']) ? 'Filter aktif' : 'Nama, referensi, status' }}</span></summary>

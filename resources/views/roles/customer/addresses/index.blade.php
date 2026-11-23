@@ -2,7 +2,7 @@
 @section('title', 'Alamat saya')
 @section('content')
 <div class="bk-addresses">
-    <a class="bk-back" href="{{ route('customer.profile') }}">← Kembali ke profil</a>
+    <a data-smart-back class="bk-back" href="{{ route('customer.profile') }}">← Kembali ke profil</a>
     @if(session('error'))<div class="notice" role="alert">{{ session('error') }}</div>@endif
     <div class="bk-page-heading"><div><span class="bk-kicker">SERAH TERIMA</span><h1>Alamat saya</h1><p class="muted">Simpan alamat agar lebih mudah dipilih saat mengisi detail sewa.</p></div><a class="btn" href="{{ route('customer.addresses.create') }}">Tambah alamat <span aria-hidden="true">＋</span></a></div>
     @if(isset($alamat) && $alamat->count() > 0)

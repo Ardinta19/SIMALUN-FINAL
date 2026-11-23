@@ -2,7 +2,7 @@
 @section('title', 'Keranjang')
 @section('content')
 <div class="cart-page">
-<a class="bk-back" href="{{ route('welcome') }}">← Kembali ke katalog</a>
+<a data-smart-back class="bk-back" href="{{ route('welcome') }}">← Kembali ke katalog</a>
 <div class="bk-cart-heading"><span class="bk-kicker">PILIHANMU</span><h1>Keranjang</h1></div>
 <p class="muted">Setiap unit dapat memiliki jadwal dan desain yang berbeda. Satu pesanan boleh berisi beberapa unit papan yang sama: gunakan tombol <strong>+ Tambah unit</strong> di tiap baris untuk menggandakan unit dengan jadwal yang sama. Menambahkan papan ke keranjang belum mencadangkan stok.</p>
 @if(count($cart))<div class="bk-cart-count"><strong>{{ count($cart) }} unit</strong><span>di keranjang</span><a href="#cart-next">Ke langkah berikutnya ↓</a></div>@endif

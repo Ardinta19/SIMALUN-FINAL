@@ -1,7 +1,7 @@
 @extends('catalog.layout')
 @section('title', 'Pusat bantuan')
 @section('content')
-<div class="bk-help"><a class="bk-back" href="{{ route('customer.dashboard') }}">← Kembali ke beranda</a>
+<div class="bk-help"><a data-smart-back class="bk-back" href="{{ route('customer.dashboard') }}">← Kembali ke beranda</a>
 <div class="bk-page-heading"><div><span class="bk-kicker">KAMI SIAP MEMBANTU</span><h1>Pusat bantuan</h1><p class="muted">Panduan singkat menyewa papan bunga di Berkah Kreatif.</p></div></div>
 <nav class="bk-jump bk-help-jump" aria-label="Lompat ke bagian bantuan"><strong>Ke bagian</strong><div><a href="#mulai-pesanan">Mulai pesanan</a><a href="#pertanyaan-umum">Pertanyaan umum</a><a href="#hubungi-admin">Hubungi admin</a></div></nav>
 <div class="help-card help-notice"><strong>Masih dalam pengujian.</strong> Jangan melakukan transaksi atau pembayaran nyata.</div>

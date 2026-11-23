@@ -1,4 +1,5 @@
 @extends('layouts.admin')
+@section('back', route('dashboard.admin'))
 @section('title', 'Pesanan sewa')
 @section('crumbs')<strong>Pesanan sewa</strong>@endsection
 @section('content')

@@ -1,7 +1,7 @@
 @extends('catalog.layout')
 @section('title', 'Detail pesanan')
 @section('content')
-<p><a class="bk-back" href="{{ route('rental.orders.index') }}">← Pesanan saya</a></p>
+<p><a data-smart-back class="bk-back" href="{{ route('rental.orders.index') }}">← Pesanan saya</a></p>
 <h1>Detail pesanan</h1>
 <p class="muted">Referensi: {{ $order->reference }}</p>
 @if($order->voucher_code)<p class="muted">Voucher {{ $order->voucher_code }} · potongan Rp {{ number_format((int) $order->discount_amount, 0, ',', '.') }} sudah termasuk pada tagihan tiap unit.</p>@endif

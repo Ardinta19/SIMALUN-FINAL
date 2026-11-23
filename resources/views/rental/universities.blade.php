@@ -1,8 +1,9 @@
 @extends('layouts.admin')
+@section('back', route('dashboard.admin'))
 @section('title', 'Universitas dan tarif')
 @section('crumbs')<a href="{{ route('admin.catalog.index') }}">Katalog</a><span class="adm-crumbs__sep" aria-hidden="true">/</span><strong>Universitas &amp; tarif</strong>@endsection
 @section('content')
-<a class="bk-back" href="{{ route('admin.catalog.index') }}">← Kelola katalog</a>
+<a data-smart-back class="bk-back" href="{{ route('admin.catalog.index') }}">← Kelola katalog</a>
 <div class="adm-page-head" data-adm-reveal="head">
     <div class="adm-page-head__text">
         <span class="adm-kicker">Katalog &amp; penawaran</span>
