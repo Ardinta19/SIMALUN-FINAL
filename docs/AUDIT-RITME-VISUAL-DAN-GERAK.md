@@ -718,3 +718,85 @@ Dua hal diperbaiki:
 Penjaga: `UiDefaultsTest::test_no_view_prints_the_word_array` memindai seluruh
 view (komentar Blade dibuang lebih dulu, karena tidak ikut terkirim ke
 peramban) dan gagal bila kata itu muncul lagi di markup atau skrip sebaris.
+
+### 9.20 Audit layout lima layar ponsel: header, strip langkah, dan dok tema
+
+Lima tangkapan layar ponsel (katalog tamu, sheet menu, splash masuk, modal tema
+terang, modal tema gelap) diperiksa bersama-sama. Tujuannya bukan menambal satu
+per satu, melainkan mencari akar yang sama: **satu kontrol global (tombol tema)
+dipaksa muat dengan cara yang salah, dan satu strip bergulir tidak memberi
+isyarat bahwa masih ada isi di kanan.**
+
+Akar masalah yang ditemukan:
+
+1. **Dok tema menutupi kartu produk.** Di layar ≤700 px, ui-kit menyembunyikan
+   `.bk-theme-host` (slot di header) sehingga `placeToggle()` milik
+   `berkah-ui-kit.js` jatuh ke mode `bk-theme-dock`: tombol `position: fixed`
+   pada `bottom: 92px`. Nilai itu memang dinaikkan di atas bilah bawah, tetapi
+   artinya tombol melayang **di atas isi halaman** — pada katalog tamu tepat di
+   atas kartu produk, dan pada halaman pelanggan di atas kartu terakhir.
+   Komentar di `berkah-ui-kit.js` sendiri sudah menyebut "mis. header ponsel":
+   desainnya memang menyediakan slot, hanya CSS yang menutupnya.
+2. **Header mengabaikan `safe-area-inset-top`.** `viewport-fit=cover` dipakai
+   di semua layout, tetapi `.bk-header` memakai `top: 16px` tetap. Di perangkat
+   berponi header kaca masuk ke bawah status bar; `.bk-header-space` juga tidak
+   menyediakan ruang tambahan sehingga hero ikut tertarik ke atas.
+3. **Strip tiga langkah terpotong tanpa isyarat.** Di ponsel `.bk-how` menjadi
+   `display:flex; overflow-x:auto`, tetapi tanpa snap, tanpa padding tepi, dan
+   tanpa tanda bahwa langkah "03" masih ada — pada tangkapan layar hanya
+   terlihat separuh angka berikutnya.
+4. **Area sentuh di bawah 44 px.** Tombol stepper jumlah `−`/`+` 40×40 px dan
+   chip kategori 42 px, padahal tombol lain di kartu yang sama 44 px. Di layar
+   sentuh selisih 4 px terasa: jempol meleset ke kolom isian jumlah.
+5. **Ikon bilah tamu tidak satu keluarga.** "Keranjang" memakai mesin terbang
+   `▢` dan "Masuk" memakai `○`, sementara "Katalog" memakai SVG. Ukuran dan
+   ketebalannya tidak pernah bisa sama karena bukan ikon yang sama.
+6. **Irama bagian terlalu longgar di layar pendek.** `.bk-filter-bar` dan
+   `.bk-section-heading` memakai jarak desktop (20 px / 32 px) berturut-turut,
+   sehingga dua judul bagian berdesakan di ponsel.
+7. **Lenis bisa menahan gulir mendatar.** `SCROLL_REGIONS` tidak memuat
+   `.bk-how` maupun `.bk-category-strip`; di desktop roda/trackpad mendatar
+   pada dua wadah itu direbut Lenis dan halaman yang bergulir, bukan stripnya.
+
+Perbaikan yang diterapkan (semua memakai token/skala yang sudah ada):
+
+- `berkah-ui-kit.css`: slot tema ditampilkan kembali di ≤700 px. Tombolnya
+  sudah 44 px dari `.bk-theme-btn`, jadi tidak perlu ukuran baru.
+- `berkah-experience.css`: `.bk-desktop-actions > a` disembunyikan di ponsel
+  (keranjang/notifikasi/profil sudah punya jalur di bilah bawah), sementara
+  slot tema tetap tampil; header ringkas juga mempertahankan slot tema sehingga
+  tombol tidak hilang setelah halaman digulir.
+- `berkah-experience.css`: `top`/`height` header, header-space (96/88/80 px),
+  header ringkas, dan tautan lompat kini memakai
+  `calc(env(safe-area-inset-top, 0px) + …)`. Tanpa poni nilainya sama persis
+  dengan sebelumnya.
+- `berkah-experience.css`: `.bk-how` mendapat `scroll-snap-type: x proximity`,
+  `scroll-padding-inline`, tinggi sasaran minimum per langkah, dan tepi kanan
+  yang memudar (`mask-image`) sebagai isyarat "masih ada langkah lain".
+- Area sentuh: `.bk-qty__btn`/`.bk-qty__input` 44 px di ≤700 px, chip kategori
+  44 px.
+- Ikon bilah tamu memakai `_icon` yang sama (`cart`, `account`), bukan `▢`/`○`.
+- Irama ponsel: `.bk-filter-bar{margin-bottom:16px}`,
+  `.bk-section-heading{margin:26px 0 10px}`, judul kartu 1rem. Blok ini
+  diletakkan **paling akhir** berkas; bila digabung ke media query di awal
+  (sebelum aturan dasar), aturan dasar yang menyusul akan menang dan
+  penyesuaiannya tidak pernah berlaku.
+- `berkah-motion.js`: `.bk-how` dan `.bk-category-strip` masuk
+  `SCROLL_REGIONS` sehingga keduanya memakai gulir asli
+  (`data-lenis-prevent`) dan tidak direbut Lenis.
+- `catalog/index.blade.php`: `.bk-filter-bar` dan `.bk-section-heading` ikut
+  `[data-bk-reveal="up"]` sehingga GSAP dipakai sesuai fungsinya (kemunculan
+  bertahap), bukan animasi tempelan. Tautan hero **tidak** memakai
+  `[data-bk-press]`: GSAP menulis `transform` inline, dan itu akan menimpa
+  `transform: translateY(-2px)` milik `:hover` secara permanen setelah sekali
+  ditekan. Tekanan di sana cukup lewat `:active` CSS.
+- Modal tema: jeda ilustrasi→petunjuk 10 px dan jarak pilihan 18 px; di ≤420 px
+  ketiga pilihan membagi lebar baris (`flex: 1 1 auto`, min 96 px) agar tidak
+  menggantung di tengah.
+- `layouts/guest.blade.php`: H1 kartu tamu (verifikasi email, konfirmasi kata
+  sandi) dinaikkan ke `clamp(1.25rem, 1rem + 1.4vw, 1.5rem)`. Sebelumnya H1
+  dan H2 sama-sama 17 px — hanya 2 px di atas teks isi 15 px, sehingga judul
+  halaman tidak terbaca sebagai judul.
+
+Penjaga: `ResponsiveLayoutTest::test_catalog_header_respects_the_notch_and_keeps_the_theme_slot`
+dan `test_mobile_catalog_rhythm_uses_scroll_snap_and_44px_targets`.

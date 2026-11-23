@@ -128,6 +128,71 @@ class ResponsiveLayoutTest extends TestCase
         );
     }
 
+    public function test_catalog_header_respects_the_notch_and_keeps_the_theme_slot(): void
+    {
+        $css = File::get(public_path('css/berkah-experience.css'));
+        $kit = File::get(public_path('css/berkah-ui-kit.css'));
+        $nav = File::get(resource_path('views/catalog/customer-navigation.blade.php'));
+
+        // Header melayang di atas hero: jarak atas dan ruang cadangannya harus
+        // ikut safe-area, kalau tidak header masuk ke bawah status bar/poni.
+        $this->assertStringContainsString('top:calc(env(safe-area-inset-top, 0px) + 16px)', $css);
+        $this->assertStringContainsString('height:calc(env(safe-area-inset-top, 0px) + 96px)', $css);
+        $this->assertStringContainsString('top:calc(env(safe-area-inset-top, 0px) + 12px)', $css);
+
+        // Di ponsel slot tema tetap berada di header. Dulu seluruh aksi desktop
+        // disembunyikan sehingga tombol tema jatuh ke dok mengambang dan
+        // menutupi kartu produk di bawahnya.
+        $this->assertStringContainsString('.bk-desktop-actions{display:flex;align-items:center;gap:3px}', $css);
+        $this->assertMatchesRegularExpression(
+            '/\.bk-desktop-actions > a \{\s*display: none;/',
+            $css,
+            'Tautan akun di header ponsel harus disembunyikan; slot tema tetap tampil.'
+        );
+        $this->assertStringContainsString('.bk-header.is-compact .bk-desktop-actions{display:flex}', $css);
+        $this->assertDoesNotMatchRegularExpression(
+            '/@media\s*\(max-width:\s*700px\)\s*\{\s*\.bk-desktop-actions\s*\{\s*display:\s*none/',
+            $css,
+            'Wadah aksi tidak boleh disembunyikan seluruhnya di ponsel; slot tema ada di dalamnya.'
+        );
+        $this->assertMatchesRegularExpression(
+            '/\.bk-theme-host \{\s*display: flex;/',
+            $kit,
+            'Slot tema harus tampil di header ponsel.'
+        );
+        $this->assertDoesNotMatchRegularExpression(
+            '/@media \(max-width: 700px\) \{\s*\.bk-theme-host \{\s*display: none/',
+            $kit,
+            'Slot tema tidak boleh disembunyikan lagi di ponsel.'
+        );
+        $this->assertStringContainsString('data-bk-theme-host', $nav);
+    }
+
+    public function test_mobile_catalog_rhythm_uses_scroll_snap_and_44px_targets(): void
+    {
+        $css = File::get(public_path('css/berkah-experience.css'));
+        $kit = File::get(public_path('css/berkah-ui-kit.css'));
+        $motion = File::get(public_path('js/berkah-motion.js'));
+
+        // Strip tiga langkah bergulir mendatar: snap + tepi kanan memudar
+        // sebagai isyarat bahwa masih ada langkah berikutnya.
+        $this->assertStringContainsString('scroll-snap-type:x proximity', $css);
+        $this->assertStringContainsString('mask-image:linear-gradient(90deg,#000 calc(100% - 26px),transparent)', $css);
+
+        // Sasaran sentuh minimum 44 px di chip kategori dan stepper jumlah.
+        $this->assertMatchesRegularExpression(
+            '/\.bk-category-strip a \{\s*min-height: 44px;/',
+            $css
+        );
+        $this->assertMatchesRegularExpression(
+            '/@media \(max-width: 700px\) \{\s*\.bk-qty__btn \{\s*width: 44px;\s*height: 44px;/',
+            $kit
+        );
+
+        // Lenis tidak boleh menahan gulir mendatar pada dua wadah itu.
+        $this->assertStringContainsString("'.bk-how', '.bk-category-strip'", $motion);
+    }
+
     public function test_catalog_filter_uses_a_single_clear_title(): void
     {
         $catalog = File::get(resource_path('views/catalog/index.blade.php'));

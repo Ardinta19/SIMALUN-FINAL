@@ -13,7 +13,7 @@
     $queryCategory = $queryValue('category');
 @endphp
 <div class="bk-how" aria-label="Cara memesan" data-bk-reveal-group="how" data-bk-reveal-stagger="0.08"><div><span>01</span><p><strong>Pilih papan</strong><small>Temukan bentuk yang cocok</small></p></div><div><span>02</span><p><strong>Tulis ceritamu</strong><small>Atur tanggal dan ucapan</small></p></div><div><span>03</span><p><strong>Pantau pesanan</strong><small>Tunggu konfirmasi admin</small></p></div></div>
-<div id="koleksi" class="bk-filter-bar"><div><span class="bk-kicker">Temukan yang tepat</span><h2>Papan untuk momenmu</h2><p class="muted">Cari berdasarkan nama, kategori, atau tanggal.</p></div></div>
+<div id="koleksi" class="bk-filter-bar" data-bk-reveal="up"><div><span class="bk-kicker">Temukan yang tepat</span><h2>Papan untuk momenmu</h2><p class="muted">Cari berdasarkan nama, kategori, atau tanggal.</p></div></div>
 <dialog class="bk-dialog bk-filter-sheet" id="bk-filter" aria-labelledby="bk-filter-title"><div class="bk-dialog-head"><div><span class="bk-eyebrow">PILIHAN KATALOG</span><h2 id="bk-filter-title">Cari papan</h2></div><button type="button" data-close-dialog aria-label="Tutup pencarian">×</button></div><div data-filter-slot></div></dialog>
 <form id="catalog-filter" class="card body stack bk-filter-form" data-filter-form data-filter-errors="{{ $errors->hasAny(['q', 'category', 'starts_on', 'ends_on']) ? '1' : '0' }}" method="get" action="{{ route('welcome') }}">
     <h2>Cari papan untuk tanggalmu</h2>
@@ -40,7 +40,7 @@
     @foreach($categories as $category)<a href="{{ route('welcome', array_merge(request()->only(['q', 'starts_on', 'ends_on']), ['category' => $category->id])) }}" @if((string) request('category') === (string) $category->id) aria-current="page" @endif>{{ $category->name }}</a>@endforeach
 </nav>
 @endif
-<div class="bk-section-heading"><div><span class="bk-kicker">KOLEKSI BERKAH KREATIF</span><h2>Jelajahi katalog</h2></div><span class="muted">{{ $products->total() }} pilihan</span></div>
+<div class="bk-section-heading" data-bk-reveal="up"><div><span class="bk-kicker">KOLEKSI BERKAH KREATIF</span><h2>Jelajahi katalog</h2></div><span class="muted">{{ $products->total() }} pilihan</span></div>
 @if($dates)<p class="notice" role="status">Menampilkan papan yang diperkirakan tersedia pada {{ \Carbon\Carbon::parse($dates['starts_on'])->format('d/m/Y') }}–{{ \Carbon\Carbon::parse($dates['ends_on'])->format('d/m/Y') }}. Perkiraan ini belum menahan tanggal; tanggal dikunci setelah pesanan dikirim sampai admin mengonfirmasi paling lambat 24 jam.</p>@else<p class="muted">Foto merupakan contoh; desain akhir mengikuti permintaan pelanggan. Pilih tanggal di atas untuk memeriksa ketersediaan.</p>@endif
 <div class="grid" data-catalog-products data-bk-reveal-group="cards" data-bk-reveal-stagger="0.055">
 @forelse($products as $product)

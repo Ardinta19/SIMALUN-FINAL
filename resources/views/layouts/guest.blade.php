@@ -108,6 +108,12 @@
         color: var(--bk-modal-ink);
         overflow-wrap: anywhere;
     }
+    /* H1 di kartu tamu adalah judul halaman, bukan subjudul: satu tingkat di
+       atas teks isi (15 px) supaya hierarkinya terbaca tanpa lonjakan. */
+    .guest-card h1 {
+        font-size: clamp(1.25rem, 1rem + 1.4vw, 1.5rem);
+        letter-spacing: -.015em;
+    }
     .guest-card p,
     .guest-card > div {
         margin: 0 0 var(--bk-space-4);

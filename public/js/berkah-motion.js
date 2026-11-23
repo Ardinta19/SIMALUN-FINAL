@@ -86,7 +86,10 @@
     var SCROLL_REGIONS = [
         '.adm-sidebar', '.adm-drawer', '.adm-scroll-x', '.adm-sheet__body',
         '.bk-dialog', '.bk-filter-sheet', '.fc-sheet', '.fc-list', '.fc-cal',
-        '.bk-table-wrap', '.table-scroll'
+        '.bk-table-wrap', '.table-scroll',
+        /* Strip langkah dan deret chip kategori bergulir mendatar. Tanpa
+           penanda ini, roda/trackpad Lenis menahan gulir mendatarnya. */
+        '.bk-how', '.bk-category-strip'
     ].join(',');
 
     function markScrollRegions() {

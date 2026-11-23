@@ -923,9 +923,13 @@ body.guest-body .bk-theme-btn.bk-theme-dock {
     border-radius: 12px;
 }
 
+/* Di ponsel slot tema tetap dipakai header katalog. Sebelumnya slot ini
+   disembunyikan, sehingga tombol tema jatuh ke dok mengambang dan menutupi
+   kartu produk di dekat bilah bawah. Ukuran tombolnya sendiri sudah 44 px
+   dari `.bk-theme-btn`, jadi cukup ditampilkan. */
 @media (max-width: 700px) {
     .bk-theme-host {
-        display: none;
+        display: flex;
     }
 }
 
@@ -1011,7 +1015,7 @@ body.guest-body .bk-theme-btn.bk-theme-dock {
 }
 
 .bk-theme-dialog__hint {
-    margin: 6px 0 0;
+    margin: 10px 0 0;
     font-size: var(--bk-fs-sm);
     line-height: 1.55;
     opacity: 0.85;
@@ -1022,8 +1026,8 @@ body.guest-body .bk-theme-btn.bk-theme-dock {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 8px;
-    margin-top: 16px;
+    gap: 10px;
+    margin-top: 18px;
 }
 
 .bk-theme-choice {
@@ -1047,6 +1051,14 @@ body.guest-body .bk-theme-btn.bk-theme-dock {
     background: #a81f45;
     border-color: #a81f45;
     color: #fff;
+}
+
+@media (max-width: 420px) {
+    .bk-theme-choice {
+        flex: 1 1 auto;
+        min-width: 96px;
+        padding-inline: 12px;
+    }
 }
 
 .bk-theme-choice:focus-visible,
@@ -1247,6 +1259,19 @@ body.guest-body .bk-theme-btn.bk-theme-dock {
     outline: 3px solid #bc5b75;
     outline-offset: 2px;
     border-radius: 8px;
+}
+
+/* Di layar sentuh tombol − / + dinaikkan ke 44 px: 40 px terlalu sempit untuk
+   ibu jari dan lebih kecil dari sasaran sentuh tombol lain di kartu. */
+@media (max-width: 700px) {
+    .bk-qty__btn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .bk-qty__input {
+        height: 44px;
+    }
 }
 
 /* Kartu katalog: stepper dan tombol berbagi satu baris, membungkus bila sempit. */
