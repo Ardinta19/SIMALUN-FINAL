@@ -1203,6 +1203,23 @@
             return any ? map : null;
         }
 
+        /* Stok bisa berubah (admin menambah/mengurangi unit); angka terbaru
+           dipakai perhitungan unit lain di halaman yang sama. */
+        function applyStock(stock) {
+            if (typeof stock !== 'number' || !isFinite(stock) || stock < 0) return;
+            var product = (input.getAttribute('data-fc-product') || '').trim();
+            if (!product) {
+                input.setAttribute('data-fc-stock', String(stock));
+                return;
+            }
+            var nodes = document.querySelectorAll('[data-fc-product]');
+            for (var i = 0; i < nodes.length; i += 1) {
+                if ((nodes[i].getAttribute('data-fc-product') || '').trim() === product) {
+                    nodes[i].setAttribute('data-fc-stock', String(stock));
+                }
+            }
+        }
+
         /* Tab yang dibiarkan lama bisa menampilkan tanggal yang sudah penuh
            sebagai kosong. Saat kalender dibuka, daftar terbaru diambil dan
            kalender digambar ulang kalau berubah. Gagal ambil = pakai daftar
@@ -1233,6 +1250,9 @@
                 availabilityCache[refreshUrl] = { at: Date.now(), blocked: map };
                 blocked = map;
                 input.__fcBlocked = blocked;
+                applyStock(data.stock);
+                refreshProductPeers(input);
+                reportDateProblem(input);
                 if (currentRender && document.querySelector('.fc-layer')) currentRender(null);
             }).catch(function () { currentlyFetching = false; });
         }
