@@ -512,3 +512,32 @@ Bukti di sandbox (jsdom, tanpa peramban nyata): `interactions` 30, `controls`
 Uji `race` sengaja dijalankan juga terhadap kode lama: dua asersinya gagal
 (`aria-expanded` tertimpa `false`, fokus ditarik ke pemicu di belakang dialog),
 jadi perbaikannya memang menutup celah, bukan sekadar menambah kode.
+
+### 9.14 Formulir: label, kiriman ganda, dan latar dialog
+
+Sapuan aksesibilitas formulir menemukan tiga hal yang tidak terlihat pada
+tangkapan layar:
+
+- **Label tanpa pasangan.** `profile/edit.blade.php` menulis `<label>Nama</label>`
+  sebagai saudara `<input name="name">` tanpa `for`/`id` — tujuh isian tanpa nama
+  yang terbaca pembaca layar, dan mengeklik label tidak memfokuskan isian.
+  Halaman lama `customer/addresses/index.blade.php` memakai
+  `<div class="label">` untuk dua belas isian. Keduanya kini
+  `<label class="label" for="…">` + `id` yang unik (formulir per alamat memakai
+  `addr-{{ $address->id }}-…`), dan `.label` diberi `display: block` supaya
+  tampilannya tidak bergeser.
+- **Latar dialog masih terbaca.** Dialog konfirmasi memakai `role="dialog"`
+  dan menjebak Tab, tetapi isi halaman di belakangnya tetap bisa ditelusuri
+  pembaca layar. `setPageInert()` di `_confirm_modal.blade.php` memasang
+  `inert` + `aria-hidden="true"` pada saudara overlay selama dialog terbuka,
+  lalu memulihkan keadaan aslinya (termasuk `aria-hidden` dekoratif yang sudah
+  ada) — bukan sekadar menghapus atribut.
+- **Kiriman ganda.** `berkah-controls.js` kini memasang kunci kirim di fase
+  *bubble*: handler validasi kustom berjalan lebih dulu di fase capture, jadi
+  formulir yang ditolak tidak pernah terkunci. Klik kedua dibatalkan selama
+  kiriman pertama berjalan, kunci dilepas bila handler lain membatalkan
+  kiriman (AJAX/konfirmasi) atau saat halaman dipulihkan dari cache riwayat.
+
+Dua perbaikan kecil menyertainya: `<x-input-error>` memberi `role="alert"`
+pada daftar galat (semua halaman auth/profil memakainya), dan isian nomor HP
+memakai `type="tel"` (papan ketik angka di ponsel) tanpa mengubah validasi.

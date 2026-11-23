@@ -51,20 +51,20 @@
 
         <div class="card">
             <div class="field">
-                <label>Nama</label>
-                <input type="text" name="name" value="{{ old('name', $user->name) }}" required>
+                <label for="profile-name">Nama</label>
+                <input id="profile-name" type="text" name="name" value="{{ old('name', $user->name) }}" required>
             </div>
             <div class="field">
-                <label>Email</label>
-                <input type="email" name="email" value="{{ old('email', $user->email) }}" required>
+                <label for="profile-email">Email</label>
+                <input id="profile-email" type="email" name="email" value="{{ old('email', $user->email) }}" required>
             </div>
             <div class="field">
-                <label>Nomor HP</label>
-                <input type="text" name="phone" value="{{ old('phone', $user->phone) }}">
+                <label for="profile-phone">Nomor HP</label>
+                <input id="profile-phone" type="tel" name="phone" autocomplete="tel" value="{{ old('phone', $user->phone) }}">
             </div>
             <div class="field">
-                <label>Foto Profil</label>
-                <input type="file" name="avatar" accept="image/*">
+                <label for="profile-avatar">Foto Profil</label>
+                <input id="profile-avatar" type="file" name="avatar" accept="image/*">
             </div>
             <button type="submit">Simpan Perubahan</button>
         </div>
@@ -76,16 +76,16 @@
         <div class="card">
             <h2 style="font-size:1rem; margin-bottom:12px; color:var(--theme-ink, #301722);">Ganti Password</h2>
             <div class="field">
-                <label>Password Saat Ini</label>
-                <input type="password" name="current_password" autocomplete="current-password">
+                <label for="profile-current-password">Password Saat Ini</label>
+                <input id="profile-current-password" type="password" name="current_password" autocomplete="current-password">
             </div>
             <div class="field">
-                <label>Password Baru</label>
-                <input type="password" name="password" autocomplete="new-password">
+                <label for="profile-new-password">Password Baru</label>
+                <input id="profile-new-password" type="password" name="password" autocomplete="new-password">
             </div>
             <div class="field">
-                <label>Konfirmasi Password Baru</label>
-                <input type="password" name="password_confirmation" autocomplete="new-password">
+                <label for="profile-confirm-password">Konfirmasi Password Baru</label>
+                <input id="profile-confirm-password" type="password" name="password_confirmation" autocomplete="new-password">
             </div>
             <button type="submit">Perbarui Password</button>
         </div>

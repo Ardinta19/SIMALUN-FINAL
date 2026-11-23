@@ -203,12 +203,49 @@ body.confirm-locked { overflow: hidden; }
        (dibaca berkah-motion.js), gulir asli dikunci oleh kelas di body.
        Padding kanan dikompensasi supaya bilah gulir yang hilang tidak
        menggeser tata letak di belakang dialog. */
+    /* Isi halaman di belakang dialog harus tidak bisa dijangkau pembaca layar
+       maupun Tab. `aria-modal` saja tidak cukup: sejumlah pembaca layar tetap
+       menelusuri isi di belakangnya. Keadaan awal tiap simpul disimpan supaya
+       atribut yang memang sudah ada (mis. aria-hidden dekoratif) dipulihkan
+       apa adanya, bukan dihapus. */
+    var _inerted = new WeakMap();
+
+    function setPageInert(on) {
+        var overlay = byId('confirm-modal-overlay');
+        if (!overlay || !document.body) return;
+
+        Array.prototype.forEach.call(document.body.children, function (node) {
+            if (node === overlay || node.contains(overlay)) return;
+            if (node.nodeName === 'SCRIPT' || node.nodeName === 'STYLE' || node.nodeName === 'LINK') return;
+
+            if (on) {
+                if (!_inerted.has(node)) {
+                    _inerted.set(node, {
+                        inert: node.hasAttribute('inert'),
+                        hidden: node.getAttribute('aria-hidden')
+                    });
+                }
+                node.setAttribute('inert', '');
+                node.setAttribute('aria-hidden', 'true');
+                return;
+            }
+
+            var before = _inerted.get(node);
+            if (!before) return;
+            if (!before.inert) node.removeAttribute('inert');
+            if (before.hidden === null) node.removeAttribute('aria-hidden');
+            else node.setAttribute('aria-hidden', before.hidden);
+            _inerted.delete(node);
+        });
+    }
+
     function lockPage() {
         /* Dialog bisa dibuka ulang sebelum dialog lama selesai ditutup; kalau
            kunci dipasang dua kali, padding cadangan tertimpa dan sisa padding
            tertinggal di body setelah ditutup. */
         if (_locked) return;
         _locked = true;
+        setPageInert(true);
         var gap = window.innerWidth - document.documentElement.clientWidth;
         _paddingRight = document.body.style.paddingRight;
         if (gap > 0) document.body.style.paddingRight = gap + 'px';
@@ -219,6 +256,7 @@ body.confirm-locked { overflow: hidden; }
     function unlockPage() {
         if (!_locked) return;
         _locked = false;
+        setPageInert(false);
         document.body.classList.remove('confirm-locked');
         document.documentElement.classList.remove('lenis-stopped-lock');
         document.body.style.paddingRight = _paddingRight;

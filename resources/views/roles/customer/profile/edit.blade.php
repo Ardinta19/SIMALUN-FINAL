@@ -350,7 +350,7 @@ $oldText = function (string $key, $fallback = '') {
 
                 <div>
                     <label class="field-label" for="profile-address-phone">No. HP Penerima</label>
-                    <input type="text" id="profile-address-phone" name="phone"
+                    <input type="tel" id="profile-address-phone" name="phone"
                            class="field-input"
                            value="{{ $oldText('phone', $primaryAddress->phone ?? $user->phone) }}"
                            placeholder="08xxxxxxxxxx">

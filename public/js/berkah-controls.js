@@ -662,6 +662,40 @@
         }
     }, true);
 
+    /* ----------------------------------------------------------------
+       Kiriman ganda. Validasi di atas berjalan pada fase capture; kunci ini
+       dipasang di fase bubble sesudahnya, jadi formulir yang ditolak validasi
+       tidak pernah terkunci. Klik kedua pada tombol kirim dibatalkan selama
+       permintaan pertama belum selesai — dua klik cepat tidak boleh membuat
+       dua pesanan atau dua alamat.
+       ---------------------------------------------------------------- */
+    document.addEventListener('submit', function (event) {
+        var form = event.target;
+        if (!form || form.nodeName !== 'FORM') return;
+        /* Handler lain (mis. validasi kustom halaman) sudah menolak kiriman. */
+        if (event.defaultPrevented) return;
+
+        if (form.dataset.bkSubmitLock === '1') {
+            event.preventDefault();
+            return;
+        }
+
+        form.dataset.bkSubmitLock = '1';
+
+        /* Bila handler berikutnya membatalkan kiriman (AJAX, konfirmasi,
+           validasi), kunci dilepas lagi supaya formulir tetap bisa dikirim. */
+        window.setTimeout(function () {
+            if (event.defaultPrevented && form.isConnected) form.dataset.bkSubmitLock = '0';
+        }, 0);
+    }, false);
+
+    /* Kembali dari cache riwayat: kunci dari kunjungan sebelumnya harus lepas. */
+    window.addEventListener('pageshow', function () {
+        each(document, 'form[data-bk-submit-lock="1"]', function (form) {
+            form.dataset.bkSubmitLock = '0';
+        });
+    });
+
     document.addEventListener('reset', function (event) {
         var form = event.target;
         if (!form || form.nodeName !== 'FORM') return;

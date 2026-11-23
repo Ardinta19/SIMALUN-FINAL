@@ -232,7 +232,7 @@ body {
                 <label class="form-label" for="phone">Nomor WhatsApp</label>
                 <div class="input-wrap">
                     <span class="input-icon">@include('layouts.component._icon', ['name' => 'phone', 'size' => 16])</span>
-                    <input type="text" id="phone" name="phone" class="form-input" value="{{ old('phone', $user->phone) }}" placeholder="08xxxxxxxxxx">
+                    <input type="tel" id="phone" name="phone" autocomplete="tel" class="form-input" value="{{ old('phone', $user->phone) }}" placeholder="08xxxxxxxxxx">
                 </div>
             </div>
 
