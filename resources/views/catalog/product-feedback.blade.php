@@ -1,7 +1,7 @@
 <div class="bk-feedback" data-bk-feedback>
     <div class="bk-feedback-summary">
         <span class="bk-rating-total" aria-label="{{ $product->reviews_count ? 'Rata-rata '.number_format($product->reviews_avg_rating, 1, ',', '.').' dari 5, '.$product->reviews_count.' rating' : 'Belum ada rating' }}"><span class="bk-i" aria-hidden="true">@include('layouts.component._icon', ['name' => 'star', 'size' => 16])</span> {{ $product->reviews_count ? number_format($product->reviews_avg_rating, 1, ',', '.').' / 5 · '.$product->reviews_count.' rating' : 'Belum ada rating' }}</span>
-        <span class="bk-like-total" data-bk-like-total aria-live="polite"><span class="bk-i" aria-hidden="true">@include('layouts.component._icon', ['name' => 'heart', 'size' => 16])</span> <span data-bk-like-count>{{ $product->likes_count }}</span> suka</span>
+        <span class="bk-like-total" data-bk-like-total aria-live="polite"><span class="bk-i" aria-hidden="true">@include('layouts.component._icon', ['name' => 'heart', 'size' => 16])</span> <span data-bk-like-count>{{ $product->likes_count }} suka</span></span>
     </div>
     @if(auth()->check() && auth()->user()->role === 'customer')
     <form method="post" action="{{ route('rental.product.like', $product) }}" class="bk-like-form" data-bk-like-form>@csrf

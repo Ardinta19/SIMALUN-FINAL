@@ -405,8 +405,9 @@
             if (sr) sr.textContent = liked ? 'Disukai' : 'Suka';
             // Angka suka ada di dalam span sendiri supaya ikon hati tidak ikut
             // terhapus saat jumlahnya diperbarui.
-            const total = likeScope(button).querySelector('[data-bk-like-count]');
-            if (total && typeof data.count === 'number') total.textContent = data.count;
+            const total = likeScope(button).querySelector('[data-bk-like-total]');
+            const count = total ? total.querySelector('[data-bk-like-count]') : null;
+            if (count && typeof data.count === 'number') count.textContent = data.count + ' suka';
             announceLike(button, liked ? 'Ditambahkan ke daftar suka' : 'Suka dibatalkan');
             if (liked && !prefersReduced()) {
                 button.classList.add('is-celebrating');
