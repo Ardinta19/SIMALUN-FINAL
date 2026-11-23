@@ -63,7 +63,7 @@
 <form class="stack" method="post" action="{{ route('rental.cancel.customer', $unit) }}">@csrf
 <label>Alasan pembatalan<textarea name="reason" maxlength="500" required @error('reason') aria-invalid="true" aria-describedby="cancel-reason-error" @enderror>{{ is_scalar(old('reason')) ? old('reason') : '' }}</textarea></label>@error('reason')<p class="bk-field-error" id="cancel-reason-error">{{ $message }}</p>@enderror
 @error('cancel')<p class="bk-field-error">{{ $message }}</p>@enderror
-<label><input style="width:auto" type="checkbox" name="confirmed" value="1" required> Saya memahami DP tidak dikembalikan dan tanggal akan dilepas.</label>
+<label><input type="checkbox" name="confirmed" value="1" required> Saya memahami DP tidak dikembalikan dan tanggal akan dilepas.</label>
 <p><button type="submit" class="btn secondary">Batalkan unit</button></p>
 </form></details>
 @endif

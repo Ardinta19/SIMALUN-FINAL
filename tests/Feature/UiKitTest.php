@@ -1097,4 +1097,49 @@ class UiKitTest extends TestCase
         $css = File::get(public_path('css/berkah-controls.css'));
         $this->assertStringContainsString('.fc-cal__day.is-blocked', $css);
     }
+
+    public function test_admin_dark_theme_links_stay_readable(): void
+    {
+        // `.adm-app a` (0,1,1) mengalahkan `.adm-user__name` (0,1,0). Sebelum
+        // token dipisah, nama pengguna dan "Ubah profil" di bilah sisi gelap
+        // tercetak wine #85092d di atas kartu #410418 — kontras ±1,5:1.
+        $admin = File::get(public_path('css/berkah-admin.css'));
+
+        $this->assertStringContainsString('--adm-link: #85092d;', $admin);
+        $this->assertStringContainsString('--adm-link: #f3a8bb;', $admin);
+        $this->assertStringContainsString('.adm-app a { color: var(--adm-link); text-underline-offset: 3px; }', $admin);
+        $this->assertStringContainsString(
+            '.adm-sidebar :is(.adm-brand, .adm-user__name, .adm-user__edit) { color: #fff; }',
+            $admin,
+            'Tautan di bilah sisi gelap harus tetap putih.'
+        );
+
+        // Wine pekat sebagai warna hover juga hilang di permukaan gelap.
+        $this->assertMatchesRegularExpression(
+            '/html\[data-theme="dark"\] \.adm-app :is\(\.adm-btn--ghost, \.adm-btn--quiet\):hover \{\s*color: #fff;/',
+            $admin
+        );
+    }
+
+    public function test_checkboxes_share_one_brand_style(): void
+    {
+        $kit = File::get(public_path('css/berkah-ui-kit.css'));
+        $theme = File::get(public_path('css/berkah-theme.css'));
+
+        // Satu rupa untuk ingat saya, syarat & ketentuan, alamat utama,
+        // konfirmasi admin, dan voucher aktif.
+        $this->assertStringContainsString('input[type="checkbox"]:not([hidden])', $kit);
+        $this->assertStringContainsString('--bk-check-on: #85092d;', $kit);
+        $this->assertStringContainsString('input[type="checkbox"]:not([hidden]):checked', $kit);
+        $this->assertStringContainsString('input[type="checkbox"]:not([hidden]):focus-visible', $kit);
+
+        // Di tema gelap garis kotak tidak boleh sama dengan permukaan kartu.
+        $this->assertStringContainsString('--bk-check-line: #7a5560;', $theme);
+
+        // Lebar kotak ditentukan satu aturan; jangan disisipi inline style.
+        foreach (['rental/checkout', 'rental/unit'] as $view) {
+            $html = File::get(resource_path('views/'.$view.'.blade.php'));
+            $this->assertStringNotContainsString('style="width:auto" type="checkbox"', $html, $view);
+        }
+    }
 }

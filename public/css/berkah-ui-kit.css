@@ -25,6 +25,11 @@
     --bk-del-bg: #fff0f0;
     --bk-del-line: #f0c9c9;
     --bk-del-ink: #a11a32;
+
+    /* Kotak centang: satu rupa untuk katalog, auth, dan panel admin. */
+    --bk-check-line: #d9bfc6;
+    --bk-check-bg: #ffffff;
+    --bk-check-on: #85092d;
     --bk-heart: #e11d48;
     --bk-theme-dialog-bg: #fffaf6;
     --bk-theme-dialog-ink: #301722;
@@ -1113,6 +1118,66 @@ body.guest-body .bk-theme-btn.bk-theme-dock {
 
 #bk-theme-switch .bk-theme-svg__hand--2 {
     opacity: 0;
+}
+
+/* ================================================================
+   Kotak centang
+   ================================================================
+   Sebelumnya setiap halaman memakai `accent-color` sendiri: kotak bawaan
+   peramban berukuran 13 px, warna tiap peramban berbeda, dan di panel admin
+   isian putihnya menonjol di atas kartu gelap. Satu aturan di sini membuat
+   semua centang (ingat saya, syarat & ketentuan, alamat utama, konfirmasi
+   admin, voucher aktif) punya rupa, ukuran, dan warna merek yang sama.
+   Checkbox yang memang disembunyikan (mis. pemicu menu) dikecualikan lewat
+   `[hidden]` supaya tetap tidak tampil. */
+
+input[type="checkbox"]:not([hidden]) {
+    -webkit-appearance: none;
+    appearance: none;
+    display: inline-block;
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    padding: 0;
+    vertical-align: -4px;
+    border: 1.5px solid var(--bk-check-line);
+    border-radius: 6px;
+    background-color: var(--bk-check-bg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 14px 14px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color 140ms ease, border-color 140ms ease;
+}
+
+input[type="checkbox"]:not([hidden]):checked {
+    border-color: var(--bk-check-on);
+    background-color: var(--bk-check-on);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+}
+
+input[type="checkbox"]:not([hidden]):indeterminate {
+    border-color: var(--bk-check-on);
+    background-color: var(--bk-check-on);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.4' stroke-linecap='round'%3E%3Cpath d='M6 12h12'/%3E%3C/svg%3E");
+}
+
+input[type="checkbox"]:not([hidden]):focus-visible {
+    outline: 3px solid #bc5b75;
+    outline-offset: 2px;
+}
+
+input[type="checkbox"]:not([hidden]):disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    input[type="checkbox"]:not([hidden]) {
+        transition: none;
+    }
 }
 
 /* ================================================================

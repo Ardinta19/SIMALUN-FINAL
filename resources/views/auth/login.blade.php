@@ -52,7 +52,7 @@ html, body {
 .error-msg { font-size:var(--bk-fs-2xs); font-weight:700; color:#ffb0b0; margin-top:.35rem; padding-left:.2rem; }
 .form-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.2rem; gap:.5rem; }
 .remember-label { display:flex; align-items:center; gap:.5rem; cursor:pointer; font-size:var(--bk-fs-2xs); font-weight:700; color:rgba(255,255,255,.75); }
-.remember-label input[type=checkbox] { width:16px; height:16px; border-radius:4px; cursor:pointer; accent-color:#a92143; }
+.remember-label input[type=checkbox] { flex-shrink:0; cursor:pointer; }
 .forgot-link { font-size:var(--bk-fs-2xs); font-weight:800; color:rgba(144,224,239,.9); text-decoration:none; letter-spacing:.2px; white-space:nowrap; transition:color .2s; }
 .forgot-link:hover { color:#fff; }
 #btn-login { width:100%; padding:.9rem; border:none; border-radius:99px; background:linear-gradient(135deg,#a92143 0%,#c05a71 100%); color:#fff; font-family:'Plus Jakarta Sans',sans-serif; font-weight:900; font-size:1rem; letter-spacing:.4px; cursor:pointer; position:relative; overflow:hidden; box-shadow:0 8px 24px rgba(255,107,53,.45), inset 0 1px 0 rgba(255,255,255,.2); transition:transform .15s, box-shadow .15s; }

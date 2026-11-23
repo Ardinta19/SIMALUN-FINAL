@@ -805,3 +805,111 @@ Perbaikan yang diterapkan (semua memakai token/skala yang sudah ada):
 
 Penjaga: `ResponsiveLayoutTest::test_catalog_header_respects_the_notch_and_keeps_the_theme_slot`
 dan `test_mobile_catalog_rhythm_uses_scroll_snap_and_44px_targets`.
+
+### 9.21 Komponen kiriman, kotak centang, dan dua tangkapan layar admin
+
+Referensi yang dikirim (gooey menu, pill nav, add-to-cart, auth button, delete,
+heart, sakelar robot) diperiksa satu per satu terhadap kode yang ada. Sebagian
+besar **sudah terpasang** dari audit sebelumnya; yang belum ada hanya detail
+kecil. Yang benar-benar rusak justru dua hal yang tidak ada di daftar: kontras
+tautan di bilah sisi admin versi gelap, dan rupa kotak centang yang berbeda-beda.
+
+**A. Pemetaan komponen (sudah ada, tidak diduplikasi)**
+
+| Kiriman | Sudah ada di | Catatan |
+|---|---|---|
+| Gooey radial menu (Lucas Bebber) | `customer/_radial_customer.blade.php` + `_navbar_customer.blade.php` | Empat tujuan dalam busur, latar `feGaussianBlur`+`feColorMatrix` (`#bk-menu-goo`), `<details>` sehingga tetap jalan tanpa JS |
+| Pill nav / liquid glass / pill ringkas saat digulir | `berkah-experience.css` `.bk-header`, `.bk-header.is-compact`, `berkah-experience.js` (`scrollY > 180`) | Kaca + blur, pil mengambang, keadaan ringkas menahan tombol tema |
+| Tambah ke keranjang (label + progress) | `.bk-atc`, `.bk-atc__bar`, `berkah-ui-kit.js` (`is-loading`/`is-added`) | Label panjang→pendek, bar progress, status `aria-busy` |
+| Tombol auth beranimasi huruf | `.bk-auth` (+ `__chars--a/b`, `__outline`, `__wrap`) | Dipakai `auth/login` & `auth/register`; palet mengikuti merek, bukan biru |
+| Tombol hapus melebar | `.bk-del` (ikon → teks saat hover/fokus) | Dipakai `catalog/cart.blade.php` |
+| Tombol suka + konfeti | `.bk-heart` (`__filled`, `__outline`, `__burst`) | `catalog/product-feedback.blade.php`, `aria-pressed` |
+| Sakelar tema robot + tangan | `#bk-theme-switch` di `_ui_kit`, timeline GSAP di `berkah-ui-kit.js` | Idempoten, menghormati `prefers-reduced-motion` |
+
+Karena itu tidak ada komponen yang disalin ulang: duplikasi akan membuat dua
+sumber kebenaran untuk satu perilaku.
+
+**B. Kontras tautan bilah sisi admin (gambar 95)**
+
+Kartu pengguna di bilah sisi memakai `.adm-user` dengan tiga tautan: nama,
+"Ubah profil", dan tombol keluar. `.adm-app a { color: var(--adm-wine) }`
+(0,1,1) mengalahkan `.adm-user__name { color: #fff }` (0,1,0), sehingga di tema
+gelap nama dan "Ubah profil" tercetak **#85092d** di atas kartu **#410418**.
+Contoh piksel dari tangkapan layar: teks (133, 9, 45), kartu (65, 4, 24) —
+rasio kontras ±1,5:1, praktis tidak terbaca.
+
+Perbaikan:
+
+1. Token baru `--adm-link` (terang `#85092d`, gelap `#f3a8bb`) dan
+   `.adm-app a` memakainya. Wine pekat tetap dipakai untuk isian merek
+   (tombol utama), bukan untuk teks.
+2. `.adm-sidebar :is(.adm-brand, .adm-user__name, .adm-user__edit) { color: #fff }`
+   — bilah sisi selalu bergradasi wine, jadi teksnya tetap putih di kedua tema.
+3. Hover `.adm-btn--ghost`/`--quiet` yang memakai `--adm-wine-deep` dinaikkan
+   ke putih saat gelap.
+
+**C. Tangkapan layar dashboard admin (gambar 96)**
+
+Diukur per piksel, bukan dikira-kira: label kartu (246, 236, 232), judul
+sebagian (246, 236, 232), kode pesanan (208, 185, 192), catatan (208, 185, 192),
+tautan "Semua" (242, 161, 180), tombol keluar (255, 179, 187). Semua sudah
+memakai token tema gelap dengan kontras > 4,5:1 — **tidak ada yang perlu
+diubah**. Jarak vertikal yang longgar di kolom kiri berasal dari grid dua kolom
+(`.body` → `.section` + `.body-side`) yang memang membiarkan sisa ruang; bukan
+cacat tata letak, dan memaksanya rata akan memindahkan tombol keluar dari
+urutan baca.
+
+**D. Kotak centang: satu rupa untuk semua peran**
+
+Audit menemukan 16 kotak centang (ingat saya, syarat & ketentuan, alamat utama,
+persetujuan DP, konfirmasi admin, voucher aktif, buku kas, pengaturan QRIS).
+Semuanya mengandalkan `accent-color` per halaman, sehingga kotaknya 13 px
+bawaan peramban, warna tiap peramban berbeda, dan di panel gelap isian putihnya
+menonjol. Sekarang satu aturan di `berkah-ui-kit.css`:
+
+- 20×20 px, radius 6 px, garis `--bk-check-line`, isian `--bk-check-bg`;
+- saat tercentang: isian `--bk-check-on` (#85092d) + centang SVG putih
+  (bukan pseudo-element, karena `::after` tidak andal pada elemen input);
+- keadaan `:indeterminate` untuk pemilihan massal di admin;
+- cincin fokus 3 px, `:disabled` 45%, transisi warna saja (dimatikan saat
+  `prefers-reduced-motion`).
+
+Token gelapnya (`--bk-check-line: #7a5560`, `--bk-check-bg: #241c22`) ada di
+`berkah-theme.css`, jadi kotak tetap terlihat di atas kartu #201820. Dua
+`style="width:auto"` (checkout, unit) dihapus karena lebar kini satu aturan;
+`.terms-cb` dan `.remember-label` tidak lagi menetapkan ukuran sendiri.
+
+Tidak ada checkbox baru yang ditambahkan: setiap pilihan biner di aplikasi ini
+sudah punya kotak centang. Menambah kotak tanpa perilaku (mis. pilih massal di
+admin) berarti menjanjikan fitur yang belum ada di backend.
+
+**E. Kaca header (liquid glass) dan busur gooey**
+
+`.bk-header-inner` mendapat lapisan kilau (`linear-gradient` putih 34% → 0)
+plus `saturate(150%)` pada `backdrop-filter`, sehingga kaca memantulkan warna
+hero di belakangnya dan tidak terlihat seperti kotak abu-abu datar. Busur menu
+pelanggan kini muncul berurutan (`bk-radial-item-in`, jeda 40–190 ms) dan ikon
+menu berputar 90° saat terbuka — meniru morph ikon pada menu gooey, tetapi
+hanya transform/opacity sehingga tata letak tidak bergeser; semuanya dimatikan
+pada `prefers-reduced-motion`.
+
+**F. Soal "animasi morph"**
+
+Morph antarbentuk tidak disediakan peramban secara umum; yang ada:
+
+1. `filter: url(#goo)` (dipakai menu): melebur bentuk lewat blur + color matrix.
+   Gratis, tanpa dependensi, tetapi tidak mengubah satu bentuk menjadi bentuk
+   lain — hanya menyatukan/memisahkan gumpalan.
+2. **MorphSVGPlugin** (GSAP Club/berbayar): interpolasi `d` antarpath dengan
+   penyamaan jumlah titik. Paling mulus, tetapi tidak boleh disalin ke repo ini
+   tanpa lisensi.
+3. `flubber` (±10 KB, MIT): alternatif gratis untuk interpolasi dua path.
+   Menambah pustaka baru untuk satu animasi dekoratif belum sepadan.
+4. Properti CSS `d:` (Chromium 105+) atau `clip-path`/`border-radius` transition:
+   cukup untuk morph panel, tidak untuk bentuk kompleks.
+
+Keputusan: tetap pada (1) untuk menu dan (4) untuk panel; tidak menambah
+dependensi atau plugin berlisensi hanya demi morph dekoratif.
+
+Penjaga: `UiKitTest::test_admin_dark_theme_links_stay_readable` dan
+`test_checkboxes_share_one_brand_style`.

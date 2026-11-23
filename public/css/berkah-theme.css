@@ -47,6 +47,10 @@ html[data-theme="dark"] {
     --theme-warning-ink: #f0c67d;
     --theme-warning-soft: #3a2f1a;
 
+    /* Kotak centang: garis dan isian kotak harus terlihat di atas kartu gelap. */
+    --bk-check-line: #7a5560;
+    --bk-check-bg: #241c22;
+
     /* Token yang dipakai halaman (nama lama, nilai baru) */
     --ink: var(--theme-ink);
     --ink-mid: var(--theme-ink-mid);

@@ -36,6 +36,9 @@
     --adm-ink: #301722;
     --adm-ink-2: #6f5a63;
     --adm-ink-3: #93787f;
+    /* Warna teks tautan di dalam panel. Dipisah dari --adm-wine karena wine
+       pekat hanya lolos kontras di atas permukaan terang. */
+    --adm-link: #85092d;
 
     /* Isian tombol/lencana selalu gelap agar teks putih tetap terbaca;
        berbeda dari --adm-wine yang dipakai sebagai warna teks. */
@@ -129,6 +132,7 @@ html[data-theme="dark"] {
     --adm-ink: #f7edf0;
     --adm-ink-2: #c9b4bb;
     --adm-ink-3: #a68f97;
+    --adm-link: #f3a8bb;
 
     --adm-ok: #62d3a8;
     --adm-ok-soft: #1c332a;
@@ -142,6 +146,12 @@ html[data-theme="dark"] {
     --adm-shadow-1: 0 1px 2px rgba(0, 0, 0, .5), 0 12px 30px -18px rgba(0, 0, 0, .8);
     --adm-shadow-2: 0 2px 6px rgba(0, 0, 0, .55), 0 26px 56px -24px rgba(0, 0, 0, .9);
     --adm-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, .04);
+}
+
+/* Hover tautan bergaya tombol memakai wine pekat; di permukaan gelap itu
+   nyaris hilang. Naikkan ke putih saat gelap tanpa mengubah bentuk tombol. */
+html[data-theme="dark"] .adm-app :is(.adm-btn--ghost, .adm-btn--quiet):hover {
+    color: #fff;
 }
 
 /* --------------------------------------------------------------------------
@@ -170,7 +180,7 @@ html[data-theme="dark"] {
 .adm-app h2 { font-size: clamp(1.12rem, 1.6vw, 1.32rem); margin: 0; }
 .adm-app h3 { font-size: 1.02rem; margin: 0; }
 .adm-app p { margin: .5em 0; }
-.adm-app a { color: var(--adm-wine); text-underline-offset: 3px; }
+.adm-app a { color: var(--adm-link); text-underline-offset: 3px; }
 .adm-app :focus-visible { outline: 3px solid var(--adm-rose); outline-offset: 3px; border-radius: 6px; }
 .adm-app ::selection { background: var(--adm-wine-soft); color: var(--adm-ink); }
 
@@ -201,6 +211,11 @@ html[data-theme="dark"] {
 .adm-sidebar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, .25); border-radius: 99px; }
 
 .adm-brand { display: flex; align-items: center; gap: 12px; padding: 6px 8px 2px; color: #fff; text-decoration: none; }
+/* `.adm-app a` (0,1,1) mengalahkan `.adm-user__name` (0,1,0). Di bilah sisi
+   yang selalu gelap, nama pengguna dan tautan ubah profil harus tetap putih —
+   bukan warna tautan panel yang di tema terang berwarna wine. */
+.adm-sidebar :is(.adm-brand, .adm-user__name, .adm-user__edit) { color: #fff; }
+.adm-sidebar :is(.adm-user__name, .adm-user__edit):hover { color: #fff; text-decoration: underline; }
 .adm-brand__logo {
     width: 44px; height: 44px; flex: 0 0 44px; border-radius: 14px; overflow: hidden;
     background: #fff; display: grid; place-items: center;

@@ -221,7 +221,8 @@ html, body {
 
 /* terms checkbox */
 .terms-row { display:flex; align-items:flex-start; gap:.7rem; margin-top:.6rem; }
-.terms-cb { width:18px; height:18px; flex-shrink:0; cursor:pointer; accent-color:#a92143; margin-top:2px; }
+/* Rupa kotak centang diatur berkah-ui-kit.css; di sini hanya perataan. */
+.terms-cb { flex-shrink:0; margin-top:2px; }
 .terms-txt { font-size:var(--bk-fs-2xs); font-weight:700; color:rgba(255,255,255,.75); line-height:1.5; }
 .terms-txt a { color:rgba(144,224,239,.9); text-decoration:none; font-weight:900; }
 
