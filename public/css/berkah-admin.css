@@ -278,7 +278,7 @@ html[data-theme="dark"] {
     font-size: .86rem; font-weight: 700; color: #fff;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.adm-user__role { font-size: .7rem; color: rgba(255, 255, 255, .66); }
+.adm-user__role { font-size: var(--adm-fs-2xs); color: rgba(255, 255, 255, .66); }
 .adm-user__edit { color: inherit; text-decoration: none; border-bottom: 1px dotted rgba(255, 255, 255, .42); }
 .adm-user__edit:hover { color: #fff; border-bottom-color: #fff; }
 .adm-user__edit:focus-visible { outline: 3px solid var(--adm-rose); outline-offset: 2px; border-radius: 4px; }
@@ -545,7 +545,7 @@ html[data-theme="dark"] {
 .adm-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: .88rem; }
 .adm-table th {
     position: sticky; top: 0; z-index: 1;
-    text-align: left; font-size: .7rem; letter-spacing: .12em; text-transform: uppercase;
+    text-align: left; font-size: var(--adm-fs-2xs); letter-spacing: .08em; text-transform: uppercase;
     color: var(--adm-ink-3); font-weight: 800;
     padding: 10px 12px; background: var(--adm-surface-3);
     border-bottom: 1px solid var(--adm-line);
@@ -841,7 +841,7 @@ html.adm-reduced [data-adm-reveal] { opacity: 1 !important; transform: none !imp
     .adm-nav a > span:not(.adm-nav__icon):not(.adm-nav__count) { display: none; }
     .adm-nav__count {
         position: absolute; top: 4px; right: 10px;
-        min-width: 20px; padding: 0 5px; font-size: .6rem;
+        min-width: 20px; padding: 0 5px; font-size: var(--adm-fs-2xs);
     }
     .adm-side-card { display: none; }
     .adm-user { justify-content: center; padding: 8px; }
@@ -885,7 +885,7 @@ html.adm-reduced [data-adm-reveal] { opacity: 1 !important; transform: none !imp
     .adm-table--stack tr { display: grid; gap: 2px; padding: 12px 4px; border-bottom: 1px solid var(--adm-line); }
     .adm-table--stack td { border: 0; padding: 3px 0; display: grid; grid-template-columns: minmax(96px, 40%) 1fr; gap: 10px; }
     .adm-table--stack td::before {
-        content: attr(data-label); font-size: .7rem; font-weight: 800; letter-spacing: .08em;
+        content: attr(data-label); font-size: var(--adm-fs-2xs); font-weight: 800; letter-spacing: .06em;
         text-transform: uppercase; color: var(--adm-ink-3);
     }
 }
