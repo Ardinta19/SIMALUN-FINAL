@@ -44,10 +44,10 @@ html, body {
 .pw-toggle { position:absolute; right:13px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:1rem; color:rgba(255,255,255,.72); padding:.25rem; transition:color .2s; line-height:1; }
 .pw-toggle:hover { color:rgba(255,255,255,.9); }
 .form-input.error { border-color:#ff6b6b; box-shadow:0 0 0 3px rgba(255,107,107,.15); }
-.form-error { font-size:.72rem; font-weight:700; color:#ff9999; margin-top:.35rem; display:none; padding-left:.2rem; }
+.form-error { font-size:.72rem; font-weight:700; color:#ffb0b0; margin-top:.35rem; display:none; padding-left:.2rem; }
 .form-error.show { display:block; }
 .input-error { border-color:#ff6b6b !important; }
-.error-msg { font-size:.72rem; font-weight:700; color:#ff9999; margin-top:.35rem; padding-left:.2rem; }
+.error-msg { font-size:.72rem; font-weight:700; color:#ffb0b0; margin-top:.35rem; padding-left:.2rem; }
 .form-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.2rem; gap:.5rem; }
 .remember-label { display:flex; align-items:center; gap:.5rem; cursor:pointer; font-size:.78rem; font-weight:700; color:rgba(255,255,255,.75); }
 .remember-label input[type=checkbox] { width:16px; height:16px; border-radius:4px; cursor:pointer; accent-color:#a92143; }

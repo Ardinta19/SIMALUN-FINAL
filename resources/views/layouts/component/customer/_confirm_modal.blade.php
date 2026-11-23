@@ -89,7 +89,7 @@
 .confirm-icon.type-info {
     background: #e0f4ff;
     border: 2px solid #bae6fd;
-    color: #0077b6;
+    color: #005f92;
 }
 .confirm-icon.type-success {
     background: #ecfdf5;

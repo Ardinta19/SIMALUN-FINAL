@@ -145,7 +145,7 @@ html, body {
 .pw-toggle:hover { color:rgba(255,255,255,.9); }
 
 .form-error {
-  font-size:.7rem; font-weight:700; color:#ff9999;
+  font-size:.7rem; font-weight:700; color:#ffb0b0;
   margin-top:.3rem; display:none; padding-left:.2rem;
 }
 .form-error.show { display:block; }
@@ -177,7 +177,7 @@ html, body {
   border:1px solid rgba(255,255,255,.15);
   transition:all .2s;
 }
-.pw-hint.ok { color:#00C48C; background:rgba(0,196,140,.12); border-color:rgba(0,196,140,.3); }
+.pw-hint.ok { color:#5ce8bd; background:rgba(0,196,140,.12); border-color:rgba(0,196,140,.3); }
 
 /* phone input with country code */
 .phone-row { display:flex; gap:.5rem; }
@@ -737,11 +737,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const score = [hasLen, hasUpper, hasNum, hasSym].filter(Boolean).length;
     const configs = [
-      {w:'15%', bg:'#ef4444', txt:'Sangat Lemah'},
-      {w:'35%', bg:'#f97316', txt:'Lemah'},
-      {w:'60%', bg:'#eab308', txt:'Cukup'},
-      {w:'80%', bg:'#22c55e', txt:'Kuat'},
-      {w:'100%',bg:'#00C48C', txt:'Sangat Kuat'},
+      {w:'15%', bg:'#ffa8a8', txt:'Sangat Lemah'},
+      {w:'35%', bg:'#ffb37a', txt:'Lemah'},
+      {w:'60%', bg:'#ffd166', txt:'Cukup'},
+      {w:'80%', bg:'#8ce6a8', txt:'Kuat'},
+      {w:'100%',bg:'#5ce8bd', txt:'Sangat Kuat'},
     ];
     const cfg = configs[score] || configs[0];
     fill.style.width = cfg.w;

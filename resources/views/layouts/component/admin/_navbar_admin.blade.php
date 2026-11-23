@@ -106,7 +106,7 @@
     justify-content: center;
     gap: 3px;
     text-decoration: none;
-    color: #94a3b8;
+    color: #5f7082;
     position: relative;
     padding: 6px 0;
     transition: color 0.2s ease;
