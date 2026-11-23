@@ -6,7 +6,7 @@
 <p class="muted">Referensi: {{ $order->reference }}</p>
 <p class="muted">Batas konfirmasi: {{ $order->confirmation_deadline->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB</p>
 <p><a class="btn secondary" href="{{ route('rental.receipt', $order) }}">Ringkasan cetak</a></p>
-<div class="notice">Pilih unit untuk memeriksa ongkos, desain, pembayaran, dan perkembangannya. Stok dicadangkan setelah admin mengonfirmasi.</div>
+<div class="notice">Pilih unit untuk memeriksa ongkos, desain, pembayaran, dan perkembangannya. Tanggal ditahan sejak pesanan dikirim sampai admin mengonfirmasi.</div>
 <section class="card body bk-feedback-card"><h2>Rating pesanan</h2>
 @if($rating)<p>Rating kamu: {{ $rating }} dari 5 bintang.</p>@elseif($order->units->contains(fn ($u) => $u->status === 'confirmed' && $u->progress === 'returned') && !$order->units->contains(fn ($u) => $u->status !== 'cancelled' && !($u->status === 'confirmed' && $u->progress === 'returned')))
 <form method="post" action="{{ route('rental.order.rating', $order) }}">@csrf<fieldset class="bk-star-rating" @error('rating') aria-invalid="true" aria-describedby="order-rating-error" @enderror><legend>Nilai pengalaman pesanan</legend><div class="bk-star-rating__options">@for($i = 5; $i >= 1; $i--)<input type="radio" id="order-rating-{{ $i }}" name="rating" value="{{ $i }}" @checked(is_scalar(old('rating')) && (string) old('rating') === (string) $i) @if($i === 5) required @endif><label for="order-rating-{{ $i }}"><span aria-hidden="true">★</span><span class="bk-sr-only">{{ $i }} bintang</span></label>@endfor</div></fieldset>@error('rating')<p class="bk-field-error" id="order-rating-error">{{ $message }}</p>@enderror<p><button class="btn secondary">Simpan rating pesanan</button></p></form>
@@ -22,7 +22,7 @@
     <p><strong>{{ ['pending'=>'Menunggu konfirmasi', 'confirmed'=>'Dikonfirmasi', 'cancelled'=>'Dibatalkan'][$unit->status] }}</strong></p>
     <p>@if($unit->starts_on->isSameDay($unit->event_on)) Acara dan penerimaan: {{ $unit->event_on->format('d/m/Y') }} @else Penerimaan: {{ $unit->starts_on->format('d/m/Y') }} · Acara: {{ $unit->event_on->format('d/m/Y') }} @endif · Pengembalian: {{ $unit->ends_on->format('d/m/Y') }}</p>
     <p class="muted">Penerima: {{ $unit->recipient_name }}</p>
-    @if($unit->status === 'pending')<p class="muted">Menunggu konfirmasi admin. Stok belum dicadangkan.</p>
+    @if($unit->status === 'pending')<p class="muted">Menunggu konfirmasi admin. Tanggal sudah ditahan sampai tenggat konfirmasi.</p>
     @elseif($unit->status === 'cancelled')<p class="muted">Unit dibatalkan; buka detail untuk melihat tindak lanjut.</p>
     @else
         @if($unit->transportRequired() && $unit->transport_quote !== null && !$unit->transport_approved_at)<p><strong>Ongkos menunggu persetujuan Anda.</strong></p>@endif

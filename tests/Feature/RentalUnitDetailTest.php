@@ -36,7 +36,7 @@ class RentalUnitDetailTest extends TestCase
         $order = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $customer->id, 'confirmation_deadline' => now()->addDay()]);
         $unit = $order->units()->create(['rental_product_id' => $product->id, 'product_name' => 'Papan', 'unit_price' => 100, 'price_unit' => 'day', 'rental_amount' => 100, 'starts_on' => now()->addDays(3), 'event_on' => now()->addDays(3), 'ends_on' => now()->addDays(3), 'recipient_name' => 'Penerima', 'greeting' => 'Selamat', 'delivery_method' => 'delivery', 'delivery_address' => 'Alamat', 'return_method' => 'dropoff']);
         $url = route('rental.orders.unit', [$order, $unit]);
-        $this->actingAs($customer)->get($url)->assertOk()->assertSee('Menunggu konfirmasi admin. Stok belum dicadangkan.')->assertDontSee('Bayar melalui QRIS');
+        $this->actingAs($customer)->get($url)->assertOk()->assertSee('Menunggu konfirmasi admin. Tanggal sudah ditahan')->assertDontSee('Bayar melalui QRIS');
         $unit->update(['status' => 'confirmed', 'transport_quote' => 20]);
         $this->get($url)->assertOk()->assertSee('Penawaran ongkos siap diperiksa dan disetujui.')->assertSee('Menunggu preview desain dari admin.')->assertDontSee('Bayar melalui QRIS');
         $unit->update(['transport_approved_at' => now()]);

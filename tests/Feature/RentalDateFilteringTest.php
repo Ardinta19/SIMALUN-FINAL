@@ -27,7 +27,7 @@ class RentalDateFilteringTest extends TestCase
             $attrs = ['rental_product_id' => $full->id, 'product_name' => 'Papan Penuh', 'unit_price' => 100, 'price_unit' => 'day', 'rental_amount' => 100, 'starts_on' => '2026-12-03', 'event_on' => '2026-12-03', 'ends_on' => '2026-12-04', 'recipient_name' => 'Nama', 'greeting' => 'Selamat', 'delivery_method' => 'pickup', 'return_method' => 'dropoff', 'status' => 'confirmed'];
             $order->units()->create($attrs);
             $dates = ['starts_on' => '2026-12-04', 'ends_on' => '2026-12-05'];
-            $this->get(route('welcome', $dates))->assertOk()->assertSee('Papan Tersedia')->assertDontSee('Papan Penuh')->assertSee('belum dicadangkan')
+            $this->get(route('welcome', $dates))->assertOk()->assertSee('Papan Tersedia')->assertDontSee('Papan Penuh')->assertSee('belum menahan tanggal')
                 ->assertSee(route('welcome', $dates + ['category' => $category->id]))->assertSee('Kategori papan bunga')->assertSee('Hapus filter tanggal');
             $this->get(route('catalog.show', array_merge(['product' => $full->id], $dates)))->assertOk()->assertSee('0 unit')->assertDontSee('Tambah ke keranjang');
             $this->from(route('catalog.show', $full))->post(route('cart.store', $full), $dates + ['quantity' => 1])->assertSessionHasErrors('quantity');

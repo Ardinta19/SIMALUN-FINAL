@@ -16,7 +16,7 @@
 <nav class="bk-jump bk-unit-jump" aria-label="Lompat ke bagian unit"><strong>Lihat bagian</strong><div><a href="#unit-info-{{ $unit->id }}">Jadwal &amp; ucapan</a>@if($unit->transportRequired())<a href="#transport-{{ $unit->id }}">Ongkos</a>@endif<a href="#unit-progress-{{ $unit->id }}">Perkembangan</a><a href="#payment-{{ $unit->id }}">Pembayaran</a><a href="#design-{{ $unit->id }}">Desain</a><a href="#rating-{{ $unit->id }}">Rating</a></div></nav><noscript><p class="muted">Setelah menuju bagian, buka judul bagian untuk melihat isinya.</p></noscript>
 <article class="card body"><h2>Unit {{ $unitNumber }} · {{ $unit->product_name }}</h2>
 <section class="notice" aria-label="Langkah berikutnya untuk unit {{ $unitNumber }}"><strong>Langkah berikutnya</strong>
-@if($unit->status === 'pending')<p>Menunggu konfirmasi admin. Stok belum dicadangkan.</p>
+@if($unit->status === 'pending')<p>Menunggu konfirmasi admin. Tanggal sudah ditahan sampai tenggat konfirmasi.</p>
 @elseif($unit->status === 'cancelled')<p>Unit ini dibatalkan. Periksa alasan dan tindak lanjut di bawah.</p>@if($lateEligible && $payable !== null && $netPaid + $pendingAmount < $payable)<p><a class="btn secondary" href="#payment-{{ $unit->id }}">Lihat pilihan pembayaran terlambat</a></p>@endif
 @else
 @if($unit->transportRequired() && !$unit->transport_approved_at)

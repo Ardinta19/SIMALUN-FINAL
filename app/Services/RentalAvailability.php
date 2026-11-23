@@ -9,20 +9,35 @@ use Illuminate\Validation\ValidationException;
 
 class RentalAvailability
 {
-    // This is an estimate unless the caller holds the product row lock for the transaction.
-    public function minimumAvailable(RentalProduct $product, string $startsOn, string $endsOn, bool $lock = false): int
-    {
-        $overlaps = RentalOrderUnit::where('rental_product_id', $product->id)->where('status', 'confirmed')
+    /**
+     * Perkiraan sisa unit pada rentang tanggal. Secara bawaan status yang
+     * menahan stok ikut dihitung: pesanan pending sudah mengunci tanggal
+     * sampai admin mengonfirmasi atau tenggatnya lewat.
+     *
+     * This is an estimate unless the caller holds the product row lock for the transaction.
+     */
+    public function minimumAvailable(
+        RentalProduct $product,
+        string $startsOn,
+        string $endsOn,
+        bool $lock = false,
+        array $statuses = RentalOrderUnit::RESERVING_STATUSES
+    ): int {
+        $overlaps = RentalOrderUnit::where('rental_product_id', $product->id)->whereIn('status', $statuses)
             ->whereDate('starts_on', '<=', $endsOn)->whereDate('ends_on', '>=', $startsOn)
             ->when($lock, fn ($query) => $query->lockForUpdate())->get(['starts_on', 'ends_on']);
         return $this->minimumFromOverlaps($product, $overlaps, $startsOn, $endsOn);
     }
 
     /** Estimates for catalogue search without issuing one query per product. */
-    public function minimumAvailableForProducts($products, string $startsOn, string $endsOn): array
-    {
+    public function minimumAvailableForProducts(
+        $products,
+        string $startsOn,
+        string $endsOn,
+        array $statuses = RentalOrderUnit::RESERVING_STATUSES
+    ): array {
         if ($products->isEmpty()) return [];
-        $overlaps = RentalOrderUnit::whereIn('rental_product_id', $products->modelKeys())->where('status', 'confirmed')
+        $overlaps = RentalOrderUnit::whereIn('rental_product_id', $products->modelKeys())->whereIn('status', $statuses)
             ->whereDate('starts_on', '<=', $endsOn)->whereDate('ends_on', '>=', $startsOn)
             ->get(['rental_product_id', 'starts_on', 'ends_on'])->groupBy('rental_product_id');
         $result = [];
@@ -58,13 +73,16 @@ class RentalAvailability
      *
      * @return array<int, string> daftar tanggal Y-m-d yang tidak tersedia
      */
-    public function fullyBookedDates(RentalProduct $product, int $days = 120): array
-    {
+    public function fullyBookedDates(
+        RentalProduct $product,
+        int $days = 120,
+        array $statuses = RentalOrderUnit::RESERVING_STATUSES
+    ): array {
         $stock = (int) $product->stock;
         if ($stock < 1) return [];
         $from = CarbonImmutable::now('Asia/Jakarta')->startOfDay();
         $to = $from->addDays(max(1, $days) - 1);
-        $units = RentalOrderUnit::where('rental_product_id', $product->id)->where('status', 'confirmed')
+        $units = RentalOrderUnit::where('rental_product_id', $product->id)->whereIn('status', $statuses)
             ->whereDate('starts_on', '<=', $to->toDateString())->whereDate('ends_on', '>=', $from->toDateString())
             ->get(['starts_on', 'ends_on']);
         $counts = [];
@@ -83,12 +101,16 @@ class RentalAvailability
     }
 
     /** Periksa seluruh unit pada satu produk, termasuk overlap antarunit sendiri. */
-    public function canFitRequested(RentalProduct $product, array $ranges, bool $lock = false): bool
-    {
+    public function canFitRequested(
+        RentalProduct $product,
+        array $ranges,
+        bool $lock = false,
+        array $statuses = RentalOrderUnit::RESERVING_STATUSES
+    ): bool {
         if (! $ranges) return true;
         $starts = array_column($ranges, 'starts_on');
         $ends = array_column($ranges, 'ends_on');
-        $existing = RentalOrderUnit::where('rental_product_id', $product->id)->where('status', 'confirmed')
+        $existing = RentalOrderUnit::where('rental_product_id', $product->id)->whereIn('status', $statuses)
             ->whereDate('starts_on', '<=', max($ends))->whereDate('ends_on', '>=', min($starts))
             ->when($lock, fn ($query) => $query->lockForUpdate())->get(['starts_on', 'ends_on']);
         $events = [];
@@ -118,7 +140,15 @@ class RentalAvailability
     public function assertAvailable(RentalProduct $product, RentalOrderUnit $unit): void
     {
         if (! $product->is_active || ! $product->category->is_active) throw ValidationException::withMessages(['unit' => 'Papan tidak aktif.']);
-        if ($this->minimumAvailable($product, $unit->starts_on->toDateString(), $unit->ends_on->toDateString(), true) < 1) {
+        // Saat mengonfirmasi, yang dihitung hanya unit terkonfirmasi: unit
+        // pending lain belum tentu jadi dan tidak boleh menggagalkan konfirmasi.
+        if ($this->minimumAvailable(
+            $product,
+            $unit->starts_on->toDateString(),
+            $unit->ends_on->toDateString(),
+            true,
+            RentalOrderUnit::COMMITTED_STATUSES
+        ) < 1) {
             throw ValidationException::withMessages(['unit' => 'Stok tidak cukup pada periode tersebut.']);
         }
     }

@@ -196,8 +196,8 @@ class RentalCatalogController extends Controller
         try {
             $oldPath = DB::transaction(function () use ($product, $data) {
                 $locked = RentalProduct::lockForUpdate()->findOrFail($product->id);
-                if ((int) $data['stock'] < $locked->stock && \App\Models\RentalOrderUnit::where('rental_product_id', $locked->id)->where('status', 'confirmed')->exists()) {
-                    throw ValidationException::withMessages(['stock' => 'Stok tidak dapat dikurangi selama masih ada reservasi terkonfirmasi.']);
+                if ((int) $data['stock'] < $locked->stock && \App\Models\RentalOrderUnit::where('rental_product_id', $locked->id)->whereIn('status', \App\Models\RentalOrderUnit::RESERVING_STATUSES)->exists()) {
+                    throw ValidationException::withMessages(['stock' => 'Stok tidak dapat dikurangi selama masih ada pesanan yang menahan tanggal (menunggu konfirmasi atau terkonfirmasi).']);
                 }
                 $before = $this->productSnapshot($locked);
                 $oldPath = $locked->image_path;

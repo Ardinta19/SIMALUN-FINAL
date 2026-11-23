@@ -3,7 +3,7 @@
 @section('content')
 <p><a class="bk-back" href="{{ route('admin.rental.orders') }}">← Pesanan sewa</a></p>
 <h1>Jadwal sewa</h1>
-<p class="muted">Jadwal menampilkan setiap hari dalam periode sewa termasuk hari penerimaan dan pengembalian. Unit menunggu belum mencadangkan stok; unit terkonfirmasi sudah dicadangkan. Perkiraan jadwal bukan bukti serah terima aktual.</p>
+<p class="muted">Jadwal menampilkan setiap hari dalam periode sewa termasuk hari penerimaan dan pengembalian. Unit menunggu sudah menahan tanggal sampai tenggat konfirmasi; unit terkonfirmasi menahannya secara tetap. Perkiraan jadwal bukan bukti serah terima aktual.</p>
 <form class="stack card body" method="get" action="{{ route('admin.rental.schedule') }}">
 <label>Bulan<input type="month" name="month" value="{{ $month->format('Y-m') }}" required></label>
 <div class="row"><label>Status unit<select name="status"><option value="">Semua status aktif</option>@foreach(['pending' => 'Menunggu konfirmasi', 'confirmed' => 'Dikonfirmasi'] as $value => $label)<option value="{{ $value }}" @selected(($input['status'] ?? '') === $value)>{{ $label }}</option>@endforeach</select></label>

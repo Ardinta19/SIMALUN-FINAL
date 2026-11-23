@@ -6,12 +6,12 @@
 <nav class="bk-jump bk-help-jump" aria-label="Lompat ke bagian bantuan"><strong>Ke bagian</strong><div><a href="#mulai-pesanan">Mulai pesanan</a><a href="#pertanyaan-umum">Pertanyaan umum</a><a href="#hubungi-admin">Hubungi admin</a></div></nav>
 <div class="help-card help-notice"><strong>Masih dalam pengujian.</strong> Jangan melakukan transaksi atau pembayaran nyata.</div>
 <section class="help-card" id="mulai-pesanan"><h2>Mulai pesanan</h2><ol>
-<li>Pilih papan di <a href="{{ route('welcome') }}">katalog</a> dan tambahkan ke keranjang. Stok belum dicadangkan pada tahap ini.</li>
+<li>Pilih papan di <a href="{{ route('welcome') }}">katalog</a> dan tambahkan ke keranjang. Tanggal baru ditahan saat pesanan dikirim, belum saat masuk keranjang.</li>
 <li>Kamu bisa mengisi keranjang lebih dulu tanpa akun. Saat siap, masuk atau daftar di perangkat yang sama — keranjang tetap tersimpan — lalu lengkapi tanggal, ucapan, desain dan serah terima untuk setiap unit di checkout.</li>
 <li>Kirim pesanan dan tunggu konfirmasi admin. Periksa halaman <a href="{{ route('rental.orders.index') }}">Pesanan saya</a> untuk melihat langkah berikutnya.</li>
 </ol></section>
 <section class="help-card" id="pertanyaan-umum"><h2>Pertanyaan umum</h2>
-<details><summary>Kapan stok dicadangkan?</summary><p>Stok diperiksa dan dicadangkan saat admin mengonfirmasi unit. Unit yang belum dikonfirmasi setelah 24 jam dibatalkan jika penjadwal berjalan. Jadwal dekat memerlukan persetujuan khusus.</p></details>
+<details><summary>Kapan tanggal ditahan?</summary><p>Tanggal ditahan segera setelah pesanan dikirim, paling lama 24 jam sampai admin mengonfirmasi. Bila belum dikonfirmasi sampai tenggat itu, unit dibatalkan dan tanggalnya dilepas kembali untuk pelanggan lain. Jadwal dekat memerlukan persetujuan khusus.</p></details>
 <details><summary>Bagaimana cara memilih desain?</summary><p>Isi nama penerima, ucapan dan permintaan desain untuk setiap unit saat checkout. Setelah admin mengirim preview, buka detail pesanan untuk menyetujui atau meminta revisi. Pengerjaan dimulai setelah preview terbaru disetujui.</p></details>
 <details><summary>Bagaimana cara membayar?</summary><p>Setelah unit dikonfirmasi dan ongkos disetujui jika diperlukan, buka bagian pembayaran pada unit. QRIS adalah pilihan utama; untuk metode lain gunakan WhatsApp jika sudah diatur admin. Kirim bukti pada unit terkait. Bukti diperiksa manual dan tidak otomatis menjadi pembayaran terverifikasi.</p></details>
 <details><summary>Kapan batas pelunasan?</summary><p>DP tidak memiliki minimum atau tenggat awal. Setiap unit harus lunas paling lambat H-1 pukul 23.59 WIB sebelum penerimaan. Bukti pelunasan yang dikirim tepat waktu menahan pembatalan selama menunggu verifikasi. Rincian dan ketentuan lengkap tersedia di checkout dan detail pesanan.</p></details>

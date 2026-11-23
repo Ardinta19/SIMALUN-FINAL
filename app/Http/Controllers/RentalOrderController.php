@@ -96,7 +96,8 @@ class RentalOrderController extends Controller
                 return [$existing, false];
             }
             // Mengunci produk dalam urutan konsisten dengan konfirmasi stok.
-            // Ini hanya pemeriksaan saat ini; unit pending belum mencadangkan stok.
+            // Unit pending ikut dihitung karena sejak pesanan dikirim tanggalnya
+            // sudah ditahan sampai admin mengonfirmasi atau tenggatnya lewat.
             $products = RentalProduct::with('category')->whereIn('id', array_column($cart, 'product_id'))->orderBy('id')->lockForUpdate()->get()->keyBy('id');
             $rangesByProduct = [];
             foreach ($cart as $key => $entry) {
@@ -141,7 +142,7 @@ class RentalOrderController extends Controller
             return [$order, true];
         }, 3);
         $request->session()->forget('rental_cart');
-        return redirect()->route('rental.orders.show', $order)->with('success', $created ? 'Pesanan dikirim dan menunggu konfirmasi admin. Stok belum dicadangkan.' : 'Pesanan ini sudah dikirim sebelumnya. Periksa rinciannya di bawah.');
+        return redirect()->route('rental.orders.show', $order)->with('success', $created ? 'Pesanan dikirim dan menunggu konfirmasi admin. Tanggal sudah ditahan sampai tenggat konfirmasi.' : 'Pesanan ini sudah dikirim sebelumnya. Periksa rinciannya di bawah.');
     }
 
     public function show(Request $request, RentalOrder $order)
@@ -245,9 +246,9 @@ class RentalOrderController extends Controller
             app(RentalAvailability::class)->assertAvailable($product, $unit);
             $needsReview = $special && app(RentalPaymentDeadline::class)->isDue($unit);
             $unit->update(['status' => 'confirmed', 'confirmed_at' => now(), 'special_confirmation' => $special, 'payment_review_hold' => $needsReview]);
-            app(RentalNotifications::class)->customer($unit->order, 'Unit dikonfirmasi', 'Unit '.$unit->product_name.' telah dikonfirmasi dan stok dicadangkan.');
+            app(RentalNotifications::class)->customer($unit->order, 'Unit dikonfirmasi', 'Unit '.$unit->product_name.' telah dikonfirmasi; tanggalnya tetap ditahan.');
         });
-        return back()->with('success', 'Unit dikonfirmasi dan stok dicadangkan.');
+        return back()->with('success', 'Unit dikonfirmasi dan tanggal tetap ditahan.');
     }
 
     public function quoteTransport(Request $request, RentalOrderUnit $unit)

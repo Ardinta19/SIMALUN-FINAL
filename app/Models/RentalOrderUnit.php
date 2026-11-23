@@ -8,6 +8,22 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class RentalOrderUnit extends Model
 {
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_CONFIRMED = 'confirmed';
+    public const STATUS_CANCELLED = 'cancelled';
+
+    /**
+     * Status yang menahan stok produk pada tanggal sewa.
+     *
+     * Pesanan yang baru dikirim (pending) sudah mengunci tanggalnya sampai
+     * admin mengonfirmasi atau tenggat konfirmasi lewat — kalau tidak,
+     * dua pelanggan bisa sama-sama melihat tanggal yang sama sebagai kosong.
+     */
+    public const RESERVING_STATUSES = [self::STATUS_PENDING, self::STATUS_CONFIRMED];
+
+    /** Status yang sudah pasti memakai unit; dipakai saat admin mengonfirmasi. */
+    public const COMMITTED_STATUSES = [self::STATUS_CONFIRMED];
+
     protected $fillable = ['rental_order_id', 'rental_product_id', 'product_name', 'unit_price', 'price_unit', 'rental_amount', 'starts_on', 'event_on', 'ends_on', 'recipient_name', 'greeting', 'design_notes', 'delivery_method', 'delivery_address', 'return_method', 'return_address', 'status', 'status_before_cancel', 'cancel_code', 'payment_review_hold', 'payment_review_resolved', 'deposit_forfeited_at', 'payment_late_resumed_at', 'progress', 'cancel_reason', 'cancel_responsibility', 'cancelled_at', 'cancelled_by', 'confirmed_at', 'special_confirmation', 'rental_duration_package_id', 'package_name', 'package_days', 'delivery_university', 'delivery_university_fee', 'return_university', 'return_university_fee', 'transport_quote', 'transport_quote_version', 'transport_quote_note', 'transport_approved_at'];
     protected $casts = ['starts_on' => 'date', 'event_on' => 'date', 'ends_on' => 'date', 'payment_review_hold' => 'boolean', 'payment_review_resolved' => 'boolean', 'payment_late_resumed_at' => 'datetime', 'deposit_forfeited_at' => 'datetime', 'cancelled_at' => 'datetime', 'special_confirmation' => 'boolean', 'confirmed_at' => 'datetime', 'transport_approved_at' => 'datetime'];
     public function needsSpecialConfirmation(): bool

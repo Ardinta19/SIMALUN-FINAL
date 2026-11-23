@@ -46,7 +46,7 @@
 @endforelse
 </div>
 @if(count($cart))
-    <div class="notice" id="cart-next">Harga dasar belum termasuk durasi dan ongkos. Stok baru dicadangkan setelah admin mengonfirmasi.</div>
+    <div class="notice" id="cart-next">Harga dasar belum termasuk durasi dan ongkos. Tanggal ditahan setelah pesanan dikirim, bukan saat masuk keranjang.</div>
     <div class="cart-actions">
     @if($unavailableCount)
         <p role="status">Hapus {{ $unavailableCount }} unit yang tidak tersedia sebelum melanjutkan.</p>

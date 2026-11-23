@@ -29,7 +29,7 @@ class RentalAvailabilityTest extends TestCase
             $order->units()->create($base + ['starts_on' => '2026-12-05', 'event_on' => '2026-12-05', 'ends_on' => '2026-12-06', 'status' => 'confirmed']);
             $order->units()->create($base + ['starts_on' => '2026-12-04', 'event_on' => '2026-12-04', 'ends_on' => '2026-12-05', 'status' => 'cancelled']);
             $this->assertSame(1, app(RentalAvailability::class)->minimumAvailable($product, '2026-12-03', '2026-12-06'));
-            $this->get(route('catalog.show', [$product, 'starts_on' => '2026-12-03', 'ends_on' => '2026-12-06']))->assertOk()->assertSee('1 unit')->assertSee('bukan reservasi');
+            $this->get(route('catalog.show', [$product, 'starts_on' => '2026-12-03', 'ends_on' => '2026-12-06']))->assertOk()->assertSee('1 unit')->assertSee('belum menahan tanggal');
             $this->assertDatabaseCount('rental_order_units', 3);
             $this->get(route('catalog.show', [$product, 'starts_on' => '2026-12-06', 'ends_on' => '2026-12-03']))->assertSessionHasErrors('ends_on');
         } finally { Carbon::setTestNow(); }
