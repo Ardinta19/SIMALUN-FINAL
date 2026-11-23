@@ -336,19 +336,68 @@ class UiKitTest extends TestCase
 
     public function test_light_theme_secondary_text_meets_contrast(): void
     {
-        $css = File::get(public_path('css/berkah-experience.css'));
+        // Teks sekunder pada tema terang harus tetap >= 4.5:1 terhadap
+        // permukaan tempat ia benar-benar duduk.
+        $cases = [
+            ['berkah-experience.css', '.bk-kicker', '#fffaf6'],
+            ['berkah-experience.css', '.bk-order-card__label', '#fffaf6'],
+            ['berkah-experience.css', '.bk-how>div>span', '#fbf6ef'],
+            ['berkah-experience.css', '.bk-menu-links a span', '#fffaf6'],
+            ['berkah-experience.css', '.bk-muted-mark', '#fbf6ef'],
+            ['berkah-experience.css', '.bk-order-mark', '#f5e7e2'],
+            ['berkah-experience.css', '.bk-order-card__mark', '#f5e7e2'],
+            ['berkah-auth.css', '.auth-foot', '#fbf6ef'],
+            ['berkah-auth.css', '.auth-eyebrow', '#fffaf6'],
+        ];
 
-        foreach (['.bk-kicker' => '#fffaf6', '.bk-order-card__label' => '#fffaf6'] as $class => $surface) {
-            $pattern = '/'.preg_quote($class, '/').'\s*(?:,[^{}]*)?\{([^{}]*)\}/';
-            preg_match($pattern, $css, $match);
-            $this->assertNotEmpty($match, 'Aturan tidak ditemukan: '.$class);
-            $this->assertMatchesRegularExpression('/color\s*:\s*(#[0-9a-fA-F]{6})/', $match[1], 'Warna teks tidak ditemukan: '.$class);
+        foreach ($cases as [$file, $selector, $surface]) {
+            $color = $this->declaredColor(File::get(public_path('css/'.$file)), $selector);
 
-            preg_match('/color\s*:\s*(#[0-9a-fA-F]{6})/', $match[1], $color);
-            $ratio = $this->contrastRatio($color[1], $surface);
+            $this->assertNotNull($color, 'Warna teks tidak ditemukan untuk '.$selector.' di '.$file);
 
-            $this->assertGreaterThanOrEqual(4.5, $ratio, $class.' hanya '.round($ratio, 2).':1 pada tema terang.');
+            $ratio = $this->contrastRatio($color, $surface);
+
+            $this->assertGreaterThanOrEqual(4.5, $ratio, $selector.' hanya '.round($ratio, 2).':1 pada '.$surface.' ('.$file.').');
         }
+    }
+
+    public function test_theme_never_uses_important(): void
+    {
+        $css = preg_replace('!/\*.*?\*/!s', '', File::get(public_path('css/berkah-theme.css')));
+
+        $this->assertStringNotContainsString('!important', $css, 'Aturan tema tidak boleh memakai !important.');
+    }
+
+    /**
+     * Warna teks pertama yang dideklarasikan oleh aturan dengan selector persis
+     * (tanpa :hover/:focus) di dalam satu berkas CSS.
+     */
+    private function declaredColor(string $css, string $selector): ?string
+    {
+        $css = preg_replace('!/\*.*?\*/!s', '', $css);
+
+        preg_match_all('/([^{}]+)\{([^{}]*)\}/s', $css, $rules, PREG_SET_ORDER);
+
+        foreach ($rules as $rule) {
+            $matched = false;
+
+            foreach (explode(',', $rule[1]) as $candidate) {
+                if (trim(preg_replace('/\s+/', ' ', $candidate)) === $selector) {
+                    $matched = true;
+                    break;
+                }
+            }
+
+            if (! $matched) {
+                continue;
+            }
+
+            if (preg_match('/(?<![\w-])color\s*:\s*(#[0-9a-fA-F]{6})/', $rule[2], $match)) {
+                return $match[1];
+            }
+        }
+
+        return null;
     }
 
     private function contrastRatio(string $foreground, string $background): float
