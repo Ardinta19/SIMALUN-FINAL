@@ -50,15 +50,15 @@ beri rating produk & pesanan  ◄───── unit returned
 | Titik tunggu | Yang menunggu | Yang harus bertindak | Tenggat otomatis | Kalau tidak bertindak |
 | --- | --- | --- | --- | --- |
 | Konfirmasi pesanan | pelanggan | admin | **ada**: 24 jam, `ExpireRentalConfirmations` | unit batal + tanggal dilepas (benar) |
-| Penawaran ongkos | pelanggan | admin | tidak ada (belum ada pengingat khusus ongkos) | `payableAmount()` = `null`, pembayaran ditolak, unit tidak bisa dibatalkan otomatis |
-| Persetujuan ongkos | admin | pelanggan | tidak ada, tetapi pelanggan dapat menolak dan meminta versi baru | sama seperti di atas |
+| Penawaran ongkos | pelanggan | admin | pengingat harian ke admin setelah 24 jam tanpa penawaran (babak D) | `payableAmount()` = `null`, pembayaran ditolak, tetapi pelanggan dapat membatalkan unit sendiri |
+| Persetujuan ongkos | admin | pelanggan | pengingat harian ke pelanggan setelah penawaran 24 jam belum dijawab (babak D) | sama seperti di atas |
 | Preview desain | admin (tidak bisa mulai pengerjaan) | pelanggan | **ada** (babak B): 48 jam sejak unggah / H-3, lalu admin boleh "lanjutkan dengan catatan"; pengingat harian sejak babak A | unit tidak lagi terkunci; pengerjaan berjalan dengan catatan tertulis |
 | Verifikasi bukti bayar | pelanggan (tidak bisa lunas) | admin | tidak ada SLA, tetapi pengingat bila bukti menganggur > 6 jam (babak A) | serah terima tidak bisa ditandai |
 | Pelunasan terlambat | pelanggan | admin (verifikasi) | **ada** (babak B): toleransi sampai H+1 pukul 12.00 WIB, sesudahnya DP hangus | bukti & kelanjutan ditolak setelah batas |
 | Tandai kembali | pelanggan (tidak bisa rating) | admin | pengingat harian setelah H+2 dari tanggal kembali (babak C) | unit tetap `handed_over`; hanya mengingatkan, tidak menutup otomatis |
 | Rating | admin (indikator kualitas) | pelanggan | tidak ada | wajar; bukan penghambat |
 
-Baris tanpa tenggat yang tersisa (ongkos dan verifikasi bukti) masih menjadi titik tunggu utama; pengingat dan jalur dua arah mengurangi risikonya.
+Setelah babak C dan D, baris tanpa tenggat yang tersisa hanya **verifikasi bukti oleh admin**: ada pengingat 6 jam, tetapi tidak ada batas waktu yang memaksa. Penandaan kembali kini berlapis tiga (pengingat H+2, filter dasbor, penutupan otomatis H+7), dan antrean ongkos punya pengingat dua arah setelah 24 jam.
 
 ## 3. Temuan A — alur bolak-balik
 
@@ -121,14 +121,17 @@ pengingat H-1, tidak ada email/WhatsApp. Pelanggan harus membuka aplikasi untuk
 tahu ada preview yang menunggu; admin harus membuka dasbor untuk tahu ada bukti
 yang menunggu. Ini memperpanjang semua titik tunggu di atas.
 
-_Babak A_: `rental:remind` membuat pemberitahuan menjadi proaktif (bukti menganggur,
-pelunasan H-1, respons desain, eskalasi admin). Kanalnya tetap di dalam aplikasi;
-email/WhatsApp masuk babak C.
+_Babak A–D_: `rental:remind` membuat pemberitahuan menjadi proaktif (bukti
+menganggur, pelunasan H-1, toleransi, respons desain, eskalasi admin, ongkos dua
+arah, acara lewat, pengembalian) dan `rental:close-events` menutup unit yang
+menggantung. Kanalnya **tetap hanya di dalam aplikasi**; email/WhatsApp sengaja
+belum dikerjakan karena butuh keputusan pemilik usaha dan kredensial kanal
+(SMTP/WhatsApp gateway) — ini keputusan lingkup, bukan temuan yang terlewat.
 _Dampak_: tinggi, karena menjadi pengali bagi temuan lain.
 
 ## 4. Temuan B — saling menunggu yang benar-benar mengunci
 
-**DL-1. Persetujuan desain tanpa tenggat mengunci seluruh unit (berat).**
+**DL-1. Persetujuan desain tanpa tenggat mengunci seluruh unit (selesai di babak B).**
 `production` hanya boleh dimulai jika preview terbaru `approved`
 (`RentalProgressController.php:22`), sedangkan `production` adalah syarat untuk
 `ready`, `handed_over`, dan `returned`. Jadi pelanggan yang sudah **lunas** tetapi
@@ -164,7 +167,7 @@ menganggur lebih dari 6 jam, sehingga antrean tidak lagi hanya bergantung pada
 kartu dasbor.
 
 **DL-3. Penawaran ongkos yang tidak pernah dikirim membuat unit tak bisa dibatalkan
-otomatis (sedang-berat).**
+otomatis (selesai di babak C/D).**
 Selama `payableAmount()` = `null` (ongkos belum ada atau belum disetujui),
 pembayaran ditolak (`RentalPaymentController.php:37`), dan penjadwal hanya memasang
 `payment_review_hold` tanpa membatalkan (`ExpireRentalPayments.php:28-35`). Unit
@@ -183,16 +186,17 @@ tercatat (alasan, centang konsekuensi DP, event pembatalan, tanggung jawab pelan
 Admin tetap dapat melanjutkan unit yang batal keliru selama batas kelanjutan
 berlaku, sehingga pembatalan keliru tidak permanen.
 
-**DL-5. Unit yang lupa ditandai kembali tidak pernah selesai (ringan-sedang).**
+**DL-5. Unit yang lupa ditandai kembali tidak pernah selesai (selesai di babak C/D).**
 `handed_over → returned` murni manual (`RentalProgressController.php:21`). Tanpa
 tanda itu, rating produk dan rating pesanan terkunci
 (`RentalFeedbackController.php:57`), dan unit tetap dihitung "aktif" di dasbor
 selamanya.
-_Ditutup sebagian di babak C_: `rental:remind` mengirim pengingat harian ke admin
-untuk unit yang masih `handed_over` dua hari setelah `ends_on` (`return_pending`),
-dasbor menampilkan kartu "unit sudah lewat tanggal kembali", dan filter
-`return_overdue` menyaring daftar pesanan. Penandaan tetap manual agar admin
-memastikan fisik papan sudah diterima.
+_Ditutup di babak C/D_: `rental:remind` mengirim pengingat harian ke admin untuk
+unit yang masih `handed_over` dua hari setelah `ends_on` (`return_pending`), dasbor
+menampilkan kartu "unit sudah lewat tanggal kembali", filter `return_overdue`
+menyaring daftar pesanan, dan `rental:close-events` menutup unit secara otomatis
+setelah 7 hari. Penandaan manual tetap jalur utama; penutupan otomatis hanya jaring
+pengaman agar rating dan antrean tidak menggantung selamanya.
 
 **DL-6. `payment_review_hold` lengket (sudah diperbaiki di babak A).**
 Hold dipasang saat konfirmasi jadwal dekat, saat penjadwal menandai ongkos manual,
@@ -363,10 +367,24 @@ sudah ada (transaksi, notifikasi dalam transaksi, perintah penjadwal idempoten).
 - Tes: `tests/Feature/RentalCustomerControlsTest.php`,
   `tests/Feature/RentalWaitingQueuesTest.php`,
   `tests/Feature/RentalCheckoutDraftTest.php`.
-- **Babak D — selesai.** Eskalasi antrean ongkos (DL-3) lewat pengingat harian dua
-  arah, penutupan otomatis unit menggantung (G-2) lewat `rental:close-events`, dan
-  pelonggaran rating pesanan (G-3) dengan masa tenggang 7 hari. Tes:
-  `tests/Feature/RentalTransportWaitTest.php` dan
+
+**Babak D — selesai.**
+
+- **Eskalasi antrean ongkos (DL-3).** `rental:remind` menambah
+  `transport_quote_needed` (admin, unit antar/jemput lebih dari 24 jam tanpa
+  penawaran), `transport_approval` (pelanggan, penawaran terakhir lebih dari 24 jam
+  belum dijawab), dan `event_overdue` (admin, tanggal acara lewat tetapi progres
+  masih `waiting`/`production`/`ready`). Semua idempoten per hari.
+- **Penutupan otomatis (G-2).** Perintah `rental:close-events` (harian 02.00 WIB)
+  menutup unit `handed_over` yang 7 hari lewat tanggal kembali: `progress` menjadi
+  `returned`, riwayat progres mencatat "Ditutup otomatis oleh sistem" atas nama
+  admin terakhir, dan pelanggan serta admin menerima notifikasi. Penandaan manual
+  tetap jalur utama; perintah ini hanya jaring pengaman.
+- **Rating pesanan (G-3).** Unit dianggap tuntas bila sudah kembali, dibatalkan,
+  atau tanggal acaranya lewat lebih dari 7 hari; syarat minimal satu unit tidak
+  dibatalkan mencegah penilaian pesanan yang seluruhnya batal. Aturan di server dan
+  tampilan halaman pesanan disamakan.
+- Tes: `tests/Feature/RentalTransportWaitTest.php`,
   `tests/Feature/RentalAutoCloseTest.php`.
 - Sisa yang belum ditutup: batas jumlah revisi desain (RT-3) — keputusan bisnis,
   bukan bug; serta hal-hal yang memang butuh uji manual/konkurensi MySQL.

@@ -15,8 +15,13 @@ use Illuminate\Support\Facades\DB;
  * per hari. Kuncinya ada di tabel `rental_unit_reminders` (unik), sehingga
  * perintah ini aman dijalankan berkali-kali dan boleh dijadwalkan rapat.
  *
+ * Jenisnya: bukti bayar menganggur, pelunasan H-1, toleransi H+1, respons dan
+ * eskalasi desain, antrean ongkos dua arah, acara yang sudah lewat, serta unit
+ * yang belum ditandai kembali.
+ *
  * Pengingat tidak mengubah status apa pun: ia hanya memberi tahu pihak yang
- * seharusnya bergerak, tanpa mengambil alih keputusan bisnis.
+ * seharusnya bergerak, tanpa mengambil alih keputusan bisnis. Penutupan otomatis
+ * unit yang menggantung ditangani perintah terpisah `rental:close-events`.
  */
 class RentalReminders
 {
