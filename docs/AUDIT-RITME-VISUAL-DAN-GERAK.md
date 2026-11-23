@@ -90,7 +90,7 @@ antara Lenis, GSAP, dan ScrollTrigger, plus **area sentuh 44 px**.
 
 | Pustaka | Berkas | Tugas | Alasan |
 |---|---|---|---|
-| **Lenis 1.3.11** | `public/vendor/lenis/lenis.min.js` + `lenis.css` | Gulir halus berbobot pada penunjuk presisi; disinkronkan ke ScrollTrigger; berhenti otomatis saat sheet mengunci gulir. | Gulir roda mouse adalah interaksi paling sering; Lenis memberi bobot tanpa mengubah kecepatan gulir jari. |
+| **Lenis 1.3.11** | `public/vendor/lenis/lenis.min.js` + `lenis.css` | Gulir halus berbobot di mouse, trackpad, **dan layar sentuh** (`syncTouch` dengan lerp .09); disinkronkan ke ScrollTrigger; berhenti otomatis saat sheet mengunci gulir. | Gulir adalah interaksi paling sering di semua perangkat. Di sentuh, lerp dibuat lebih rapat supaya gulir jari tidak terasa melayang. |
 | **GSAP 3.15.0** | `public/vendor/gsap/gsap.min.js` | Tween, timeline splash, hitung angka, tekanan tombol berpegas, kemiringan kartu. | Sudah dipakai; tetap mesin utama. |
 | **ScrollTrigger 3.15.0** | `public/vendor/gsap/ScrollTrigger.min.js` | Kemunculan berbasis posisi gulir (`once`), parallax `scrub`, pemicu hitungan. | Satu-satunya cara hemat: hanya elemen yang terlihat yang beranimasi. |
 | **Micro-interaction** | `public/js/berkah-motion.js` | `data-bk-press` (tekanan berpegas), `data-bk-tilt` (kartu katalog), `data-bk-count` (angka), `data-bk-reveal`/`-group` (kemunculan), `data-bk-parallax`. | Perlu, tapi harus punya fungsi: mengarahkan mata, bukan menghibur. |
@@ -129,8 +129,7 @@ Aturan keselamatan yang dipatuhi:
 ## 5. Sisa pekerjaan (urutan yang disarankan)
 
 1. **Customer**: skeleton setinggi kartu pada pratinjau katalog (mencegah lompatan tata letak saat `dashboard-preview.js` mengisi data).
-2. **Checkout & pembayaran**: satu tangga jarak antarbagian (`.checkout-form [data-checkout-unit]`), pemisah bagian memakai `--bk-space-6`.
-3. **Auth**: ganti emoji ⚠️/✅ pada `.alert` dengan ikon Lucide agar setara dengan admin.
+2. **Auth**: ganti emoji ⚠️/✅ pada `.alert` dengan ikon Lucide agar setara dengan admin.
 4. **Admin**: densitas tabel (`td` padding) dan `data-bk-count` pada kartu statistik dasbor.
 5. **Semua peran**: adopsi `--bk-fs-*`/`--bk-space-*` di view yang masih menulis angka lepas; audit tablet 768–1024 px per halaman.
 6. **Gerak lanjutan (opsional)**: `SplitText` untuk judul hero katalog; `Flip` untuk transisi daftar pesanan saat filter berubah.
@@ -155,3 +154,24 @@ grep -o "font-size: *\.[0-9]*rem" public/css/berkah-admin.css | sort -u
 Di peramban: matikan JavaScript → konten harus tetap utuh; aktifkan
 `prefers-reduced-motion: reduce` → tidak boleh ada gerak; buka sheet filter →
 gulir halaman di belakangnya harus terkunci.
+
+
+---
+
+## 7. Putaran 2 — checkout & pembayaran
+
+| Dimensi | Temuan | Perbaikan |
+|---|---|---|
+| Spacing scale | Setiap bagian checkout membawa `style="margin-bottom:16px"` sendiri, jadi irama berubah saat jumlah unit bertambah; jarak antarbagian voucher/ketentuan/persetujuan tidak seirama. | `.checkout-form` kini grid dengan `gap` dari `--bk-space-*`; margin inline di markup dihapus. Satu sumber jarak untuk berapa pun unitnya. |
+| Proximity | Judul bagian (`h3`) menempel ke isian di atasnya, sama jauhnya dengan isian di bawahnya. | `h3` memakai `--bk-space-6` di atas (pemisah antar-bagian) dan `--bk-space-2` di bawah (judul dengan isinya). |
+| Hierarki aksi | Tombol "Kirim pesanan" selebar teksnya, mudah terlewat di ujung formulir panjang. | 100% lebar di ponsel, min 260 px di desktop, tinggi 52 px, dengan tekanan berpegas (`data-bk-press`). |
+| Area sentuh | `summary` bagian unit dan chip "Langsung ke" setinggi ±34 px. | `summary` dan chip ≥ 44 px (`--bk-touch`). |
+| Kartu bersarang | Riwayat pembayaran & preview memakai `style="margin:10px 0"` di dalam kartu. | Kelas `.bk-row-card` dengan tangga `--bk-space-3` / `--bk-space-4` dan margin anak pertama/terakhir dinolkan. |
+| QRIS | Gambar QRIS diskalakan `max-width:260px` tanpa bidang putih eksplisit; di tema gelap bidang di sekitarnya menjadi gelap sehingga aplikasi pemindai bisa gagal membaca. | `.bk-qris`: bidang putih, padding, radius 18 px, `loading="lazy"`, lebar `min(320px, 100%)`. |
+| Angka | Nominal pembayaran memakai lebar digit proporsional. | `font-variant-numeric: tabular-nums` pada `#payment-amount` dan tombol "isi sisa". |
+
+Berkas yang disentuh pada putaran ini: `public/css/berkah-experience.css`,
+`resources/views/rental/checkout.blade.php`,
+`resources/views/rental/unit.blade.php`, `public/js/berkah-motion.js`
+(syncTouch), `public/css/berkah-motion.css` (token sentuh pindah ke ui-kit),
+`public/css/berkah-ui-kit.css`.

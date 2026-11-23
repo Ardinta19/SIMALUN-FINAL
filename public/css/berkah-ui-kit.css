@@ -63,6 +63,10 @@
     --bk-space-8: 40px;
     --bk-space-9: 48px;
     --bk-space-10: 64px;
+
+    /* Area sentuh: 44px adalah ambang nyaman untuk ujung jari. */
+    --bk-touch: 44px;
+    --bk-touch-sm: 38px;
 }
 
 .bk-sr-only {

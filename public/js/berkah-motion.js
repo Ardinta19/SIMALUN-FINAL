@@ -7,10 +7,11 @@
 
    Pembagian tugas — masing-masing dipakai sesuai fungsinya:
 
-   · Lenis   → gulir halus berbobot (roda mouse & trackpad) pada perangkat
-               penunjuk presisi. Tidak aktif di layar sentuh karena gulir
-               asli sudah terasa paling tepat di sana, dan tidak aktif saat
-               sheet/dialog mengunci gulir (kelas .fc-scroll-lock).
+   · Lenis   → gulir halus berbobot untuk roda mouse, trackpad, dan layar
+               sentuh (syncTouch dengan lerp lebih ringan agar tidak terasa
+               "berat" di ponsel). Otomatis berhenti saat sheet/dialog
+               mengunci gulir (kelas .fc-scroll-lock). Halaman yang ingin
+               gulir asli cukup menandai <html data-bk-no-smooth>.
    · GSAP + ScrollTrigger
              → kemunculan bertahap elemen ([data-bk-reveal],
                [data-bk-reveal-group]), parallax halus ([data-bk-parallax]),
@@ -68,8 +69,10 @@
     }
 
     /* ── 1. Lenis: gulir halus ────────────────────────────────────────────────
-       Hanya untuk penunjuk presisi. Elemen dengan [data-lenis-prevent] (sheet,
-       dropdown panjang, tabel bergulir) tetap memakai gulir asli. */
+       Semua perangkat, termasuk layar sentuh. Di sentuh, Lenis memakai
+       syncTouch dengan lerp ringan supaya gulir jari tetap mengikuti jari.
+       Elemen bertanda [data-lenis-prevent] (sheet, tabel bergulir, sidebar)
+       tetap memakai gulir asli. */
 
     function scrollLocked() {
         return document.documentElement.classList.contains('fc-scroll-lock')
@@ -94,8 +97,7 @@
 
     function initLenis() {
         if (state.lenis || !window.Lenis || !motionOn() || saveData) return;
-        if (!finePointer || !finePointer.matches) return;
-        if (document.querySelector('[data-bk-no-smooth]')) return;
+        if (document.documentElement.hasAttribute('data-bk-no-smooth')) return;
 
         try {
             var lenis = new window.Lenis({
@@ -105,8 +107,12 @@
                 },
                 smoothWheel: true,
                 wheelMultiplier: 1,
-                touchMultiplier: 1.4,
-                syncTouch: false,
+                touchMultiplier: 1.2,
+                /* Sentuh: ikuti jari lebih rapat (lerp kecil) daripada roda
+                   mouse, supaya tidak terasa "melayang" saat menggulir cepat. */
+                syncTouch: true,
+                syncTouchLerp: 0.09,
+                touchInertiaMultiplier: 28,
                 autoRaf: false
             });
             state.lenis = lenis;
@@ -368,6 +374,7 @@
 
     function refresh() {
         if (!motionOn() || !hasGsap()) return;
+        if (state.lenis) markScrollRegions();
         revealTargets();
         initParallax();
         initTilt();

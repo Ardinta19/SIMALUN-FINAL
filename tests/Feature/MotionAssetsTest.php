@@ -103,13 +103,13 @@ class MotionAssetsTest extends TestCase
         $this->assertStringContainsString('touch-action: manipulation', $css);
         $this->assertStringContainsString('env(safe-area-inset-bottom', $css);
         $this->assertStringContainsString('prefers-reduced-motion: reduce', $css);
-        $this->assertStringContainsString('--bk-touch: 44px', $css);
+        $this->assertStringContainsString('var(--bk-touch)', $css);
     }
 
     public function test_design_scales_are_shared_tokens(): void
     {
         $kit = $this->source('css/berkah-ui-kit.css');
-        foreach (['--bk-fs-2xs: .75rem', '--bk-space-1: 4px', '--bk-space-10: 64px', '--bk-lh-body'] as $token) {
+        foreach (['--bk-fs-2xs: .75rem', '--bk-space-1: 4px', '--bk-space-10: 64px', '--bk-lh-body', '--bk-touch: 44px'] as $token) {
             $this->assertStringContainsString($token, $kit, "Token skala hilang: {$token}");
         }
 

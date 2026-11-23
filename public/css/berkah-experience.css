@@ -205,3 +205,143 @@ html:not(.bk-enhanced) .bk-header-space{height:auto!important;min-height:0;paddi
 @media (max-width: 700px) {
     body.bk-customer { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
 }
+
+/* ==========================================================================
+   Checkout & pembayaran — satu tangga jarak
+   --------------------------------------------------------------------------
+   Formulir checkout panjang dan berlapis (beberapa unit, voucher, ketentuan,
+   persetujuan). Sebelum ini setiap bagian membawa jarak sendiri lewat
+   style="margin-bottom:16px" sehingga irama berubah saat jumlah unit
+   bertambah. Di sini jarak diambil alih oleh satu grid dengan tangga token
+   --bk-space-*, dan setiap judul bagian memakai jarak yang sama.
+   ========================================================================== */
+
+.checkout-form {
+    display: grid;
+    align-content: start;
+    gap: clamp(var(--bk-space-4), 2.2vw, var(--bk-space-5));
+}
+
+.checkout-form > * {
+    margin: 0;
+}
+
+/* Bagian unit tetap terlihat sebagai satu kartu utuh; jarak antar-unit
+   diatur grid di atas, bukan margin di dalam markup. */
+.checkout-form [data-checkout-unit] {
+    scroll-margin-top: 96px;
+}
+
+.checkout-form .row {
+    gap: clamp(var(--bk-space-3), 2vw, var(--bk-space-4));
+}
+
+.checkout-form h3 {
+    margin: var(--bk-space-6) 0 var(--bk-space-2);
+}
+
+.checkout-form h3:first-of-type {
+    margin-top: var(--bk-space-4);
+}
+
+.checkout-form label {
+    margin: var(--bk-space-4) 0 var(--bk-space-2);
+}
+
+/* Persetujuan adalah label: margin label umum tidak berlaku di sini karena
+   kotaknya sendiri sudah menjadi sasaran ketuk. */
+.checkout-form > .bk-consent {
+    margin: 0;
+}
+
+.bk-consent {
+    min-height: var(--bk-touch);
+    gap: var(--bk-space-3);
+    line-height: 1.6;
+}
+
+/* Tombol kirim selalu cukup besar dan selebar kartu di ponsel. */
+.checkout-form [data-checkout-submit] {
+    width: 100%;
+    min-height: 52px;
+    font-size: var(--bk-fs-md);
+}
+
+@media (min-width: 701px) {
+    .checkout-form [data-checkout-submit] {
+        width: auto;
+        min-width: 260px;
+    }
+}
+
+/* ── Halaman unit: bagian pembayaran, desain, riwayat ─────────────────── */
+
+.unit-section {
+    margin: clamp(var(--bk-space-3), 2vw, var(--bk-space-4)) 0;
+    padding: clamp(var(--bk-space-4), 2.6vw, 22px);
+}
+
+.unit-section > summary {
+    min-height: var(--bk-touch);
+    align-items: center;
+}
+
+.unit-section[open] > summary {
+    margin-bottom: var(--bk-space-4);
+}
+
+.unit-section h4 {
+    margin: var(--bk-space-5) 0 var(--bk-space-2);
+}
+
+.unit-section h4:first-of-type {
+    margin-top: var(--bk-space-2);
+}
+
+/* Riwayat pembayaran/preview: kartu kecil di dalam bagian, bukan kartu
+   dengan margin inline. */
+.bk-row-card {
+    margin: var(--bk-space-3) 0;
+    padding: var(--bk-space-4);
+}
+
+.bk-row-card > :first-child {
+    margin-top: 0;
+}
+
+.bk-row-card > :last-child {
+    margin-bottom: 0;
+}
+
+/* QRIS harus tetap berlatar putih: pemindai butuh bidang terang, termasuk
+   saat halaman memakai tema gelap. */
+.bk-qris {
+    display: block;
+    width: min(320px, 100%);
+    height: auto;
+    margin: var(--bk-space-4) auto;
+    padding: var(--bk-space-3);
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: 0 12px 30px -20px rgba(84, 5, 31, .5);
+}
+
+/* Nominal pembayaran memakai angka tabular agar digit tidak "menari". */
+#payment-amount,
+[data-fill-remaining] {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Chip lompat antar-bagian: cukup tinggi untuk ujung jari. */
+.bk-jump a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--bk-touch-sm);
+}
+
+@media (pointer: coarse) {
+    .bk-jump a {
+        min-height: var(--bk-touch);
+    }
+}
