@@ -39,7 +39,7 @@ class RentalTransportQuoteTest extends TestCase
         $this->actingAs($admin)->post(route('admin.rental.transport.quote', $unit), ['amount' => 20000, 'note' => 'Antar dan jemput'])->assertSessionHasNoErrors();
         $this->assertNull($unit->fresh()->transport_approved_at);
         $this->assertSame(3, $unit->fresh()->transport_quote_version);
-        $this->post(route('rental.transport.approve', $unit), ['version' => 3])->assertSessionHasNoErrors();
+        $this->actingAs($owner)->post(route('rental.transport.approve', $unit), ['version' => 3])->assertSessionHasNoErrors();
         $this->assertSame(120000, $unit->fresh()->payableAmount());
 
         $this->actingAs($owner)->post(route('rental.payment.store', $unit), ['amount' => 120000, 'proof' => UploadedFile::fake()->image('bukti.jpg')])->assertSessionHasNoErrors();

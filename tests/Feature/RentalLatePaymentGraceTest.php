@@ -82,10 +82,12 @@ class RentalLatePaymentGraceTest extends TestCase
             $this->actingAs($admin)->post(route('admin.rental.payment.verify', $graceProof))->assertSessionHasNoErrors();
             Carbon::setTestNow(Carbon::parse('2026-12-03 12:00:01', 'Asia/Jakarta'));
             $this->actingAs($expiredCustomer)->post(route('rental.payment.store', $expired), ['amount' => 100, 'proof' => UploadedFile::fake()->image('too-late.jpg')])->assertSessionHasErrors('payment');
-            $this->post(route('admin.rental.resume', $expired), ['reason' => 'Terlambat'])->assertSessionHasErrors('unit');
+            // Rute admin: kembalikan identitas admin sebelum memanggilnya, jika tidak
+            // middleware role akan menolak tanpa pesan galat validasi.
+            $this->actingAs($admin)->post(route('admin.rental.resume', $expired), ['reason' => 'Terlambat'])->assertSessionHasErrors('unit');
             $this->artisan('rental:expire-payments')->assertExitCode(0);
             $this->assertNotNull($expired->fresh()->deposit_forfeited_at);
-            $this->post(route('admin.rental.resume', $expired), ['reason' => 'Terlambat lagi'])->assertSessionHasErrors('unit');
+            $this->actingAs($admin)->post(route('admin.rental.resume', $expired), ['reason' => 'Terlambat lagi'])->assertSessionHasErrors('unit');
         } finally {
             Carbon::setTestNow();
         }

@@ -299,7 +299,8 @@ class RentalOrderController extends Controller
     {
         abort_unless($unit->order->customer_id === $request->user()->id, 403);
         $data = $request->validate(['version' => ['required', 'integer', 'min:1']]);
-        DB::transaction(function () use ($unit, $data) {
+        // $request wajib di-use: pencatat riwayat memakai $request->user()->id.
+        DB::transaction(function () use ($unit, $data, $request) {
             $unit = RentalOrderUnit::lockForUpdate()->findOrFail($unit->id);
             if (! $unit->transportRequired() || $unit->status === 'cancelled' || $unit->transport_approved_at || $unit->transport_quote === null || (int) $unit->transport_quote_version !== (int) $data['version']) {
                 throw ValidationException::withMessages(['transport' => 'Penawaran berubah atau tidak lagi tersedia. Periksa kembali.']);
