@@ -753,10 +753,51 @@ html.adm-reduced [data-adm-reveal] { opacity: 1 !important; transform: none !imp
 /* --------------------------------------------------------------------------
    14. Responsif
    -------------------------------------------------------------------------- */
-@media (max-width: 1080px) {
+/* ── Tablet: sidebar menyusut menjadi rel ikon ────────────────────────────
+   Menu tetap terlihat (tidak perlu buka-tutup) tetapi hanya memakan 84px,
+   sehingga isi halaman mendapat lebar yang cukup untuk dua kolom. */
+@media (min-width: 701px) and (max-width: 1079px) {
+    :root { --adm-sidebar: 84px; }
+
+    .adm-sidebar {
+        width: 84px;
+        padding: 16px 10px;
+        gap: 14px;
+        align-items: center;
+    }
+    .adm-brand { justify-content: center; padding: 4px 0 2px; }
+    .adm-brand__text,
+    .adm-brand__tag { display: none; }
+    .adm-side-close { display: none; }
+
+    .adm-nav { width: 100%; align-items: stretch; }
+    .adm-nav__group {
+        font-size: 0; line-height: 0; padding: 10px 0 6px; width: 100%;
+    }
+    .adm-nav__group::after {
+        content: ""; display: block; height: 1px; margin: 0 8px;
+        background: rgba(255, 255, 255, .16);
+    }
+    .adm-nav a { justify-content: center; padding: 10px 0; min-height: 44px; }
+    .adm-nav a > span:not(.adm-nav__icon):not(.adm-nav__count) { display: none; }
+    .adm-nav__count {
+        position: absolute; top: 5px; right: 12px;
+        min-width: 18px; padding: 0 5px; font-size: .6rem;
+    }
+    .adm-side-card { display: none; }
+    .adm-user { justify-content: center; padding: 8px; }
+    .adm-user__meta,
+    .adm-user__out { display: none; }
+
+    .adm-main { margin-left: var(--adm-sidebar); }
+    .adm-topbar__menu { display: none; }
+}
+
+/* ── Ponsel: sidebar menjadi drawer + navigasi bawah lima tujuan ────────── */
+@media (max-width: 700px) {
     :root { --adm-sidebar: 0px; }
     .adm-sidebar {
-        width: min(300px, 86vw);
+        width: min(320px, 88vw);
         transform: translateX(-104%);
         visibility: hidden;
         transition: transform var(--adm-dur-4) var(--adm-ease-out), visibility 0s linear var(--adm-dur-4);
@@ -768,7 +809,9 @@ html.adm-reduced [data-adm-reveal] { opacity: 1 !important; transform: none !imp
     }
     .adm-main { margin-left: 0; }
     .adm-topbar__menu { display: inline-grid; }
-    .adm-content { padding-bottom: 96px; }
+
+    /* Ruang untuk bilah navigasi bawah + home indicator. */
+    .adm-content { padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)); }
 }
 
 @media (max-width: 760px) {
@@ -1067,4 +1110,60 @@ body.adm-layer-open { overflow: hidden; }
 }
 @media (prefers-reduced-motion: reduce) {
     .adm-page-note summary::after { transition: none; }
+}
+
+/* ── Bilah navigasi bawah (khusus ponsel, >=701 disembunyikan) ──────────── */
+.adm-bottomnav { display: none; }
+
+@media (max-width: 700px) {
+    .adm-bottomnav {
+        position: fixed; left: 0; right: 0; bottom: 0; z-index: 45;
+        display: flex; align-items: stretch;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        background: color-mix(in srgb, var(--adm-surface) 93%, transparent);
+        border-top: 1px solid var(--adm-line);
+        backdrop-filter: blur(16px) saturate(1.1);
+        -webkit-backdrop-filter: blur(16px) saturate(1.1);
+        box-shadow: 0 -12px 30px -26px rgba(60, 10, 25, .8);
+    }
+    .adm-bottomnav a {
+        flex: 1 1 0; min-width: 0;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 2px; padding: 8px 2px 7px;
+        color: var(--adm-ink-3); text-decoration: none;
+        font-size: .62rem; font-weight: 800; letter-spacing: .02em;
+        transition: color var(--adm-dur-2) var(--adm-ease);
+        -webkit-tap-highlight-color: transparent;
+    }
+    .adm-bottomnav a span {
+        max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .adm-bottomnav a[aria-current="page"] { color: var(--adm-wine); }
+    .adm-bottomnav a[aria-current="page"] svg { stroke-width: 2.6; }
+    .adm-bottomnav a:active { transform: scale(.96); }
+    .adm-bottomnav a[aria-current="page"]::after {
+        content: ""; width: 16px; height: 3px; border-radius: 99px;
+        background: currentColor; margin-top: 1px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .adm-bottomnav a { transition: none; }
+    .adm-bottomnav a:active { transform: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   23. Kepadatan khusus ponsel
+       Layar kecil mendapat padding lebih rapat dan sudut lebih ringan supaya
+       satu layar memuat lebih banyak informasi tanpa terasa sesak.
+   ═══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 700px) {
+    .adm-app .adm-card { padding: 15px; border-radius: var(--adm-r-md); }
+    .adm-app .adm-card__head { margin-bottom: 10px; }
+    .adm-page-head { margin-bottom: 14px; }
+    .adm-stat { padding: 14px; }
+    .adm-stat__value { font-size: clamp(1.15rem, 5vw, 1.35rem); }
+    .adm-table--stack td { grid-template-columns: minmax(84px, 38%) 1fr; gap: 8px; }
+    /* Tombol utama selebar layar hanya untuk aksi halaman, bukan setiap tautan. */
+    .adm-page-head .adm-actions .adm-btn--primary { flex: 1 1 100%; }
 }

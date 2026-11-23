@@ -59,6 +59,8 @@
     </main>
 </div>
 
+@include('layouts.component.admin._bottom_nav')
+
 <div class="adm-toasts" aria-live="polite" aria-atomic="false">
     @if(session('success'))
         <div class="adm-toast" data-adm-toast data-adm-life="6000" role="status">

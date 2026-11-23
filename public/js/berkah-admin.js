@@ -169,7 +169,7 @@
             if (!sidebar) return;
             var toggle = document.querySelector('[data-adm-nav-toggle]');
             var isOpen = sidebar.getAttribute('data-open') === 'true';
-            var mobile = window.innerWidth <= 1080;
+            var mobile = window.innerWidth <= 700;
             if (!mobile) {
                 sidebar.removeAttribute('aria-hidden');
             } else if (!isOpen) {
@@ -213,7 +213,7 @@
         // Tutup sidebar setelah memilih menu di layar kecil.
         each('.adm-sidebar a', document, function (link) {
             on(link, 'click', function () {
-                if (window.innerWidth <= 1080) {
+                if (window.innerWidth <= 700) {
                     closeLayer(sidebar, backdrop);
                     syncSidebar();
                 }
@@ -247,7 +247,7 @@
         });
 
         var onResize = function () {
-            if (window.innerWidth > 1080 && sidebar) closeLayer(sidebar, backdrop);
+            if (window.innerWidth > 700 && sidebar) closeLayer(sidebar, backdrop);
             syncSidebar();
         };
         on(window, 'resize', onResize, { passive: true });

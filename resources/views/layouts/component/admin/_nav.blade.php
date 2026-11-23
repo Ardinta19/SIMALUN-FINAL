@@ -62,6 +62,7 @@
                 $isActive = collect($item['match'])->contains(fn ($pattern) => request()->routeIs($pattern));
             @endphp
             <a href="{{ route($item['route']) }}"
+               title="{{ $item['label'] }}"
                @if($isActive) aria-current="page" @endif>
                 <span class="adm-nav__icon" aria-hidden="true">
                     @include('layouts.component._icon', ['name' => $item['icon'], 'size' => 16])
