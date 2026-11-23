@@ -275,9 +275,14 @@
 
         var locked = mobile && host === document.body;
         var closed = false;
+        var resizeWatch = null;
         var api = { panel: panel, body: body, close: close };
 
         function cleanup() {
+            if (resizeWatch) {
+                try { resizeWatch.disconnect(); } catch (e) { /* diabaikan */ }
+                resizeWatch = null;
+            }
             document.removeEventListener('keydown', onDocKey);
             window.removeEventListener('scroll', onViewportChange, true);
             window.removeEventListener('resize', onViewportChange);
@@ -444,6 +449,16 @@
         window.addEventListener('resize', onViewportChange);
 
         if (locked) lockScroll();
+
+        /* Ruang di bawah pemicu bisa berubah setelah panel terisi (font web
+           atau gambar menyusul): hitung ulang posisi agar panel tidak
+           terpotong tepi bawah layar. */
+        if (!mobile && typeof window.ResizeObserver === 'function') {
+            resizeWatch = new window.ResizeObserver(function () {
+                if (!closed) place();
+            });
+            resizeWatch.observe(panel);
+        }
 
         if (trigger && trigger.setAttribute) {
             trigger.setAttribute('aria-expanded', 'true');
