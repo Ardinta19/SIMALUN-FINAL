@@ -167,7 +167,6 @@
 
         var syncSidebar = function () {
             if (!sidebar) return;
-            var toggle = document.querySelector('[data-adm-nav-toggle]');
             var isOpen = sidebar.getAttribute('data-open') === 'true';
             var mobile = window.innerWidth <= 700;
             if (!mobile) {
@@ -177,7 +176,10 @@
             } else {
                 sidebar.removeAttribute('aria-hidden');
             }
-            if (toggle) toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            /* Ada dua tombol pembuka: topbar dan slot "Lainnya" di bilah bawah. */
+            each('[data-adm-nav-toggle]', document, function (btn) {
+                btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            });
         };
 
         each('[data-adm-nav-toggle]', document, function (btn) {

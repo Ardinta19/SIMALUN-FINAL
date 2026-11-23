@@ -558,10 +558,17 @@ html[data-theme="dark"] {
 .adm-req { color: var(--adm-rose); font-weight: 800; }
 
 /* Switch (tanpa mengubah perilaku checkbox di form) */
-.adm-switch { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 700; font-size: .85rem; color: var(--adm-ink-2); }
+.adm-switch {
+    display: flex; align-items: flex-start; gap: 12px;
+    cursor: pointer; font-weight: 600; font-size: .85rem; line-height: 1.55;
+    color: var(--adm-ink-2);
+}
+/* Label penjelasan boleh beberapa baris; sakelar tetap di kiri dan sejajar
+   dengan baris pertama, tidak melayang di tengah teks. */
+.adm-switch > span:last-child { flex: 1 1 auto; min-width: 0; }
 .adm-switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .adm-switch__track {
-    position: relative; width: 44px; height: 26px; border-radius: 99px;
+    position: relative; flex: 0 0 44px; width: 44px; height: 26px; margin-top: 1px; border-radius: 99px;
     background: var(--adm-line-strong);
     transition: background var(--adm-dur-3) var(--adm-ease);
 }
@@ -1135,8 +1142,10 @@ body.adm-layer-open { overflow: hidden; }
         -webkit-backdrop-filter: blur(16px) saturate(1.1);
         box-shadow: 0 -12px 30px -26px rgba(60, 10, 25, .8);
     }
-    .adm-bottomnav a {
+    .adm-bottomnav a,
+    .adm-bottomnav button {
         flex: 1 1 0; min-width: 0;
+        border: 0; background: transparent; font-family: inherit; cursor: pointer;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         gap: 2px; padding: 8px 2px 7px;
         color: var(--adm-ink-3); text-decoration: none;
@@ -1144,7 +1153,8 @@ body.adm-layer-open { overflow: hidden; }
         transition: color var(--adm-dur-2) var(--adm-ease);
         -webkit-tap-highlight-color: transparent;
     }
-    .adm-bottomnav a span {
+    .adm-bottomnav a span,
+    .adm-bottomnav button span {
         max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .adm-bottomnav a[aria-current="page"] { color: var(--adm-wine); }
