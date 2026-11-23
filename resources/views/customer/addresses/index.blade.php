@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Alamat Saya – Azka Laundry</title>
 <style>
-:root{--blue:#0077b6;--blue-dark:#002f5c;--bg:#f4f8fc;--card:#fff;--ink:#1a2332;--muted:#64748b;--line:#ddeeff;--green:#00C48C;--red:#ef4444;--r:16px}
+:root{--blue:#0077b6;--blue-dark:#002f5c;--bg:#f4f8fc;--card:#fff;--ink:#1a2332;--muted:#556579;--line:#ddeeff;--green:#00C48C;--red:#ef4444;--r:16px}
 *{box-sizing:border-box}body{margin:0;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink)}
 .wrap{max-width:860px;margin:0 auto;padding:18px}
 .top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}

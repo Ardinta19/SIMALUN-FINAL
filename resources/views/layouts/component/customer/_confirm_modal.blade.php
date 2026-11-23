@@ -106,7 +106,7 @@
 .confirm-message {
     font-size: 0.85rem;
     font-weight: 600;
-    color: #64748b;
+    color: #556579;
     line-height: 1.5;
     margin-bottom: 20px;
 }

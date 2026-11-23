@@ -21,7 +21,7 @@
   --white:      #ffffff;
   --ink:        #1a2332;
   --ink-mid:    #3d5066;
-  --ink-lt:     #8899aa;
+  --ink-lt:     #5f7082;
   --surface:    #f5f9ff;
   --border:     #ddeeff;
   --radius:     16px;
@@ -159,13 +159,13 @@ body { font-family:'Plus Jakarta Sans',sans-serif; background:var(--surface); co
 .addr-link:hover { text-decoration:underline; }
 .manual-locked {
   background:#f8fafc;
-  color:#64748b;
+  color:#556579;
 }
 .manual-note {
   margin-top:6px;
   font-size:.73rem;
   font-weight:800;
-  color:#64748b;
+  color:#556579;
   display:none;
 }
 .manual-note.show { display:block; }
@@ -353,7 +353,7 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
 .sum-row { display:flex; justify-content:space-between; align-items:center; padding:4px 0; }
 .sum-label { font-size:.82rem; font-weight:700; color:var(--ink-mid); }
 .sum-value { font-size:.82rem; font-weight:800; color:var(--ink); }
-.sum-discount { color:#e53e3e; }
+.sum-discount { color:#c62f2f; }
 .sum-divider { border:none; border-top:1.5px dashed rgba(0,119,182,.2); margin:8px 0; }
 .sum-total-label { font-weight:800; font-size:.95rem; color:var(--blue-dark); }
 .sum-total-value { font-weight:800; font-size:1.2rem; color:var(--blue-mid); }
@@ -390,12 +390,12 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
 .btn-order:disabled { background:#ccc; box-shadow:none; cursor:not-allowed; }
 
 /* ── VALIDATION ERROR ── */
-.err { font-size:.75rem; color:#e53e3e; font-weight:700; margin-top:4px; }
+.err { font-size:.75rem; color:#c62f2f; font-weight:700; margin-top:4px; }
 .field-input.is-error { border-color:#e53e3e; box-shadow:0 0 0 3px rgba(229,62,62,.1); }
 .alert-error {
   background:#fff5f5; border:1.5px solid #fed7d7; border-radius:var(--radius-sm);
   padding:12px 14px; margin-bottom:14px;
-  font-size:.85rem; font-weight:700; color:#e53e3e;
+  font-size:.85rem; font-weight:700; color:#c62f2f;
 }
 
 /* ── RESPONSIVE ── */

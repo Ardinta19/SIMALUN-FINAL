@@ -474,6 +474,13 @@ class UiKitTest extends TestCase
             '.at-time.current',
             '.ir-value.orange',
             '.service-card:has(input:checked) .service-name',
+            '.subtitle',
+            '.oc-label',
+            '.dr-label',
+            '.manual-note',
+            '.err',
+            '.sum-discount',
+            '.order-card__badge',
         ];
 
         $missing = array_values(array_filter($selectors, fn (string $selector) => ! $this->themeMentions($theme, $selector)));

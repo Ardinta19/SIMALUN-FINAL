@@ -18,18 +18,18 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--surface);min-he
 .success-ring svg{width:38px;height:38px;color:#fff;}
 
 h1{font-weight:800;font-size:1.5rem;color:var(--blue-dark);margin-bottom:6px;}
-.subtitle{font-size:.88rem;font-weight:600;color:#6b7a8d;margin-bottom:24px;}
+.subtitle{font-size:.88rem;font-weight:600;color:#5b6a7c;margin-bottom:24px;}
 
 /* order code badge */
 .order-code{background:var(--surface);border:1.5px dashed var(--border);border-radius:10px;padding:12px;margin-bottom:20px;}
-.oc-label{font-size:.7rem;font-weight:800;color:#8899aa;letter-spacing:.8px;text-transform:uppercase;}
+.oc-label{font-size:.7rem;font-weight:800;color:#5f7082;letter-spacing:.8px;text-transform:uppercase;}
 .oc-value{font-weight:800;font-size:1.3rem;color:var(--blue-mid);letter-spacing:1px;}
 
 /* detail rows */
 .detail-list{text-align:left;margin-bottom:24px;}
 .detail-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);}
 .detail-row:last-child{border-bottom:none;}
-.dr-label{font-size:.8rem;font-weight:700;color:#8899aa;}
+.dr-label{font-size:.8rem;font-weight:700;color:#5f7082;}
 .dr-value{font-size:.85rem;font-weight:800;color:var(--blue-dark);}
 .dr-value.total{font-weight:800;font-size:1rem;color:var(--orange);}
 

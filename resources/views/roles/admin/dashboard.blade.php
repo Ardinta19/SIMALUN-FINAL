@@ -216,7 +216,7 @@ body {
 .order-card__avatar { width: 44px; height: 44px; border-radius: 13px; background: linear-gradient(145deg, var(--blue-lt), #d3ecfb); color: var(--blue-dark); display: flex; align-items: center; justify-content: center; font-size: 1.05rem; font-weight: 800; flex-shrink: 0; }
 .order-card__name { font-size: 0.9rem; font-weight: 800; color: var(--ink); line-height: 1.1; }
 .order-card__code { font-size: 0.66rem; font-weight: 700; color: var(--blue); margin-top: 3px; }
-.order-card__badge { font-size: 0.55rem; font-weight: 900; background: var(--orange-lt); color: #d9531e; border: 1px solid #ffd9c7; border-radius: 99px; padding: 4px 9px; text-transform: uppercase; letter-spacing: 0.4px; flex-shrink: 0; }
+.order-card__badge { font-size: 0.55rem; font-weight: 900; background: var(--orange-lt); color: #b8420f; border: 1px solid #ffd9c7; border-radius: 99px; padding: 4px 9px; text-transform: uppercase; letter-spacing: 0.4px; flex-shrink: 0; }
 .order-card__meta { display: flex; flex-direction: column; gap: 7px; }
 .order-card__meta-row { display: flex; align-items: center; gap: 8px; font-size: 0.76rem; font-weight: 600; color: var(--ink-mid); }
 .order-card__meta-row svg { width: 15px; height: 15px; stroke: var(--ink-lt); flex-shrink: 0; }

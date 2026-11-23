@@ -1063,6 +1063,18 @@ html[data-theme="dark"] :is(footer, .field label) {
     color: var(--theme-ink-lt);
 }
 
+html[data-theme="dark"] :is(.subtitle, .oc-label, .dr-label, .manual-note) {
+    color: var(--theme-ink-lt);
+}
+
+html[data-theme="dark"] :is(.err, .sum-discount) {
+    color: var(--theme-danger-ink);
+}
+
+html[data-theme="dark"] :is(.order-card__badge) {
+    color: var(--theme-warning-ink);
+}
+
 /* 7f. Halaman pesanan, alamat, profil, dan laporan (palet --blue-*) */
 
 html[data-theme="dark"] :is(

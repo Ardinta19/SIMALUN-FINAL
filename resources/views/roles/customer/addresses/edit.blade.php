@@ -13,7 +13,7 @@
     --blue-dark:#54051f; --blue-mid:#85092d; --blue-light:#b6435e;
     --orange:#FF6B35; --green:#00C48C; --red:#ef4444;
     --surface:#faf4f3; --card:#ffffff; --ink:#1a2332; --ink-mid:#3d5066;
-    --ink-lt:#8899aa; --border:#f0dfe1; --radius:16px; --radius-sm:10px;
+    --ink-lt:#5f7082; --border:#f0dfe1; --radius:16px; --radius-sm:10px;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--surface);color:var(--ink);min-height:100vh;min-height:100dvh;padding-bottom:calc(96px + env(safe-area-inset-bottom,0px));overflow-x:hidden;}

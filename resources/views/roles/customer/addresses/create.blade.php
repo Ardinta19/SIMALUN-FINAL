@@ -21,7 +21,7 @@
     --card:       #ffffff;
     --ink:        #1a2332;
     --ink-mid:    #3d5066;
-    --ink-lt:     #8899aa;
+    --ink-lt:     #5f7082;
     --border:     #f0dfe1;
     --radius:     16px;
     --radius-sm:  10px;
