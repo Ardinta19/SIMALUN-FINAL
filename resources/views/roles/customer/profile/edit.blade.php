@@ -200,7 +200,7 @@
         transition:transform .15s;
     }
     .btn-submit.secondary {
-        background:linear-gradient(135deg, var(--blue-mid) 0%, var(--blue-light) 100%);
+        background:linear-gradient(135deg, var(--blue-dark) 0%, var(--blue-mid) 100%);
         box-shadow:0 6px 18px rgba(0,119,182,.3);
     }
     .btn-submit:active { transform:scale(.97); }

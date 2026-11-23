@@ -107,7 +107,7 @@
     transition: color 0.2s ease;
     -webkit-tap-highlight-color: transparent;
 }
-.driver-nav__item.is-active { color: #0077b6; }
+.driver-nav__item.is-active { color: #0072ad; }
 .driver-nav__item.is-active .driver-nav__icon svg { stroke-width: 2.6; }
 .driver-nav__icon {
     position: relative;
@@ -141,7 +141,7 @@
     position: absolute;
     bottom: -2px;
     width: 4px; height: 4px;
-    background: #0077b6;
+    background: #0072ad;
     border-radius: 50%;
 }
 @media (prefers-reduced-motion: reduce) { .driver-nav__item { transition: none; } }

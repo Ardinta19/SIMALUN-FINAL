@@ -64,7 +64,7 @@ textarea.field-input{resize:none;min-height:80px;line-height:1.5;}
 
 .bottom-cta{max-width:520px;margin:0 auto;padding:4px 16px 8px;}
 .cta-inner{max-width:520px;margin:0 auto;}
-.btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--blue-mid) 0%,var(--blue-light) 100%);color:white;font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:.95rem;border:none;border-radius:var(--radius-sm);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 20px rgba(0,119,182,.35);transition:transform .15s;}
+.btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--blue-dark) 0%,var(--blue-mid) 100%);color:white;font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:.95rem;border:none;border-radius:var(--radius-sm);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 20px rgba(0,119,182,.35);transition:transform .15s;}
 .btn-submit:active{transform:scale(.97);}
 .btn-submit svg{width:18px;height:18px;}
 

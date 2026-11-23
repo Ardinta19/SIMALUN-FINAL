@@ -6,7 +6,7 @@
 <title>Pesanan Berhasil – Azka Laundry</title>
 @include('layouts.component.customer._head_meta')
 <style>
-:root{--blue-dark:#002f5c;--blue-mid:#0077b6;--orange:#c2410c;--green:#087f5b;--surface:#f5f9ff;--border:#ddeeff;--radius:16px;}
+:root{--blue-dark:#002f5c;--blue-mid:#0072ad;--orange:#c2410c;--green:#087f5b;--surface:#f5f9ff;--border:#ddeeff;--radius:16px;}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--surface);min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px;}
 

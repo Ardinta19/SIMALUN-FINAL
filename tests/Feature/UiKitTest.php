@@ -679,6 +679,49 @@ class UiKitTest extends TestCase
         );
     }
 
+    public function test_secondary_text_and_gradient_buttons_stay_readable(): void
+    {
+        // --fc-muted dipakai ::placeholder dan tujuh aturan teks sekunder;
+        // nilai lamanya (#8a727a) cuma 4,40:1 di atas putih dan 3,68:1 di
+        // atas blush, jadi token dikunci sekaligus diuji di tiga latar.
+        $controls = File::get(public_path('css/berkah-controls.css'));
+
+        $this->assertStringContainsString('--fc-muted: #7a626a', $controls, 'Token teks sekunder memudar lagi.');
+
+        foreach (['#ffffff', '#fbf6ef', '#f6e7ea'] as $surface) {
+            $this->assertGreaterThanOrEqual(4.5, $this->contrastRatio('#7a626a', $surface), 'Placeholder tidak terbaca di atas '.$surface.'.');
+        }
+
+        // Label putih di ujung terang gradien kartu auth; #cf6f8b hanya 3,13:1.
+        $kit = File::get(public_path('css/berkah-ui-kit.css'));
+
+        $this->assertStringContainsString('--bk-auth-3: #ad4a6b', $kit, 'Ujung terang gradien auth terlalu pucat untuk label putih.');
+        $this->assertGreaterThanOrEqual(4.5, $this->contrastRatio('#fff6f2', '#ad4a6b'), 'Label auth tidak terbaca di ujung gradien.');
+        $this->assertGreaterThanOrEqual(4.5, $this->contrastRatio('#fff6f2', '#a81f45'), 'Label auth tidak terbaca di ujung gelap gradien.');
+
+        // Tombol bergradien tidak boleh berakhir di biru muda: teks putihnya
+        // cuma 2,46:1. Semua tombol kini berhenti di --blue-mid (>= 4,8:1).
+        foreach ([
+            'roles/customer/addresses/create.blade.php',
+            'roles/customer/addresses/edit.blade.php',
+            'roles/customer/profile/edit.blade.php',
+            'roles/customer/orders/tracking.blade.php',
+        ] as $view) {
+            $css = File::get(resource_path('views/'.$view));
+
+            $this->assertDoesNotMatchRegularExpression('/linear-gradient\([^;]*var\(--blue-mid\)[^;]*var\(--blue-light\)/s', $css, 'Gradien di '.$view.' berakhir di biru muda yang bikin teks putih tak terbaca.');
+            $this->assertMatchesRegularExpression('/linear-gradient\([^;]*var\(--blue-dark\)[^;]*var\(--blue-mid\)/s', $css, 'Gradien di '.$view.' harus berjalan dari --blue-dark ke --blue-mid.');
+        }
+
+        // Merah untuk label wajib isi dan pesan error tidak boleh pucat.
+        foreach (['reports/create.blade.php', 'order/receipt.blade.php'] as $view) {
+            $css = File::get(resource_path('views/'.$view));
+
+            $this->assertStringContainsString('--red: #c62f2f', $css, 'Warna merah di '.$view.' memudar lagi.');
+            $this->assertGreaterThanOrEqual(4.5, $this->contrastRatio('#c62f2f', '#ffffff'), 'Merah di '.$view.' tidak terbaca di atas putih.');
+        }
+    }
+
     public function test_theme_never_uses_important(): void
     {
         $css = preg_replace('!/\*.*?\*/!s', '', File::get(public_path('css/berkah-theme.css')));

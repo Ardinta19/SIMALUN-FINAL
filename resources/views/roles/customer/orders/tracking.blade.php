@@ -12,7 +12,7 @@
 <style>
 :root {
     --blue-dark:  #002f5c;
-    --blue-mid:   #0077b6;
+    --blue-mid:   #0072ad;
     --blue-light: #00b4d8;
     --orange:     #c2410c;
     --green:      #087f5b;
@@ -134,7 +134,7 @@ body {
 }
 .eta-icon {
     width: 52px; height: 52px; border-radius: 16px;
-    background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
+    background: linear-gradient(135deg, var(--blue-dark), var(--blue-mid));
     display: flex; align-items: center; justify-content: center;
     font-size: 1.5rem; flex-shrink: 0;
 }
@@ -506,7 +506,7 @@ body {
                     .addTo(map)
                     .bindPopup(driverName ? ('Kurir ' + driverName) : 'Kurir Berkah Kreatif');
                 routeLine = L.polyline([latlng, [customerLat, customerLng]], {
-                    color: '#0077b6',
+                    color: '#0072ad',
                     weight: 3,
                     opacity: 0.6,
                     dashArray: '8, 6',

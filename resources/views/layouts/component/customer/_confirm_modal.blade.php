@@ -153,7 +153,7 @@
     background: #d97706;
 }
 .confirm-btn--confirm.type-info {
-    background: #0077b6;
+    background: #0072ad;
     color: #ffffff;
     box-shadow: 0 4px 12px rgba(0, 119, 182, 0.3);
 }

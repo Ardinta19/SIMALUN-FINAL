@@ -19,7 +19,7 @@ html, body { width:100%; height:100%; overflow:hidden; font-family:'Plus Jakarta
 /* STAGE */
 #stage {
   position:fixed; inset:0; overflow:hidden;
-  background:linear-gradient(168deg, #002f5c 0%, #0077b6 45%, #00b4d8 78%, #48cae4 100%);
+  background:linear-gradient(168deg, #002f5c 0%, #0072ad 45%, #00b4d8 78%, #48cae4 100%);
   cursor:pointer;
   touch-action:pan-y;
 }
@@ -310,7 +310,7 @@ html, body { width:100%; height:100%; overflow:hidden; font-family:'Plus Jakarta
 }
 #exit-water {
   position:absolute; left:0; right:0; bottom:0; height:0;
-  background:linear-gradient(0deg,#023e8a 0%,#0077b6 40%,#00b4d8 80%,rgba(0,180,216,.6) 100%);
+  background:linear-gradient(0deg,#023e8a 0%,#0072ad 40%,#00b4d8 80%,rgba(0,180,216,.6) 100%);
 }
 #exit-wave { position:absolute; left:-5%; right:-5%; bottom:0; opacity:0; pointer-events:none; }
 #exit-drum-wrap {

@@ -20,7 +20,7 @@
     --accent-lt: #e8f4fd;
     --green: #047857;
     --green-lt: #ecfdf5;
-    --red: #dc2626;
+    --red: #c62f2f;
     --border: #e2e8f0;
     --border-dash: #cbd5e1;
     --surface: #f8fafc;

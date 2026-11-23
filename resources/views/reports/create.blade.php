@@ -15,7 +15,7 @@
     --green-lt: #ecfdf5;
     --orange: #b45309;
     --orange-lt: #fef3c7;
-    --red: #dc2626;
+    --red: #c62f2f;
     --red-lt: #fef2f2;
     --surface: #faf4f3;
     --card: #ffffff;

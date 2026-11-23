@@ -13,12 +13,12 @@
     .field { margin-bottom:14px; }
     label { display:block; font-size:.78rem; font-weight:800; color:#3d5066; margin-bottom:5px; text-transform:uppercase; letter-spacing:.4px; }
     input, textarea { width:100%; padding:11px 13px; border:1.5px solid #ddeeff; border-radius:10px; font-family:inherit; font-size:.95rem; }
-    input:focus, textarea:focus { outline:none; border-color:#0077b6; }
-    button { width:100%; padding:12px; background:#0077b6; color:#fff; border:none; border-radius:99px; font-weight:800; cursor:pointer; }
+    input:focus, textarea:focus { outline:none; border-color:#0072ad; }
+    button { width:100%; padding:12px; background:#0072ad; color:#fff; border:none; border-radius:99px; font-weight:800; cursor:pointer; }
     .alert { padding:11px 14px; border-radius:10px; font-weight:700; margin-bottom:14px; font-size:.88rem; }
     .alert-success { background:#e6fff6; color:#047857; }
     .alert-error { background:#fff1f1; color:#b91c1c; }
-    a.back { color:#0077b6; font-weight:800; text-decoration:none; display:inline-block; margin-bottom:12px; }
+    a.back { color:#0072ad; font-weight:800; text-decoration:none; display:inline-block; margin-bottom:12px; }
 </style>
 @include('layouts.component._theme_head')
 </head>

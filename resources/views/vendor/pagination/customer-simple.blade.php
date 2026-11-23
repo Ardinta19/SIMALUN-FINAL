@@ -6,7 +6,7 @@
     .pg-item--muted { color: #5f7082; background: #f1f5f9; border: 1.5px solid #ddeeff; cursor: default; }
     .pg-item--step { color: #005f92; background: #e0f4ff; border: 1.5px solid #bae6fd; }
     .pg-item--page { color: #1a2332; background: #fff; border: 1.5px solid #ddeeff; }
-    .pg-item--current { color: #fff; background: #0077b6; font-weight: 900; }
+    .pg-item--current { color: #fff; background: #0072ad; font-weight: 900; }
     .pg-dots { padding: 8px 10px; color: #5f7082; font-weight: 800; }
 </style>
 <nav role="navigation" aria-label="Halaman" class="pg">

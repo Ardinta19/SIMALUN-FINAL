@@ -9,7 +9,7 @@
 <style>
 :root {
     --blue-dark:  #002f5c;
-    --blue-mid:   #0077b6;
+    --blue-mid:   #0072ad;
     --blue-light: #00b4d8;
     --blue-sky:   #e0f4ff;
     --orange:     #c2410c;

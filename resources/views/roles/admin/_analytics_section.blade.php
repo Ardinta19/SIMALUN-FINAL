@@ -9,7 +9,7 @@
 
 @php
     // ── Donut: distribusi layanan ────────────────────────────────
-    $svcPalette = ['#0077b6', '#48cae4', '#FF6B35', '#00C48C', '#f59e0b'];
+    $svcPalette = ['#0072ad', '#48cae4', '#FF6B35', '#00C48C', '#f59e0b'];
     $top5Sum    = (int) $topServices->sum('total_order');
     $grandTotal = max((int) ($totalOrder30d ?? 0), $top5Sum);
     $lainnya    = max(0, $grandTotal - $top5Sum);

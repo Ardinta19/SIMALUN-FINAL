@@ -10,7 +10,7 @@
 /* ── CSS VARIABLES ─────────────────────── */
 :root {
     --blue-dark:  #002f5c;
-    --blue-mid:   #0077b6;
+    --blue-mid:   #0072ad;
     --blue-light: #00b4d8;
     --blue-sky:   #e0f4ff;
     --orange:     #c2410c;
@@ -358,7 +358,7 @@ body {
 
 /* ── ACTIVE ORDER BANNER ─────────────── */
 .active-banner {
-    background: linear-gradient(135deg, #002f5c 0%, #0077b6 100%);
+    background: linear-gradient(135deg, #002f5c 0%, #0072ad 100%);
     border-radius: var(--radius);
     padding: 16px;
     margin-bottom: 20px;
@@ -516,7 +516,7 @@ body {
         $stripColors = [
             'menunggu'   => '#f59e0b',
             'dijemput'   => '#0ea5e9',
-            'dicuci'     => '#0077b6',
+            'dicuci'     => '#0072ad',
             'disetrika'  => '#7c3aed',
             'siap'       => '#00C48C',
             'dikirim'    => '#FF6B35',
@@ -530,7 +530,7 @@ body {
             $slug     = $o->service->slug ?? 'cuci-setrika';
             $svcIcon  = $serviceIcons[$slug] ?? ['icon' => '🧺', 'bg' => '#e0f4ff'];
             $curStep  = $statusProgress[$o->status] ?? 0;
-            $strip    = $stripColors[$o->status] ?? '#0077b6';
+            $strip    = $stripColors[$o->status] ?? '#0072ad';
         @endphp
         <a href="{{ route('customer.order.detail', ['order' => $o->id, 'back' => route('customer.orders')]) }}"
            class="order-card js-card"

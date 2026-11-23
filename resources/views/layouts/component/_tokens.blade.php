@@ -16,7 +16,7 @@
     :root {
         /* Brand (tailwind: colors.brand) */
         --brand-100: #e0efff;
-        --brand-500: #0077b6;
+        --brand-500: #0072ad;
         --brand-900: #002f4d;
 
         /* Accent (tailwind: colors.accent) */
