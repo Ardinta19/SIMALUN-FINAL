@@ -25,8 +25,10 @@ Halaman: **Beranda admin → Aksi cepat → Voucher** (`/admin/sewa/voucher`).
 1. Di halaman **checkout**, ada bagian "Kode voucher". Pelanggan mengetik kode
    lalu menekan **Cek kode**.
 2. Tombol itu memanggil `POST /voucher-sewa/cek` dan menampilkan perkiraan
-   potongan dari harga dasar keranjang. Pilihan paket durasi baru diketahui saat
-   pesanan dikirim, jadi angkanya bisa berbeda sedikit dari potongan final.
+   potongan. Halaman checkout mengirim perkiraan harga sewa dari tanggal dan
+   paket yang sedang diisi; bila isian belum lengkap, server memakai harga
+   dasar keranjang (satu hari per unit). Angka ini hanya perkiraan — potongan
+   final tetap dihitung server saat pesanan dikirim.
 3. Saat pesanan dikirim, server memeriksa ulang kode (aktif, masa berlaku,
    kuota, batas per pelanggan, minimum belanja) lalu menghitung potongan final.
    Kode yang tidak layak membuat pesanan ditolak dan keranjang tetap utuh.

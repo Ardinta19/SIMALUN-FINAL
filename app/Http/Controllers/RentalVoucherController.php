@@ -58,7 +58,13 @@ class RentalVoucherController extends Controller
      */
     public function check(Request $request, RentalVouchers $vouchers)
     {
-        $data = $request->validate(['code' => ['required', 'string', 'max:40']]);
+        $data = $request->validate([
+            'code' => ['required', 'string', 'max:40'],
+            // Perkiraan harga sewa dari tanggal dan paket yang sedang diisi di
+            // formulir checkout. Hanya dipakai untuk menampilkan perkiraan;
+            // angka final selalu dihitung server saat pesanan dikirim.
+            'base' => ['nullable', 'integer', 'min:1', 'max:400000000'],
+        ]);
 
         $cart = $request->session()->get('rental_cart', []);
         if (! $cart) {
@@ -66,7 +72,8 @@ class RentalVoucherController extends Controller
         }
 
         $products = RentalProduct::whereIn('id', array_column($cart, 'product_id'))->get()->keyBy('id');
-        $base = $vouchers->estimateRentalBase($cart, $products);
+        $fromForm = ! empty($data['base']);
+        $base = $fromForm ? (int) $data['base'] : $vouchers->estimateRentalBase($cart, $products);
         $result = $vouchers->resolve($data['code'], $request->user(), $base);
 
         if ($result['error'] !== null || $result['voucher'] === null) {
@@ -81,7 +88,9 @@ class RentalVoucherController extends Controller
             'discount' => $result['discount'],
             'discount_text' => 'Rp '.number_format($result['discount'], 0, ',', '.'),
             'message' => 'Voucher '.$voucher->code.' berlaku: potongan '.$voucher->display_value.' ('.$voucher->scopeLabel().').',
-            'note' => 'Perkiraan dari harga dasar keranjang. Potongan final dihitung dari harga dan paket yang dipilih saat pesanan dikirim.',
+            'note' => $fromForm
+                ? 'Perkiraan dari tanggal dan paket yang sedang diisi. Potongan final dihitung ulang saat pesanan dikirim.'
+                : 'Perkiraan dari harga dasar keranjang. Potongan final dihitung dari tanggal dan paket yang dipilih saat pesanan dikirim.',
         ]);
     }
 

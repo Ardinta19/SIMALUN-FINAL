@@ -225,7 +225,14 @@ class RentalVoucherTest extends TestCase
 
         $this->actingAs($customer)->post(route('cart.store', $product), ['quantity' => 1]);
 
+        // Tanpa isian tanggal, keranjang dihitung satu hari: 10% dari 100.000.
         $this->postJson(route('rental.voucher.check'), ['code' => 'wisuda10'])
+            ->assertOk()
+            ->assertJson(['ok' => true, 'code' => 'WISUDA10', 'discount' => 10000]);
+
+        // Formulir checkout mengirim perkiraan harga dari tanggal/paket yang
+        // sedang diisi; dua hari berarti 200.000 dan potongannya 20.000.
+        $this->postJson(route('rental.voucher.check'), ['code' => 'WISUDA10', 'base' => 200000])
             ->assertOk()
             ->assertJson(['ok' => true, 'code' => 'WISUDA10', 'discount' => 20000]);
 

@@ -99,11 +99,11 @@ Pemeriksaan di peramban yang masih perlu dilakukan: buka halaman walk-in dan edi
 Rincian aturan ada di `docs/VOUCHER-SEWA.md`. Ringkasnya:
 
 1. Admin membuat voucher di **Beranda admin → Voucher** (kode, jenis potongan persen/nominal, cakupan "hanya harga sewa" atau "harga sewa + ongkos", minimum belanja, batas potongan, kuota total, batas per pelanggan, masa berlaku, aktif/nonaktif).
-2. Pelanggan memasukkan kode di halaman checkout dan dapat menekan **Cek kode** untuk melihat perkiraan potongan sebelum mengirim.
+2. Pelanggan memasukkan kode di halaman checkout dan dapat menekan **Cek kode** untuk melihat perkiraan potongan sebelum mengirim (perkiraan memakai tanggal dan paket yang sedang diisi; bila belum lengkap dipakai harga dasar keranjang).
 3. Potongan dihitung saat pesanan dikirim, disimpan per unit (`discount_amount`, `transport_discount_amount`) dan per pesanan (`discount_amount`), lalu dipakai otomatis oleh tagihan, pembayaran, tenggat, pengingat, dan struk karena semuanya memakai `payableAmount()`.
 4. Voucher ber-cakupan ongkos dihitung ulang setelah pelanggan menyetujui ongkos, dengan batas agar tagihan tidak turun di bawah pembayaran terverifikasi.
 5. Migrasi baru: `2026_11_22_000022_add_rental_voucher_discount.php` (kolom `vouchers.scope`, `vouchers.per_customer_limit`, kolom voucher pada `rental_orders` dan `rental_order_units`, tabel `rental_voucher_usages`).
-6. Tes baru `tests/Feature/RentalVoucherTest.php` (9 tes, `RefreshDatabase`). Perkiraan total `php artisan test`: **±345 tes**.
+6. Tes baru `tests/Feature/RentalVoucherTest.php` (9 tes, `RefreshDatabase`). Perkiraan total `php artisan test`: **±345 tes**. Hasil uji Windows pertama: **344 lulus, 1 gagal** — kegagalannya karena tes mengharapkan perkiraan dua hari padahal keranjang uji belum punya tanggal; tes diperbaiki dan endpoint kini menerima perkiraan harga dari formulir.
 
 Pemeriksaan yang perlu dilakukan di Windows setelah `php artisan migrate`:
 
