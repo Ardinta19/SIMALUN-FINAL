@@ -300,8 +300,16 @@ html[data-theme="dark"] :is(
 }
 
 html[data-theme="dark"] :is(input, select, textarea)::placeholder {
-    color: #9d858d;
+    color: var(--theme-ink-lt);
     opacity: 1;
+}
+
+html[data-theme="dark"] :is(input, select, textarea):-webkit-autofill,
+html[data-theme="dark"] :is(input, select, textarea):-webkit-autofill:hover,
+html[data-theme="dark"] :is(input, select, textarea):-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--theme-ink);
+    -webkit-box-shadow: 0 0 0 1000px var(--theme-surface-2) inset;
+    caret-color: var(--theme-ink);
 }
 
 html[data-theme="dark"] :is(input, select, textarea):focus {

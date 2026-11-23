@@ -273,7 +273,7 @@ html, body { width:100%; height:100%; overflow:hidden; font-family:'Plus Jakarta
 #btn-next:hover .btn-arr { transform:translateX(4px); }
 
 #btn-skip {
-  background:none; border:none; color:rgba(255,255,255,.5);
+  background:none; border:none; color:rgba(255,255,255,.62);
   font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:.78rem;
   letter-spacing:.5px; cursor:pointer; padding:.25rem .9rem; transition:color .2s;
 }

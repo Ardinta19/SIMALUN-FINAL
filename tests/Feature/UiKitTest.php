@@ -548,6 +548,21 @@ class UiKitTest extends TestCase
         $this->assertStringContainsString("DARK_THEME_COLOR = '#140f12'", $js);
     }
 
+    public function test_auth_pages_keep_text_readable_over_the_gradient(): void
+    {
+        foreach (['auth/login.blade.php', 'auth/register.blade.php'] as $page) {
+            $css = File::get(resource_path('views/'.$page));
+
+            // Kartu kaca harus bertinta gelap: di bagian bawah gradien latar
+            // menjadi terang, sehingga teks putih transparan tidak terbaca.
+            $this->assertStringContainsString('background:rgba(43,6,20,.55)', $css, $page.' memakai kartu kaca terlalu bening.');
+
+            // Placeholder 45% putih hanya 2,4:1 di atas isian.
+            $this->assertStringContainsString('::placeholder { color:rgba(255,255,255,.62)', $css, $page.' punya placeholder yang terlalu pucat.');
+            $this->assertStringNotContainsString('color:rgba(255,255,255,.45)', $css, $page.' masih memakai teks putih 45%.');
+        }
+    }
+
     public function test_semantic_color_tokens_are_readable_in_light_theme(): void
     {
         $tokens = File::get(resource_path('views/layouts/component/_tokens.blade.php'));

@@ -31,17 +31,17 @@ html, body {
 .wm-name { font-weight:800; font-size:clamp(1.6rem,6vw,2.2rem); color:#fff; letter-spacing:-.5px; text-shadow:0 3px 18px rgba(0,0,0,.28); line-height:1; }
 .wm-sub  { font-size:clamp(.52rem,2vw,.65rem); font-weight:800; color:rgba(144,224,239,.9); letter-spacing:5px; text-transform:uppercase; margin-top:.2rem; }
 .wm-bar  { width:70px; height:2.5px; background:#a92143; border-radius:99px; margin:.35rem auto 0; opacity:.75; }
-#card { width:100%; max-width:420px; background:rgba(255,255,255,.10); border:1.5px solid rgba(255,255,255,.22); border-radius:24px; backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); box-shadow:0 16px 48px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.2); padding:1.8rem 1.6rem 1.6rem; opacity:0; transform:translateY(32px); }
+#card { width:100%; max-width:420px; background:rgba(43,6,20,.55); border:1.5px solid rgba(255,255,255,.22); border-radius:24px; backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); box-shadow:0 16px 48px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.2); padding:1.8rem 1.6rem 1.6rem; opacity:0; transform:translateY(32px); }
 .card-title { font-weight:800; font-size:clamp(1.3rem,5vw,1.6rem); color:#fff; text-align:center; margin-bottom:.25rem; text-shadow:0 2px 12px rgba(0,0,0,.2); }
 .card-sub { font-size:.8rem; font-weight:700; color:rgba(255,255,255,.7); text-align:center; margin-bottom:1.3rem; letter-spacing:.2px; }
 .form-group { margin-bottom:1rem; position:relative; }
 .form-label { display:block; font-size:.75rem; font-weight:800; color:rgba(255,255,255,.85); letter-spacing:.3px; margin-bottom:.45rem; text-transform:uppercase; }
 .input-wrap { position:relative; }
 .input-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:1rem; pointer-events:none; opacity:.7; }
-.form-input { width:100%; padding:.82rem .9rem .82rem 2.7rem; background:rgba(255,255,255,.12); border:1.5px solid rgba(255,255,255,.22); border-radius:12px; color:#fff; font-family:'Plus Jakarta Sans',sans-serif; font-size:.93rem; font-weight:600; outline:none; transition:border-color .2s, background .2s, box-shadow .2s; -webkit-appearance:none; }
-.form-input::placeholder { color:rgba(255,255,255,.45); }
-.form-input:focus { border-color:rgba(255,255,255,.6); background:rgba(255,255,255,.18); box-shadow:0 0 0 3px rgba(255,255,255,.1); }
-.pw-toggle { position:absolute; right:13px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:1rem; color:rgba(255,255,255,.5); padding:.25rem; transition:color .2s; line-height:1; }
+.form-input { width:100%; padding:.82rem .9rem .82rem 2.7rem; background:rgba(35,4,16,.42); border:1.5px solid rgba(255,255,255,.26); border-radius:12px; color:#fff; font-family:'Plus Jakarta Sans',sans-serif; font-size:.93rem; font-weight:600; outline:none; transition:border-color .2s, background .2s, box-shadow .2s; -webkit-appearance:none; }
+.form-input::placeholder { color:rgba(255,255,255,.62); }
+.form-input:focus { border-color:rgba(255,255,255,.65); background:rgba(35,4,16,.55); box-shadow:0 0 0 3px rgba(255,255,255,.1); }
+.pw-toggle { position:absolute; right:13px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:1rem; color:rgba(255,255,255,.72); padding:.25rem; transition:color .2s; line-height:1; }
 .pw-toggle:hover { color:rgba(255,255,255,.9); }
 .form-input.error { border-color:#ff6b6b; box-shadow:0 0 0 3px rgba(255,107,107,.15); }
 .form-error { font-size:.72rem; font-weight:700; color:#ff9999; margin-top:.35rem; display:none; padding-left:.2rem; }
@@ -65,10 +65,10 @@ html, body {
 #btn-login.loading .btn-text { opacity:.6; }
 .divider { display:flex; align-items:center; gap:.8rem; margin:1.1rem 0; }
 .divider::before, .divider::after { content:''; flex:1; height:1px; background:rgba(255,255,255,.2); }
-.divider span { font-size:.72rem; font-weight:800; color:rgba(255,255,255,.45); letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; }
+.divider span { font-size:.72rem; font-weight:800; color:rgba(255,255,255,.7); letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; }
 .divider-or { display:flex; align-items:center; gap:.8rem; margin:1.2rem 0 .95rem; }
 .divider-or::before, .divider-or::after { content:''; flex:1; height:1px; background:rgba(255,255,255,.2); }
-.divider-or span { font-size:.72rem; font-weight:800; color:rgba(255,255,255,.5); letter-spacing:.5px; text-transform:uppercase; }
+.divider-or span { font-size:.72rem; font-weight:800; color:rgba(255,255,255,.7); letter-spacing:.5px; text-transform:uppercase; }
 .btn-google { display:flex; align-items:center; justify-content:center; gap:.65rem; width:100%; padding:.82rem; border-radius:99px; background:#fff; color:#3c4043; font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:.92rem; text-decoration:none; border:1px solid rgba(255,255,255,.6); box-shadow:0 6px 18px rgba(0,0,0,.18); transition:transform .15s, box-shadow .15s; }
 .btn-google:hover { box-shadow:0 10px 26px rgba(0,0,0,.26); }
 .btn-google:active { transform:scale(.97); }
@@ -79,7 +79,7 @@ html, body {
 .alert { border-radius:12px; padding:.75rem 1rem; margin-bottom:1rem; font-size:.82rem; font-weight:700; display:flex; align-items:center; gap:.5rem; }
 .alert-error { background:rgba(255,80,80,.18); border:1px solid rgba(255,80,80,.35); color:#ffaaaa; }
 .alert-success { background:rgba(0,196,140,.18); border:1px solid rgba(0,196,140,.35); color:#7fffd4; }
-#footer { margin-top:1.6rem; text-align:center; font-size:.68rem; font-weight:700; color:rgba(255,255,255,.35); letter-spacing:.3px; }
+#footer { margin-top:1.6rem; text-align:center; display:inline-block; padding:.3rem .9rem; border-radius:99px; background:rgba(35,4,16,.45); font-size:.68rem; font-weight:700; color:rgba(255,255,255,.72); letter-spacing:.3px; }
 #btn-back { position:fixed; top:max(1rem, env(safe-area-inset-top)); left:1rem; z-index:10; width:38px; height:38px; border-radius:50%; border:none; cursor:pointer; background:rgba(255,255,255,.15); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,.25); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.1rem; transition:background .2s, transform .15s; text-decoration:none; }
 #btn-back:hover { background:rgba(255,255,255,.25); }
 #btn-back:active { transform:scale(.92); }

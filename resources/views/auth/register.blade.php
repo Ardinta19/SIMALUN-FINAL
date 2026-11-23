@@ -61,7 +61,7 @@ html, body {
 /* ── CARD ── */
 #card {
   width:100%; max-width:420px;
-  background:rgba(255,255,255,.10); border:1.5px solid rgba(255,255,255,.22);
+  background:rgba(43,6,20,.55); border:1.5px solid rgba(255,255,255,.26);
   border-radius:24px; backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
   box-shadow:0 16px 48px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.2);
   padding:1.6rem 1.5rem 1.5rem; opacity:0; transform:translateY(32px);
@@ -84,8 +84,8 @@ html, body {
   width:28px; height:28px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
   font-weight:800; font-size:.75rem;
-  border:2px solid rgba(255,255,255,.3);
-  color:rgba(255,255,255,.5);
+  border:2px solid rgba(255,255,255,.42);
+  color:rgba(255,255,255,.68);
   transition:all .3s ease;
 }
 .step-dot.active {
@@ -124,15 +124,15 @@ html, body {
 }
 .form-input {
   width:100%; padding:.78rem .9rem .78rem 2.65rem;
-  background:rgba(255,255,255,.12); border:1.5px solid rgba(255,255,255,.22);
+  background:rgba(35,4,16,.42); border:1.5px solid rgba(255,255,255,.26);
   border-radius:12px; color:#fff;
   font-family:'Plus Jakarta Sans',sans-serif; font-size:.91rem; font-weight:600;
   outline:none; transition:border-color .2s, background .2s, box-shadow .2s;
   -webkit-appearance:none;
 }
-.form-input::placeholder { color:rgba(255,255,255,.45); }
+.form-input::placeholder { color:rgba(255,255,255,.62); }
 .form-input:focus {
-  border-color:rgba(255,255,255,.6); background:rgba(255,255,255,.18);
+  border-color:rgba(255,255,255,.65); background:rgba(35,4,16,.55);
   box-shadow:0 0 0 3px rgba(255,255,255,.1);
 }
 .form-input.error { border-color:#ff6b6b; box-shadow:0 0 0 3px rgba(255,107,107,.15); }
@@ -140,7 +140,7 @@ html, body {
 .pw-toggle {
   position:absolute; right:12px; top:50%; transform:translateY(-50%);
   background:none; border:none; cursor:pointer; font-size:.95rem;
-  color:rgba(255,255,255,.5); padding:.25rem; transition:color .2s; line-height:1;
+  color:rgba(255,255,255,.72); padding:.25rem; transition:color .2s; line-height:1;
 }
 .pw-toggle:hover { color:rgba(255,255,255,.9); }
 
@@ -164,7 +164,7 @@ html, body {
   width:0%; transition:width .3s, background .3s;
 }
 .pw-strength-lbl {
-  font-size:.65rem; font-weight:800; color:rgba(255,255,255,.55);
+  font-size:.65rem; font-weight:800; color:rgba(255,255,255,.7);
   letter-spacing:.3px;
 }
 
@@ -172,7 +172,7 @@ html, body {
 .pw-hints { list-style:none; margin-top:.4rem; display:flex; flex-wrap:wrap; gap:.3rem; }
 .pw-hint {
   font-size:.63rem; font-weight:700;
-  color:rgba(255,255,255,.45); padding:.15rem .45rem;
+  color:rgba(255,255,255,.68); padding:.15rem .45rem;
   background:rgba(255,255,255,.08); border-radius:99px;
   border:1px solid rgba(255,255,255,.15);
   transition:all .2s;
@@ -296,8 +296,8 @@ html, body {
 
 /* footer */
 #footer {
-  margin-top:1.4rem; text-align:center;
-  font-size:.67rem; font-weight:700; color:rgba(255,255,255,.3); letter-spacing:.3px;
+  margin-top:1.4rem; text-align:center; display:inline-block; padding:.3rem .9rem; border-radius:99px; background:rgba(35,4,16,.45);
+  font-size:.67rem; font-weight:700; color:rgba(255,255,255,.72); letter-spacing:.3px;
 }
 
 /* back button fixed */
@@ -441,7 +441,7 @@ $oldText = function (string $key, $fallback = '') {
       <div class="form-step" id="step-2">
         <div class="form-group">
           <label class="form-label" for="email">
-            Email <span style="font-weight:700;color:rgba(255,255,255,.55);text-transform:none;letter-spacing:0;">(opsional)</span>
+            Email <span style="font-weight:700;color:rgba(255,255,255,.72);text-transform:none;letter-spacing:0;">(opsional)</span>
           </label>
           <div class="input-wrap">
             <span class="input-icon">@</span>
@@ -452,7 +452,7 @@ $oldText = function (string $key, $fallback = '') {
           </div>
           @error('email')<div class="form-error show">{{ $message }}</div>@enderror
           <div class="form-error" aria-live="polite" id="err-email"></div>
-          <div style="font-size:.66rem;font-weight:700;color:rgba(255,255,255,.55);margin-top:.35rem;line-height:1.4;">
+          <div style="font-size:.66rem;font-weight:700;color:rgba(255,255,255,.72);margin-top:.35rem;line-height:1.4;">
             Nomor HP digunakan untuk kontak. Notifikasi pesanan tersedia di dalam aplikasi.
           </div>
         </div>
