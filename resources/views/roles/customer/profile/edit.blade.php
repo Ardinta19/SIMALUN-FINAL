@@ -54,6 +54,7 @@
         font-weight:800;
         font-size:1.3rem;
         color:#fff;
+        margin:0;
     }
     .header-sub {
         font-size:var(--bk-fs-2xs);
@@ -240,7 +241,7 @@ $oldText = function (string $key, $fallback = '') {
             </svg>
         </a>
         <div>
-            <div class="header-title">Edit Profil</div>
+            <h1 class="header-title">Edit Profil</h1>
             <div class="header-sub">Perbarui data pribadi & alamat utama</div>
         </div>
     </div>

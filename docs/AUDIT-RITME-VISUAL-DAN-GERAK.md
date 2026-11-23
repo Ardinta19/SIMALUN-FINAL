@@ -630,3 +630,18 @@ saat dipakai:
   pola `?v=` + `filemtime` yang sudah dipakai aset lain. Empat halaman yang
   memakai closure `$asset()` tidak perlu diubah karena closure itu sudah
   menambahkan versi.
+
+#### 9.16b Satu `h1` dan satu landmark `main` per halaman
+
+Tujuh halaman menulis judulnya sebagai `<div>`/`<span>` bergaya judul
+(`.header-title`, `.appbar__title`, `.profile-header__title`, `.card-title`,
+`.h1`). Bagi mata tidak ada bedanya; bagi pembaca layar dan mesin pencari,
+halaman itu tidak punya judul sama sekali. Ketujuhnya kini `<h1>` dengan kelas
+yang sama, dan aturan kelasnya diberi `margin:0` supaya jarak vertikal tidak
+berubah karena margin bawaan `h1`.
+
+Tiga halaman juga tidak punya landmark `main` sama sekali — pendaftaran,
+sunting profil versi ringkas, dan daftar alamat — sehingga pintasan "langsung
+ke isi" tidak punya tujuan. Wadah utamanya kini `role="main"`, pola yang sudah
+dipakai halaman admin lain. Halaman surel sengaja dilewati: klien surel tidak
+mengenali landmark.

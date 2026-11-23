@@ -71,7 +71,7 @@ body {
     object-fit: cover;
     border: 2px solid var(--surface-200);
 }
-.profile-header__title { font-weight: 800; font-size: 1.05rem; color: var(--ink); }
+.profile-header__title { font-weight: 800; font-size: 1.05rem; color: var(--ink); margin: 0; }
 .profile-header__notif {
     width: var(--space-10); height: var(--space-10);
     border-radius: var(--radius-pill);
@@ -291,7 +291,7 @@ body {
         </a>
         <img src="{{ $user->avatar ? asset('storage/'.$user->avatar) : asset('images/berkah-kreatif-logo.jpeg') }}"
              alt="{{ $user->name }}" class="profile-header__avatar">
-        <span class="profile-header__title">Profil Admin</span>
+        <h1 class="profile-header__title">Profil Admin</h1>
     </div>
     <a href="{{ route('admin.notifications') }}" class="profile-header__notif" aria-label="Notifikasi">
         @include('layouts.component._icon', ['name' => 'notif', 'size' => 20, 'label' => 'Notifikasi'])

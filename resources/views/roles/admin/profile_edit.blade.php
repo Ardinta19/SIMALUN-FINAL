@@ -54,7 +54,7 @@ body {
     transition: transform .12s ease, background .15s ease;
 }
 .icon-btn:active { transform: scale(.94); background: var(--surface-100); }
-.appbar__title { font-size: 1.15rem; font-weight: 800; color: var(--brand-900); line-height: 1.1; }
+.appbar__title { font-size: 1.15rem; font-weight: 800; color: var(--brand-900); line-height: 1.1; margin: 0; }
 
 /* ═══════════════════════════════════════════════ WRAP */
 .wrap { max-width: 520px; margin: 0 auto; padding: 0 var(--space-4); }
@@ -178,7 +178,7 @@ body {
     <a data-smart-back href="{{ \App\Support\BackUrl::resolve(request(), 'dashboard.admin') }}" id="btn-back" class="icon-btn" aria-label="Kembali">
         @include('layouts.component._icon', ['name' => 'back', 'size' => 20, 'label' => 'Kembali'])
     </a>
-    <span class="appbar__title">Edit Profil Admin</span>
+    <h1 class="appbar__title">Edit Profil Admin</h1>
 </header>
 
 <div class="wrap" role="main">

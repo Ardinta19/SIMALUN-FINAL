@@ -68,7 +68,7 @@ html, body {
 }
 .card-title {
   font-weight:800; font-size:clamp(1.2rem,4.8vw,1.5rem);
-  color:#fff; text-align:center; margin-bottom:.2rem; text-shadow:0 2px 12px rgba(0,0,0,.2);
+  color:#fff; text-align:center; margin:0 0 .2rem; text-shadow:0 2px 12px rgba(0,0,0,.2);
 }
 .card-sub {
   font-size:var(--bk-fs-2xs); font-weight:700; color:rgba(255,255,255,.7);
@@ -374,8 +374,8 @@ $oldText = function (string $key, $fallback = '') {
     <div class="wm-bar"></div>
   </div>
 
-  <div id="card">
-    <div class="card-title">Buat Akun Baru</div>
+  <div id="card" role="main">
+    <h1 class="card-title">Buat Akun Baru</h1>
     <div class="card-sub">Daftar sebagai pelanggan Berkah Kreatif</div>
 
     @if(session('error'))

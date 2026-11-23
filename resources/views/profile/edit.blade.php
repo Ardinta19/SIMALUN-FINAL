@@ -23,7 +23,7 @@
 @include('layouts.component._theme_head')
 </head>
 <body>
-<div class="container">
+<div class="container" role="main">
 
     @php
         $dashboard = match($user->role ?? 'customer') {

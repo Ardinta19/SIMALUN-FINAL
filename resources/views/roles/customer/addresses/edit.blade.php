@@ -22,7 +22,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--surface);color:
 .header-row{display:flex;align-items:center;gap:12px;max-width:520px;margin:0 auto;}
 .btn-back{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;color:white;text-decoration:none;flex-shrink:0;}
 .btn-back svg{width:18px;height:18px;}
-.header-title{flex:1;font-weight:800;font-size:1.3rem;color:white;}
+.header-title{flex:1;font-weight:800;font-size:1.3rem;color:white;margin:0;}
 .header-sub{font-size:var(--bk-fs-2xs);font-weight:800;color:rgba(255,255,255,.65);margin-top:2px;letter-spacing:.5px;}
 
 .page-body{max-width:520px;margin:0 auto;padding:16px;}
@@ -93,7 +93,7 @@ $oldText = function (string $key, $fallback = '') {
             </svg>
         </a>
         <div>
-            <div class="header-title">Edit Alamat</div>
+            <h1 class="header-title">Edit Alamat</h1>
             <div class="header-sub">{{ strtoupper($address->label ?? 'ALAMAT') }}</div>
         </div>
     </div>

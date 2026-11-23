@@ -11,7 +11,7 @@
 *{box-sizing:border-box}body{margin:0;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink)}
 .wrap{max-width:860px;margin:0 auto;padding:18px}
 .top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
-.h1{font-weight:800;color:var(--blue-dark);font-size:1.25rem}
+.h1{font-weight:800;color:var(--blue-dark);font-size:1.25rem;margin:0}
 .btn{border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:12px;padding:.55rem .8rem;font-weight:800;text-decoration:none;cursor:pointer;transition:.18s}
 .btn:hover{transform:translateY(-1px)}
 .card{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:12px;box-shadow:0 4px 14px rgba(0,47,92,.05)}
@@ -36,9 +36,9 @@ textarea.input{min-height:72px;resize:vertical}
 @include('layouts.component._theme_head')
 </head>
 <body>
-<div class="wrap">
+<div class="wrap" role="main">
   <div class="top">
-    <div class="h1">Alamat Saya</div>
+    <h1 class="h1">Alamat Saya</h1>
     @php
   $role = auth()->user()->role;
   $dashboardRoute = $role === 'admin' ? 'dashboard.admin' : 'customer.dashboard';

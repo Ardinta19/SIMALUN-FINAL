@@ -547,10 +547,21 @@
             node.className = 'adm-toast adm-toast--' + variant;
             node.setAttribute('data-adm-toast', '');
             node.setAttribute('role', 'status');
+            // Kerangka dari markup tetap; pesan dan judul masuk sebagai teks
+            // supaya nama produk atau nama pengguna tidak pernah ditafsirkan
+            // sebagai HTML.
             node.innerHTML = '<span class="adm-toast__icon" aria-hidden="true">' + window.BKAdmin.toastGlyph(variant) + '</span>'
-                + '<div class="adm-toast__body">' + (opts.title ? '<strong class="adm-toast__title">' + opts.title + '</strong>' : '') + String(message || '') + '</div>'
+                + '<div class="adm-toast__body"></div>'
                 + '<button type="button" class="adm-toast__close" data-adm-toast-close aria-label="Tutup pemberitahuan">&times;</button>'
                 + '<span class="adm-toast__bar" aria-hidden="true"></span>';
+            var body = node.querySelector('.adm-toast__body');
+            if (opts.title) {
+                var title = document.createElement('strong');
+                title.className = 'adm-toast__title';
+                title.textContent = String(opts.title);
+                body.appendChild(title);
+            }
+            body.appendChild(document.createTextNode(String(message || '')));
             host.appendChild(node);
             toasts(host);
             return node;

@@ -52,7 +52,7 @@ body {
     color:white; text-decoration:none; flex-shrink:0;
 }
 .btn-back svg { width:18px; height:18px; }
-.header-title { flex:1; font-weight:800; font-size:1.3rem; color:white; }
+.header-title { flex:1; font-weight:800; font-size:1.3rem; color:white; margin:0; }
 .header-sub { font-size:var(--bk-fs-2xs); font-weight:800; color:rgba(255,255,255,.65); margin-top:2px; letter-spacing:.5px; }
 
 /* ── BODY ────────────────────────────── */
@@ -212,7 +212,7 @@ $oldText = function (string $key, $fallback = '') {
             </svg>
         </a>
         <div>
-            <div class="header-title">Tambah Alamat</div>
+            <h1 class="header-title">Tambah Alamat</h1>
             <div class="header-sub">ALAMAT PENYERAHAN</div>
         </div>
     </div>
