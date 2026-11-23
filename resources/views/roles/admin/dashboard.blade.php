@@ -362,16 +362,16 @@ body {
         @endforelse
     </section>
     <section class="section reveal"><div class="section__head"><div class="section__title">Aksi Cepat</div></div><div class="quick-grid">
-        <a href="{{ route('admin.rental.orders') }}" class="quick-item"><span class="quick-item__icon">📋</span><span class="quick-item__label">Pesanan sewa</span></a>
-        <a href="{{ route('admin.rental.schedule') }}" class="quick-item"><span class="quick-item__icon">🗓️</span><span class="quick-item__label">Jadwal sewa</span></a>
-        <a href="{{ route('admin.catalog.index') }}" class="quick-item"><span class="quick-item__icon">🌷</span><span class="quick-item__label">Kelola katalog</span></a>
-        <a href="{{ route('admin.rental.universities.index') }}" class="quick-item"><span class="quick-item__icon">📍</span><span class="quick-item__label">Tarif universitas</span></a>
-        <a href="{{ route('admin.rental.cashbook.index') }}" class="quick-item"><span class="quick-item__icon">📒</span><span class="quick-item__label">Buku kas</span></a>
-        <a href="{{ route('admin.rental.vouchers.index') }}" class="quick-item"><span class="quick-item__icon">🎟️</span><span class="quick-item__label">Voucher</span></a>
-        <a href="{{ route('admin.rental.payment-settings.edit') }}" class="quick-item"><span class="quick-item__icon">💳</span><span class="quick-item__label">Petunjuk pembayaran</span></a><a href="{{ route('admin.rental.vouchers.index') }}" class="quick-item"><span class="quick-item__icon">🎟️</span><span class="quick-item__label">Voucher</span></a>
-        <a href="{{ route('admin.help') }}" class="quick-item"><span class="quick-item__icon">❓</span><span class="quick-item__label">Panduan admin</span></a>
-        <a href="{{ route('admin.notifications') }}" class="quick-item"><span class="quick-item__icon">🔔</span><span class="quick-item__label">Notifikasi</span></a>
-        <a href="{{ route('admin.audit.index') }}" class="quick-item"><span class="quick-item__icon">🔐</span><span class="quick-item__label">Audit trail</span></a>
+        <a href="{{ route('admin.rental.orders') }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'orders', 'size' => 18])</span><span class="quick-item__label">Pesanan sewa</span></a>
+        <a href="{{ route('admin.rental.schedule') }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'calendar', 'size' => 18])</span><span class="quick-item__label">Jadwal sewa</span></a>
+        <a href="{{ route('admin.catalog.index') }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'package', 'size' => 18])</span><span class="quick-item__label">Kelola katalog</span></a>
+        <a href="{{ route('admin.rental.universities.index') }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'location', 'size' => 18])</span><span class="quick-item__label">Tarif universitas</span></a>
+        <a href="{{ route('admin.rental.cashbook.index') }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'finance', 'size' => 18])</span><span class="quick-item__label">Buku kas</span></a>
+        <a href="{{ route('admin.rental.vouchers.index') }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'voucher', 'size' => 18])</span><span class="quick-item__label">Voucher</span></a>
+        <a href="{{ route('admin.rental.payment-settings.edit') }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'payment', 'size' => 18])</span><span class="quick-item__label">Petunjuk pembayaran</span></a><a href="{{ route('admin.rental.vouchers.index') }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'voucher', 'size' => 18])</span><span class="quick-item__label">Voucher</span></a>
+        <a href="{{ route('admin.help') }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'help', 'size' => 18])</span><span class="quick-item__label">Panduan admin</span></a>
+        <a href="{{ route('admin.notifications') }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'notifikasi', 'size' => 18])</span><span class="quick-item__label">Notifikasi</span></a>
+        <a href="{{ route('admin.audit.index') }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'audit', 'size' => 18])</span><span class="quick-item__label">Audit trail</span></a>
     </div></section>
     <p style="color:var(--ink-lt,#806975);font-size:.78rem;margin-top:20px">Sistem masih dalam pengujian dan belum untuk transaksi nyata. Ringkasan buku kas dapat mencakup data lama.</p>
     <div class="logout-section"><form action="{{ route('logout') }}" method="POST">@csrf<button type="submit" class="logout-btn">Keluar dari Akun</button></form></div>

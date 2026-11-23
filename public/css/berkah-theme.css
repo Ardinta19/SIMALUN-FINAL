@@ -24,15 +24,15 @@
 html[data-theme="dark"] {
     color-scheme: dark;
 
-    --theme-bg: #140f12;
+    --theme-bg: #0c090b;
     --theme-surface: #201820;
     --theme-surface-2: #2a2028;
     --theme-surface-3: #342730;
     --theme-ink: #f6ece8;
     --theme-ink-mid: #d0b9c0;
-    --theme-ink-lt: #a68d95;
-    --theme-line: #46333b;
-    --theme-line-soft: #382a31;
+    --theme-ink-lt: #b5a0a7;
+    --theme-line: #533d47;
+    --theme-line-soft: #42313a;
     --theme-brand: #a81f45;
     --theme-brand-strong: #c12f57;
     --theme-accent-text: #f2a1b4;
@@ -116,7 +116,7 @@ html[data-theme="dark"] {
 
 /* Hero halaman lama memakai gradien merek; tetap maroon saat gelap. */
 html[data-theme="dark"] .hero {
-    background: linear-gradient(145deg, #3a0f1d, #5c0f27 60%, #8c2440);
+    background: linear-gradient(145deg, #330e1a, #4f0d21 60%, #74203a);
     color: #fdf2f5;
 }
 
