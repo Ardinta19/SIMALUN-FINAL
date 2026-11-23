@@ -307,7 +307,7 @@ body {
         <a href="{{ route('admin.notifications') }}" class="quick-item"><span class="quick-item__icon">🔔</span><span class="quick-item__label">Notifikasi</span></a>
         <a href="{{ route('admin.audit.index') }}" class="quick-item"><span class="quick-item__icon">🔐</span><span class="quick-item__label">Audit trail</span></a>
     </div></section>
-    <p style="color:#806975;font-size:.78rem;margin-top:20px">Sistem masih dalam pengujian dan belum untuk transaksi nyata. Ringkasan buku kas dapat mencakup data lama.</p>
+    <p style="color:var(--ink-lt,#806975);font-size:.78rem;margin-top:20px">Sistem masih dalam pengujian dan belum untuk transaksi nyata. Ringkasan buku kas dapat mencakup data lama.</p>
     <div class="logout-section"><form action="{{ route('logout') }}" method="POST">@csrf<button type="submit" class="logout-btn">Keluar dari Akun</button></form></div>
     <div class="version-tag">Berkah Kreatif · Admin Panel</div>
 </main>

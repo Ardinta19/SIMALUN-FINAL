@@ -968,7 +968,7 @@ function setVoucherError(msg) {
 }
 
 function setVoucherWarning(msg) {
-  voucherResult.innerHTML = '<span style="color: #d97706;">! ' + msg + '</span>';
+  voucherResult.innerHTML = '<span style="color: var(--theme-warning-ink, #b45309);">! ' + msg + '</span>';
 }
 
 function getCurrentSubtotal() {

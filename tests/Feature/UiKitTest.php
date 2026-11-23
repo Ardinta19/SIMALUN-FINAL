@@ -481,6 +481,11 @@ class UiKitTest extends TestCase
             '.err',
             '.sum-discount',
             '.order-card__badge',
+            '.pg-item--muted',
+            '.pg-item--step',
+            '.pg-item--page',
+            '.pg-item--current',
+            '.pg-dots',
         ];
 
         $missing = array_values(array_filter($selectors, fn (string $selector) => ! $this->themeMentions($theme, $selector)));

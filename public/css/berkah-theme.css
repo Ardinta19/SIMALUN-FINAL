@@ -1075,6 +1075,35 @@ html[data-theme="dark"] :is(.order-card__badge) {
     color: var(--theme-warning-ink);
 }
 
+/* Paginasi pelanggan (vendor/pagination/customer-simple) */
+
+html[data-theme="dark"] :is(.pg-item--muted) {
+    background: var(--theme-surface-2);
+    border-color: var(--theme-line);
+    color: var(--theme-ink-lt);
+}
+
+html[data-theme="dark"] :is(.pg-item--step) {
+    background: var(--theme-surface-3);
+    border-color: var(--theme-line);
+    color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(.pg-item--page) {
+    background: var(--theme-surface-2);
+    border-color: var(--theme-line);
+    color: var(--theme-ink);
+}
+
+html[data-theme="dark"] :is(.pg-item--current) {
+    background: var(--theme-brand-strong);
+    color: #fff;
+}
+
+html[data-theme="dark"] :is(.pg-dots) {
+    color: var(--theme-ink-lt);
+}
+
 /* 7f. Halaman pesanan, alamat, profil, dan laporan (palet --blue-*) */
 
 html[data-theme="dark"] :is(
