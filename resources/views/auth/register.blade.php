@@ -285,7 +285,7 @@ html, body {
 }
 .btn-to-login {
   display:inline-flex; align-items:center; gap:.4rem;
-  background:linear-gradient(135deg,#00C48C 0%,#00e0a1 100%);
+  background:linear-gradient(135deg,#047857 0%,#04805f 100%);
   color:#fff; font-family:'Plus Jakarta Sans',sans-serif; font-weight:900;
   font-size:.95rem; border:none; border-radius:99px;
   padding:.82rem 2rem; cursor:pointer; text-decoration:none;

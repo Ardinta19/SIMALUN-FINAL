@@ -129,9 +129,9 @@
 .cust:last-child { border-bottom: none; padding-bottom: 0; }
 .cust:first-child { padding-top: 2px; }
 .cust__rank { width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 900; flex-shrink: 0; background: var(--line-soft); color: var(--ink-lt); }
-.cust__rank--1 { background: linear-gradient(145deg,#fde68a,#f59e0b); color: #fff; }
-.cust__rank--2 { background: linear-gradient(145deg,#e2e8f0,#94a3b8); color: #fff; }
-.cust__rank--3 { background: linear-gradient(145deg,#fbcfa3,#d97742); color: #fff; }
+.cust__rank--1 { background: linear-gradient(145deg,#fde68a,#f59e0b); color: #4a3208; }
+.cust__rank--2 { background: linear-gradient(145deg,#e2e8f0,#94a3b8); color: #243244; }
+.cust__rank--3 { background: linear-gradient(145deg,#fbcfa3,#d97742); color: #341803; }
 .cust__info { flex: 1; min-width: 0; }
 .cust__name { font-size: 0.82rem; font-weight: 800; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cust__phone { font-size: 0.68rem; color: var(--ink-lt); font-weight: 600; margin-top: 1px; }
