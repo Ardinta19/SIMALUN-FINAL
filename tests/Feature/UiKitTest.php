@@ -522,6 +522,25 @@ class UiKitTest extends TestCase
         }
     }
 
+    public function test_print_view_stays_light_in_dark_theme(): void
+    {
+        $css = File::get(public_path('css/berkah-theme.css'));
+
+        $start = strpos($css, '@media print');
+
+        $this->assertNotFalse($start, 'Blok @media print hilang.');
+
+        $print = substr($css, $start);
+
+        // Saat mencetak dari mode gelap, token harus kembali ke nilai terang;
+        // kalau tidak, kartu tercetak hitam dengan teks pucat.
+        foreach (['--theme-surface:', '--theme-ink:', '--theme-accent-text:', '--bk-glass:', '--fc-blush:'] as $token) {
+            $this->assertStringContainsString($token, $print, 'Blok cetak tidak menyetel '.$token);
+        }
+
+        $this->assertStringContainsString('color-scheme: light;', $print);
+    }
+
     public function test_theme_never_uses_important(): void
     {
         $css = preg_replace('!/\*.*?\*/!s', '', File::get(public_path('css/berkah-theme.css')));

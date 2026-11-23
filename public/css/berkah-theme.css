@@ -1316,4 +1316,94 @@ html[data-theme="dark"] #bk-theme-switch .bk-theme-svg__knob-ring {
         background: #fff;
         color: #111;
     }
+
+    /* Semua token dikembalikan ke nilai terang supaya kartu, chip, tombol,
+       dan tabel tidak tercetak gelap. Token turunan (--ink, --card, --wine,
+       --fc-*, --bk-*) mengikuti otomatis karena memakai var(). */
+    html[data-theme="dark"] {
+        color-scheme: light;
+
+        --theme-bg: #ffffff;
+        --theme-surface: #ffffff;
+        --theme-surface-2: #fbf7f8;
+        --theme-surface-3: #f4ecee;
+        --theme-ink: #1d1116;
+        --theme-ink-mid: #4a3a40;
+        --theme-ink-lt: #6b5760;
+        --theme-line: #ddcdd2;
+        --theme-line-soft: #efe4e7;
+        --theme-brand: #85092d;
+        --theme-brand-strong: #85092d;
+        --theme-accent-text: #85092d;
+        --theme-danger-ink: #9d1a30;
+        --theme-danger-soft: #fdecef;
+        --theme-danger-line: #f3cdd4;
+        --theme-success-ink: #10614a;
+        --theme-success-soft: #e9f8f1;
+        --theme-warning-ink: #7a4d0a;
+        --theme-warning-soft: #fdf4e3;
+
+        --surface-50: #ffffff;
+        --surface-100: #fbf7f8;
+        --surface-400: #a08f95;
+        --border-dash: #d8c6cb;
+        --brand-100: #f7e6ea;
+        --brand-tint: #f7e6ea;
+        --brand-900: #eaf3fb;
+        --accent-tint: #fdf0e8;
+        --accent-lt: #fdf0e8;
+        --blue-lt: #eaf4fd;
+        --teal-lt: #e7f7f4;
+        --orange-lt: #fdf0e9;
+        --green-lt: #e9f8f1;
+        --red-lt: #fdecef;
+        --violet-lt: #eeeafc;
+        --yellow-lt: #fcf7e3;
+        --shadow: 0 4px 12px rgba(84, 5, 31, 0.08);
+        --shadow-md: 0 4px 12px rgba(84, 5, 31, 0.08);
+        --shadow-card: none;
+        --shadow-nav: none;
+
+        --bk-glass: rgba(255, 252, 248, 0.94);
+        --fc-blush: #f6e7ea;
+        --fc-blush-strong: #efd6db;
+        --fc-line-strong: #d8c6cb;
+        --fc-danger: #a11a32;
+        --fc-shadow: none;
+        --fc-shadow-soft: none;
+
+        --bk-atc-bg: linear-gradient(180deg, #fffaf8, #f7e7e9);
+        --bk-atc-ink: #85092d;
+        --bk-atc-line: #e8d6dc;
+        --bk-atc-hover: none;
+        --bk-del-bg: #fdecef;
+        --bk-del-line: #f3cdd4;
+        --bk-del-ink: #a11a32;
+        --bk-heart: #c2185b;
+        --bk-theme-dialog-bg: #ffffff;
+        --bk-theme-dialog-ink: #321d24;
+        --bk-theme-dialog-line: #e8d6dc;
+        --bk-theme-svg-panel: #fdf6f2;
+        --bk-theme-svg-track: #f4dcd3;
+        --bk-qty-bg: #ffffff;
+        --bk-qty-btn: #f6e7ea;
+        --bk-qty-btn-hover: #efd6db;
+        --bk-qty-ink: #85092d;
+        --bk-unit-chip-bg: #f6ecee;
+    }
+
+    /* Permukaan yang memakai nilai literal tetap perlu disetel manual. */
+    html[data-theme="dark"] .hero {
+        background: #85092d;
+        color: #fff;
+    }
+
+    html[data-theme="dark"] :is(.driver-nav, .customer-nav, .admin-nav, .bottom-cta) {
+        background: #fff;
+        box-shadow: none;
+    }
+
+    html[data-theme="dark"] :is(.bk-splash, .bk-theme-dialog, .bk-theme-btn) {
+        display: none;
+    }
 }
