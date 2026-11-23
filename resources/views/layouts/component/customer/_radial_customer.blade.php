@@ -18,7 +18,7 @@
     $unreadNotif = $unreadNotif ?? 0;
 @endphp
 <details class="customer-radial {{ !empty($inHeader) ? 'bk-header-radial' : '' }}" data-customer-radial>
-    <summary class="customer-nav__item {{ in_array($navActive, ['keranjang', 'pesanan', 'notif'], true) || request()->routeIs('customer.help') ? 'is-active' : '' }}" aria-label="Menu: keranjang, pesanan, notifikasi, dan bantuan{{ $unreadNotif ? ', '.$unreadNotif.' notifikasi belum dibaca' : '' }}">
+    <summary class="customer-nav__item {{ in_array($navActive, ['keranjang', 'pesanan', 'notif'], true) || request()->routeIs('customer.help', 'customer.addresses.*') ? 'is-active' : '' }}" aria-controls="bk-radial-panel" aria-label="Menu: keranjang, pesanan, notifikasi, alamat, dan bantuan{{ $unreadNotif ? ', '.$unreadNotif.' notifikasi belum dibaca' : '' }}">
         <span class="customer-nav__icon customer-radial__trigger">
             <span class="customer-radial__face customer-radial__face--menu">@include('layouts.component._icon', ['name' => 'menu', 'size' => 24])</span>
             <span class="customer-radial__face customer-radial__face--close">@include('layouts.component._icon', ['name' => 'close', 'size' => 24])</span>
@@ -26,7 +26,7 @@
         </span>
         <span class="customer-nav__label">Menu</span>
     </summary>
-    <div class="customer-radial__panel" aria-label="Menu pelanggan">
+    <div class="customer-radial__panel" id="bk-radial-panel" role="group" aria-label="Menu pelanggan">
         <div class="customer-radial__heading"><strong>Menu pelanggan</strong><span>Pilih tujuan</span></div>
         <div class="customer-radial__links">
             {{-- Jejak halus di belakang tombol: memberi kedalaman tanpa kartu. --}}
@@ -45,6 +45,10 @@
                 @if($unreadNotif)<span class="customer-radial__badge" aria-hidden="true">{{ $unreadNotif > 99 ? '99+' : $unreadNotif }}</span>@endif
                 <span class="customer-radial__text">Notifikasi @if($unreadNotif)<small>{{ $unreadNotif }} baru</small>@endif</span>
             </a>
+            <a href="{{ route('customer.addresses.index') }}" @if(request()->routeIs('customer.addresses.*')) aria-current="page" @endif aria-label="Alamat pengiriman">
+                <span class="customer-radial__glyph" aria-hidden="true">@include('layouts.component._icon', ['name' => 'address', 'size' => 20])</span>
+                <span class="customer-radial__text">Alamat</span>
+            </a>
             <a href="{{ route('customer.help') }}" @if(request()->routeIs('customer.help')) aria-current="page" @endif aria-label="Bantuan dan FAQ">
                 <span class="customer-radial__glyph" aria-hidden="true">@include('layouts.component._icon', ['name' => 'help-circle', 'size' => 20])</span>
                 <span class="customer-radial__text">Bantuan / FAQ</span>
@@ -56,14 +60,14 @@
 <style>
 /* ── Radial: busur tujuan ────────────────────────────────────────────────
    Busur dibuka ke kiri-bawah dari tombol (yang duduk di ujung kanan header).
-   Empat tujuan berjarak 46 px dengan sudut 32° pada radius 100 px, jadi
-   tidak ada yang bertumpuk dan tidak ada yang keluar layar 320 px.
+   Lima tujuan berjarak 50 px pada radius 112 px, jadi tidak ada yang
+   bertumpuk dan tidak ada yang keluar layar 320 px.
    Posisi tiap tujuan disimpan sebagai --rx/--ry; --p (0..1) menggerakkannya
    dari pusat. GSAP menganimasikan --p saja — transform tetap milik CSS. */
 html[data-theme] .bk-header-radial .customer-radial__panel{position:absolute;top:50%;right:50%;width:0;height:0;padding:0;margin:0;border:0;border-radius:0;background:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;transform:translate(50%,-50%);overflow:visible;max-height:none;z-index:1200}
 .bk-header-radial .customer-radial__heading{display:none}
 .bk-header-radial .customer-radial__links{position:relative;display:block;width:0;height:0;margin:0;padding:0;overflow:visible}
-.bk-header-radial .customer-radial__links::before{content:"";position:absolute;left:0;top:0;width:224px;height:224px;transform:translate(-50%,-50%) scale(.72);border:1px solid rgba(133,9,45,.16);border-radius:50%;opacity:0;pointer-events:none;transition:opacity .26s ease,transform .5s cubic-bezier(.34,1.4,.64,1)}
+.bk-header-radial .customer-radial__links::before{content:"";position:absolute;left:0;top:0;width:244px;height:244px;transform:translate(-50%,-50%) scale(.72);border:1px solid rgba(133,9,45,.16);border-radius:50%;opacity:0;pointer-events:none;transition:opacity .26s ease,transform .5s cubic-bezier(.34,1.4,.64,1)}
 .bk-header-radial[open] .customer-radial__links::before{opacity:1;transform:translate(-50%,-50%) scale(1)}
 .bk-header-radial .customer-radial__goo{position:absolute;left:0;top:0;width:238px;height:238px;margin:-119px 0 0 -119px;opacity:.16;pointer-events:none;transition:opacity .3s ease}
 .bk-header-radial[open] .customer-radial__goo{opacity:.16}
@@ -83,11 +87,14 @@ html[data-theme] .bk-header-radial .customer-radial__panel{position:absolute;top
     transition:transform .42s cubic-bezier(.34,1.4,.64,1),opacity .22s ease,background-color .18s ease,color .18s ease,border-color .18s ease;
     -webkit-tap-highlight-color:transparent;
 }
-/* Sudut busur: 168°, 136°, 104°, 74° pada radius 100 px. */
-.bk-header-radial .customer-radial__links a:nth-of-type(1){--rx:-98px;--ry:21px}
-.bk-header-radial .customer-radial__links a:nth-of-type(2){--rx:-72px;--ry:70px}
-.bk-header-radial .customer-radial__links a:nth-of-type(3){--rx:-24px;--ry:97px}
-.bk-header-radial .customer-radial__links a:nth-of-type(4){--rx:28px;--ry:96px}
+/* Sudut busur: 180°, 154°, 128°, 102°, 76° pada radius 112 px. Jarak
+   antarpusat 50 px, jadi lingkaran 46 px tidak bertumpuk; titik terkanan
+   (27 px + 23 px) masih di dalam 52 px ruang bebas di kanan tombol. */
+.bk-header-radial .customer-radial__links a:nth-of-type(1){--rx:-112px;--ry:0px}
+.bk-header-radial .customer-radial__links a:nth-of-type(2){--rx:-101px;--ry:49px}
+.bk-header-radial .customer-radial__links a:nth-of-type(3){--rx:-69px;--ry:88px}
+.bk-header-radial .customer-radial__links a:nth-of-type(4){--rx:-23px;--ry:110px}
+.bk-header-radial .customer-radial__links a:nth-of-type(5){--rx:27px;--ry:109px}
 .customer-radial[open] .customer-radial__links a{--p:1}
 .bk-header-radial .customer-radial__links a:hover,
 .bk-header-radial .customer-radial__links a:focus-visible,

@@ -22,12 +22,20 @@ class RadialMenuTest extends TestCase
         $this->assertStringContainsString('Bantuan / FAQ', $view);
         $this->assertStringContainsString('aria-label="Keranjang{{', $view);
 
-        // Busur: empat tujuan pada radius 100 px, sudut 168/136/104/74°.
-        foreach (['--rx:-98px;--ry:21px', '--rx:-72px;--ry:70px', '--rx:-24px;--ry:97px', '--rx:28px;--ry:96px'] as $offset) {
+        // Busur: lima tujuan pada radius 112 px, sudut 180/154/128/102/76°.
+        foreach (['--rx:-112px;--ry:0px', '--rx:-101px;--ry:49px', '--rx:-69px;--ry:88px', '--rx:-23px;--ry:110px', '--rx:27px;--ry:109px'] as $offset) {
             $this->assertStringContainsString($offset, $view);
         }
         $this->assertStringContainsString('width:46px;height:46px', $view, 'Sasaran sentuh menu harus >= 44 px.');
-        $this->assertStringContainsString('nth-of-type(4)', $view);
+        $this->assertStringContainsString('nth-of-type(5)', $view);
+
+        // Tujuan kelima adalah halaman yang belum ada di pita bawah.
+        $this->assertStringContainsString("route('customer.addresses.index')", $view);
+        $this->assertStringContainsString('aria-label="Alamat pengiriman"', $view);
+
+        // Hubungan tombol–panel harus eksplisit untuk pembaca layar.
+        $this->assertStringContainsString('aria-controls="bk-radial-panel"', $view);
+        $this->assertStringContainsString('id="bk-radial-panel"', $view);
 
         // Satu variabel menggerakkan busur; transform tetap milik CSS.
         $this->assertStringContainsString('--p:0', $view);
@@ -80,5 +88,13 @@ class RadialMenuTest extends TestCase
         $this->assertStringContainsString('height:68px', $nav);
         $this->assertStringContainsString('body.bk-customer .bk-desktop-nav', $nav);
         $this->assertStringNotContainsString('.customer-radial__links a:nth-of-type', $nav, 'Busur hanya boleh punya satu sumber gaya.');
+
+        // Menu harus tetap terjangkau setelah header menjadi ringkas.
+        $this->assertStringNotContainsString('.bk-header.is-compact .bk-header-radial{display:none', $nav);
+        $this->assertStringContainsString('.bk-header.is-compact .bk-header-radial>summary{width:44px;height:44px}', $nav);
+
+        // Pil ringkas tidak boleh melebar saat busur terbuka: titik tumpunya bergeser.
+        $script = File::get(public_path('js/berkah-experience.js'));
+        $this->assertStringContainsString("radialMenu && radialMenu.open && header.classList.contains('is-compact')", $script);
     }
 }

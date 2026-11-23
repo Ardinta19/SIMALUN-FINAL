@@ -85,6 +85,30 @@
     .mock-card b { display: block; font-size: 14px; margin-bottom: 4px; }
     .mock-card span { opacity: .7; }
     .demo-foot { max-width: 1100px; margin: 0 auto; padding: 0 18px 40px; font-size: 12px; line-height: 1.7; opacity: .6; }
+
+    /* Bingkai ponsel 320 px: membuktikan klaim “tidak keluar layar” dengan
+       media query yang sungguhan, bukan gambar. */
+    .demo-phone-wrap { width: min(1100px, 100%); margin: 0 auto 8px; padding: 0 18px; }
+    .demo-phone-wrap h2 { font-size: 15px; margin: 26px 0 10px; letter-spacing: -.01em; }
+    .demo-phone-wrap p { margin: 0 0 14px; font-size: 13px; opacity: .7; }
+    .demo-phone {
+        width: 320px; max-width: 100%; height: 620px; overflow: hidden;
+        border: 10px solid #241c22; border-radius: 38px;
+        box-shadow: 0 26px 60px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.06);
+        background: #0c090b;
+    }
+    html[data-theme="light"] .demo-phone { border-color: #3c2a30; }
+    .demo-phone iframe { display: block; width: 100%; height: 100%; border: 0; }
+
+    /* Mode embed dipakai di dalam bingkai: tanpa bilah kendali. */
+    body.demo-embed .demo-bar,
+    body.demo-embed .demo-foot,
+    body.demo-embed .demo-phone-wrap { display: none; }
+    body.demo-embed .mock-header { padding: 10px 8px; }
+    body.demo-embed .mock-header-inner { min-height: 56px; padding: 6px 8px; border-radius: 22px; }
+    body.demo-embed .mock-brand small { display: none; }
+    body.demo-embed .mock-content { padding: 14px 12px 40px; }
+    body.demo-embed .mock-content h1 { font-size: 19px; }
     code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
 </style>
 </head>
@@ -105,7 +129,7 @@
             </a>
 
             <details class="customer-radial bk-header-radial" data-customer-radial>
-                <summary class="customer-nav__item" aria-label="Menu: keranjang, pesanan, notifikasi, dan bantuan, 7 notifikasi belum dibaca">
+                <summary class="customer-nav__item" aria-controls="bk-radial-panel" aria-label="Menu: keranjang, pesanan, notifikasi, alamat, dan bantuan, 7 notifikasi belum dibaca">
                     <span class="customer-nav__icon customer-radial__trigger">
                         <span class="customer-radial__face customer-radial__face--menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 5h16"/><path d="M4 12h16"/><path d="M4 19h16"/></svg></span>
                         <span class="customer-radial__face customer-radial__face--close"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span>
@@ -113,7 +137,7 @@
                     </span>
                     <span class="customer-nav__label">Menu</span>
                 </summary>
-                <div class="customer-radial__panel" aria-label="Menu pelanggan">
+                <div class="customer-radial__panel" id="bk-radial-panel" role="group" aria-label="Menu pelanggan">
                     <div class="customer-radial__heading"><strong>Menu pelanggan</strong><span>Pilih tujuan</span></div>
                     <div class="customer-radial__links">
                         <svg class="customer-radial__goo" viewBox="0 0 320 150" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs><filter id="bk-menu-goo" x="-20%" y="-30%" width="140%" height="160%"><feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/><feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 14 -5"/></filter></defs><g filter="url(#bk-menu-goo)" fill="#ead4d4"><circle cx="42" cy="86" r="26"/><circle cx="118" cy="36" r="26"/><circle cx="202" cy="36" r="26"/><circle cx="278" cy="86" r="26"/><path d="M42 86 Q160 8 278 86 L160 125 Z"/></g></svg>
@@ -131,6 +155,10 @@
                             <span class="customer-radial__badge" aria-hidden="true">7</span>
                             <span class="customer-radial__text">Notifikasi <small>7 baru</small></span>
                         </a>
+                        <a href="#" aria-label="Alamat pengiriman">
+                            <span class="customer-radial__glyph" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg></span>
+                            <span class="customer-radial__text">Alamat</span>
+                        </a>
                         <a href="#" aria-label="Bantuan dan FAQ">
                             <span class="customer-radial__glyph" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 9.5a3 2.5 0 016 0c0 2-2 2-3 3.5"/><path d="M12 17h.01"/></svg></span>
                             <span class="customer-radial__text">Bantuan / FAQ</span>
@@ -143,13 +171,19 @@
 
     <main class="mock-content">
         <h1>Tekan tombol menu di kanan atas</h1>
-        <p class="lead">Empat tujuan menyebar dalam busur ke kiri-bawah — arah yang tidak keluar layar bahkan pada ponsel 320&nbsp;px. Busur menyusut kembali ke tombol saat ditutup, ikon menu bertukar menjadi silang, dan lencana angka memantul masuk.</p>
+        <p class="lead">Lima tujuan menyebar dalam busur ke kiri-bawah — arah yang tidak keluar layar bahkan pada ponsel 320&nbsp;px. Busur menyusut kembali ke tombol saat ditutup, ikon menu bertukar menjadi silang, dan lencana angka memantul masuk.</p>
         <div class="mock-grid">
             <div class="mock-card"><b>Keranjang</b><span>Lencana 2 unit</span></div>
             <div class="mock-card"><b>Pesanan</b><span>Riwayat sewa</span></div>
             <div class="mock-card"><b>Notifikasi</b><span>Lencana 7 belum dibaca</span></div>
+            <div class="mock-card"><b>Alamat</b><span>Alamat pengiriman</span></div>
             <div class="mock-card"><b>Bantuan / FAQ</b><span>Panduan pemesanan</span></div>
         </div>
+        <section class="demo-phone-wrap">
+            <h2>Pada ponsel 320 px</h2>
+            <p>Jika dibuka lebar seperti tadi, tombol menu memang dipaksa tampil agar mudah dicoba. Di dalam bingkai ini aturan aslinya berlaku: menu hanya muncul di bawah 700 px, dan busur tetap berada di dalam layar.</p>
+            <div class="demo-phone"><iframe src="?embed=1" title="Pratinjau menu radial pada lebar 320 piksel" width="320" height="620" loading="lazy"></iframe></div>
+        </section>
     </main>
 
     <p class="demo-foot">
@@ -171,6 +205,13 @@
         document.querySelectorAll('[data-demo-theme]').forEach((button) => {
             button.addEventListener('click', () => paintTheme(button.dataset.demoTheme));
         });
+        // ?embed=1 dipakai oleh bingkai 320 px di bawah.
+        if (!window.frameElement && new URLSearchParams(location.search).get('embed') === '1') {
+            document.body.classList.add('demo-embed');
+        }
+        if (window.frameElement) {
+            document.body.classList.add('demo-embed');
+        }
     </script>
     <script>
         // Ambil blok <style> dari partial asli supaya pratinjau tidak menyimpang.

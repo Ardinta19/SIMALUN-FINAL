@@ -992,3 +992,48 @@ const RING = [[-98, 21], [-72, 70], [-24, 97], [28, 96]];
 Berkas penjaga: `tests/Feature/RadialMenuTest.php`, ditambah 23 pemeriksaan
 jsdom (`/tmp/jsdomtest/radial.test.js`) untuk buka/tutup, klik luar, Escape,
 reduced-motion, dan jalur tanpa GSAP.
+
+### 9.23 Radial: tujuan kelima, tetap terjangkau, dan bukti 320 px
+
+**A. Tujuan kelima.** Busur sekarang memuat lima tujuan: Keranjang, Pesanan,
+Notifikasi, **Alamat**, Bantuan. Alamat dipilih karena satu-satunya halaman
+pelanggan yang belum punya pintu di pita bawah maupun di busur; menambah
+"Profil" hanya akan menduplikasi tab yang sudah ada. Radius dinaikkan ke
+112 px dan sudut dirapatkan ke 26° (180°, 154°, 128°, 102°, 76°):
+
+| Tujuan | --rx | --ry |
+|---|---|---|
+| Keranjang | −112 px | 0 px |
+| Pesanan | −101 px | 49 px |
+| Notifikasi | −69 px | 88 px |
+| Alamat | −23 px | 110 px |
+| Bantuan | +27 px | 109 px |
+
+Jarak antarpusat 50 px (2·112·sin 13°) — lingkaran 46 px tidak bertumpuk.
+Batas kanan: titik terkanan 27 px + 23 px = 50 px, sedangkan ruang bebas dari
+pusat tombol ke tepi layar 320 px adalah 52 px. Jadi tidak ada yang terpotong.
+
+**B. Tetap terjangkau setelah digulir.** Sebelumnya pil ringkas menyembunyikan
+tombol radial (`display:none!important`), sehingga setelah halaman digulir
+tujuan sekunder hanya bisa dicapai dengan menggulir balik ke atas. Sekarang
+tombol tetap ada di pil (44 px, setinggi ikon lain). Satu jebakan yang
+dihindari: `syncHeader` dulu melebarkan header (`is-pinned`) setiap kali menu
+terbuka — kalau itu terjadi pada pil ringkas, titik tumpu busur bergeser di
+tengah animasi. Jadi saat radial terbuka **dan** header sedang ringkas, pil
+ditahan apa adanya; pil ringkas sudah `position: fixed`, tidak bisa hilang.
+
+**C. Hubungan tombol–panel.** `<summary>` diberi `aria-controls="bk-radial-panel"`
+dan panelnya `id="bk-radial-panel"` + `role="group"`, melengkapi `aria-expanded`
+yang disinkronkan skrip. Pita bawah tidak berubah, jadi tes navigasi lama tetap
+hijau.
+
+**D. Bukti 320 px di pratinjau.** `docs/preview/radial.html` sekarang memuat
+bingkai ponsel 320×620 yang memuat halaman itu sendiri dengan `?embed=1`.
+Di dalam iframe, media query berjalan sungguhan — jadi klaim "busur tidak
+keluar layar" bisa dilihat, bukan hanya dihitung. Di tampilan lebar, tombol
+menu sengaja dipaksa tampil agar mudah dicoba.
+
+Penjaga tambahan di `RadialMenuTest`: lima offset busur, `nth-of-type(5)`,
+`route('customer.addresses.index')`, `aria-controls`/`id` panel, aturan pil
+ringkas 44 px, dan tidak adanya lagi `display:none` untuk radial di header
+ringkas, plus penanda `syncHeader` yang menahan pil.

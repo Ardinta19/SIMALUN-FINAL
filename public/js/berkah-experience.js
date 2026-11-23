@@ -103,6 +103,13 @@
             // Menu terbuka / fokus keyboard di header: jangan biarkan header
             // kembali absolut lalu hilang dari layar.
             pinned = true;
+            // Busur radial bertumpu pada tombolnya sendiri. Melebarkan pil
+            // ringkas saat busur terbuka akan menggeser titik tumpu di tengah
+            // animasi, jadi pil ringkas ditahan apa adanya — posisinya sudah
+            // `position: fixed`, tidak bisa hilang dari layar.
+            if (radialMenu && radialMenu.open && header.classList.contains('is-compact')) {
+                return;
+            }
             header.classList.remove('is-compact');
             header.classList.add('is-pinned');
             return;
