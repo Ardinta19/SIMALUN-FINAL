@@ -17,6 +17,7 @@
     if (!menu || window.bkRadial) return;
 
     const summary = menu.querySelector('summary');
+    const panel = menu.querySelector('.customer-radial__panel');
     const items = Array.prototype.slice.call(menu.querySelectorAll('.customer-radial__links a'));
     if (!summary || !items.length) return;
     const badges = Array.prototype.slice.call(menu.querySelectorAll('.customer-radial__badge'));
@@ -48,6 +49,19 @@
 
     const syncAria = () => {
         summary.setAttribute('aria-expanded', menu.open ? 'true' : 'false');
+    };
+
+    /* Kalau fokus keyboard sedang berada di salah satu tujuan saat menu
+       ditutup (gulir, klik di luar, layar melebar), fokus tidak boleh jatuh
+       ke <body>: kembalikan ke tombol pembuka. */
+    const restoreFocus = () => {
+        if (panel && panel.contains(document.activeElement)) {
+            try {
+                summary.focus({ preventScroll: true });
+            } catch (error) {
+                summary.focus();
+            }
+        }
     };
 
     const open = () => {
@@ -96,6 +110,7 @@
             if (timeline) timeline.kill();
             closing = false;
             setProgress(0);
+            restoreFocus();
             menu.open = false;
             syncAria();
             return true;
@@ -107,6 +122,7 @@
         timeline = gsap.timeline({
             onComplete: () => {
                 closing = false;
+                restoreFocus();
                 menu.open = false;
                 syncAria();
             }

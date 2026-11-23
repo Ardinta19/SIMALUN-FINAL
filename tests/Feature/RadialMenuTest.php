@@ -73,6 +73,10 @@ class RadialMenuTest extends TestCase
         $this->assertStringContainsString('prefers-reduced-motion: reduce', $js);
         $this->assertStringContainsString('window.bkRadial', $js);
 
+        // Fokus keyboard tidak boleh jatuh ke <body> saat menu ditutup.
+        $this->assertStringContainsString('restoreFocus', $js);
+        $this->assertStringContainsString("summary.focus({ preventScroll: true })", $js);
+
         // Tanpa CDN, dan berkas lama tetap menghormati pengendali baru.
         $this->assertStringNotContainsString('http://', $js);
         $this->assertStringNotContainsString('https://', $js);

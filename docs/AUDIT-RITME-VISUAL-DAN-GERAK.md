@@ -1025,7 +1025,9 @@ ditahan apa adanya; pil ringkas sudah `position: fixed`, tidak bisa hilang.
 **C. Hubungan tombol–panel.** `<summary>` diberi `aria-controls="bk-radial-panel"`
 dan panelnya `id="bk-radial-panel"` + `role="group"`, melengkapi `aria-expanded`
 yang disinkronkan skrip. Pita bawah tidak berubah, jadi tes navigasi lama tetap
-hijau.
+hijau. Satu detail fokus: bila menu ditutup (gulir, klik di luar, layar
+melebar) sementara fokus keyboard berada di salah satu tujuan, fokus
+dikembalikan ke tombol pembuka — bukan jatuh ke `<body>` di ujung dokumen.
 
 **D. Bukti 320 px di pratinjau.** `docs/preview/radial.html` sekarang memuat
 bingkai ponsel 320×620 yang memuat halaman itu sendiri dengan `?embed=1`.
