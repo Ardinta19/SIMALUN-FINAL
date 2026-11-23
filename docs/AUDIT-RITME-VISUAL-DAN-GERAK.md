@@ -913,3 +913,82 @@ dependensi atau plugin berlisensi hanya demi morph dekoratif.
 
 Penjaga: `UiKitTest::test_admin_dark_theme_links_stay_readable` dan
 `test_checkboxes_share_one_brand_style`.
+
+### 9.22 Menu radial pelanggan, dibangun ulang mengikuti ChromeRadialMenu
+
+Referensi yang dikirim adalah komponen Framer (`ChromeRadialMenu-siTRTd`):
+tombol pusat bulat, tujuan menyebar dalam busur, masing-masing lingkaran
+dengan ikon dan lencana angka. Bundel itu ESM runtime Framer, jadi yang bisa
+diambil hanya perilaku dan proporsinya — bukan berkasnya.
+
+**A. Penempatan.** Menu duduk di ujung kanan header pelanggan dan hanya tampil
+sampai 700 px (di layar lebar tujuan yang sama sudah menjadi tautan header:
+keranjang, notifikasi, profil). Pusatnya adalah tombol 48 px yang sebelumnya
+berupa tombol "Menu" di ponsel. Jadi tidak ada tombol baru di layar.
+
+**B. Geometri.** Busur dibuka ke kiri-bawah, bukan ke kanan seperti contoh,
+karena pusat tombol hanya ±52 px dari tepi kanan layar. Radius 100 px, empat
+tujuan pada 168°, 136°, 104°, dan 74°:
+
+| Tujuan | --rx | --ry | Jarak antar-tujuan |
+|---|---|---|---|
+| Keranjang | −98 px | 21 px | 55 px |
+| Pesanan | −72 px | 70 px | 52 px |
+| Notifikasi | −24 px | 97 px | 52 px |
+| Bantuan | +28 px | 96 px | — |
+
+Lingkaran 46 px (di atas ambang sasaran sentuh 44 px). Pada layar 320 px,
+titik paling kanan berada 51 px dari pusat — masih di dalam layar. Busur tidak
+pernah menutupi tombol tema/filter secara permanen karena menu tertutup saat
+klik di luar, Escape, atau gulir.
+
+**C. Gerak.** Satu angka, `--p` (0→1), menggerakkan seluruh busur: tiap tujuan
+punya `translate(calc(var(--rx) * var(--p)), …)` dan `scale(calc(.42 + .58 * var(--p)))`.
+GSAP hanya menganimasikan angka itu (`expo.out`, 520 ms, stagger 55 ms), lalu
+lencana menyusul dengan `back.out(2.4)`. Menutup: `power2.in`, 240 ms, stagger
+dari tujuan terakhir. Karena GSAP tidak menulis `transform`, hover dan
+`:active` tetap bekerja — pelajaran dari `.bk-hero-link`.
+
+**D. Gulir.** Saat busur terbuka, `Lenis.stop()` (kalau Lenis ada) supaya
+halaman di belakang tidak bergerak; ditutup → `Lenis.start()`. Di halaman
+tanpa Lenis, menu menutup sendiri saat halaman digulir.
+
+**E. Jaring pengaman.** Tanpa JavaScript, `<details>` tetap membuka panel dan
+CSS menaruh tiap tujuan pada tempatnya (transisi biasa). `prefers-reduced-motion`
+mematikan transisi dan GSAP; keadaan akhir langsung tercapai. `aria-expanded`
+pada `<summary>` mengikuti keadaan `open`.
+
+**F. Integrasi.** `berkah-radial.js` memegang seluruh perilaku dan memaparkan
+`window.bkRadial`. `berkah-experience.js` dulu menutup menu dengan menghapus
+`[open]` seketika — itu akan memotong animasi keluar, jadi fungsi itu sekarang
+meminta `window.bkRadial.close()` lebih dulu dan hanya jatuh ke cara lama bila
+berkas baru tidak termuat.
+
+**G. Soal "gsap, motion, lenis, dan react".** GSAP dan Lenis sudah lokal
+(`public/vendor`). `motion` (dulu Framer Motion) dan React **tidak** ada di
+proyek ini: SIMALUN-FINAL adalah aplikasi Blade + PHP tanpa bundler, sehingga
+React berarti menambah Vite, Node, dan lapisan hidrasi hanya untuk satu menu —
+bukan pertukaran yang sehat untuk halaman yang harus tetap jalan tanpa JS.
+Pegas yang diminta `motion` di sini dicapai dengan `back.out` GSAP + kurva
+`cubic-bezier(.34,1.4,.64,1)`. Bila suatu saat pindah ke React, padanan
+komponennya:
+
+```jsx
+import { motion, AnimatePresence } from 'motion/react';
+
+const RING = [[-98, 21], [-72, 70], [-24, 97], [28, 96]];
+
+<AnimatePresence>
+  {open && RING.map(([x, y], i) => (
+    <motion.a key={i} href={hrefs[i]} className="ring-item"
+      initial={{ x: 0, y: 0, scale: 0.42, opacity: 0 }}
+      animate={{ x, y, scale: 1, opacity: 1 }}
+      exit={{ x: 0, y: 0, scale: 0.42, opacity: 0 }}
+      transition={{ type: 'spring', stiffness: 420, damping: 30, delay: i * 0.055 }} />
+  ))}
+</AnimatePresence>
+```
+
+Berkas penjaga: `tests/Feature/RadialMenuTest.php`, ditambah 23 pemeriksaan
+jsdom (`/tmp/jsdomtest/radial.test.js`) untuk buka/tutup, klik luar, Escape,
+reduced-motion, dan jalur tanpa GSAP.

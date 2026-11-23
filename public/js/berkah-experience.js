@@ -121,7 +121,17 @@
     header.addEventListener('focusout', () => { window.setTimeout(syncHeader, 0); });
     // Disclosure native tidak menutup saat klik di luar/Escape; tambahkan agar
     // menu selalu bisa ditutup dan header kembali ringkas.
-    const closeRadialMenu = () => { if (radialMenu && radialMenu.open) radialMenu.open = false; syncHeader(); };
+    const closeRadialMenu = () => {
+        // Animasi keluar dipegang berkah-radial.js: menutup lewat sini akan
+        // menghapus [open] seketika dan memotong gerak menyusut. Minta dulu,
+        // baru jatuh ke penutupan langsung bila berkas itu tidak termuat.
+        if (window.bkRadial && typeof window.bkRadial.close === 'function' && window.bkRadial.close()) {
+            syncHeader();
+            return;
+        }
+        if (radialMenu && radialMenu.open) radialMenu.open = false;
+        syncHeader();
+    };
     document.addEventListener('pointerdown', event => {
         if (!radialMenu || !radialMenu.open) return;
         if (header.contains(event.target) || (event.target.closest && event.target.closest('dialog'))) return;
