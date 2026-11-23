@@ -488,6 +488,7 @@ class UiKitTest extends TestCase
             '.pg-item--page',
             '.pg-item--current',
             '.pg-dots',
+            '.auth-button',
         ];
 
         $missing = array_values(array_filter($selectors, fn (string $selector) => ! $this->themeMentions($theme, $selector)));

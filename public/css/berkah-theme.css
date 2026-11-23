@@ -395,6 +395,15 @@ html[data-theme="dark"] :is(.btn:not(.secondary):not(.bk-atc):not(.bk-auth):hove
     background: var(--theme-brand-strong);
 }
 
+html[data-theme="dark"] :is(.auth-button) {
+    background: var(--theme-brand-strong);
+    color: #fff;
+}
+
+html[data-theme="dark"] :is(.auth-button:hover) {
+    background: var(--theme-brand);
+}
+
 html[data-theme="dark"] table {
     color: var(--theme-ink);
 }
