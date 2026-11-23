@@ -8,10 +8,19 @@ use Illuminate\View\View;
 class GuestLayout extends Component
 {
     /**
+     * Halaman auth mandiri memakai layout ini lewat `<x-guest-layout :title="…">`.
+     * Judul ikut dikirim ke layout supaya tiap halaman punya <title> sendiri
+     * alih-alih nama aplikasi yang sama untuk semuanya.
+     */
+    public function __construct(public ?string $title = null)
+    {
+    }
+
+    /**
      * Get the view / contents that represents the component.
      */
     public function render(): View
     {
-        return view('layouts.guest');
+        return view('layouts.guest', ['title' => $this->title]);
     }
 }

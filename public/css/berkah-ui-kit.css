@@ -68,6 +68,14 @@
     --bk-touch: 44px;
     --bk-touch-sm: 38px;
 
+    /* Halaman mandiri tanpa layout bertema (verifikasi email, kata sandi):
+       nilai terang di sini, dipetakan ulang untuk tema gelap dan cetak di
+       berkah-theme.css. */
+    --bk-page-bg: #fbf6ef;
+    --bk-page-ink: #301722;
+    --bk-field-bg: #fffdfb;
+    --bk-link-ink: #85092d;
+
     /* Radius: dua langkah saja — wadah (kartu/modal) dan kendali (tombol,
        chip, kolom isian). Angka lain di halaman sebaiknya memakai salah
        satunya agar sudut tidak terasa acak. */

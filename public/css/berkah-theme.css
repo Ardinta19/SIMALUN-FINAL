@@ -1382,6 +1382,12 @@ html[data-theme="dark"] {
     --bk-skel-card: var(--theme-surface);
     --bk-skel-bg: var(--theme-surface-3);
     --bk-skel-line: var(--theme-line);
+    --bk-page-bg: var(--theme-bg);
+    --bk-page-ink: var(--theme-ink);
+    --bk-field-bg: var(--theme-surface-2);
+    /* Tautan memakai rose terang: --theme-brand-strong (#c12f57) hanya 3.1:1
+       di atas permukaan gelap, sedangkan nilai ini 9:1. */
+    --bk-link-ink: #efa8b9;
     --bk-unit-chip-ink: var(--theme-ink-mid);
 }
 
@@ -1455,6 +1461,11 @@ html[data-theme="dark"] #bk-theme-switch .bk-theme-svg__knob-ring {
         --theme-success-soft: #e9f8f1;
         --theme-warning-ink: #7a4d0a;
         --theme-warning-soft: #fdf4e3;
+
+        --bk-page-bg: #ffffff;
+        --bk-page-ink: #1d1116;
+        --bk-field-bg: #ffffff;
+        --bk-link-ink: #85092d;
 
         --surface-50: #ffffff;
         --surface-100: #fbf7f8;

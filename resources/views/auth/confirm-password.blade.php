@@ -1,24 +1,25 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
+<x-guest-layout :title="__('Konfirmasi Kata Sandi')">
+    <h1>{{ __('Konfirmasi kata sandi') }}</h1>
+
+    <p>
         {{ __('Ini adalah area aman aplikasi. Silakan konfirmasi password Anda sebelum melanjutkan.') }}
-    </div>
+    </p>
 
     <form method="POST" action="{{ route('password.confirm') }}">
         @csrf
 
-        <!-- Password -->
         <div>
             <x-input-label for="password" :value="__('Kata Sandi')" />
 
-            <x-text-input id="password" class="block mt-1 w-full"
+            <x-text-input id="password"
                             type="password"
                             name="password"
                             required autocomplete="current-password" />
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+            <x-input-error :messages="$errors->get('password')" />
         </div>
 
-        <div class="flex justify-end mt-4">
+        <div>
             <x-primary-button>
                 {{ __('Konfirmasi') }}
             </x-primary-button>
