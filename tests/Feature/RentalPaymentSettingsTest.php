@@ -49,7 +49,9 @@ class RentalPaymentSettingsTest extends TestCase
         $this->actingAs($admin)->post($url, ['_method' => 'PUT', 'qris' => UploadedFile::fake()->image('qr.png'), 'whatsapp_number' => '6281234567890'])->assertSessionHasNoErrors();
         $path = RentalPaymentSetting::findOrFail(1)->qris_path;
         Storage::disk('local')->assertExists($path);
-        // Tamu tidak boleh melihat gambar QRIS pembayaran.
+        // Tamu tidak boleh melihat gambar QRIS pembayaran. actingAs($admin) di
+        // atas masih menempel pada test ini, jadi guard auth dikosongkan dulu.
+        $this->app['auth']->forgetGuards();
         $this->get(route('rental.payment.qris'))->assertRedirect(route('login'));
         $response = $this->actingAs($customer)->get(route('rental.payment.qris'))->assertOk();
         $this->assertStringContainsString('no-store', $response->headers->get('Cache-Control'));

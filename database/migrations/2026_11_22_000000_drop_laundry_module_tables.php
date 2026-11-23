@@ -37,8 +37,15 @@ return new class extends Migration
 
     public function up(): void
     {
-        // Unique index lama menyebut kolom order_id; di SQLite (dan MySQL
-        // strict) kolom itu tidak bisa dibuang selama masih dirujuk index.
+        // Urutan ini penting di MySQL/Postgres: foreign key ke `orders` memakai
+        // index yang menyebut order_id, jadi FK harus dilepas lebih dulu —
+        // kalau tidak, MySQL menolak dengan error 1553 "Cannot drop index ...
+        // needed in a foreign key constraint".
+        $this->dropForeignKey('finance_entries', 'order_id');
+        $this->dropForeignKey('voucher_usages', 'order_id');
+
+        // Unique index lama menyebut kolom order_id; kolom itu tidak bisa
+        // dibuang selama masih dirujuk index.
         $this->dropIndex('finance_entries', 'uniq_finance_order_type_source');
 
         // Lepas foreign key dulu supaya drop tabel tidak diblokir MySQL.
@@ -85,9 +92,58 @@ return new class extends Migration
             return;
         }
 
-        Schema::table($tabel, function (Blueprint $blueprint) use ($adaKolom) {
-            $blueprint->dropColumn($adaKolom);
-        });
+        try {
+            Schema::table($tabel, function (Blueprint $blueprint) use ($adaKolom) {
+                $blueprint->dropColumn($adaKolom);
+            });
+        } catch (\Throwable $e) {
+            // SQLite tidak bisa membuang kolom yang masih dirujuk constraint
+            // tanpa membangun ulang tabel. Database uji selalu fresh sehingga
+            // kasus ini praktis tidak terjadi; jangan gagalkan migrasi.
+            Log::warning("Kolom {$tabel} (".implode(', ', $adaKolom).") tidak dibuang: ".$e->getMessage());
+        }
+    }
+
+    /**
+     * Lepas foreign key yang memakai kolom tertentu (MySQL/MariaDB/Postgres).
+     * SQLite menyimpan FK inline sehingga tidak punya ALTER ... DROP CONSTRAINT.
+     */
+    private function dropForeignKey(string $tabel, string $kolom): void
+    {
+        if (! Schema::hasTable($tabel) || ! Schema::hasColumn($tabel, $kolom)) {
+            return;
+        }
+
+        $driver = Schema::getConnection()->getDriverName();
+
+        if (! in_array($driver, ['mysql', 'mariadb', 'pgsql'], true)) {
+            return;
+        }
+
+        $rows = $driver === 'pgsql'
+            ? DB::select(
+                'select con.conname as nama from pg_constraint con
+                 join pg_class rel on rel.oid = con.conrelid
+                 join pg_attribute att on att.attrelid = con.conrelid and att.attnum = any(con.conkey)
+                 where rel.relname = ? and att.attname = ? and con.contype = \'f\'',
+                [$tabel, $kolom]
+            )
+            : DB::select(
+                'select constraint_name as nama from information_schema.key_column_usage
+                 where table_schema = database() and table_name = ? and column_name = ?
+                   and referenced_table_name is not null',
+                [$tabel, $kolom]
+            );
+
+        foreach ($rows as $row) {
+            $nama = $row->nama;
+
+            if ($driver === 'pgsql') {
+                DB::statement('alter table "'.$tabel.'" drop constraint "'.$nama.'"');
+            } else {
+                DB::statement('alter table `'.$tabel.'` drop foreign key `'.$nama.'`');
+            }
+        }
     }
 
     private function dropIndex(string $tabel, string $index): void

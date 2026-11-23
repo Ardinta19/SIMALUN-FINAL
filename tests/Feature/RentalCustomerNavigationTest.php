@@ -59,7 +59,9 @@ class RentalCustomerNavigationTest extends TestCase
         $response->assertOk()->assertSee('id="customer-nav"', false)
             ->assertSee('customer-nav__label">Keranjang', false)
             ->assertSee('href="'.route('cart.index').'" class="customer-nav__item', false)
-            ->assertSee('bk-top-menu', false)->assertSee('data-customer-radial', false);
+            // Menu pelanggan sekarang berupa disclosure di kepala halaman
+            // (bk-header-radial), bukan pita lama bk-top-menu.
+            ->assertSee('bk-header-radial', false)->assertSee('data-customer-radial', false);
         $html = $response->getContent();
         $this->assertLessThan(strpos($html, 'id="customer-nav"'), strpos($html, 'data-customer-radial'), 'Menu pelanggan harus berada di atas, bukan menggantikan keranjang di tab bawah.');
         // Hitung elemen <details> saja: skrip menu juga menyebut nama atribut ini.
