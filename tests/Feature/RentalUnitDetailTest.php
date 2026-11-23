@@ -81,7 +81,7 @@ class RentalUnitDetailTest extends TestCase
         $this->get(route('rental.orders.unit', [$order, $otherUnit]))->assertNotFound();
         $this->get(route('rental.orders.unit', [$otherOrder, $otherUnit]))->assertForbidden();
         $this->get(route('admin.rental.orders.show', $order))->assertRedirect(route('customer.dashboard'));
-        $this->actingAs($admin)->get(route('admin.rental.orders.show', $order))->assertOk()->assertSee('Konfirmasi dan cadangkan');
+        $this->actingAs($admin)->get(route('admin.rental.orders.show', $order))->assertOk()->assertSee('Konfirmasi unit');
     }
 
 }

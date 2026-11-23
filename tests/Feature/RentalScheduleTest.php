@@ -23,10 +23,14 @@ class RentalScheduleTest extends TestCase
         $order = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $customer->id, 'confirmation_deadline' => now()->addDay()]);
         $base = ['rental_product_id' => $product->id, 'product_name' => 'Papan Mawar', 'unit_price' => 100, 'price_unit' => 'day', 'rental_amount' => 100, 'starts_on' => '2026-11-30', 'event_on' => '2026-12-01', 'ends_on' => '2026-12-02', 'recipient_name' => 'Penerima', 'greeting' => 'Selamat', 'delivery_method' => 'pickup', 'return_method' => 'dropoff'];
         $order->units()->create($base + ['status' => 'confirmed']);
+        $order->units()->create(array_merge($base, ['product_name' => 'Papan Menunggu', 'status' => 'pending']));
         $order->units()->create(array_merge($base, ['product_name' => 'Papan Dibatalkan', 'status' => 'cancelled']));
         $url = route('admin.rental.schedule', ['month' => '2026-12']);
         $this->actingAs($customer)->get($url)->assertRedirect(route('customer.dashboard'));
-        $this->actingAs($admin)->get($url)->assertOk()->assertSee('Papan Mawar')->assertSee('Dikonfirmasi · stok dicadangkan')->assertSee('Pengembalian hari ini')->assertDontSee('Papan Dibatalkan');
+        $this->actingAs($admin)->get($url)->assertOk()->assertSee('Papan Mawar')->assertSee('Dikonfirmasi · stok dicadangkan')->assertSee('Pengembalian hari ini')
+            // Unit pending sudah menahan tanggal, bukan lagi "belum dicadangkan".
+            ->assertSee('Papan Menunggu')->assertSee('Menunggu · tanggal ditahan')->assertDontSee('belum dicadangkan')
+            ->assertDontSee('Papan Dibatalkan');
     }
     public function test_activity_and_status_filters_show_the_correct_day_and_handoff_details(): void
     {

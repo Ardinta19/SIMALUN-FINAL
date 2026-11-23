@@ -13,7 +13,7 @@
 <h2>{{ $month->locale('id')->translatedFormat('F Y') }}</h2>
 <div class="items">@foreach($days as $day)<section class="card body"><h3>{{ $day['date']->locale('id')->translatedFormat('l, d F Y') }}</h3><p><a class="btn secondary" href="{{ route('admin.rental.schedule.daily-sheet', ['date' => $day['date']->toDateString()]) }}">Lembar serah terima hari ini</a></p>@forelse($day['units'] as $unit)
 @php $today = $day['date']->toDateString(); @endphp
-<div style="padding:10px 0;border-bottom:1px solid #f0dfe1"><p><strong>{{ $unit->product_name }}</strong> · {{ $unit->status === 'confirmed' ? 'Dikonfirmasi · stok dicadangkan' : 'Menunggu · belum dicadangkan' }}</p><p class="muted">{{ $unit->order->customer?->name ?? 'Pelanggan tidak tersedia' }} · {{ $unit->recipient_name }} · Acara {{ $unit->event_on->format('d/m/Y') }}</p>
+<div style="padding:10px 0;border-bottom:1px solid #f0dfe1"><p><strong>{{ $unit->product_name }}</strong> · {{ $unit->status === 'confirmed' ? 'Dikonfirmasi · stok dicadangkan' : 'Menunggu · tanggal ditahan' }}</p><p class="muted">{{ $unit->order->customer?->name ?? 'Pelanggan tidak tersedia' }} · {{ $unit->recipient_name }} · Acara {{ $unit->event_on->format('d/m/Y') }}</p>
 @if($unit->starts_on->toDateString() === $today)<p>Penerimaan hari ini: {{ $unit->delivery_method === 'delivery' ? 'Diantar penjual · '.$unit->delivery_address : 'Diambil di outlet' }}</p>@endif
 @if($unit->event_on->toDateString() === $today)<p>Acara hari ini</p>@endif
 @if($unit->ends_on->toDateString() === $today)<p>Pengembalian hari ini: {{ $unit->return_method === 'collection' ? 'Diambil kembali penjual · '.$unit->return_address : 'Dikembalikan ke outlet' }}</p>@endif

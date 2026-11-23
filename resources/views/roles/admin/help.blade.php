@@ -7,7 +7,7 @@
 <div class="help-card help-notice"><strong>Masih dalam pengujian.</strong> Jangan gunakan sistem untuk transaksi nyata.</div>
 <section class="help-card"><h2>Urutan pekerjaan</h2><ol>
 <li>Kelola papan, kategori, stok dan paket di <a href="{{ route('admin.catalog.index') }}">kelola katalog</a>. Atur tarif universitas jika tersedia.</li>
-<li>Periksa <a href="{{ route('admin.rental.orders', ['status' => 'pending']) }}">unit menunggu konfirmasi</a>. Konfirmasi mencadangkan stok; pastikan kesiapan sebelum menyetujui jadwal dekat.</li>
+<li>Periksa <a href="{{ route('admin.rental.orders', ['status' => 'pending']) }}">unit menunggu konfirmasi</a>. Tanggal sudah ditahan sejak pesanan dikirim, jadi konfirmasi hanya mengunci unit untuk dikerjakan. Pastikan kesiapan sebelum menyetujui jadwal dekat.</li>
 <li>Jika ada pengantaran atau penjemputan, periksa ongkos dan tunggu persetujuan pelanggan. Upload preview untuk setiap unit dan tunggu persetujuan sebelum memulai pengerjaan.</li>
 <li>Periksa bukti pembayaran per unit. Verifikasi hanya setelah memastikan dana diterima; pelunasan terverifikasi diperlukan sebelum serah terima.</li>
 <li>Perbarui perkembangan tiap unit dan gunakan <a href="{{ route('admin.rental.schedule') }}">jadwal</a> sebagai rencana serah terima, bukan bukti bahwa serah terima sudah terjadi.</li>
