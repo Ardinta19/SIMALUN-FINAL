@@ -1465,7 +1465,7 @@ html[data-theme="dark"] #bk-theme-switch .bk-theme-svg__knob-ring {
         --brand-900: #54051f;
         --accent-tint: #fdf0e8;
         --accent-lt: #fdf0e8;
-        --blue-lt: #eaf4fd;
+        --blue-lt: #f8e9ed;
         --teal-lt: #e7f7f4;
         --orange-lt: #fdf0e9;
         --green-lt: #e9f8f1;
@@ -1549,5 +1549,22 @@ html[data-theme="dark"] #bk-theme-switch .bk-theme-svg__knob-ring {
 
     html[data-theme="dark"] :is(.bk-splash, .bk-theme-dialog, .bk-theme-btn) {
         display: none;
+    }
+}
+
+/* ── Jaring pengaman gerak ────────────────────────────────────────────────
+   Setiap komponen mati sendiri-sendiri saat `prefers-reduced-motion: reduce`,
+   tetapi halaman yang membawa CSS-nya sendiri (auth, alamat, profil) belum
+   tentu menuliskan bloknya. Berkas ini dimuat di semua halaman bertema, jadi
+   satu aturan di sini menjamin tidak ada transisi/animasi yang lolos.
+   `animation-iteration-count: 1` mencegah animasi berulang berkedip. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
     }
 }

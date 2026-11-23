@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>@if(isset($token)) Buat kata sandi baru @else Pemulihan kata sandi @endif · Berkah Kreatif</title>
-<meta name="theme-color" content="#75102e"><link rel="icon" href="{{ asset('images/berkah-kreatif-logo.jpeg') }}">
+<link rel="icon" href="{{ asset('images/berkah-kreatif-logo.jpeg') }}">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}"><script src="{{ asset('js/page-transitions.js') }}" defer></script><link rel="stylesheet" href="{{ asset('css/berkah-auth.css') }}">
 @include('layouts.component._theme_head')

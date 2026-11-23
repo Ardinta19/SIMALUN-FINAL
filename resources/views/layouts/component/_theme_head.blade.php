@@ -17,6 +17,9 @@
         return asset($path) . (file_exists($full) ? '?v=' . filemtime($full) : '');
     };
 @endphp
+{{-- Warna bilah peramban: satu nilai merek untuk seluruh aplikasi. Skrip di
+     bawah menukarnya ke #140f12 saat tema gelap dan memulihkannya kembali. --}}
+<meta name="theme-color" content="#54051f">
 @once
 <script>
 (function () {

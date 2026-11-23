@@ -118,15 +118,51 @@ class MotionAssetsTest extends TestCase
             $this->assertStringContainsString($token, $admin, "Token skala admin hilang: {$token}");
         }
 
-        // Batas bawah keterbacaan: tidak ada ukuran huruf di bawah 12px.
-        preg_match_all('/font-size:\s*\.(\d+)rem/', $admin, $matches);
-        foreach ($matches[1] as $fraction) {
-            $rem = (float) ('0.'.$fraction);
-            $this->assertGreaterThanOrEqual(
-                0.75,
-                $rem,
-                "Ada teks di bawah 12px pada berkah-admin.css (font-size: .{$fraction}rem)."
-            );
+        // Batas bawah keterbacaan. Tangga token harus benar-benar dipakai —
+        // dulu pemeriksaan ini hanya mencari literal `font-size: .NNNrem`,
+        // sehingga lolos begitu semua ukuran pindah ke var(--adm-fs-*).
+        $this->assertGreaterThan(40, substr_count($admin, 'var(--adm-fs-'));
+
+        $undersized = [];
+        preg_match_all('/font-size\s*:\s*([^;}]+)/', $admin, $declarations);
+        foreach ($declarations[1] as $value) {
+            preg_match_all('/(\d*\.?\d+)(px|rem|em)/', $value, $units, PREG_SET_ORDER);
+            foreach ($units as $unit) {
+                $px = in_array($unit[2], ['rem', 'em'], true) ? (float) $unit[1] * 16 : (float) $unit[1];
+                if ($px < 12) {
+                    $undersized[] = trim($value);
+                }
+            }
         }
+
+        $this->assertSame([], array_values(array_unique($undersized)), 'Ada teks di bawah 12px pada berkah-admin.css.');
+    }
+
+    public function test_shared_motion_respects_reduced_motion_and_avoids_blanket_transitions(): void
+    {
+        // Halaman yang membawa CSS sendiri (auth, alamat, profil) tidak menulis
+        // blok reduced-motion; stylesheet tema yang dimuat di semua halaman
+        // menyediakan jaring pengamannya.
+        $theme = $this->source('css/berkah-theme.css');
+        $this->assertStringContainsString('@media (prefers-reduced-motion: reduce)', $theme);
+        $this->assertStringContainsString('transition-duration: .01ms !important', $theme);
+        $this->assertStringContainsString('animation-iteration-count: 1 !important', $theme);
+
+        // `transition: all` ikut menganimasikan properti tata letak; setiap
+        // transisi wajib menyebut properti yang berubah.
+        $offenders = [];
+        $files = array_merge(File::allFiles(public_path('css')), File::allFiles(resource_path('views')));
+
+        foreach ($files as $file) {
+            if (! in_array($file->getExtension(), ['css', 'php'], true)) {
+                continue;
+            }
+
+            if (preg_match('/transition:\s*all\b/', File::get($file->getPathname()), $match)) {
+                $offenders[] = str_replace(base_path().'/', '', $file->getPathname()).' → '.$match[0];
+            }
+        }
+
+        $this->assertSame([], $offenders, 'Transisi menyapu semua properti.');
     }
 }

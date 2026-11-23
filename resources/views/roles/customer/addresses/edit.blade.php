@@ -43,7 +43,7 @@ textarea.field-input{resize:none;min-height:80px;line-height:1.5;}
 .field-error{font-size:var(--bk-fs-2xs);font-weight:800;color:var(--red);margin-top:4px;}
 
 .zone-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
-.zone-pill{border:2px solid var(--border);border-radius:var(--radius-sm);padding:10px 6px;text-align:center;cursor:pointer;background:white;position:relative;transition:all .2s;}
+.zone-pill{border:2px solid var(--border);border-radius:var(--radius-sm);padding:10px 6px;text-align:center;cursor:pointer;background:white;position:relative;transition:border-color .2s ease,background-color .2s ease,box-shadow .2s ease;}
 .zone-pill input[type=radio]{position:absolute;opacity:0;}
 .zone-name{font-weight:800;font-size:var(--bk-fs-md);color:var(--ink);display:block;}
 .zone-desc{font-size:var(--bk-fs-2xs);font-weight:800;color:var(--ink-lt);display:block;margin-top:2px;}

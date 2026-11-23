@@ -183,6 +183,32 @@ class UiDefaultsTest extends TestCase
         }
     }
 
+    public function test_browser_chrome_color_is_one_brand_value(): void
+    {
+        // Warna bilah peramban hanya boleh punya satu nilai merek; skrip tema
+        // (berkah-ui-kit.js) yang menukarnya ke gelap dan memulihkannya.
+        $definitions = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            preg_match_all('/<meta name="theme-color" content="([^"]+)"/', File::get($file->getPathname()), $matches);
+
+            foreach ($matches[1] as $value) {
+                $path = str_replace('\\', '/', $file->getRelativePathname());
+                $definitions[$path][] = $value;
+            }
+        }
+
+        $this->assertSame(
+            ['layouts/component/_theme_head.blade.php' => ['#54051f']],
+            $definitions,
+            'theme-color harus didefinisikan sekali dengan warna merek wine.'
+        );
+    }
+
     public function test_the_old_second_bottom_sheet_is_gone(): void
     {
         $this->assertFileDoesNotExist(resource_path('views/layouts/component/_bottom_sheet_select.blade.php'));

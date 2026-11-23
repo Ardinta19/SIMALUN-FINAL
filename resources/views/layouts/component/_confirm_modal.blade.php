@@ -68,7 +68,7 @@
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
     opacity: 0;
-    transition: opacity .25s ease;
+    transition: opacity var(--bk-dur-3, 260ms) var(--bk-ease, ease);
 }
 .confirm-backdrop.visible { opacity: 1; }
 .confirm-card {
@@ -82,14 +82,15 @@
     overscroll-behavior: contain;
     padding: var(--bk-space-6) var(--bk-space-5) var(--bk-space-5);
     border: 1px solid var(--bk-modal-line);
-    border-radius: 20px;
+    border-radius: var(--bk-r-card, 20px);
     background: var(--bk-modal-bg);
     color: var(--bk-modal-ink);
     text-align: center;
     box-shadow: var(--bk-modal-shadow);
-    transform: scale(.85) translateY(20px);
+    transform: scale(.85) translateY(var(--bk-space-5));
     opacity: 0;
-    transition: transform .3s cubic-bezier(.34, 1.56, .64, 1), opacity .25s ease;
+    transition: transform var(--bk-dur-3, 260ms) var(--bk-ease-spring, cubic-bezier(.34, 1.32, .64, 1)),
+                opacity var(--bk-dur-3, 260ms) var(--bk-ease, ease);
 }
 .confirm-card.visible {
     transform: scale(1) translateY(0);
@@ -111,16 +112,16 @@
 .confirm-icon.type-info { background: var(--bk-state-info-soft); border-color: var(--bk-state-info-line); color: var(--bk-state-info-ink); }
 .confirm-icon.type-success { background: var(--bk-state-success-soft); border-color: var(--bk-state-success-line); color: var(--bk-state-success-ink); }
 .confirm-title {
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
     font-weight: 800;
-    font-size: 1.1rem;
+    font-size: var(--bk-fs-lg);
     line-height: var(--bk-lh-tight);
     color: var(--bk-modal-ink);
     margin: 0 0 var(--bk-space-2);
     overflow-wrap: anywhere;
 }
 .confirm-message {
-    font-size: var(--bk-fs-sm);
+    font-size: var(--bk-fs-md);
     font-weight: 600;
     line-height: var(--bk-lh-snug);
     color: var(--bk-modal-ink-mid);
@@ -137,8 +138,8 @@
     min-width: 0;
     padding: var(--bk-space-3) var(--bk-space-4);
     border: 0;
-    border-radius: var(--bk-space-3);
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    border-radius: var(--bk-r-control, 12px);
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
     font-size: var(--bk-fs-sm);
     font-weight: 700;
     line-height: var(--bk-lh-tight);
@@ -146,7 +147,7 @@
     background: transparent;
     cursor: pointer;
     touch-action: manipulation;
-    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    transition: transform var(--bk-dur-1, 120ms) var(--bk-ease, ease), box-shadow var(--bk-dur-1, 120ms) var(--bk-ease, ease), filter var(--bk-dur-1, 120ms) var(--bk-ease, ease);
 }
 .confirm-btn:active { transform: scale(.97); }
 .confirm-btn:focus-visible {

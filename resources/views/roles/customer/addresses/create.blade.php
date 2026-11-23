@@ -112,7 +112,8 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
 .zone-pill {
     border:2px solid var(--border); border-radius:var(--radius-sm);
     padding:10px 6px; text-align:center; cursor:pointer;
-    background:white; position:relative; transition:all .2s;
+    background:white; position:relative;
+    transition:border-color .2s ease, background-color .2s ease, box-shadow .2s ease;
 }
 .zone-pill input[type=radio] { position:absolute; opacity:0; }
 .zone-name { font-weight:800; font-size:var(--bk-fs-md); color:var(--ink); display:block; }

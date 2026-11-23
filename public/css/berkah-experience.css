@@ -50,14 +50,14 @@
    jadi teks cadangan yang terlihat — bukan ruang kosong. */
 .bk-preview-skeleton{display:contents}
 .bk-preview-skeleton[hidden]{display:none}
-.bk-preview-skeleton__card{display:flex;flex-direction:column;border:1px solid var(--bk-skel-line);border-radius:20px;background:var(--bk-skel-card);overflow:hidden}
+.bk-preview-skeleton__card{display:flex;flex-direction:column;border:1px solid var(--bk-skel-line);border-radius:var(--bk-r-card,20px);background:var(--bk-skel-card);overflow:hidden}
 .bk-preview-skeleton__media{aspect-ratio:4/3;background:var(--bk-skel-bg)}
 .bk-preview-skeleton__body{display:flex;flex-direction:column;gap:8px;padding:14px 16px 16px}
 .bk-preview-skeleton__line{height:10px;border-radius:999px;background:var(--bk-skel-bg)}
 .bk-preview-skeleton__line--title{height:14px;width:82%}
 .bk-preview-skeleton__line--short{width:58%}
 .bk-preview-skeleton__line--price{height:12px;width:40%;margin-top:2px}
-.bk-preview-skeleton__btn{height:42px;margin-top:6px;border-radius:12px;background:var(--bk-skel-bg)}
+.bk-preview-skeleton__btn{height:42px;margin-top:6px;border-radius:var(--bk-r-control,12px);background:var(--bk-skel-bg)}
 .bk-preview-skeleton__media,.bk-preview-skeleton__line,.bk-preview-skeleton__btn{animation:bk-skel-pulse 1.6s ease-in-out infinite}
 @keyframes bk-skel-pulse{0%,100%{opacity:.55}50%{opacity:1}}
 .bk-preview-grid.is-loading>.muted{display:none}

@@ -215,7 +215,7 @@
         font-weight:800;
         font-size:var(--bk-fs-sm);
         cursor:pointer;
-        transition:all .2s;
+        transition:background-color .2s ease, color .2s ease;
     }
     .btn-danger:hover { background:var(--red); color:#fff; }
 </style>

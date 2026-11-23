@@ -87,7 +87,7 @@ html, body {
   font-weight:800; font-size:var(--bk-fs-2xs);
   border:2px solid rgba(255,255,255,.42);
   color:rgba(255,255,255,.68);
-  transition:all .3s ease;
+  transition:background-color .3s ease, border-color .3s ease, color .3s ease;
 }
 .step-dot.active {
   background:#a92143; border-color:#a92143; color:#fff;
@@ -187,7 +187,7 @@ html, body {
   color:rgba(255,255,255,.68); padding:.15rem .45rem;
   background:rgba(255,255,255,.08); border-radius:99px;
   border:1px solid rgba(255,255,255,.15);
-  transition:all .2s;
+  transition:background-color .2s ease, border-color .2s ease, color .2s ease;
 }
 .pw-hint.ok { color:#5ce8bd; background:rgba(0,196,140,.12); border-color:rgba(0,196,140,.3); }
 
@@ -210,7 +210,7 @@ html, body {
   flex:1; display:flex; flex-direction:column; align-items:center; gap:.3rem;
   padding:.65rem .4rem; background:rgba(255,255,255,.08);
   border:1.5px solid rgba(255,255,255,.2); border-radius:12px;
-  cursor:pointer; transition:all .2s; text-align:center;
+  cursor:pointer; transition:background-color .2s ease, border-color .2s ease, color .2s ease; text-align:center;
 }
 .gender-label span { font-size:var(--bk-fs-xs); font-weight:800; color:rgba(255,255,255,.78); line-height:1.35; }
 .gender-opt:checked + .gender-label {

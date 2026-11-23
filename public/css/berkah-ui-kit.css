@@ -68,6 +68,12 @@
     --bk-touch: 44px;
     --bk-touch-sm: 38px;
 
+    /* Radius: dua langkah saja — wadah (kartu/modal) dan kendali (tombol,
+       chip, kolom isian). Angka lain di halaman sebaiknya memakai salah
+       satunya agar sudut tidak terasa acak. */
+    --bk-r-card: 20px;
+    --bk-r-control: 12px;
+
     /* ── Dialog konfirmasi (resources/views/layouts/component/_confirm_modal)
        Palet status dulu ditulis langsung di dalam partial (biru #005f92 /
        #0d6fb8 untuk "info"). Sekarang semua lewat token: satu tempat untuk
