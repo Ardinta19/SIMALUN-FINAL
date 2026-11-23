@@ -413,7 +413,7 @@ $oldText = function (string $key, $fallback = '') {
 
     @if($user->role === 'customer')
         <div class="section-card">
-            <div class="section-head" style="background:#fff5f5;">
+            <div class="section-head" style="background:var(--theme-danger-soft,#fff5f5);">
                 <div class="section-num" style="background:var(--red);">!</div>
                 <div class="section-title" style="color:var(--red);">Hapus Akun</div>
             </div>

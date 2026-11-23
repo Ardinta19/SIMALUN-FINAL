@@ -124,6 +124,10 @@ html[data-theme="dark"] .hero {
    2. Dasar halaman
    ================================================================ */
 
+html {
+    color-scheme: light;
+}
+
 html[data-theme="dark"],
 html[data-theme="dark"] body {
     background: var(--theme-bg);

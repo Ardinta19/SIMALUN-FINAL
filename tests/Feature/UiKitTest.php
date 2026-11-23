@@ -96,6 +96,8 @@ class UiKitTest extends TestCase
         $css = File::get(public_path('css/berkah-theme.css'));
 
         $this->assertMatchesRegularExpression('/html\[data-theme="dark"\]\s*\{/', $css);
+        $this->assertMatchesRegularExpression('/html\s*\{\s*color-scheme:\s*light;/', $css);
+        $this->assertMatchesRegularExpression('/html\[data-theme="dark"\]\s*\{\s*color-scheme:\s*dark;/', $css);
 
         foreach (['--ink:', '--card:', '--line:', '--fc-ink:', '--fc-cream:', '--bk-ink:', '--wine:', '--paper:', '--theme-bg:'] as $token) {
             $this->assertStringContainsString($token, $css, 'Token gelap hilang: '.$token);

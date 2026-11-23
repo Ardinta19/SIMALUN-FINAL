@@ -701,8 +701,8 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
         </div>
 
         {{-- Voucher Promo --}}
-        <div class="voucher-box" style="margin-top: 12px; padding: 12px; background: #fff7ed; border-radius: 12px; border: 1px dashed #fb923c;">
-          <label for="voucher-input" style="display: block; font-size: .76rem; font-weight: 700; color: #9a3412; margin-bottom: 6px;">
+        <div class="voucher-box" style="margin-top: 12px; padding: 12px; background: var(--theme-warning-soft, #fff7ed); border-radius: 12px; border: 1px dashed var(--theme-warning-ink, #fb923c);">
+          <label for="voucher-input" style="display: block; font-size: .76rem; font-weight: 700; color: var(--theme-warning-ink, #9a3412); margin-bottom: 6px;">
             🎟️ Punya kode voucher?
           </label>
           <div style="display: flex; gap: 8px;">
