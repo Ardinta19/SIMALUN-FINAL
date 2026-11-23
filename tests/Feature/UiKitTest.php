@@ -557,13 +557,20 @@ class UiKitTest extends TestCase
     public function test_themed_pages_never_hardcode_dark_inline_text_colors(): void
     {
         $offenders = [];
+        $themed = 0;
 
         foreach (File::allFiles(resource_path('views')) as $file) {
             $html = File::get($file->getPathname());
 
-            if (! str_contains($html, '_theme_head')) {
+            // Halaman bertema: memuat sendiri kepala tema, atau mewarisi
+            // layout yang memuatnya.
+            $inherits = preg_match('/@extends\(\s*[\'"](?:catalog\.layout|layouts\.guest|errors\.layout|rental\.help-layout)/', $html) === 1;
+
+            if (! str_contains($html, '_theme_head') && ! $inherits) {
                 continue;
             }
+
+            $themed++;
 
             preg_match_all('/style="([^"]*)"/s', $html, $matches);
 
@@ -586,7 +593,35 @@ class UiKitTest extends TestCase
             }
         }
 
+        $this->assertGreaterThan(50, $themed, 'Deteksi halaman bertema gagal.');
         $this->assertSame([], $offenders, 'Gunakan var(--theme-*, cadangan-terang) untuk warna teks inline di halaman bertema.');
+    }
+
+    public function test_dark_theme_text_tokens_clear_every_dark_surface(): void
+    {
+        $css = File::get(public_path('css/berkah-theme.css'));
+
+        $this->assertSame(1, preg_match('/html\[data-theme="dark"\] \{(.*?)\n\}/s', $css, $block), 'Blok token gelap tidak ditemukan.');
+
+        $token = function (string $name) use ($block): string {
+            $this->assertSame(1, preg_match('/'.$name.':\s*(#[0-9a-fA-F]{6})/', $block[1], $m), $name.' hilang dari tema gelap.');
+
+            return $m[1];
+        };
+
+        $surfaces = [$token('--theme-bg'), $token('--theme-surface'), $token('--theme-surface-2'), $token('--theme-surface-3')];
+
+        foreach (['--theme-ink', '--theme-ink-mid', '--theme-ink-lt', '--theme-accent-text', '--theme-danger-ink', '--theme-success-ink', '--theme-warning-ink'] as $ink) {
+            $hex = $token($ink);
+
+            foreach ($surfaces as $surface) {
+                $this->assertGreaterThanOrEqual(
+                    4.5,
+                    $this->contrastRatio($hex, $surface),
+                    $ink.' ('.$hex.') tidak terbaca di permukaan '.$surface.'.'
+                );
+            }
+        }
     }
 
     public function test_auth_pages_keep_text_readable_over_the_gradient(): void
