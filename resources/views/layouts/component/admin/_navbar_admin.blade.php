@@ -24,6 +24,7 @@
         ['key' => 'kas', 'label' => 'Buku kas', 'route' => 'admin.rental.cashbook.index', 'match' => ['admin.rental.cashbook.*'], 'icon' => 'finance', 'badge' => null],
         ['key' => 'notifikasi', 'label' => 'Notifikasi', 'route' => 'admin.notifications', 'match' => ['admin.notifications', 'admin.notifications.*'], 'icon' => 'bell', 'badge' => $unreadCount ?: null],
         ['key' => 'profil', 'label' => 'Profil', 'route' => 'admin.profile', 'match' => ['admin.profile'], 'icon' => 'user', 'badge' => null],
+        ['key' => 'panduan', 'label' => 'Panduan', 'route' => 'admin.help', 'match' => ['admin.help'], 'icon' => 'help', 'badge' => null, 'compact' => true],
     ];
 @endphp
 
@@ -32,7 +33,7 @@
         @foreach($navItems as $item)
             @php $isActive = request()->routeIs(...$item['match']); @endphp
             <a href="{{ route($item['route']) }}"
-               class="admin-nav__item {{ $isActive ? 'is-active' : '' }}"
+               class="admin-nav__item {{ !empty($item['compact']) ? 'admin-nav__item--compact' : '' }} {{ $isActive ? 'is-active' : '' }}"
                @if($isActive) aria-current="page" @endif
                aria-label="{{ $item['label'] }}">
                 <span class="admin-nav__icon">
@@ -129,6 +130,12 @@ html[data-theme="dark"] .admin-nav__badge { border-color: #1d171b; }
     width: 5px; height: 5px;
     background: currentColor;
     border-radius: 50%;
+}
+/* Layar sangat sempit: butir tambahan (Panduan) menyisakan ikon saja
+   supaya enam tujuan utama tetap lega dan labelnya tidak terpotong. */
+@media (max-width: 400px) {
+    .admin-nav__item--compact .admin-nav__label { display: none; }
+    .admin-nav__item--compact { flex: 0 0 44px; }
 }
 @media (prefers-reduced-motion: reduce) {
     .admin-nav__item { transition: none; }
