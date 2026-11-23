@@ -1034,7 +1034,11 @@ class UiKitTest extends TestCase
         // halaman dimuat, dan ketersediaan disegarkan saat kalender dibuka.
         $this->assertStringContainsString('reportDateProblem', $js);
         $this->assertStringContainsString('maybeRefresh', $js);
+        $this->assertStringContainsString('applyStock', $js);
         $this->assertStringContainsString('data-fc-refresh-url', $js);
+
+        // Rentang yang melewati tanggal milik unit lain juga menyebut sebabnya.
+        $this->assertStringContainsString('kurangi jumlah unit', $js);
 
         $checkout = File::get(resource_path('views/rental/checkout.blade.php'));
         $this->assertStringContainsString('data-fc-range="unit-', $checkout);

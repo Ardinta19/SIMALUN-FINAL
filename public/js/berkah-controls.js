@@ -1065,14 +1065,18 @@
             }
             return;
         }
-        var hit = null;
+        var blockedHit = null;
+        var peerHit = null;
         group.forEach(function (node) {
-            if (hit) return;
-            hit = firstBlockedBetween(node.__fcBlocked, from, to);
+            if (!blockedHit) blockedHit = firstBlockedBetween(node.__fcBlocked, from, to);
+            if (!peerHit) peerHit = firstBlockedBetween(node.__fcExtraBlocked, from, to);
         });
-        if (hit) {
+        if (blockedHit) {
             target.__fcRangeError = true;
-            target.__fcSetError('Rentang tanggal memuat ' + friendly(hit) + ' yang sudah penuh. Pilih tanggal lain atau pecah jadi dua pesanan.');
+            target.__fcSetError('Rentang tanggal memuat ' + friendly(blockedHit) + ' yang sudah penuh. Pilih tanggal lain atau pecah jadi dua pesanan.');
+        } else if (peerHit) {
+            target.__fcRangeError = true;
+            target.__fcSetError('Rentang tanggal memuat ' + friendly(peerHit) + ' yang sudah dipakai unit lain di keranjang ini. Pilih tanggal lain atau kurangi jumlah unit.');
         } else if (target.__fcRangeError) {
             target.__fcRangeError = false;
             target.__fcSetError('');
@@ -1154,6 +1158,8 @@
     function refreshPeerBlocked(input) {
         input.__fcExtraBlocked = peerBlockedFor(input);
         reportDateProblem(input);
+        var name = (input.getAttribute('data-fc-range') || '').trim();
+        if (name) checkRange(name);
     }
 
     /* Satu unit berubah → unit lain dengan produk sama ikut dihitung ulang. */
