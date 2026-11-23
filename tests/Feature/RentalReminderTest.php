@@ -28,7 +28,7 @@ class RentalReminderTest extends TestCase
     {
         $customer = User::factory()->create(['role' => 'customer']);
         $admin = User::factory()->create(['role' => 'admin']);
-        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $category = RentalCategory::firstOrCreate(['name' => 'Wisuda']);
         $product = RentalProduct::create([
             'rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 5,
         ]);

@@ -29,7 +29,7 @@ class RentalLatePaymentGraceTest extends TestCase
     {
         $admin = User::factory()->create(['role' => 'admin']);
         $customer = User::factory()->create(['role' => 'customer']);
-        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $category = RentalCategory::firstOrCreate(['name' => 'Wisuda']);
         $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 5]);
         $order = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $customer->id, 'confirmation_deadline' => now()->addDay()]);
         $unit = $order->units()->create([

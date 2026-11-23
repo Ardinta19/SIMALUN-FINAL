@@ -27,7 +27,7 @@ class RentalDesignDeadlineTest extends TestCase
     {
         $admin = User::factory()->create(['role' => 'admin']);
         $customer = User::factory()->create(['role' => 'customer']);
-        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $category = RentalCategory::firstOrCreate(['name' => 'Wisuda']);
         $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 5]);
         $order = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $customer->id, 'confirmation_deadline' => now()->addDay()]);
         $unit = $order->units()->create([
@@ -105,7 +105,8 @@ class RentalDesignDeadlineTest extends TestCase
             $v2 = $unit->previews()->firstOrFail();
             $this->assertSame(2, $v2->version);
             $this->actingAs($customer)->post(route('rental.design.respond', $v2), ['decision' => 'approved'])->assertSessionHasNoErrors();
-            $this->post(route('admin.rental.progress.advance', $unit), ['expected_progress' => 'waiting'])->assertSessionHasNoErrors();
+            // Kembali sebagai admin: rute progres hanya untuk admin.
+            $this->actingAs($admin)->post(route('admin.rental.progress.advance', $unit), ['expected_progress' => 'waiting'])->assertSessionHasNoErrors();
             $this->assertSame('production', $unit->fresh()->progress);
         } finally {
             Carbon::setTestNow();
