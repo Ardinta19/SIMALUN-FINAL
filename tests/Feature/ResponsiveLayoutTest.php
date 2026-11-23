@@ -139,6 +139,8 @@ class ResponsiveLayoutTest extends TestCase
         $this->assertStringContainsString('top:calc(env(safe-area-inset-top, 0px) + 16px)', $css);
         $this->assertStringContainsString('height:calc(env(safe-area-inset-top, 0px) + 96px)', $css);
         $this->assertStringContainsString('top:calc(env(safe-area-inset-top, 0px) + 12px)', $css);
+        // Lompat ke #koleksi tidak boleh mendarat di bawah pil header.
+        $this->assertStringContainsString('scroll-margin-top:calc(env(safe-area-inset-top, 0px) + 92px)', $css);
 
         // Di ponsel slot tema tetap berada di header. Dulu seluruh aksi desktop
         // disembunyikan sehingga tombol tema jatuh ke dok mengambang dan

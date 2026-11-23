@@ -772,6 +772,9 @@ Perbaikan yang diterapkan (semua memakai token/skala yang sudah ada):
   dengan sebelumnya. Lebar pil ringkas menjadi `auto` karena kini memuat dua
   sampai tiga kendali; `width` tidak bisa dianimasikan ke `auto`, jadi transisi pil
   dibatasi ke `top` saja daripada menyisakan animasi yang tidak pernah jalan.
+- `berkah-experience.css`: `scroll-margin-top` tujuan `#koleksi`/bagian unit ikut
+  safe-area, jadi lompatan ke "Temukan yang tepat" tidak mendarat di bawah pil
+  header di perangkat berponi.
 - `berkah-experience.css`: `.bk-how` mendapat `scroll-snap-type: x proximity`,
   `scroll-padding-inline`, tinggi sasaran minimum per langkah, dan tepi kanan
   yang memudar (`mask-image`) sebagai isyarat "masih ada langkah lain".
