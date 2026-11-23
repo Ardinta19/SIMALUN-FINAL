@@ -61,7 +61,6 @@
 .bk-preview-skeleton__media,.bk-preview-skeleton__line,.bk-preview-skeleton__btn{animation:bk-skel-pulse 1.6s ease-in-out infinite}
 @keyframes bk-skel-pulse{0%,100%{opacity:.55}50%{opacity:1}}
 .bk-preview-grid.is-loading>.muted{display:none}
-@media(max-width:560px){.bk-preview-skeleton__card:nth-child(n+3){display:none}}
 @media(prefers-reduced-motion:reduce){.bk-preview-skeleton__media,.bk-preview-skeleton__line,.bk-preview-skeleton__btn{animation:none;opacity:1}}@media(max-width:700px){.bk-header-cart{display:flex}.bk-dashboard-preview .bk-section-heading{align-items:start;gap:12px}.bk-dashboard-preview .bk-section-heading a{flex:none;font-size:var(--bk-fs-xs)}}
 /* Catalog search lives in the header; the inline form remains the no-JS fallback. */
 .bk-header-filter{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:0 12px;border:0;border-radius:14px;background:#f4e8e4;color:#75102e;font:inherit;font-size:var(--bk-fs-xs);font-weight:800;text-decoration:none;cursor:pointer;white-space:nowrap}.bk-header-filter[hidden]{display:none!important}.bk-enhanced .bk-filter-fallback{display:none}.bk-header-filter:focus-visible,.bk-product-image-link:focus-visible,.bk-product-name:focus-visible{outline:3px solid #bc5b75;outline-offset:3px}.bk-product-image-link:focus-visible{outline-offset:-4px}.bk-product-image-link{display:block;line-height:0}.bk-product-image-link .photo{transition:transform .25s ease}.bk-product-image-link{overflow:hidden}.bk-product-image-link:hover .photo{transform:none;filter:saturate(1.04)}

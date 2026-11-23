@@ -284,7 +284,9 @@ Sekarang:
   melepasnya di ketiga ujung alur (berhasil / kosong / gagal) sehingga kerangka
   tidak pernah tertinggal;
 - denyut kerangka (`bk-skel-pulse`) mati saat `prefers-reduced-motion: reduce`;
-- di ≤560 px hanya dua kartu kerangka yang tampil, menyesuaikan grid dua kolom.
+- jumlah kartu kerangka selalu empat dan mengikuti grid yang sama dengan hasil
+  akhir (1 baris ≥1025 px, 2×2 pada 651–1024 px, 2×2 di ponsel), sehingga
+  jumlah baris tidak berubah saat kartu asli masuk.
 
 ### 9.3 Admin: densitas tabel dan angka berhitung
 
