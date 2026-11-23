@@ -489,6 +489,13 @@ class UiKitTest extends TestCase
             '.pg-item--current',
             '.pg-dots',
             '.auth-button',
+            '.bk-how',
+            '.bk-address-delete',
+            '.info-row',
+            '.order-card__footer',
+            '.history-item',
+            '.tip',
+            '.bk-theme-choice[aria-pressed="true"]',
         ];
 
         $missing = array_values(array_filter($selectors, fn (string $selector) => ! $this->themeMentions($theme, $selector)));
