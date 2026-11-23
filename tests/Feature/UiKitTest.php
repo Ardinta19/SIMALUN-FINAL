@@ -327,6 +327,9 @@ class UiKitTest extends TestCase
             '.customer-radial__links a',
             '.bk-header-radial>summary',
             '.auth-back',
+            '.rating-existing__star',
+            '.rating-stars label',
+            '.rating-existing__star--off',
         ];
 
         foreach ($selectors as $selector) {

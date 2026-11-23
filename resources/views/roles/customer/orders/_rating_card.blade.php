@@ -51,7 +51,7 @@
 .rating-stars label {
     cursor: pointer;
     font-size: 1.8rem;
-    color: #cbd5e1;
+    color: #64748b;
     transition: color 80ms ease, transform 120ms ease;
     line-height: 1;
 }
@@ -156,9 +156,9 @@
             </div>
         </div>
 
-        <div class="rating-existing">
+        <div class="rating-existing" role="img" aria-label="Rating {{ $order->rating->rating }} dari 5">
             @for($i = 1; $i <= 5; $i++)
-                <span class="rating-existing__star {{ $i <= $order->rating->rating ? '' : 'rating-existing__star--off' }}">★</span>
+                <span class="rating-existing__star {{ $i <= $order->rating->rating ? '' : 'rating-existing__star--off' }}" aria-hidden="true">★</span>
             @endfor
         </div>
 

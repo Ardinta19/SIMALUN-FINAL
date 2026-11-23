@@ -864,6 +864,22 @@ html[data-theme="dark"] :is(.cart-number, .cart-item .cart-placeholder, .tip) {
     color: var(--theme-ink-lt);
 }
 
+html[data-theme="dark"] :is(.rating-stars label) {
+    color: #7e8aa0;
+}
+
+html[data-theme="dark"] :is(.rating-stars input:checked ~ label, .rating-stars label:hover, .rating-stars label:hover ~ label) {
+    color: var(--theme-warning-ink);
+}
+
+html[data-theme="dark"] :is(.rating-existing__star) {
+    color: var(--theme-warning-ink);
+}
+
+html[data-theme="dark"] :is(.rating-existing__star--off) {
+    color: var(--theme-line);
+}
+
 html[data-theme="dark"] :is(.queue-link, .rating-error) {
     color: var(--theme-danger-ink);
 }
