@@ -953,6 +953,30 @@ class UiKitTest extends TestCase
         $this->assertStringContainsString("window.gsap.to(node", $js);
     }
 
+    public function test_theme_toggle_shows_exactly_one_icon_per_theme(): void
+    {
+        $kit = File::get(resource_path('views/layouts/component/_ui_kit.blade.php'));
+        $css = File::get(public_path('css/berkah-ui-kit.css'));
+
+        // Markup membawa dua ikon; CSS yang memilih satu sesuai tema.
+        $this->assertStringContainsString('class="bk-theme-btn__sun"', $kit);
+        $this->assertStringContainsString('class="bk-theme-btn__moon"', $kit);
+
+        // `.bk-theme-btn svg { display: block }` (tipe + kelas) mengalahkan
+        // selektor satu kelas, jadi ikon bulan di tema terang wajib memakai
+        // dua kelas. Tanpa ini tombol menampilkan matahari DAN bulan.
+        $this->assertMatchesRegularExpression('/\.bk-theme-btn\s+\.bk-theme-btn__moon\s*\{[^}]*display:\s*none/', $css);
+        $this->assertMatchesRegularExpression('/html\[data-theme="dark"\]\s+\.bk-theme-btn\s+\.bk-theme-btn__sun\s*\{[^}]*display:\s*none/', $css);
+        $this->assertMatchesRegularExpression('/html\[data-theme="dark"\]\s+\.bk-theme-btn\s+\.bk-theme-btn__moon\s*\{[^}]*display:\s*(block|inline)/', $css);
+
+        // Aturan satu kelas adalah bentuk yang kalah cascade; jangan dikembalikan.
+        $this->assertDoesNotMatchRegularExpression('/\n\.bk-theme-btn__moon\s*\{[^}]*display:\s*none/', $css);
+        $this->assertDoesNotMatchRegularExpression('/\n\.bk-theme-btn__sun\s*\{[^}]*display:\s*none/', $css);
+
+        // Tombol tetap satu sel grid sehingga tidak ada ikon menumpuk.
+        $this->assertMatchesRegularExpression('/\.bk-theme-btn\s*\{[^}]*display:\s*inline-grid/', $css);
+    }
+
     public function test_theme_hand_follows_the_switch_direction(): void
     {
         $kit = File::get(resource_path('views/layouts/component/_ui_kit.blade.php'));

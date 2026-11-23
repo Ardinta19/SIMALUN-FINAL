@@ -712,15 +712,18 @@ button.bk-auth:focus-visible {
     display: block;
 }
 
-.bk-theme-btn__moon {
+/* Ikon tema: satu ikon per tema. Selektor memakai dua kelas agar menang
+   atas `.bk-theme-btn svg { display: block }` (tipe + kelas); dengan satu
+   kelas, mode terang ikut menampilkan bulan sehingga tombol berisi dua ikon. */
+.bk-theme-btn .bk-theme-btn__moon {
     display: none;
 }
 
-html[data-theme="dark"] .bk-theme-btn__sun {
+html[data-theme="dark"] .bk-theme-btn .bk-theme-btn__sun {
     display: none;
 }
 
-html[data-theme="dark"] .bk-theme-btn__moon {
+html[data-theme="dark"] .bk-theme-btn .bk-theme-btn__moon {
     display: block;
 }
 
