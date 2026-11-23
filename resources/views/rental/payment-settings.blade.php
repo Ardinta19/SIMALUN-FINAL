@@ -45,7 +45,7 @@
 
     @if($hasQris)
         <div class="adm-row" style="align-items:flex-start;gap:16px">
-            <img src="{{ route('rental.payment.qris') }}" alt="QRIS yang saat ini digunakan" style="max-width:220px;width:100%;height:auto;border-radius:var(--adm-r-md);border:1px solid var(--adm-line);background:#fff;padding:8px">
+            <img src="{{ route('rental.payment.qris') }}" alt="QRIS yang saat ini digunakan" loading="lazy" decoding="async" style="max-width:220px;width:100%;height:auto;border-radius:var(--adm-r-md);border:1px solid var(--adm-line);background:#fff;padding:8px">
             <div class="adm-field" style="max-width:320px">
                 <label class="adm-switch">
                     <input type="checkbox" name="remove_qris" value="1">

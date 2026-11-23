@@ -58,13 +58,25 @@ p.lead{animation-delay:.17s}.actions{animation-delay:.21s}.tip{animation-delay:.
         <h1>{{ $title }}</h1>
         <p class="lead">{{ $message }}</p>
         <div class="actions">
-            <a href="{{ $primary['url'] }}" class="btn btn-primary">@include('layouts.component._icon', ['name' => $primary['icon'] ?? 'home', 'size' => 20])<span>{{ $primary['label'] }}</span></a>
-            @isset($secondary)<a href="{{ $secondary['url'] }}" class="btn btn-secondary">@include('layouts.component._icon', ['name' => $secondary['icon'] ?? 'undo-2', 'size' => 20])<span>{{ $secondary['label'] }}</span></a>@endisset
+            {{-- `javascript:` URL tidak punya cadangan saat skrip diblokir.
+                 Setiap aksi tetap berupa tautan biasa ke halaman aman; skrip
+                 hanya memperhalus (kembali ke halaman asal / muat ulang). --}}
+            <a href="{{ $primary['url'] }}" class="btn btn-primary" @if($primary['reload'] ?? false) data-reload-page @endif>@include('layouts.component._icon', ['name' => $primary['icon'] ?? 'home', 'size' => 20])<span>{{ $primary['label'] }}</span></a>
+            @isset($secondary)<a href="{{ $secondary['url'] }}" class="btn btn-secondary" @if($secondary['back'] ?? false) data-smart-back @endif @if($secondary['reload'] ?? false) data-reload-page @endif>@include('layouts.component._icon', ['name' => $secondary['icon'] ?? 'undo-2', 'size' => 20])<span>{{ $secondary['label'] }}</span></a>@endisset
         </div>
         @isset($tip)<div class="tip">{{ $tip }}</div>@endisset
     </div>
     <div class="brand"><span>Berkah Kreatif</span> &bull; <span>SIMALUN</span></div>
 </main>
+<script>
+/* Tombol muat ulang tetap berfungsi tanpa skrip: tautannya menuju beranda. */
+document.querySelectorAll('[data-reload-page]').forEach(function (link) {
+    link.addEventListener('click', function (event) {
+        event.preventDefault();
+        window.location.reload();
+    });
+});
+</script>
 @include('layouts.component._form_controls')
 @include('layouts.component._ui_kit')
 </body>

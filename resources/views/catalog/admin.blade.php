@@ -60,7 +60,7 @@
                 <form method="post" action="{{ route('admin.catalog.categories.toggle', $category) }}" style="margin-top:8px">
                     @csrf
                     @method('PATCH')
-                    <button class="btn secondary adm-btn--sm">{{ $category->is_active ? 'Nonaktifkan' : 'Aktifkan' }} kategori</button>
+                    <button type="submit" class="btn secondary adm-btn--sm">{{ $category->is_active ? 'Nonaktifkan' : 'Aktifkan' }} kategori</button>
                 </form>
             </div>
         @endforeach
@@ -74,7 +74,7 @@
         <form class="adm-stack" method="post" action="{{ route('admin.catalog.store') }}" enctype="multipart/form-data">
             @csrf
             @include('catalog.product-fields', ['product' => null])
-            <div><button class="btn" @disabled($categories->isEmpty())>Simpan papan</button></div>
+            <div><button type="submit" class="btn" @disabled($categories->isEmpty())>Simpan papan</button></div>
         </form>
         @if($categories->isEmpty())
             <p class="adm-help" style="margin-top:8px">Buat kategori terlebih dahulu.</p>
@@ -114,7 +114,7 @@
             <form method="post" action="{{ route('admin.catalog.toggle', $product) }}" style="margin-top:8px">
                 @csrf
                 @method('PATCH')
-                <button class="btn secondary adm-btn--sm">{{ $product->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button>
+                <button type="submit" class="btn secondary adm-btn--sm">{{ $product->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button>
             </form>
 
             <h3 style="margin:20px 0 4px">Paket durasi</h3>
@@ -148,7 +148,7 @@
                     <form method="post" action="{{ route('admin.catalog.packages.toggle', $package) }}" style="margin-top:6px">
                         @csrf
                         @method('PATCH')
-                        <button class="btn secondary adm-btn--sm">{{ $package->is_active ? 'Nonaktifkan paket' : 'Aktifkan paket' }}</button>
+                        <button type="submit" class="btn secondary adm-btn--sm">{{ $package->is_active ? 'Nonaktifkan paket' : 'Aktifkan paket' }}</button>
                     </form>
                 </div>
             @endforeach

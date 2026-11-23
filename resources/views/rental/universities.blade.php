@@ -65,7 +65,7 @@
             <form method="post" action="{{ route('admin.rental.universities.toggle', $university) }}">
                 @csrf
                 @method('PATCH')
-                <button class="btn secondary adm-btn--sm">{{ $university->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button>
+                <button type="submit" class="btn secondary adm-btn--sm">{{ $university->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button>
             </form>
         </div>
 

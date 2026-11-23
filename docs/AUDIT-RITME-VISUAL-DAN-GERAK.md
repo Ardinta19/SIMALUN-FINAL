@@ -564,3 +564,41 @@ atas.
 markup–pengendali ini supaya tidak terulang: tombol yang "terlihat benar"
 tetapi tidak tersambung ke skrip adalah cacat yang paling mudah lolos dari
 tinjauan visual.
+
+### 9.16 Halaman galat, tombol di dalam formulir, dan gambar di luar layar
+
+Tiga cacat kecil yang lolos dari putaran sebelumnya semuanya berjenis sama:
+markup yang *tampak* benar sampai skripnya hilang atau sampai elemennya
+dipakai di luar konteks.
+
+**`href="javascript:…"` di halaman galat.** Lima halaman galat (403, 404, 419,
+500, 503) memakai `javascript:history.back()` dan `javascript:location.reload()`
+pada tombolnya. Tautan seperti itu mati total tanpa JavaScript dan ditolak CSP
+ketat; tidak ada cadangan apa pun. Sekarang setiap aksi adalah tautan biasa ke
+beranda — halaman yang pasti ada — dan skrip hanya memperhalus: `data-smart-back`
+memakai `berkah-smart-back.js` yang sudah dimuat `_ui_kit` (kembali ke halaman
+asal hanya bila pengunjung memang datang dari situs ini lewat navigasi internal),
+`data-reload-page` memakai pengendali kecil di `errors/layout.blade.php`. Tanpa
+skrip, keduanya tetap berpindah ke beranda, bukan diam.
+
+**`<button>` tanpa `type` di dalam `<form>`.** Tombol tanpa `type` selalu
+`submit`. Untuk tombol simpan itu benar, tetapi niatnya jadi tak terbaca dan
+tombol bantu yang ditambahkan kemudian akan ikut mengirim formulir. Dua puluh
+empat tombol di sepuluh view kini menulis `type="submit"` eksplisit. Tiga
+komponen (`primary-button`, `secondary-button`, `danger-button`) sengaja
+dilewati karena tipenya datang dari pemanggil lewat `$attributes`.
+
+**Gambar di bawah lipatan.** Empat gambar konten — sampul keranjang, pratinjau
+desain di detail admin dan detail unit, serta QRIS di pengaturan pembayaran —
+kini `loading="lazy" decoding="async"`. Logo dan foto produk utama dibiarkan
+eager: keduanya di atas lipatan dan menentukan kesan pertama.
+
+Satu detail palet ikut ditutup: `.bk-experience .hero` masih memakai `#76203a`,
+wine kesembilan yang berbeda tipis dari `#85092d` dan hanya muncul sekali di
+seluruh berkas. Sekarang `var(--bk-wine, #85092d)`.
+
+Penjaga: `BackUrlSafetyTest::test_error_pages_never_use_javascript_urls` menolak
+`javascript:` di view galat dan memastikan kedua kait ada di layout;
+`UiDefaultsTest::test_buttons_inside_forms_declare_their_type` memakai pemindai
+sadar-kutip (mengganti `->` lebih dulu agar atribut Blade tidak memotong tag)
+supaya tombol baru tanpa `type` langsung ketahuan.

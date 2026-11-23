@@ -21,6 +21,26 @@ class BackUrlSafetyTest extends TestCase
         }
     }
 
+    public function test_error_pages_never_use_javascript_urls(): void
+    {
+        // Tombol "Kembali" dan "Muat Ulang" pernah memakai
+        // href="javascript:...". Saat skrip diblokir atau CSP ketat, tautan itu
+        // mati total. Sekarang tautan selalu menuju halaman nyata dan skrip
+        // hanya memperhalus perilakunya.
+        $views = glob(dirname(__DIR__, 2).'/resources/views/errors/*.blade.php') ?: [];
+        $this->assertNotEmpty($views);
+
+        foreach ($views as $view) {
+            $source = (string) preg_replace('/\{\{--.*?--\}\}/s', '', (string) file_get_contents($view));
+            $this->assertStringNotContainsString('javascript:', $source, basename($view).' masih memakai URL javascript:.');
+        }
+
+        $layout = (string) file_get_contents(dirname(__DIR__, 2).'/resources/views/errors/layout.blade.php');
+        $this->assertStringContainsString('data-reload-page', $layout);
+        $this->assertStringContainsString('data-smart-back', $layout);
+        $this->assertStringContainsString('window.location.reload()', $layout);
+    }
+
     public function test_referer_is_subject_to_the_same_origin_rules(): void
     {
         $request = Request::create('https://good.example/current', 'GET', [], [], [], ['HTTP_REFERER' => 'https://evil.example/']);

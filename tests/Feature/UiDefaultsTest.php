@@ -254,6 +254,37 @@ class UiDefaultsTest extends TestCase
         $this->assertStringContainsString("setAttribute('aria-expanded'", $js);
     }
 
+    public function test_buttons_inside_forms_declare_their_type(): void
+    {
+        // <button> tanpa type di dalam <form> selalu berarti submit. Itu tidak
+        // salah untuk tombol simpan, tetapi membuat tombol bantu (tutup, pilih
+        // berkas, aksi JS) ikut mengirim formulir secara tak sengaja. Menulis
+        // type secara eksplisit mengunci niat dan membuat tinjauan mudah.
+        $root = dirname(__DIR__, 2).'/resources/views';
+        $offenders = [];
+
+        $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS));
+        foreach ($files as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+            // "->" di dalam atribut (mis. $product->name) bukan penutup tag.
+            $source = str_replace('->', '\u{2794}', (string) file_get_contents($file->getPathname()));
+            if (! preg_match_all('/<form\b[^>]*>(.*?)<\/form>/is', $source, $forms)) {
+                continue;
+            }
+            foreach ($forms[1] as $body) {
+                if (preg_match_all('/<button\b(?![^>]*\btype=)[^>]*>/i', $body, $matches)) {
+                    foreach ($matches[0] as $tag) {
+                        $offenders[] = $file->getPathname().' → '.preg_replace('/\s+/', ' ', $tag);
+                    }
+                }
+            }
+        }
+
+        $this->assertSame([], $offenders, 'Tombol di dalam formulir perlu type eksplisit.');
+    }
+
     public function test_the_old_second_bottom_sheet_is_gone(): void
     {
         $this->assertFileDoesNotExist(resource_path('views/layouts/component/_bottom_sheet_select.blade.php'));

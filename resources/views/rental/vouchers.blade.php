@@ -144,7 +144,7 @@
             <form method="post" action="{{ route('admin.rental.vouchers.toggle', $voucher) }}">
                 @csrf
                 @method('PATCH')
-                <button class="btn secondary adm-btn--sm">{{ $voucher->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button>
+                <button type="submit" class="btn secondary adm-btn--sm">{{ $voucher->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button>
             </form>
         </div>
 

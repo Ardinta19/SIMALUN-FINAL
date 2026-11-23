@@ -17,7 +17,7 @@
     @endphp
     <article class="card body cart-item">
         @if($available && $product->image_path)
-            <img class="cart-image" src="{{ asset('storage/'.$product->image_path) }}" alt="Contoh {{ $product->name }}">
+            <img class="cart-image" src="{{ asset('storage/'.$product->image_path) }}" alt="Contoh {{ $product->name }}" loading="lazy" decoding="async">
         @else
             <div class="cart-image cart-placeholder" aria-hidden="true"><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span></div>
         @endif
@@ -35,9 +35,9 @@
                 <h2>Papan tidak tersedia</h2><p class="muted">Papan ini tidak lagi tersedia. Hapus unit ini sebelum melanjutkan.</p>
             @endif
             <div class="cart-unit-actions">
-                <form method="post" action="{{ route('cart.destroy', $id) }}">@csrf @method('DELETE')<button class="bk-del" aria-label="Hapus unit {{ $loop->iteration }}{{ $available ? ' '.$product->name : ' yang tidak tersedia' }} dari keranjang"><span class="bk-del__icon" aria-hidden="true"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"></path></svg></span><span class="bk-del__text">Hapus</span></button></form>
+                <form method="post" action="{{ route('cart.destroy', $id) }}">@csrf @method('DELETE')<button type="submit" class="bk-del" aria-label="Hapus unit {{ $loop->iteration }}{{ $available ? ' '.$product->name : ' yang tidak tersedia' }} dari keranjang"><span class="bk-del__icon" aria-hidden="true"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"></path></svg></span><span class="bk-del__text">Hapus</span></button></form>
                 @if($available)<span class="bk-unit-count" aria-live="polite"><strong>{{ $sameProduct }}</strong> unit {{ $product->name }} di pesanan ini</span>@endif
-                @if($available && !$datesExpired)<form method="post" action="{{ route('cart.duplicate', $id) }}">@csrf<button class="btn secondary" aria-label="Tambah satu unit {{ $product->name }} dengan tanggal pilihan yang sama">+ Tambah unit</button></form>@endif
+                @if($available && !$datesExpired)<form method="post" action="{{ route('cart.duplicate', $id) }}">@csrf<button type="submit" class="btn secondary" aria-label="Tambah satu unit {{ $product->name }} dengan tanggal pilihan yang sama">+ Tambah unit</button></form>@endif
             </div>
         </div>
     </article>
