@@ -81,6 +81,23 @@ class RentalCatalogController extends Controller
         return view('catalog.show', compact('product', 'available', 'bookedDates'));
     }
 
+    /**
+     * Ketersediaan terbaru untuk kalender pemesanan. Dipanggil klien saat
+     * kalender dibuka, supaya tanggal yang baru dibooking orang lain ikut
+     * terkunci tanpa memuat ulang halaman.
+     */
+    public function availability(RentalProduct $product, RentalAvailability $availability)
+    {
+        abort_unless($product->is_active && $product->category?->is_active, 404);
+
+        return response()->json([
+            'product_id' => $product->id,
+            'stock' => (int) $product->stock,
+            'blocked' => $availability->fullyBookedDates($product),
+            'fetched_at' => now('Asia/Jakarta')->toIso8601String(),
+        ])->header('Cache-Control', 'no-store, max-age=0');
+    }
+
     public function admin()
     {
         return view('catalog.admin', ['categories' => RentalCategory::orderBy('name')->get(), 'products' => RentalProduct::with(['category', 'packages'])->latest()->paginate(20)]);

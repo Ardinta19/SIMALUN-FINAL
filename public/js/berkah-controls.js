@@ -598,7 +598,8 @@
         var bad = null;
         controls.forEach(function (control) {
             if (bad) return;
-            if (control.node.__fcRangeError && form.contains(control.node)) bad = control.node;
+            var node = control.node;
+            if ((node.__fcRangeError || node.__fcValueError) && form.contains(node)) bad = node;
         });
         if (!bad) return true;
         var trigger = bad.__fcTrigger || null;
@@ -1015,6 +1016,10 @@
        formulir dikirim, bukan cuma tanggal ujungnya. */
     var rangeGroups = Object.create(null);
 
+    /* Satu cache per URL ketersediaan supaya beberapa unit di halaman yang
+       sama tidak meminta data yang sama berulang kali. */
+    var availabilityCache = Object.create(null);
+
     function registerRange(input) {
         var name = (input.getAttribute('data-fc-range') || '').trim();
         if (!name) return;
@@ -1120,18 +1125,35 @@
         return map;
     }
 
-    function refreshPeerBlocked(input) {
-        input.__fcExtraBlocked = peerBlockedFor(input);
+    /* Tanggal yang sudah terisi tapi ternyata penuh (dibooking orang lain
+       atau dipakai unit lain) diberi galat sejak halaman dimuat, bukan baru
+       saat kolomnya disentuh. */
+    function reportDateProblem(input) {
         if (!input.__fcSetError) return;
         var picked = parseISO(input.value);
-        var clash = picked && input.__fcExtraBlocked && input.__fcExtraBlocked[isoOf(picked)];
-        if (clash) {
-            input.__fcPeerError = true;
-            input.__fcSetError('Tanggal ini sudah dipakai unit lain dengan papan yang sama. Stok tidak cukup untuk keduanya, jadi pilih tanggal lain.');
-        } else if (input.__fcPeerError) {
-            input.__fcPeerError = false;
+        var iso = picked ? isoOf(picked) : null;
+        if (!iso) {
+            if (input.__fcValueError) {
+                input.__fcValueError = false;
+                input.__fcSetError('');
+            }
+            return;
+        }
+        if (input.__fcBlocked && input.__fcBlocked[iso]) {
+            input.__fcValueError = true;
+            input.__fcSetError('Tanggal ' + friendly(picked) + ' sudah dibooking. Silakan pilih tanggal lain.');
+        } else if (input.__fcExtraBlocked && input.__fcExtraBlocked[iso]) {
+            input.__fcValueError = true;
+            input.__fcSetError('Tanggal ' + friendly(picked) + ' sudah dipakai unit lain dengan papan yang sama. Stok tidak cukup untuk keduanya.');
+        } else if (input.__fcValueError) {
+            input.__fcValueError = false;
             input.__fcSetError('');
         }
+    }
+
+    function refreshPeerBlocked(input) {
+        input.__fcExtraBlocked = peerBlockedFor(input);
+        reportDateProblem(input);
     }
 
     /* Satu unit berubah → unit lain dengan produk sama ikut dihitung ulang. */
@@ -1151,6 +1173,9 @@
         if (!input || input.getAttribute('data-fc-enhanced') === '1') return;
 
         var blocked = parseBlockedDates(input.getAttribute('data-fc-disabled'));
+        var refreshUrl = (input.getAttribute('data-fc-refresh-url') || '').trim();
+        var currentlyFetching = false;
+        var currentRender = null;
         input.__fcBlocked = blocked;
         input.__fcExtraBlocked = null;
         refreshPeerBlocked(input);
@@ -1166,6 +1191,52 @@
         trigger.appendChild(text);
         trigger.insertAdjacentHTML('beforeend', svgCalendar());
 
+        function blockedMapFrom(list) {
+            var map = Object.create(null);
+            var any = false;
+            (list || []).forEach(function (iso) {
+                if (typeof iso === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(iso)) {
+                    map[iso] = true;
+                    any = true;
+                }
+            });
+            return any ? map : null;
+        }
+
+        /* Tab yang dibiarkan lama bisa menampilkan tanggal yang sudah penuh
+           sebagai kosong. Saat kalender dibuka, daftar terbaru diambil dan
+           kalender digambar ulang kalau berubah. Gagal ambil = pakai daftar
+           lama, server tetap memeriksa saat dikirim. */
+        function maybeRefresh() {
+            if (!refreshUrl || typeof window.fetch !== 'function') return;
+            var cached = availabilityCache[refreshUrl];
+            if (cached) {
+                blocked = cached.blocked;
+                input.__fcBlocked = blocked;
+                if (Date.now() - cached.at < 60000) return;
+            }
+            if (currentlyFetching) return;
+            currentlyFetching = true;
+            var request;
+            try {
+                request = window.fetch(refreshUrl, { headers: { Accept: 'application/json' }, credentials: 'same-origin', cache: 'no-store' });
+            } catch (e) {
+                currentlyFetching = false;
+                return;
+            }
+            request.then(function (response) {
+                return response && response.ok ? response.json() : null;
+            }).then(function (data) {
+                currentlyFetching = false;
+                if (!data || !Array.isArray(data.blocked)) return;
+                var map = blockedMapFrom(data.blocked);
+                availabilityCache[refreshUrl] = { at: Date.now(), blocked: map };
+                blocked = map;
+                input.__fcBlocked = blocked;
+                if (currentRender && document.querySelector('.fc-layer')) currentRender(null);
+            }).catch(function () { currentlyFetching = false; });
+        }
+
         function syncTrigger() {
             var date = parseISO(input.value);
             if (date) {
@@ -1176,15 +1247,6 @@
                 trigger.classList.add('is-placeholder');
             }
         }
-
-        // Jaring pengaman: nilai terblokir (mis. diisi lewat jalur lain) ditolak.
-        input.addEventListener('change', function () {
-            if (!blocked) return;
-            var picked = parseISO(input.value);
-            if (picked && blocked[isoOf(picked)] && input.__fcSetError) {
-                input.__fcSetError('Tanggal ini sudah dibooking. Silakan pilih tanggal lain.');
-            }
-        });
 
         function setDate(date) {
             try {
@@ -1395,6 +1457,7 @@
                 }
             }
 
+            currentRender = render;
             render(null);
         }
 
@@ -1403,6 +1466,7 @@
             event.stopPropagation();
             if (trigger.disabled) return;
             refreshPeerBlocked(input);
+            maybeRefresh();
             openLayer({ anchor: trigger, title: title, subtitle: 'Pilih tanggal pada kalender', build: buildCalendar });
         });
 
@@ -1429,6 +1493,7 @@
         input.addEventListener('input', syncTrigger);
         registerRange(input);
         refreshPeerBlocked(input);
+        input.addEventListener('change', function () { reportDateProblem(input); });
         syncTrigger();
     }
 

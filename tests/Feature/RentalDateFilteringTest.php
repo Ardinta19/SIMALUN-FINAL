@@ -57,6 +57,13 @@ class RentalDateFilteringTest extends TestCase
                 // melewati hari penuh bisa ditolak sebelum dikirim.
                 ->assertSee('data-fc-range="catalog-availability"', false);
 
+            // Endpoint ketersediaan dipakai kalender untuk menyegarkan daftar
+            // tanggal penuh tanpa memuat ulang halaman.
+            $this->getJson(route('catalog.availability', $product))->assertOk()
+                ->assertJsonPath('stock', 1)
+                ->assertJsonPath('blocked', ['2026-12-05', '2026-12-06'])
+                ->assertJsonPath('product_id', $product->id);
+
             $this->post(route('cart.store', $product), ['quantity' => 1]);
             $this->get(route('rental.checkout'))->assertOk()
                 ->assertSee('data-fc-disabled=\'["2026-12-05","2026-12-06"]\'', false)

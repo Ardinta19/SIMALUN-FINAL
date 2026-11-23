@@ -1019,10 +1019,21 @@ class UiKitTest extends TestCase
         $this->assertStringContainsString('peerBlockedFor', $js);
         $this->assertStringContainsString('Rentang tanggal memuat', $js);
 
+        // Nilai yang sudah terisi tetapi ternyata penuh diberi galat sejak
+        // halaman dimuat, dan ketersediaan disegarkan saat kalender dibuka.
+        $this->assertStringContainsString('reportDateProblem', $js);
+        $this->assertStringContainsString('maybeRefresh', $js);
+        $this->assertStringContainsString('data-fc-refresh-url', $js);
+
         $checkout = File::get(resource_path('views/rental/checkout.blade.php'));
         $this->assertStringContainsString('data-fc-range="unit-', $checkout);
         $this->assertStringContainsString('data-fc-stock=', $checkout);
         $this->assertStringContainsString('data-fc-unit=', $checkout);
+        $this->assertStringContainsString('data-fc-refresh-url="', $checkout);
+
+        $detail = File::get(resource_path('views/catalog/show.blade.php'));
+        $this->assertStringContainsString('data-fc-range="catalog-availability"', $detail);
+        $this->assertStringContainsString('data-fc-refresh-url="', $detail);
 
         $css = File::get(public_path('css/berkah-controls.css'));
         $this->assertStringContainsString('.fc-cal__day.is-blocked', $css);

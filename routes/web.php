@@ -37,6 +37,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [RentalCatalogController::class, 'index'])->name('welcome');
 Route::get('/katalog/{product}', [RentalCatalogController::class, 'show'])->name('catalog.show');
+Route::get('/katalog/{product}/ketersediaan', [RentalCatalogController::class, 'availability'])->middleware('throttle:60,1')->name('catalog.availability');
 Route::get('/apresiasi/{token}', [RentalFeedbackController::class, 'publicShare'])->where('token', '[A-Za-z0-9]{64}')->middleware('throttle:60,1')->name('rental.likes.public');
 Route::get('/keranjang', [RentalCartController::class, 'index'])->name('cart.index');
 Route::post('/keranjang/{product}', [RentalCartController::class, 'store'])->middleware('throttle:30,1')->name('cart.store');
