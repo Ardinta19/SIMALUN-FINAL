@@ -16,7 +16,6 @@ return new class extends Migration
             $table->unsignedBigInteger('amount');
             $table->string('source_type', 30)->nullable();
             $table->unsignedBigInteger('source_id')->nullable();
-            $table->foreignId('order_id')->nullable()->constrained('orders')->nullOnDelete();
             $table->text('notes')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();

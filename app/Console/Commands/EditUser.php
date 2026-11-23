@@ -13,7 +13,7 @@ use Illuminate\Validation\Rules\Password;
  * Edit data pengguna yang sudah ada (No. HP, nama, email, role, gender,
  * status aktif, password) secara interaktif dari terminal.
  *
- * Pelengkap `user:create` — berguna untuk memperbaiki akun admin/driver
+ * Pelengkap `user:create` — berguna untuk memperbaiki akun admin
  * (mis. salah ketik saat dibuat) tanpa harus utak-atik database langsung.
  *
  * Pemakaian:
@@ -70,7 +70,7 @@ class EditUser extends Command
         $phone = preg_replace('/[\s\-\.]/', '', $phoneInput);
         $phone = preg_replace('/^(\+?62|0)/', '', $phone);
 
-        $role = $this->choice('Role', ['customer', 'admin', 'driver'], $user->role);
+        $role = $this->choice('Role', ['customer', 'admin'], $user->role);
 
         $genderDefault = $user->gender ?? '(lewati)';
         $gender = $this->choice('Jenis kelamin', ['L', 'P', '(lewati)'], $genderDefault);
@@ -105,7 +105,7 @@ class EditUser extends Command
                 'regex:/^8[0-9]{8,12}$/',
                 Rule::unique('users', 'phone')->ignore($user->id)->whereNull('deleted_at'),
             ],
-            'role' => ['required', 'in:customer,admin,driver'],
+            'role' => ['required', 'in:customer,admin'],
             'gender' => ['nullable', 'in:L,P'],
         ];
         $payload = compact('name', 'email', 'phone', 'role', 'gender');

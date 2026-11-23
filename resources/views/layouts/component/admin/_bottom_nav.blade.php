@@ -9,7 +9,7 @@
 
     Empat butir pertama adalah tujuan harian; butir kelima "Lainnya" membuka
     laci menu yang sama dengan tombol di topbar, sehingga seluruh tujuan
-    (katalog, voucher, universitas, pengaturan, audit, panduan, modul laundry)
+    (katalog, voucher, universitas, pengaturan, audit, panduan)
     tetap terjangkau tanpa memadatkan bilah.
 --}}
 @php

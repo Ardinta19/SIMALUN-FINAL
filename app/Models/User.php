@@ -51,17 +51,12 @@ class User extends Authenticatable
     /**
      * Get the attributes that should be cast.
      *
-     * `last_assigned_at` pakai precision microsecond (.u) supaya round-robin
-     * driver assignment deterministik bahkan saat dua mark terjadi di
-     * detik yang sama (mis. order bersamaan).
-     *
      * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
-            'last_assigned_at' => 'datetime:Y-m-d H:i:s.u',
             'is_active' => 'boolean',
             'password' => 'hashed',
         ];
@@ -75,20 +70,5 @@ class User extends Authenticatable
     public function customerAddresses(): HasMany
     {
         return $this->hasMany(CustomerAddress::class, 'customer_id');
-    }
-
-    public function customerOrders(): HasMany
-    {
-        return $this->hasMany(Order::class, 'customer_id');
-    }
-
-    public function driverOrders(): HasMany
-    {
-        return $this->hasMany(Order::class, 'driver_id');
-    }
-
-    public function reports(): HasMany
-    {
-        return $this->hasMany(Report::class);
     }
 }

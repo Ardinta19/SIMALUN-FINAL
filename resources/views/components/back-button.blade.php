@@ -1,8 +1,8 @@
 {{--
     Smart Back Button Component
     Usage:
-        <x-back-button fallback="customer.orders" />
-        <x-back-button fallback="admin.orders" style="hero" />
+        <x-back-button fallback="rental.orders.index" />
+        <x-back-button fallback="admin.rental.orders" style="hero" />
         <x-back-button fallback="driver.orders" style="text" label="Kembali ke Pesanan" />
 --}}
 

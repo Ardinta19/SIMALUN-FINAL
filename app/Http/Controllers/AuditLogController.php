@@ -36,9 +36,8 @@ class AuditLogController extends Controller
 
         $logs = $query->paginate(30)->withQueryString();
 
-        // Daftar actor unik untuk filter — dibatasi role admin/driver karena
-        // customer praktis gak pernah trigger audit log.
-        $actors = User::whereIn('role', ['admin', 'driver'])
+        // Daftar actor unik untuk filter — panel hanya dipakai admin.
+        $actors = User::where('role', 'admin')
             ->whereIn('id', AuditLog::query()->select('actor_id')->whereNotNull('actor_id'))
             ->orderBy('name')
             ->get();

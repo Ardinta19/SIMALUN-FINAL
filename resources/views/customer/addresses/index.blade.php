@@ -39,7 +39,7 @@ textarea.input{min-height:72px;resize:vertical}
     <div class="h1">Alamat Saya</div>
     @php
   $role = auth()->user()->role;
-  $dashboardRoute = $role === 'admin' ? 'dashboard.admin' : ($role === 'driver' ? 'dashboard.driver' : 'customer.dashboard');
+  $dashboardRoute = $role === 'admin' ? 'dashboard.admin' : 'customer.dashboard';
 @endphp
 <a class="btn" href="{{ route($dashboardRoute) }}">Kembali</a>
   </div>

@@ -12,12 +12,8 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\CustomerAddressController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\OrderRatingController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RentalCatalogController;
 use App\Http\Controllers\RentalFeedbackController;
 use App\Http\Controllers\RentalCartController;
@@ -31,9 +27,6 @@ use App\Http\Controllers\RentalCashBookController;
 use App\Http\Controllers\RentalPaymentSettingController;
 use App\Http\Controllers\RentalScheduleController;
 use App\Http\Controllers\RentalReceiptController;
-use App\Http\Controllers\ServiceCategoryController;
-use App\Http\Controllers\ServiceController;
-use App\Http\Controllers\VoucherController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [RentalCatalogController::class, 'index'])->name('welcome');
@@ -101,20 +94,6 @@ Route::middleware('auth')->group(function () {
         ->middleware('role:customer')
         ->name('profile.primary-address');
 
-    Route::get('/order/create', [OrderController::class, 'create'])
-        ->middleware(['role:customer'])
-        ->name('order.create');
-    Route::post('/order/store', [OrderController::class, 'store'])
-        ->middleware(['role:customer', 'throttle:6,1'])
-        ->name('order.store');
-    Route::get('/order/{orderCode}', [OrderController::class, 'show'])
-        ->name('order.show');
-
-    Route::get('/orders/{order}/receipt', [OrderController::class, 'receipt'])
-        ->name('admin.orders.receipt');
-    Route::get('/orders/{order}/receipt/pdf', [OrderController::class, 'receiptPdf'])
-        ->name('orders.receipt.pdf');
-
     Route::get('/pembayaran-sewa/qris', [RentalPaymentSettingController::class, 'qris'])->name('rental.payment.qris');
     Route::get('/ringkasan-sewa/{order}', [RentalReceiptController::class, 'show'])->name('rental.receipt');
     Route::get('/pembayaran-sewa/{payment}/bukti', [RentalPaymentController::class, 'proof'])->name('rental.payment.proof');
@@ -146,18 +125,6 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/profile', [ProfileController::class, 'customerShow'])->name('profile');
 
-        Route::get('/orders', [OrderController::class, 'customerIndex'])->name('orders');
-        Route::get('/orders/{order}', [OrderController::class, 'customerDetail'])->name('order.detail');
-        Route::post('/orders/{order}/cancel', [OrderController::class, 'customerCancel'])->name('order.cancel');
-        Route::post('/orders/{order}/rating', [OrderRatingController::class, 'store'])
-            ->middleware('throttle:6,1')
-            ->name('order.rating');
-        Route::post('/voucher/check', [VoucherController::class, 'check'])
-            ->middleware('throttle:30,1')
-            ->name('voucher.check');
-        Route::get('/tracking', [OrderController::class, 'tracking'])->name('tracking');
-        Route::get('/tracking/location', [OrderController::class, 'customerTrackingLocation'])->name('tracking.location');
-
         Route::get('/notifications', [NotificationController::class, 'customerIndex'])->name('notifications');
         Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
         Route::patch('/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
@@ -170,9 +137,6 @@ Route::middleware('auth')->group(function () {
         Route::put('/addresses/{address}', [CustomerAddressController::class, 'update'])->name('addresses.update');
         Route::delete('/addresses/{address}', [CustomerAddressController::class, 'destroy'])->name('addresses.destroy');
         Route::patch('/addresses/{address}/primary', [CustomerAddressController::class, 'setPrimary'])->name('addresses.set-primary');
-
-        Route::get('/report', [ReportController::class, 'create'])->name('report');
-        Route::post('/report', [ReportController::class, 'store'])->name('report.store');
 
         Route::get('/help', fn () => view('roles.customer.help', ['settings' => \App\Models\RentalPaymentSetting::find(1)]))->name('help');
     });
@@ -213,45 +177,12 @@ Route::middleware('auth')->group(function () {
         Route::patch('/katalog/{product}/toggle', [RentalCatalogController::class, 'toggle'])->name('catalog.toggle');
         Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
 
-        Route::get('/orders', [OrderController::class, 'adminIndex'])->name('orders');
-        Route::post('/orders/{order}/assign-driver', [OrderController::class, 'assignDriver'])->name('orders.assign-driver');
-        Route::patch('/orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
-
-        Route::get('/walkin', [OrderController::class, 'walkinForm'])->name('walkin.form');
-        Route::post('/walkin', [OrderController::class, 'walkinStore'])->name('orders.walk-in.store');
-
         Route::get('/pengaturan-pembayaran-sewa', [RentalPaymentSettingController::class, 'edit'])->name('rental.payment-settings.edit');
         Route::put('/pengaturan-pembayaran-sewa', [RentalPaymentSettingController::class, 'update'])->name('rental.payment-settings.update');
         Route::get('/buku-kas', [RentalCashBookController::class, 'index'])->name('rental.cashbook.index');
         Route::get('/buku-kas/ekspor', [RentalCashBookController::class, 'export'])->name('rental.cashbook.export');
         Route::post('/buku-kas', [RentalCashBookController::class, 'store'])->name('rental.cashbook.store');
         Route::put('/buku-kas/{entry}', [RentalCashBookController::class, 'update'])->name('rental.cashbook.update');
-        Route::get('/finance', [FinanceController::class, 'index'])->name('finance.index');
-        Route::post('/finance', [FinanceController::class, 'store'])->name('finance.store');
-        Route::get('/finance/export', [FinanceController::class, 'export'])->name('finance.export');
-        Route::get('/finance/export-pdf', [FinanceController::class, 'exportPdf'])->name('finance.export-pdf');
-
-        Route::get('/vouchers', [VoucherController::class, 'index'])->name('vouchers.index');
-        Route::get('/vouchers/create', [VoucherController::class, 'create'])->name('vouchers.create');
-        Route::post('/vouchers', [VoucherController::class, 'store'])->name('vouchers.store');
-        Route::patch('/vouchers/{voucher}/toggle', [VoucherController::class, 'toggle'])->name('vouchers.toggle');
-        Route::delete('/vouchers/{voucher}', [VoucherController::class, 'destroy'])->name('vouchers.destroy');
-
-        Route::get('/categories', [ServiceCategoryController::class, 'index'])->name('categories.index');
-        Route::post('/categories', [ServiceCategoryController::class, 'store'])->name('categories.store');
-        Route::patch('/categories/{category}', [ServiceCategoryController::class, 'update'])->name('categories.update');
-        Route::patch('/categories/{category}/toggle', [ServiceCategoryController::class, 'toggle'])->name('categories.toggle');
-        Route::delete('/categories/{category}', [ServiceCategoryController::class, 'destroy'])->name('categories.destroy');
-
-        Route::post('/categories/{category}/services', [ServiceController::class, 'store'])->name('services.store');
-        Route::patch('/services/{service}', [ServiceController::class, 'update'])->name('services.update');
-        Route::patch('/services/{service}/toggle', [ServiceController::class, 'toggle'])->name('services.toggle');
-        Route::delete('/services/{service}', [ServiceController::class, 'destroy'])->name('services.destroy');
-
-        Route::get('/reports', [ReportController::class, 'adminIndex'])->name('reports');
-        Route::get('/reports/{report}/screenshot', [ReportController::class, 'screenshot'])->name('reports.screenshot');
-        Route::patch('/reports/{report}/status', [ReportController::class, 'updateStatus'])->name('reports.update-status');
-
         Route::get('/audit', [AuditLogController::class, 'index'])->name('audit.index');
 
         Route::get('/notifications', [NotificationController::class, 'adminIndex'])->name('notifications');
@@ -263,30 +194,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/help', fn () => view('roles.admin.help'))->name('help');
     });
 
-    Route::middleware('role:driver')->prefix('driver')->name('driver.')->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'driver'])->name('dashboard');
-        Route::get('/dashboard/poll', [DashboardController::class, 'driverPoll'])->name('dashboard.poll');
-
-        Route::get('/orders', [OrderController::class, 'driverIndex'])->name('orders');
-        Route::get('/orders/{order}', [OrderController::class, 'driverDetail'])->name('orders.show');
-        Route::post('/orders/{order}/action', [OrderController::class, 'driverAction'])->name('orders.action');
-        Route::post('/orders/{order}/location', [OrderController::class, 'updateDriverLocation'])
-            ->middleware('throttle:60,1')
-            ->name('orders.location');
-
-        Route::get('/tracking', [OrderController::class, 'driverTracking'])->name('tracking');
-
-        Route::get('/notifications', [NotificationController::class, 'driverIndex'])->name('notifications');
-
-        Route::get('/help', fn () => view('roles.driver.help'))->name('help');
-
-        Route::get('/report', [ReportController::class, 'create'])->name('report');
-        Route::post('/report', [ReportController::class, 'store'])->name('report.store');
-
-        Route::get('/profile', fn () => view('roles.driver.profile'))->name('profile');
-    });
-
     Route::get('/dashboard/admin', [DashboardController::class, 'admin'])->middleware('role:admin')->name('dashboard.admin');
-    Route::get('/dashboard/driver', [DashboardController::class, 'driver'])->middleware('role:driver')->name('dashboard.driver');
     Route::get('/dashboard/customer', [DashboardController::class, 'customer'])->middleware('role:customer')->name('dashboard.customer');
 });

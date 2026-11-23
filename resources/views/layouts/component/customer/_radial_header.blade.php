@@ -7,7 +7,7 @@
     $unreadNotif = 0;
     try { $unreadNotif = auth()->user()?->unreadNotifications()->count() ?? 0; } catch (\Exception $e) {}
     $navActive = match (true) {
-        request()->routeIs('rental.orders.*', 'customer.orders', 'customer.order.*', 'customer.tracking') => 'pesanan',
+        request()->routeIs('rental.orders.*') => 'pesanan',
         request()->routeIs('customer.notifications*') => 'notif',
         request()->routeIs('cart.*', 'rental.checkout*') => 'keranjang',
         default => '',

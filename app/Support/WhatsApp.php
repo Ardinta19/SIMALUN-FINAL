@@ -2,18 +2,15 @@
 
 namespace App\Support;
 
-use App\Models\Order;
-
 /**
  * Helper WhatsApp untuk skenario "klik tombol → buka chat".
  *
  * Pendekatan ini sengaja tidak pakai API berbayar (Fonnte/Wablas)
- * karena target operasionalnya usaha laundry rumahan — admin / kurir
- * pegang HP sendiri dan tetap mau approve setiap chat secara manual.
+ * karena percakapan tetap dipegang admin dan disetujui manual.
  * Tinggal generate URL `wa.me` dengan teks pre-filled saja.
  *
  * Untuk WA toko (customer → admin), gunakan {@see Laundry::waLink()}.
- * Helper ini fokus ke chat ke nomor user spesifik (driver / customer).
+ * Helper ini dipakai tombol WhatsApp ke nomor pelanggan maupun admin.
  */
 class WhatsApp
 {
@@ -76,33 +73,4 @@ class WhatsApp
         return $digits;
     }
 
-    /**
-     * Template pesan dari admin/driver ke customer berdasarkan status order.
-     * Bahasanya sengaja casual ramah karena ini chat informal antar manusia,
-     * bukan email transaksional formal.
-     */
-    public static function customerMessage(Order $order, string $context = 'general'): string
-    {
-        $name = $order->customer->name ?? 'Kak';
-        $code = $order->order_code;
-        $brand = Laundry::name();
-
-        return match ($context) {
-            'pickup' => "Halo Kak {$name}, ini dari {$brand} ya. Saya sedang menuju lokasi untuk jemput cucian pesanan #{$code}. Mohon disiapkan. Terima kasih.",
-            'delivery' => "Halo Kak {$name}, pesanan #{$code} sudah selesai dan saya antar sekarang. Mohon ditunggu di lokasi ya.",
-            'ready' => "Halo Kak {$name}, kabar baik — pesanan #{$code} sudah siap. Boleh konfirmasi alamat pengantarannya?",
-            'confirm' => "Halo Kak {$name}, saya admin {$brand}. Mau konfirmasi pesanan #{$code} ya, ada yang ingin ditanyakan?",
-            default => "Halo Kak {$name}, ini dari {$brand} terkait pesanan #{$code}.",
-        };
-    }
-
-    /**
-     * Template pesan customer ke driver (mis. dari halaman tracking).
-     */
-    public static function driverMessage(Order $order): string
-    {
-        $code = $order->order_code;
-
-        return "Halo Pak/Bu kurir, saya customer pesanan #{$code}. Mau tanya posisi sekarang dimana ya?";
-    }
 }

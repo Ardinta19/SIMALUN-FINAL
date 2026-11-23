@@ -51,18 +51,6 @@ class AdminNav
                 ],
             ],
             [
-                'label' => 'Modul laundry lama',
-                'note' => 'Masih dipakai; tampilan belum diseragamkan.',
-                'items' => [
-                    ['label' => 'Pesanan laundry', 'short' => 'Laundry', 'route' => 'admin.orders', 'match' => ['admin.orders'], 'icon' => 'laundry'],
-                    ['label' => 'Kasir walk-in', 'short' => 'Walk-in', 'route' => 'admin.walkin.form', 'match' => ['admin.walkin.*'], 'icon' => 'order-create'],
-                    ['label' => 'Keuangan laundry', 'short' => 'Kas laundry', 'route' => 'admin.finance.index', 'match' => ['admin.finance.*'], 'icon' => 'money'],
-                    ['label' => 'Laporan', 'short' => 'Laporan', 'route' => 'admin.reports', 'match' => ['admin.reports'], 'icon' => 'reports'],
-                    ['label' => 'Kategori laundry', 'short' => 'Kategori', 'route' => 'admin.categories.index', 'match' => ['admin.categories.*'], 'icon' => 'label'],
-                    ['label' => 'Voucher laundry', 'short' => 'Voucher laundry', 'route' => 'admin.vouchers.index', 'match' => ['admin.vouchers.*'], 'icon' => 'discount'],
-                ],
-            ],
-            [
                 'label' => 'Pemantauan',
                 'items' => [
                     ['label' => 'Notifikasi', 'short' => 'Notifikasi', 'route' => 'admin.notifications', 'match' => ['admin.notifications', 'admin.notifications.*'], 'icon' => 'notifikasi'],

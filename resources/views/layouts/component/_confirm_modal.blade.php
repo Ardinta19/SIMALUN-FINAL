@@ -4,8 +4,8 @@
 
     Trigger via JS:
     showConfirmModal({
-        title: 'Konfirmasi Jemput?',
-        message: 'Pesanan akan ditandai sudah dijemput.',
+        title: 'Hapus catatan ini?',
+        message: 'Catatan kas yang dihapus tidak bisa dikembalikan.',
         confirmText: 'Ya, Konfirmasi',
         cancelText: 'Batal',
         type: 'info',       // 'danger' | 'warning' | 'info' | 'success'

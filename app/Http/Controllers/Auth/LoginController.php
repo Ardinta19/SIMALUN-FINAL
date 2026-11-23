@@ -91,7 +91,6 @@ class LoginController extends Controller
     {
         $fallback = match ($role) {
             'admin' => route('dashboard.admin'),
-            'driver' => route('driver.dashboard'),
             default => route('customer.dashboard'),
         };
 

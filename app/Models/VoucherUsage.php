@@ -9,7 +9,6 @@ class VoucherUsage extends Model
 {
     protected $fillable = [
         'voucher_id',
-        'order_id',
         'customer_id',
         'discount_amount',
     ];
@@ -17,11 +16,6 @@ class VoucherUsage extends Model
     public function voucher(): BelongsTo
     {
         return $this->belongsTo(Voucher::class);
-    }
-
-    public function order(): BelongsTo
-    {
-        return $this->belongsTo(Order::class);
     }
 
     public function customer(): BelongsTo

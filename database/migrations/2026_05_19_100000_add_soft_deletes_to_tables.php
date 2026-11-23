@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        $tables = ['users', 'orders', 'customer_addresses'];
+        $tables = ['users', 'customer_addresses'];
 
         foreach ($tables as $table) {
             if (Schema::hasColumn($table, 'deleted_at')) {
@@ -29,7 +29,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        $tables = ['users', 'orders', 'customer_addresses'];
+        $tables = ['users', 'customer_addresses'];
 
         foreach ($tables as $table) {
             if (! Schema::hasColumn($table, 'deleted_at')) {

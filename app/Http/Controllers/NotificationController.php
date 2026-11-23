@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Order;
 use App\Models\RentalOrder;
 use App\Models\RentalOrderUnit;
 use Illuminate\Support\Facades\Auth;
@@ -48,26 +47,9 @@ class NotificationController extends Controller
             return redirect()->route('admin.rental.orders', $rentalOrder ? ['q' => $rentalOrder->reference] : []);
         }
 
-        $orderId = $notif->data['order_id'] ?? null;
-        $role = Auth::user()->role;
-
-        // Tentukan halaman notifikasi asal (untuk back button di halaman tujuan)
-        $backUrl = match ($role) {
-            'admin' => route('admin.notifications'),
-            'driver' => route('driver.notifications'),
-            default => route('customer.notifications'),
-        };
-
-        if (! $orderId) {
-            return redirect($backUrl);
-        }
-
-        // Redirect ke detail order dengan ?back= mengarah ke halaman notifikasi
-        return match ($role) {
-            'admin' => redirect()->route('admin.orders', ['back' => $backUrl]),
-            'driver' => redirect()->route('driver.orders.show', ['order' => $orderId, 'back' => $backUrl]),
-            default => redirect()->route('customer.order.detail', ['order' => $orderId, 'back' => $backUrl]),
-        };
+        // Notifikasi lama (modul laundry) hanya membawa order_id; arahkan ke
+        // halaman notifikasi peran masing-masing tanpa menebak detail.
+        return redirect()->route(Auth::user()->role === 'admin' ? 'admin.notifications' : 'customer.notifications');
     }
 
     public function adminIndex()
@@ -80,16 +62,5 @@ class NotificationController extends Controller
             ->where('status', 'pending')->latest()->take(10)->get();
 
         return view('roles.admin.notifications', compact('notifications', 'notifikasiOperasional'));
-    }
-
-    public function driverIndex()
-    {
-        $notifications = Auth::user()
-            ->notifications()
-            ->paginate(20);
-
-        Auth::user()->unreadNotifications->markAsRead();
-
-        return view('roles.driver.notifications', compact('notifications'));
     }
 }

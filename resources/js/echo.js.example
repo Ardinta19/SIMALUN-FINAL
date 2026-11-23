@@ -7,7 +7,7 @@
  * Yang dilakukan:
  *  1. Inisialisasi Echo dengan driver Reverb.
  *  2. Subscribe ke channel privat user yang lagi login.
- *  3. Listen notifikasi `App\Notifications\OrderStatusUpdated`.
+ *  3. Listen notifikasi `App\Notifications\RentalUpdate`.
  *  4. Saat notif masuk, reload halaman (versi paling sederhana —
  *     bisa di-tweak jadi patch DOM kalau perlu).
  *
@@ -37,7 +37,7 @@ const userId = document.querySelector('meta[name="user-id"]')?.content;
 if (userId) {
     window.Echo.private(`App.Models.User.${userId}`)
         .notification((notification) => {
-            if (notification.type === 'App\\Notifications\\OrderStatusUpdated') {
+            if (notification.type === 'App\\Notifications\\RentalUpdate') {
                 // Versi sederhana: full reload. Versi lebih halus: render
                 // banner "ada update", biar user yang scroll halaman gak
                 // kehilangan posisinya.

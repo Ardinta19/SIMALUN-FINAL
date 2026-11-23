@@ -12,7 +12,7 @@ use Laravel\Socialite\Facades\Socialite;
  *
  * Prinsip:
  *  - TIDAK membuat akun baru lewat Google. User harus sudah terdaftar
- *    (customer daftar lewat form; admin/driver dibuat via `user:create`).
+ *    (customer daftar lewat form; admin dibuat via `user:create`).
  *  - Role SELALU diambil dari record yang sudah ada di DB, tidak pernah
  *    dari Google — tidak ada celah privilege escalation.
  *  - Pencocokan via google_id, lalu fallback ke email Google yang sudah
@@ -109,7 +109,6 @@ class GoogleAuthController extends Controller
     {
         $fallback = match ($role) {
             'admin' => route('dashboard.admin'),
-            'driver' => route('driver.dashboard'),
             default => route('customer.dashboard'),
         };
 

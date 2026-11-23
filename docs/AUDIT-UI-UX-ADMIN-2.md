@@ -119,3 +119,36 @@ php artisan test
 Periksa berturut-turut: dasbor gelap (390/1440), Panduan admin gelap, buku kas terang,
 dan satu halaman laundry lama. Yang dicari: kartu punya bidang jelas, tidak ada teks
 hilang saat hover, dan kepala halaman berbentuk sama kecuali halaman laundry lama.
+
+---
+
+## 6. P0 dieksekusi — modul laundry dicabut total (22 Nov 2026)
+
+Butir A (dua bahasa desain) tidak diselesaikan dengan memindahkan halaman lama ke
+shell admin, tetapi dengan **menghapus modulnya**. Keputusan ini diambil karena
+bisnis Berkah Kreatif hanya menyewakan papan bunga; pengantaran diatur lewat
+ongkos/persetujuan pelanggan, bukan kurir.
+
+Yang hilang dari aplikasi:
+
+- 7 controller, 8 model, `FinanceService`, `DriverAssigner`, `OrderObserver`,
+  `OrderStatusUpdated`;
+- seluruh rute pesanan laundry, kasir walk-in, keuangan laundry, laporan,
+  kategori/layanan, voucher laundry, dan grup `role:driver`;
+- ±30 view (`order/*`, `roles/driver/*`, `roles/admin/{orders,walkin,finance,reports}`,
+  `admin/categories`, `admin/vouchers`, `roles/customer/orders/*`, struk, ekspor PDF);
+- 15 migrasi laundry + `alter_last_assigned_at_precision`, ditambah satu migrasi
+  pembersih `drop_laundry_module_tables` untuk database yang sudah terlanjur ada;
+- peran `driver` di `RoleMiddleware`, `LoginController`, `GoogleAuthController`,
+  `AuditLogController`, `user:create`/`user:edit`, `UserSeeder`, enum `users.role`;
+- 22 berkas tes laundry dan kasus laundry di tes campuran.
+
+Yang **tetap** dipakai modul sewa (jangan dihapus saat merapikan berikutnya):
+`FinanceEntry`/buku kas, `Voucher`/`voucher_usages` (dipakai voucher sewa),
+`Support\Laundry` (identitas merek di layout email & halaman), dan
+`WhatsApp::link()`.
+
+Sisa pekerjaan UI setelah P0 tidak lagi soal halaman laundry, melainkan:
+dasbor admin menjadi antrean kerja murni (buang "Aksi Cepat" yang menduplikasi
+sidebar), tipografi mikro `.55–.68rem` kapital, kartu "Pemasukan hari ini" yang
+masih biru, serta `--surface`/`--card` gelap yang masih bernilai sama.

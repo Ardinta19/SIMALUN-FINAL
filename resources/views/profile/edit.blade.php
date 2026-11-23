@@ -28,7 +28,6 @@
     @php
         $dashboard = match($user->role ?? 'customer') {
             'admin'  => 'dashboard.admin',
-            'driver' => 'dashboard.driver',
             default  => 'customer.dashboard',
         };
     @endphp

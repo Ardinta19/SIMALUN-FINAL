@@ -14,7 +14,7 @@ class BackButton extends Component
     public string $style;
 
     /**
-     * @param  string  $fallback  Named route fallback (e.g. 'customer.orders')
+     * @param  string  $fallback  Named route fallback (e.g. 'rental.orders.index')
      * @param  array  $params  Route parameters untuk fallback
      * @param  string  $label  Label teks (default: 'Kembali')
      * @param  string  $style  Variant: 'hero' (putih transparan), 'default' (solid), 'text' (link only)

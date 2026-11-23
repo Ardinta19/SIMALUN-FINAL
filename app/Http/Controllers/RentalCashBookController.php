@@ -75,7 +75,7 @@ class RentalCashBookController extends Controller
         $data = $this->validated($request);
         DB::transaction(function () use ($entry, $data) {
             $entry = FinanceEntry::lockForUpdate()->findOrFail($entry->id);
-            abort_unless($entry->source_type === 'manual' && $entry->order_id === null && $entry->source_id === null, 403);
+            abort_unless($entry->source_type === 'manual' && $entry->source_id === null, 403);
             $before = $entry->only(['entry_date', 'entry_type', 'category', 'amount', 'notes']);
             $entry->update($data + ['period_key' => substr($data['entry_date'], 0, 7)]);
             Audit::log('cashbook.manual.update', $entry, before: $before, after: $entry->only(['entry_date', 'entry_type', 'category', 'amount', 'notes']));

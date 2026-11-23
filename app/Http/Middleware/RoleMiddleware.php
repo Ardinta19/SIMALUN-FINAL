@@ -23,7 +23,6 @@ class RoleMiddleware
 
         return match ($userRole) {
             'admin' => redirect()->route('dashboard.admin'),
-            'driver' => redirect()->route('dashboard.driver'),
             default => redirect()->route('customer.dashboard'),
         };
     }

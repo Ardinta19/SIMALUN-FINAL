@@ -25,7 +25,7 @@ class RentalCustomerNavigationTest extends TestCase
         $this->get(route('welcome'))->assertOk()->assertDontSee('id="customer-nav"', false);
         $this->actingAs($admin)->get(route('welcome'))->assertOk()->assertDontSee('id="customer-nav"', false);
         $this->actingAs($customer)->post(route('cart.store', $product), ['quantity' => 1])->assertRedirect();
-        foreach ([route('welcome'), route('catalog.show', $product), route('cart.index'), route('rental.checkout'), route('rental.orders.index'), route('rental.orders.show', $order), route('customer.dashboard'), route('customer.profile'), route('customer.notifications'), route('customer.help'), route('customer.addresses.index'), route('customer.addresses.create'), route('customer.report')] as $url) {
+        foreach ([route('welcome'), route('catalog.show', $product), route('cart.index'), route('rental.checkout'), route('rental.orders.index'), route('rental.orders.show', $order), route('customer.dashboard'), route('customer.profile'), route('customer.notifications'), route('customer.help'), route('customer.addresses.index'), route('customer.addresses.create')] as $url) {
             $this->get($url)->assertOk()->assertSee('id="customer-nav"', false)->assertSee('Navigasi pelanggan')->assertSee(route('customer.notifications'))->assertSee(route('customer.profile'));
         }
         $this->get(route('rental.orders.index'))->assertSee('customer-nav__item is-active', false)->assertSee('aria-current="page"', false);
@@ -34,7 +34,7 @@ class RentalCustomerNavigationTest extends TestCase
             ->assertSee('id="bk-menu-goo"', false)->assertSee('name="terms"', false)
             ->assertSee('css/page-transitions.css', false);
         $this->get(route('welcome'))->assertSee('>Katalog</span>', false)->assertDontSee('Buat Pesanan Baru');
-        foreach ([route('rental.orders.index'), route('customer.notifications'), route('customer.dashboard'), route('customer.profile'), route('customer.addresses.create'), route('customer.report')] as $url) {
+        foreach ([route('rental.orders.index'), route('customer.notifications'), route('customer.dashboard'), route('customer.profile'), route('customer.addresses.create')] as $url) {
             $this->get($url)->assertOk()
                 ->assertSee('grid-template-columns:repeat(4,minmax(0,1fr))', false)
                 ->assertSee('line-height:12px', false)
@@ -55,7 +55,7 @@ class RentalCustomerNavigationTest extends TestCase
     public function test_legacy_customer_pages_keep_cart_in_tab_bar_and_menu_above_the_content(): void
     {
         $customer = User::factory()->create(['role' => 'customer']);
-        $response = $this->actingAs($customer)->get(route('customer.orders'));
+        $response = $this->actingAs($customer)->get(route('rental.orders.index'));
         $response->assertOk()->assertSee('id="customer-nav"', false)
             ->assertSee('customer-nav__label">Keranjang', false)
             ->assertSee('href="'.route('cart.index').'" class="customer-nav__item', false)
@@ -126,12 +126,12 @@ class RentalCustomerNavigationTest extends TestCase
             ->assertSee(route('customer.addresses.edit', $address))->assertSee(route('customer.addresses.destroy', $address))
             ->assertSee('Ya, hapus alamat')->assertDontSee('akan dihapus permanen');
     }
-    public function test_report_page_uses_only_configured_business_contact(): void
+    public function test_help_page_uses_only_configured_business_contact(): void
     {
         $customer = User::factory()->create(['role' => 'customer']);
-        $this->actingAs($customer)->get(route('customer.report'))->assertOk()
-            ->assertSee('Berkah Kreatif')->assertSee('aria-label="Navigasi utama"', false)->assertDontSee('Azka Laundry')->assertDontSee('wa.me/')->assertDontSee('1x24 jam');
+        $this->actingAs($customer)->get(route('customer.help'))->assertOk()
+            ->assertSee('Berkah Kreatif')->assertDontSee('Azka Laundry')->assertDontSee('wa.me/');
         RentalPaymentSetting::create(['id' => 1, 'whatsapp_number' => '6289876543210']);
-        $this->get(route('customer.report'))->assertOk()->assertSee('https://wa.me/6289876543210', false);
+        $this->get(route('customer.help'))->assertOk()->assertSee('https://wa.me/6289876543210', false);
     }
 }

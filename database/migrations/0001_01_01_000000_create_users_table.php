@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * Migration untuk tabel users SIMALUN.
- * Mendukung 3 role: customer, admin, driver
+ * Mendukung 2 role: customer, admin
  * Login bisa pakai email ATAU no_hp
  *
  * Jalankan: php artisan migrate
@@ -27,8 +27,8 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
 
-            // Role: customer | admin | driver
-            $table->enum('role', ['customer', 'admin', 'driver'])->default('customer');
+            // Role: customer | admin
+            $table->enum('role', ['customer', 'admin'])->default('customer');
 
             // Field tambahan per role
             $table->string('alamat')->nullable();          // untuk customer

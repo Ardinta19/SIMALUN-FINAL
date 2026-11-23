@@ -32,16 +32,13 @@ php artisan serve
 |---|---|---|
 | Customer | `customer@test.com` | `081234567890` |
 | Admin | `admin@test.com` | `081234567891` |
-| Driver | `driver@test.com` | `081234567892` |
-| Driver 2 | `driver2@test.com` | `081234567893` |
 
 > Login bisa pakai email **atau** nomor HP. Untuk demo, pakai email biar mudah diingat.
 
-### Layanan yang sudah ada (untuk demo pesanan)
-- Cuci Saja — Rp5.000/kg
-- Cuci + Setrika — Rp7.000/kg
-- Express 1 Hari — Rp10.000/kg
-- Jas/Kemeja — Rp20.000/item, dan beberapa Bedcover
+### Katalog yang perlu disiapkan (untuk demo pesanan)
+Tambahkan kategori (mis. Wisuda), produk papan bunga beserta stok, paket
+durasi, dan tarif antar/jemput per universitas dari panel admin sebelum
+mendemokan alur checkout.
 
 ### Siapkan browser (PENTING biar transisi mulus)
 Buka **3 jendela browser terpisah** (atau 1 normal + 2 mode Incognito/Private),

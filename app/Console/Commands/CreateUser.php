@@ -10,10 +10,10 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 /**
- * Buat akun pengguna (terutama admin & driver) secara aman dari terminal.
+ * Buat akun pengguna (terutama admin) secara aman dari terminal.
  *
  * Kenapa lewat command, bukan form publik?
- *  - Role admin/driver sengaja TIDAK punya pendaftaran publik (anti
+ *  - Role admin sengaja TIDAK punya pendaftaran publik (anti
  *    privilege escalation). Role di-set lewat property assignment,
  *    konsisten dengan RegisterController & UserSeeder.
  *  - Email diisi dengan Gmail asli orangnya supaya bisa dipakai untuk
@@ -26,7 +26,7 @@ class CreateUser extends Command
 {
     protected $signature = 'user:create';
 
-    protected $description = 'Buat akun pengguna baru (customer/admin/driver) secara interaktif';
+    protected $description = 'Buat akun pengguna baru (customer/admin) secara interaktif';
 
     public function handle(): int
     {
@@ -43,7 +43,7 @@ class CreateUser extends Command
         $phone = preg_replace('/[\s\-\.]/', '', $phoneRaw);
         $phone = preg_replace('/^(\+?62|0)/', '', $phone);
 
-        $role = $this->choice('Role', ['customer', 'admin', 'driver'], 'admin');
+        $role = $this->choice('Role', ['customer', 'admin'], 'admin');
 
         $gender = $this->choice('Jenis kelamin', ['L', 'P', '(lewati)'], '(lewati)');
         $gender = $gender === '(lewati)' ? null : $gender;
@@ -75,7 +75,7 @@ class CreateUser extends Command
                 'regex:/^8[0-9]{8,12}$/',
                 Rule::unique('users', 'phone')->whereNull('deleted_at'),
             ],
-            'role' => ['required', 'in:customer,admin,driver'],
+            'role' => ['required', 'in:customer,admin'],
             'gender' => ['nullable', 'in:L,P'],
             'password' => ['required', 'confirmed', Password::min(8)],
         ], [

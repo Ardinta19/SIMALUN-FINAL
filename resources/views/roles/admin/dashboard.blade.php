@@ -10,7 +10,7 @@
 @include('layouts.component._tokens')
 <style>
 /* ═══════════════════════════════════════════════════════════
-   AZKA LAUNDRY · ADMIN DASHBOARD
+   BERKAH KREATIF · DASBOR ADMIN
    Catatan: nama CSS variable di :root dipakai juga oleh
    _analytics_section.blade.php — jangan di-rename.
 ═══════════════════════════════════════════════════════════ */
@@ -232,16 +232,6 @@ body {
 .order-empty__ico svg { width: 27px; height: 27px; stroke: var(--green); }
 .order-empty p { color: var(--ink-lt); font-size: 0.82rem; font-weight: 700; line-height: 1.5; }
 
-/* ── Driver row ── */
-.driver-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 6px; margin: 0 -2px; scrollbar-width: none; }
-.driver-scroll::-webkit-scrollbar { display: none; }
-.driver-chip { display: flex; align-items: center; gap: 9px; background: var(--card); border: 1px solid var(--border); border-radius: 99px; padding: 7px 14px 7px 7px; box-shadow: var(--shadow); flex-shrink: 0; }
-.driver-chip__av { position: relative; width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(145deg, #f9e8ec, #d3ecfb); color: var(--blue-dark); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 800; flex-shrink: 0; }
-.driver-chip__dot { position: absolute; bottom: -1px; right: -1px; width: 11px; height: 11px; border-radius: 50%; background: #22c55e; border: 2px solid var(--card); }
-.driver-chip__name { font-size: 0.8rem; font-weight: 800; color: var(--ink); line-height: 1; }
-.driver-chip__role { font-size: 0.62rem; font-weight: 700; color: var(--green); margin-top: 3px; }
-.driver-empty { width: 100%; text-align: center; padding: 20px; background: var(--card); border: 1.5px dashed var(--border); border-radius: var(--radius-sm); color: var(--ink-lt); font-size: 0.8rem; font-weight: 700; }
-
 /* ── Quick actions ── */
 .quick-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 .quick-item { display: flex; align-items: center; gap: 12px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; text-decoration: none; color: inherit; box-shadow: var(--shadow); transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s; }
@@ -333,32 +323,32 @@ body {
 <main class="body">
     <section class="revenue reveal d3" style="margin-top:18px"><div class="revenue__head"><span class="revenue__cap">Pemasukan hari ini · seluruh buku kas</span></div><div class="revenue__val"><span>Rp</span> {{ number_format($pemasukanHari ?? 0, 0, ',', '.') }}</div><div class="revenue__foot"><span class="revenue__foot-txt">Bulan ini <b>Rp {{ number_format($pemasukanBulan ?? 0, 0, ',', '.') }}</b></span></div></section>
     <section class="section reveal"><div class="section__head"><div><div class="section__title">Perlu perhatian</div><div class="section__title-sm">Buka tugas untuk memeriksa detail tiap unit</div></div></div>
-        <a href="{{ route('admin.rental.orders', ['status' => 'pending']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">📋</span><span class="quick-item__label">{{ $rentalPending }} unit menunggu konfirmasi</span></a>
-        <a href="{{ route('admin.rental.orders', ['status' => 'payment_pending']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">💳</span><span class="quick-item__label">{{ $rentalPaymentPending }} bukti menunggu pemeriksaan</span></a>
-        <a href="{{ route('admin.rental.orders', ['status' => 'transport_quote']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">📍</span><span class="quick-item__label">{{ $rentalQuoteNeeded }} unit memerlukan penawaran ongkos</span></a>
-        <a href="{{ route('admin.rental.orders', ['status' => 'design_initial']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">🌷</span><span class="quick-item__label">{{ $rentalDesignNeeded }} unit memerlukan preview awal</span></a>
-        <a href="{{ route('admin.rental.orders', ['status' => 'review']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">🔎</span><span class="quick-item__label">{{ $rentalReview }} unit dalam peninjauan manual</span></a>
-        <a href="{{ route('admin.rental.orders', ['status' => 'return_overdue']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">⏰</span><span class="quick-item__label">{{ $rentalReturnOverdue }} unit sudah lewat tanggal kembali · tandai sudah dikembalikan</span></a>
-        <a href="{{ route('admin.rental.orders', ['status' => 'seller_cancelled']) }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">↩️</span><span class="quick-item__label">{{ $rentalSellerCancelled }} unit dibatalkan karena penjual · periksa tindak lanjut</span></a>
+        <a href="{{ route('admin.rental.orders', ['status' => 'pending']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'orders', 'size' => 18])</span><span class="quick-item__label">{{ $rentalPending }} unit menunggu konfirmasi</span></a>
+        <a href="{{ route('admin.rental.orders', ['status' => 'payment_pending']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'payment', 'size' => 18])</span><span class="quick-item__label">{{ $rentalPaymentPending }} bukti menunggu pemeriksaan</span></a>
+        <a href="{{ route('admin.rental.orders', ['status' => 'transport_quote']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'location', 'size' => 18])</span><span class="quick-item__label">{{ $rentalQuoteNeeded }} unit memerlukan penawaran ongkos</span></a>
+        <a href="{{ route('admin.rental.orders', ['status' => 'design_initial']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'package', 'size' => 18])</span><span class="quick-item__label">{{ $rentalDesignNeeded }} unit memerlukan preview awal</span></a>
+        <a href="{{ route('admin.rental.orders', ['status' => 'review']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'search', 'size' => 18])</span><span class="quick-item__label">{{ $rentalReview }} unit dalam peninjauan manual</span></a>
+        <a href="{{ route('admin.rental.orders', ['status' => 'return_overdue']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'clock', 'size' => 18])</span><span class="quick-item__label">{{ $rentalReturnOverdue }} unit sudah lewat tanggal kembali · tandai sudah dikembalikan</span></a>
+        <a href="{{ route('admin.rental.orders', ['status' => 'seller_cancelled']) }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'arrow-left', 'size' => 18])</span><span class="quick-item__label">{{ $rentalSellerCancelled }} unit dibatalkan karena penjual · periksa tindak lanjut</span></a>
         <p style="font-size:.78rem;line-height:1.6;color:var(--theme-ink-mid,#705963);margin:10px 2px 0">Pembatalan karena penjual mencakup seluruh riwayat, termasuk yang sudah ditindaklanjuti.</p>
     </section>
     <section class="section reveal"><div class="section__head"><div><div class="section__title">Menunggu pelanggan</div><div class="section__title-sm">Tindakannya ada di pihak pelanggan, bukan admin</div></div></div>
-        <a href="{{ route('admin.rental.orders', ['status' => 'design_pending']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">🌷</span><span class="quick-item__label">{{ $rentalWaitingDesign }} unit menunggu persetujuan desain
+        <a href="{{ route('admin.rental.orders', ['status' => 'design_pending']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'package', 'size' => 18])</span><span class="quick-item__label">{{ $rentalWaitingDesign }} unit menunggu persetujuan desain
 @if($rentalWaitingDesignSince)· menunggu sejak {{ \Carbon\Carbon::parse($rentalWaitingDesignSince)->timezone('Asia/Jakarta')->format('d/m H:i') }} WIB
 @endif</span></a>
-        <a href="{{ route('admin.rental.orders', ['status' => 'transport_approval']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">📍</span><span class="quick-item__label">{{ $rentalWaitingTransport }} unit menunggu persetujuan ongkos
+        <a href="{{ route('admin.rental.orders', ['status' => 'transport_approval']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'location', 'size' => 18])</span><span class="quick-item__label">{{ $rentalWaitingTransport }} unit menunggu persetujuan ongkos
 @if($rentalWaitingTransportSince)· penawaran tertua {{ \Carbon\Carbon::parse($rentalWaitingTransportSince)->timezone('Asia/Jakarta')->format('d/m H:i') }} WIB
 @endif</span></a>
-        <a href="{{ route('admin.rental.orders', ['status' => 'grace']) }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">⏳</span><span class="quick-item__label">{{ $rentalWaitingGrace }} unit dalam toleransi pembayaran
+        <a href="{{ route('admin.rental.orders', ['status' => 'grace']) }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'clock', 'size' => 18])</span><span class="quick-item__label">{{ $rentalWaitingGrace }} unit dalam toleransi pembayaran
 @if($rentalWaitingGraceNearest)· batas terdekat {{ $rentalWaitingGraceNearest->copy()->timezone('Asia/Jakarta')->format('d/m H:i') }} WIB
 @else· sampai H+1 pukul 12.00 WIB
 @endif</span></a>
     </section>
     <section class="section reveal"><div class="section__head"><div><div class="section__title">Pesanan sewa terbaru</div><div class="section__title-sm">Periksa setiap unit secara terpisah</div></div><a href="{{ route('admin.rental.orders') }}" class="section__link">Semua →</a></div>
         @forelse($recentRentalOrders as $order)
-        <a href="{{ route('admin.rental.orders', ['q' => $order->reference]) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">💐</span><span class="quick-item__label" style="overflow-wrap:anywhere">{{ $order->customer?->name ?? 'Pelanggan tidak tersedia' }} · {{ $order->units_count }} unit<br><small>{{ $order->reference }}</small></span></a>
+        <a href="{{ route('admin.rental.orders', ['q' => $order->reference]) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'package', 'size' => 18])</span><span class="quick-item__label" style="overflow-wrap:anywhere">{{ $order->customer?->name ?? 'Pelanggan tidak tersedia' }} · {{ $order->units_count }} unit<br><small>{{ $order->reference }}</small></span></a>
         @empty
-        <div class="driver-empty">Belum ada pesanan sewa.</div>
+        <div class="rental-empty">Belum ada pesanan sewa.</div>
         @endforelse
     </section>
     <section class="section reveal"><div class="section__head"><div class="section__title">Aksi Cepat</div></div><div class="quick-grid">

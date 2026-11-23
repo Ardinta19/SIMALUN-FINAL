@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Schema;
  *
  *  - zona_driver — placeholder untuk feature 'driver per zona' yang
  *    gak jadi diimplementasikan. Driver assignment sekarang via
- *    DriverAssigner (round-robin / load-based).
+ * keranjang/penugasan otomatis yang dulu ada.
  *
  *  - alamat — duplikat data dengan customer_addresses table. Cuma
  *    di-write 1× di RegisterController, gak pernah dibaca. Sumber

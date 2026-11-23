@@ -142,7 +142,7 @@
                             <td data-label="Sumber">{{ $entry->source_type ?: 'Tidak diketahui' }}</td>
                             <td data-label="Catatan">
                                 <span>{{ $entry->notes }}</span>
-                                @if($entry->source_type === 'manual' && !$entry->source_id && !$entry->order_id)
+                                @if($entry->source_type === 'manual' && !$entry->source_id)
                                     <details style="margin-top:6px">
                                         <summary style="cursor:pointer;font-weight:700;font-size:.82rem">Ubah catatan manual</summary>
                                         <form class="adm-stack" style="margin-top:10px" method="post" action="{{ route('admin.rental.cashbook.update', $entry) }}">

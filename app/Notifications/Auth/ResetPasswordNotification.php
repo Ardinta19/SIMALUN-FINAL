@@ -7,7 +7,7 @@ use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Notifications\Messages\MailMessage;
 
 /**
- * Versi reset password dengan nuansa Azka Laundry — bukan template default
+ * Versi reset password dengan nuansa Berkah Kreatif — bukan template default
  * Laravel. Subjek, salam, dan isi email diturunkan dari config/laundry.php
  * supaya identitasnya konsisten dengan struk dan halaman publik.
  */

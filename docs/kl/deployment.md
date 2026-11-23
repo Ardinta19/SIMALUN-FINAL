@@ -76,7 +76,6 @@ SESSION_SECURE_COOKIE=true
 php artisan key:generate --force
 php artisan migrate --force
 php artisan db:seed --force --class=UserSeeder       # akun admin awal
-php artisan db:seed --force --class=ServiceCategorySeeder
 ```
 
 ### 1.4 Storage symlink
@@ -488,7 +487,6 @@ penting (mis. migrate harus setelah .env diisi DB).
 - [ ] **Verifikasi koneksi DB:** `php artisan migrate:status` (harus list migration tanpa error)
 - [ ] `php artisan migrate --force`
 - [ ] `php artisan db:seed --force --class=UserSeeder` (akun admin awal)
-- [ ] `php artisan db:seed --force --class=ServiceCategorySeeder`
 - [ ] `php artisan storage:link --force`
 - [ ] **Set permission:**
   ```bash

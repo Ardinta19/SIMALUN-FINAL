@@ -23,19 +23,10 @@ return new class extends Migration
 
             $table->index(['customer_id', 'is_primary']);
         });
-
-        Schema::table('orders', function (Blueprint $table) {
-            $table->foreignId('customer_address_id')->nullable()->after('customer_id')->constrained('customer_addresses')->nullOnDelete();
-            $table->index('customer_address_id');
-        });
     }
 
     public function down(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('customer_address_id');
-        });
-
         Schema::dropIfExists('customer_addresses');
     }
 };

@@ -13,8 +13,8 @@ use Illuminate\Http\Request;
  * 3. Fallback ke route yang diberikan
  *
  * Cara pakai di view:
- *   <x-back-button fallback="customer.orders" />
- *   atau manual: BackUrl::resolve($request, 'customer.orders')
+ *   <x-back-button fallback="rental.orders.index" />
+ *   atau manual: BackUrl::resolve($request, 'rental.orders.index')
  */
 class BackUrl
 {

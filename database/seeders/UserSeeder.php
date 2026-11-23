@@ -13,14 +13,9 @@ class UserSeeder extends Seeder
         // Catatan: $role di-set lewat property assignment, bukan mass-fill,
         // karena `role` sudah dikeluarkan dari User::$fillable (anti
         // privilege escalation). Pattern ini dipakai di seluruh codebase
-        // — RegisterController, walk-in flow, seeder ini.
+        // — RegisterController, register & seeder ini.
         $this->buatUser('Test Customer', 'customer@test.com', '081234567890', 'customer');
         $this->buatUser('Test Admin', 'admin@test.com', '081234567891', 'admin');
-        $this->buatUser('Test Driver', 'driver@test.com', '081234567892', 'driver');
-
-        // Driver kedua biar DriverAssigner kelihatan jalan menyebar tugas.
-        // Round-robin / load-based gak ada gunanya kalau cuma satu driver.
-        $this->buatUser('Test Driver 2', 'driver2@test.com', '081234567893', 'driver');
     }
 
     private function buatUser(string $name, string $email, string $phone, string $role): User

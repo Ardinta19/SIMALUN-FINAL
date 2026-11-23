@@ -66,12 +66,12 @@ import './echo.js';
 
 #### 4. Aktifkan broadcasting di notifikasi
 
-Edit `app/Notifications/OrderStatusUpdated.php`:
+Edit `app/Notifications/RentalUpdate.php`:
 
 1. Tambah `use Illuminate\Contracts\Broadcasting\ShouldBroadcast;` di import.
 2. Ganti class signature jadi:
    ```php
-   class OrderStatusUpdated extends Notification implements ShouldQueue, ShouldBroadcast
+   class RentalUpdate extends Notification implements ShouldQueue, ShouldBroadcast
    ```
 3. Ganti method `via()` return jadi:
    ```php

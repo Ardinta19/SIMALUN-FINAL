@@ -15,7 +15,6 @@ class FinanceEntry extends Model
         'amount',
         'source_type',
         'source_id',
-        'order_id',
         'notes',
         'created_by',
     ];
@@ -23,11 +22,6 @@ class FinanceEntry extends Model
     protected $casts = [
         'entry_date' => 'date',
     ];
-
-    public function order(): BelongsTo
-    {
-        return $this->belongsTo(Order::class);
-    }
 
     public function creator(): BelongsTo
     {

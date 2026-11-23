@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('vouchers', function (Blueprint $table) {
             $table->id();
-            // Kode dipakai customer di form order — wajib unik dan
+            // Kode dipakai customer saat checkout sewa — wajib unik dan
             // disimpan UPPERCASE supaya pencarian gampang.
             $table->string('code', 30)->unique();
             $table->string('description', 200);
@@ -36,31 +36,17 @@ return new class extends Migration
         Schema::create('voucher_usages', function (Blueprint $table) {
             $table->id();
             $table->foreignId('voucher_id')->constrained('vouchers')->cascadeOnDelete();
-            $table->foreignId('order_id')->constrained('orders')->cascadeOnDelete();
             $table->foreignId('customer_id')->constrained('users')->cascadeOnDelete();
             $table->unsignedInteger('discount_amount');
             $table->timestamps();
 
-            // Satu order maksimal pakai satu voucher — pengaman dari double-apply.
-            $table->unique(['voucher_id', 'order_id']);
-            $table->index('customer_id');
+            $table->index(['voucher_id', 'customer_id']);
         });
 
-        // Jejak voucher dipakai di order sendiri (denormalisasi ringan, biar
-        // list pesanan tidak perlu join voucher_usages buat tampilkan kode).
-        Schema::table('orders', function (Blueprint $table) {
-            $table->string('voucher_code', 30)->nullable()->after('discount');
-            $table->index('voucher_code');
-        });
     }
 
     public function down(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->dropIndex(['voucher_code']);
-            $table->dropColumn('voucher_code');
-        });
-
         Schema::dropIfExists('voucher_usages');
         Schema::dropIfExists('vouchers');
     }

@@ -39,7 +39,6 @@ class RentalPaymentSettingsTest extends TestCase
         Storage::fake('local');
         $admin = User::factory()->create(); $admin->forceFill(['role' => 'admin'])->save();
         $customer = User::factory()->create(); $customer->forceFill(['role' => 'customer'])->save();
-        $driver = User::factory()->create(); $driver->forceFill(['role' => 'driver'])->save();
         $category = RentalCategory::create(['name' => 'Wisuda']);
         $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 1]);
         $order = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $customer->id, 'confirmation_deadline' => now()->addDay()]);
@@ -50,7 +49,8 @@ class RentalPaymentSettingsTest extends TestCase
         $this->actingAs($admin)->post($url, ['_method' => 'PUT', 'qris' => UploadedFile::fake()->image('qr.png'), 'whatsapp_number' => '6281234567890'])->assertSessionHasNoErrors();
         $path = RentalPaymentSetting::findOrFail(1)->qris_path;
         Storage::disk('local')->assertExists($path);
-        $this->actingAs($driver)->get(route('rental.payment.qris'))->assertForbidden();
+        // Tamu tidak boleh melihat gambar QRIS pembayaran.
+        $this->get(route('rental.payment.qris'))->assertRedirect(route('login'));
         $response = $this->actingAs($customer)->get(route('rental.payment.qris'))->assertOk();
         $this->assertStringContainsString('no-store', $response->headers->get('Cache-Control'));
         $this->get(route('rental.orders.unit', [$order, $unit]))->assertOk()->assertSee('Bayar melalui QRIS')->assertSee('https://wa.me/6281234567890', false)->assertSee('Kirim bukti pembayaran');

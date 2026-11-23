@@ -2,11 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\Order;
-use App\Models\Service;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 /**
@@ -87,61 +84,5 @@ class SecurityHardeningTest extends TestCase
         ]);
 
         $response->assertStatus(429);
-    }
-
-    public function test_proof_image_upload_tolak_file_non_image(): void
-    {
-        $driver = User::factory()->create(['role' => 'driver']);
-        $service = Service::create([
-            'name' => 'Cuci Test MIME',
-            'slug' => 'cuci-mime-'.uniqid(),
-            'pricing_model' => 'per_kg',
-            'unit_price' => 7000,
-            'unit_type' => 'kg',
-            'price_per_kg' => 7000,
-            'estimated_hours' => 24,
-            'description' => 'Test',
-            'is_active' => true,
-        ]);
-        $order = Order::create([
-            'order_code' => 'ORD-MIME-'.uniqid(),
-            'customer_id' => User::factory()->create(['role' => 'customer'])->id,
-            'service_id' => $service->id,
-            'driver_id' => $driver->id,
-            'address' => 'Jl. MIME No. 1',
-            'zone' => 'A',
-            'pickup_cost' => 5000,
-            'pickup_date' => now()->toDateString(),
-            'pickup_time' => 'pagi',
-            'weight_estimate' => 2,
-            'service_cost' => 14000,
-            'discount' => 0,
-            'total_cost' => 19000,
-            'status' => 'dikirim',
-            'payment_method' => 'cod',
-            'is_paid' => false,
-        ]);
-
-        // Upload PDF file dengan ekstensi .pdf — `image` rule + `mimetypes:`
-        // dua-duanya harus nolak. Sebelumnya cuma `image` rule yang
-        // ngecek lewat getimagesize, masih bisa di-bypass kalau file
-        // header dipalsu. mimetypes: rule jalan di level OS-level mime
-        // detection (finfo), lebih ketat.
-        $nonImage = UploadedFile::fake()->create(
-            'document.pdf',
-            100,
-            'application/pdf'
-        );
-
-        $response = $this->actingAs($driver)
-            ->post(route('driver.orders.action', $order), [
-                'status' => 'selesai',
-                'proof_image' => $nonImage,
-                'payment_channel' => 'cash',
-            ]);
-
-        $response->assertSessionHasErrors(['proof_image']);
-        $this->assertSame('dikirim', $order->fresh()->status);
-        $this->assertNull($order->fresh()->proof_image);
     }
 }

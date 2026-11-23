@@ -21,12 +21,9 @@ class UiDefaultsTest extends TestCase
 
     private const SKIP_PATHS = [
         'emails/',
-        'exports/',
-        'order/receipt',
         'rental/receipt',
         'rental/daily-sheet',
         'rental/public-like',
-        'welcome.blade.php',
     ];
 
     /** @return array<int, string> */

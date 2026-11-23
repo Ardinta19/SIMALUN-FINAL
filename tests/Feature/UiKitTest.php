@@ -716,7 +716,6 @@ class UiKitTest extends TestCase
             'roles/customer/addresses/create.blade.php',
             'roles/customer/addresses/edit.blade.php',
             'roles/customer/profile/edit.blade.php',
-            'roles/customer/orders/tracking.blade.php',
         ] as $view) {
             $css = File::get(resource_path('views/'.$view));
 
@@ -724,13 +723,6 @@ class UiKitTest extends TestCase
             $this->assertMatchesRegularExpression('/linear-gradient\([^;]*var\(--blue-dark\)[^;]*var\(--blue-mid\)/s', $css, 'Gradien di '.$view.' harus berjalan dari --blue-dark ke --blue-mid.');
         }
 
-        // Merah untuk label wajib isi dan pesan error tidak boleh pucat.
-        foreach (['reports/create.blade.php', 'order/receipt.blade.php'] as $view) {
-            $css = File::get(resource_path('views/'.$view));
-
-            $this->assertStringContainsString('--red: #c62f2f', $css, 'Warna merah di '.$view.' memudar lagi.');
-            $this->assertGreaterThanOrEqual(4.5, $this->contrastRatio('#c62f2f', '#ffffff'), 'Merah di '.$view.' tidak terbaca di atas putih.');
-        }
     }
 
     public function test_theme_never_uses_important(): void

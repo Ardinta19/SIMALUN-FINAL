@@ -8,7 +8,7 @@
 @include('layouts.component._tokens')
 <style>
 /* ═══════════════════════════════════════════════════════════
-   AZKA LAUNDRY · ADMIN · EDIT PROFIL
+   BERKAH KREATIF · ADMIN · EDIT PROFIL
    Design System — token-only styling, Lucide icons, pure-CSS motion.
    All colors/radii/shadows/spacing reference canonical tokens
    emitted by layouts.component._tokens (mirrors tailwind.config.js).

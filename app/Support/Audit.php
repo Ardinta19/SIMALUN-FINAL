@@ -19,8 +19,8 @@ class Audit
      * supaya gampang dipanggil di banyak konteks.
      *
      * Contoh:
-     *   Audit::log('voucher.create', $voucher, after: $voucher->toArray());
-     *   Audit::log('order.status', $order, before: ['status' => $old], after: ['status' => $new]);
+     *   Audit::log('rental.voucher.create', $voucher, after: $voucher->toArray());
+     *   Audit::log('rental.catalog.product.toggle', $product, before: $before, after: $after);
      */
     public static function log(
         string $action,

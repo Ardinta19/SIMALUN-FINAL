@@ -2,8 +2,6 @@
 
 namespace App\Providers;
 
-use App\Models\Order;
-use App\Observers\OrderObserver;
 use App\Support\Laundry;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
@@ -18,8 +16,6 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Order::observe(OrderObserver::class);
-
         // Share laundry config ke semua views
         View::share('laundry', app('laundry'));
 
