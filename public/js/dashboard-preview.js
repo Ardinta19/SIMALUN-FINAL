@@ -45,6 +45,10 @@
             }
             preview.replaceChildren(...cards.map(card => document.importNode(card, true)));
             stopLoading();
+            /* Kartu baru mengubah tinggi halaman; ScrollTrigger dan kemiringan
+               kartu harus dihitung ulang, kalau tidak parallax/reveal di
+               bawahnya memakai posisi lama. */
+            document.dispatchEvent(new CustomEvent('bk:content-updated'));
             preview.addEventListener('click', event => {
                 const link = event.target.closest('a');
                 if (!link || !link.matches('.bk-product-image-link, .bk-product-name') || !link.closest('.bk-product-card') || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || link.target || link.hasAttribute('download')) return;

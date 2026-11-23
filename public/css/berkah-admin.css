@@ -1393,8 +1393,11 @@ html[data-theme="dark"] .adm-app {
     .adm-app :is(.adm-btn, .adm-btn--sm, .adm-iconbtn, .adm-chip--link, .adm-user__out, .adm-tabs__item) {
         min-height: var(--adm-touch);
     }
-    .adm-app :is(.adm-iconbtn, .adm-user__out) {
+    /* Tombol menu dan tombol tema juga tombol ikon: di ponsel ukurannya turun
+       ke 38–40 px, terlalu kecil untuk ujung jari. */
+    .adm-app :is(.adm-iconbtn, .adm-user__out, .adm-topbar__menu, .adm-topbar__tools .bk-theme-btn) {
         min-width: var(--adm-touch);
+        min-height: var(--adm-touch);
     }
     .adm-app :is(input, select, textarea) {
         font-size: max(1rem, var(--adm-fs-md));

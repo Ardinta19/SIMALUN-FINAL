@@ -51,6 +51,7 @@ body {
     background: var(--surface);
     color: var(--ink);
     min-height: 100vh;
+    min-height: 100dvh;
     padding-bottom: calc(122px + env(safe-area-inset-bottom, 0px));
     overflow-x: hidden;
 }

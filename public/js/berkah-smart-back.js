@@ -63,7 +63,15 @@
         return window.history.length > 1;
     }
 
+    /* Klik ganda pada tombol Kembali tidak boleh memanggil history.back()
+       dua kali — pengunjung akan melompat dua halaman ke belakang. */
+    var leaving = false;
+
     document.addEventListener('click', function (event) {
+        if (leaving) {
+            event.preventDefault();
+            return;
+        }
         // Biarkan perilaku bawaan untuk klik tengah, Ctrl/Cmd, Shift, Alt.
         if (event.defaultPrevented || event.button !== 0) return;
         if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -74,6 +82,7 @@
 
         if (!cameFromSameSite(anchor)) return;
 
+        leaving = true;
         event.preventDefault();
         window.history.back();
     }, false);

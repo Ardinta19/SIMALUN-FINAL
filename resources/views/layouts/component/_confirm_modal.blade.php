@@ -189,6 +189,7 @@ body.confirm-locked { overflow: hidden; }
     var _lastFocus = null;
     var _paddingRight = '';
     var _open = false;
+    var _locked = false;
 
     function byId(id) { return document.getElementById(id); }
 
@@ -203,6 +204,11 @@ body.confirm-locked { overflow: hidden; }
        Padding kanan dikompensasi supaya bilah gulir yang hilang tidak
        menggeser tata letak di belakang dialog. */
     function lockPage() {
+        /* Dialog bisa dibuka ulang sebelum dialog lama selesai ditutup; kalau
+           kunci dipasang dua kali, padding cadangan tertimpa dan sisa padding
+           tertinggal di body setelah ditutup. */
+        if (_locked) return;
+        _locked = true;
         var gap = window.innerWidth - document.documentElement.clientWidth;
         _paddingRight = document.body.style.paddingRight;
         if (gap > 0) document.body.style.paddingRight = gap + 'px';
@@ -211,6 +217,8 @@ body.confirm-locked { overflow: hidden; }
     }
 
     function unlockPage() {
+        if (!_locked) return;
+        _locked = false;
         document.body.classList.remove('confirm-locked');
         document.documentElement.classList.remove('lenis-stopped-lock');
         document.body.style.paddingRight = _paddingRight;

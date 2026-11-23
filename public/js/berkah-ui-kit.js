@@ -183,7 +183,7 @@
     let lastFocus = null;
 
     function openDialog() {
-        if (!dialog) return;
+        if (!dialog || dialog.open) return;
         lastFocus = document.activeElement;
         if (typeof dialog.showModal === 'function') {
             try { dialog.showModal(); } catch { dialog.setAttribute('open', ''); }
@@ -221,8 +221,15 @@
         });
         dialog.addEventListener('close', () => {
             document.body.classList.remove('bk-theme-open');
-            if (lastFocus && typeof lastFocus.focus === 'function') {
-                try { lastFocus.focus({ preventScroll: true }); } catch { lastFocus.focus(); }
+            /* Kembalikan fokus ke pembuka. Bila dialog dibuka tanpa fokus pada
+               tombol (mis. lewat papan ketik pintas atau skrip), `lastFocus`
+               jatuh ke <body>; memfokuskan body membuat fokus hilang dari
+               urutan tab, jadi tombol pembuka dipakai sebagai cadangan. */
+            const back = lastFocus && lastFocus !== document.body && document.contains(lastFocus)
+                ? lastFocus
+                : toggleButton;
+            if (back && typeof back.focus === 'function') {
+                try { back.focus({ preventScroll: true }); } catch { back.focus(); }
             }
         });
         dialog.querySelectorAll('[data-bk-theme-set]').forEach((button) => {
@@ -338,12 +345,8 @@
 
     const cartLabel = (button) => button.querySelector('.bk-atc__label');
 
-    document.addEventListener('submit', (event) => {
-        const form = event.target;
-        if (!(form instanceof HTMLFormElement)) return;
-        const button = form.querySelector('.bk-atc');
-        if (!button) return;
-
+    const markCartLoading = (form, button) => {
+        form.dataset.bkSubmitting = '1';
         // JANGAN menonaktifkan tombol: tombol ini bisa membawa name/value
         // (mis. name="next" value="cart") yang harus tetap terkirim.
         button.classList.add('is-loading');
@@ -353,7 +356,49 @@
             button.dataset.bkLabel = label.textContent;
             label.textContent = 'Menambahkan…';
         }
+    };
+
+    const resetCartLoading = (scope) => {
+        (scope || document).querySelectorAll('form[data-bk-submitting="1"]').forEach((form) => {
+            form.dataset.bkSubmitting = '0';
+            form.querySelectorAll('.bk-atc').forEach((button) => {
+                button.classList.remove('is-loading');
+                button.removeAttribute('aria-busy');
+                const label = cartLabel(button);
+                if (label && button.dataset.bkLabel) {
+                    label.textContent = button.dataset.bkLabel;
+                    delete button.dataset.bkLabel;
+                }
+            });
+        });
+    };
+
+    document.addEventListener('submit', (event) => {
+        const form = event.target;
+        if (!(form instanceof HTMLFormElement)) return;
+
+        // Klik kedua saat pengiriman pertama masih berjalan: batalkan, supaya
+        // pesanan tidak masuk dua kali.
+        if (form.dataset.bkSubmitting === '1') {
+            event.preventDefault();
+            return;
+        }
+
+        const button = form.querySelector('.bk-atc');
+        if (!button) return;
+
+        // berkah-controls.js memvalidasi di fase yang sama dan bisa memanggil
+        // preventDefault(). Tunda penandaan sampai dispatch selesai; kalau
+        // dibatalkan, tombol tidak boleh tertinggal di "Menambahkan…".
+        window.setTimeout(() => {
+            if (event.defaultPrevented || form.dataset.bkSubmitting === '1' || !form.isConnected) return;
+            markCartLoading(form, button);
+        }, 0);
     }, true);
+
+    // Kembali dari cache riwayat (bfcache): status memuat yang tertinggal
+    // dilepas, teks tombol dipulihkan.
+    window.addEventListener('pageshow', () => resetCartLoading(document));
 
     /* ============================================================
        5. Suka (hati) — tanpa memuat ulang halaman

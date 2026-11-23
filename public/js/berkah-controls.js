@@ -191,8 +191,16 @@
         body.style.right = '';
         body.style.width = '';
         body.style.overflow = '';
+        /* Lenis memegang posisi gulirnya sendiri; memulihkan lewat
+           window.scrollTo() bisa langsung ditimpa lagi oleh frame berikutnya.
+           Kalau mesin gerak ada, serahkan pemulihan kepadanya. */
         try {
-            window.scrollTo(0, lock.y);
+            var lenis = window.BkMotion && window.BkMotion.lenis;
+            if (lenis && typeof lenis.scrollTo === 'function') {
+                lenis.scrollTo(lock.y, { immediate: true, force: true });
+            } else {
+                window.scrollTo(0, lock.y);
+            }
         } catch (e) {
             root.scrollTop = lock.y;
         }
@@ -275,7 +283,11 @@
             window.removeEventListener('resize', onViewportChange);
             if (locked) unlockScroll();
             if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
-            if (trigger && trigger.setAttribute && trigger.hasAttribute && trigger.hasAttribute('aria-expanded')) {
+            /* Bila lapisan ini sudah digantikan lapisan baru pada pembuka yang
+               sama (klik cepat saat animasi tutup masih berjalan), keadaan
+               `aria-expanded` milik lapisan baru — jangan ditimpa. */
+            var superseded = activeLayer && activeLayer.overlay !== overlay;
+            if (!superseded && trigger && trigger.setAttribute && trigger.hasAttribute && trigger.hasAttribute('aria-expanded')) {
                 trigger.setAttribute('aria-expanded', 'false');
             }
             if (activeLayer && activeLayer.overlay === overlay) activeLayer = null;
@@ -316,7 +328,12 @@
             var restore = options.restoreFocus !== false;
             var focusInside = overlay.contains(document.activeElement) || document.activeElement === document.body;
             animateOut(function () {
+                /* Lapisan pengganti mungkin sudah terbuka dan memegang fokus;
+                   mengembalikan fokus ke pembuka akan mencurinya dari dialog
+                   yang sedang tampil. */
+                var superseded = activeLayer && activeLayer.overlay !== overlay;
                 cleanup();
+                if (superseded) return;
                 if (restore && focusInside) focusQuiet(returnTo);
             });
         }
@@ -442,7 +459,7 @@
             });
         }
 
-        activeLayer = { overlay: overlay, close: close };
+        activeLayer = { overlay: overlay, close: close, trigger: trigger };
 
         opts.build(body, api);
 
@@ -741,7 +758,11 @@
 
             list.addEventListener('keydown', function (event) {
                 var enabled = options.filter(function (btn) { return !btn.disabled; });
+                /* Bila fokus belum ada di salah satu opsi, ArrowDown/Right
+                   harus ke opsi pertama dan ArrowUp/Left ke opsi terakhir.
+                   Tanpa ini, index -1 menghasilkan opsi kedua-dari-belakang. */
                 var index = enabled.indexOf(document.activeElement);
+                if (index === -1) index = event.key === 'ArrowDown' || event.key === 'ArrowRight' ? -1 : enabled.length;
                 var next = null;
                 if (event.key === 'ArrowDown') next = enabled[(index + 1) % enabled.length];
                 else if (event.key === 'ArrowUp') next = enabled[(index - 1 + enabled.length) % enabled.length];
@@ -843,6 +864,7 @@
                 if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
                 var enabled = buttons.filter(function (b) { return !b.disabled; });
                 var index = enabled.indexOf(document.activeElement);
+                if (index === -1) index = event.key === 'ArrowRight' ? -1 : enabled.length;
                 var next = enabled[(index + (event.key === 'ArrowRight' ? 1 : -1) + enabled.length) % enabled.length];
                 if (next) {
                     event.preventDefault();
@@ -1783,6 +1805,7 @@
                 list.addEventListener('keydown', function (event) {
                     var enabled = buttons.filter(function (btn) { return !btn.disabled; });
                     var index = enabled.indexOf(document.activeElement);
+                    if (index === -1) index = event.key === 'ArrowUp' || event.key === 'End' ? enabled.length : -1;
                     var next = null;
                     if (event.key === 'ArrowDown') next = enabled[(index + 1) % enabled.length];
                     else if (event.key === 'ArrowUp') next = enabled[(index - 1 + enabled.length) % enabled.length];

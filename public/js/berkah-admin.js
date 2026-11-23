@@ -328,9 +328,16 @@
             var method = (form.getAttribute('method') || 'get').toLowerCase();
             if (method !== 'post' || form.hasAttribute('data-adm-no-loading')) return;
 
-            on(form, 'submit', function () {
+            on(form, 'submit', function (event) {
+                // Klik kedua saat pengiriman pertama berjalan: batalkan,
+                // supaya data tidak terkirim dua kali.
+                if (form.dataset.admSubmitting === '1') {
+                    event.preventDefault();
+                    return;
+                }
+
                 var submitter = form.querySelector('button[type="submit"]:not(.adm-btn--quiet), button:not([type]):not(.adm-btn--quiet)');
-                if (!submitter || form.dataset.admSubmitting === '1') return;
+                if (!submitter) return;
                 form.dataset.admSubmitting = '1';
                 submitter.classList.add('is-loading');
                 submitter.setAttribute('aria-busy', 'true');

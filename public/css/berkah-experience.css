@@ -367,7 +367,8 @@ html:not(.bk-enhanced) .bk-header-space{height:auto!important;min-height:0;paddi
 }
 
 @media (pointer: coarse) {
-    .bk-jump a {
+    .bk-jump a,
+    .bk-category-strip a {
         min-height: var(--bk-touch);
     }
 }

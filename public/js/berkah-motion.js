@@ -152,9 +152,16 @@
                Tautan "lompat ke isi" tidak disentuh: fokus keyboard harus
                tetap berpindah seperti perilaku asli peramban. */
             document.addEventListener('click', function (event) {
+                /* Ctrl/Cmd/Shift/Alt + klik berarti "buka di tab/jendela
+                   baru"; klik tengah bukan urusan kita; dan bila skrip lain
+                   sudah menangani klik ini, jangan diambil alih. */
+                if (event.defaultPrevented || event.button !== 0) return;
+                if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
                 var link = event.target.closest ? event.target.closest('a[href^="#"]') : null;
                 if (!link) return;
                 if (link.classList.contains('adm-skip') || link.classList.contains('skip-link')) return;
+                if (link.hasAttribute('download')) return;
+                if (link.target && link.target !== '_self') return;
                 var hash = link.getAttribute('href');
                 if (!hash || hash === '#') return;
                 var target = null;
@@ -233,6 +240,14 @@
     function initParallax() {
         if (!motionOn() || saveData) return;
         each(document.querySelectorAll('[data-bk-parallax]'), function (el) {
+            /* refresh() dipanggil setiap konten baru masuk (katalog dinamis,
+               pratinjau dashboard). Tanpa penanda ini, tiap panggilan membuat
+               satu ScrollTrigger tambahan untuk elemen yang sama. */
+            /* Kunci penanda WAJIB berbeda dari atribut pemicunya: `once()`
+               menulis dataset dengan nama yang sama, dan `data-bk-parallax`
+               sudah berisi kedalaman (mis. "0.08") — memakainya sebagai kunci
+               membuat parallax tidak pernah berjalan sama sekali. */
+            if (!once(el, 'bkParallaxReady')) return;
             var depth = parseFloat(el.getAttribute('data-bk-parallax')) || 0.1;
             var distance = Math.max(-40, Math.min(40, depth * 160));
             window.gsap.to(el, {
@@ -283,6 +298,10 @@
         if (!gsap) return;
 
         each(document.querySelectorAll('[data-bk-tilt]'), function (card) {
+            /* Sama seperti parallax: tanpa penanda, cepat atau lambat satu
+               kartu punya beberapa pasang listener pointer dan setiap gerak
+               kursor menjalankan beberapa tween sekaligus. */
+            if (!once(card, 'bkTiltReady')) return;
             var rotX = gsap.quickTo(card, 'rotationX', { duration: 0.4, ease: 'power2.out' });
             var rotY = gsap.quickTo(card, 'rotationY', { duration: 0.4, ease: 'power2.out' });
             gsap.set(card, { transformStyle: 'preserve-3d' });
@@ -398,10 +417,14 @@
 
     if (reduceQuery && reduceQuery.addEventListener) {
         reduceQuery.addEventListener('change', function () {
-            if (prefersReduced() && state.lenis) {
-                state.lenis.destroy();
-                state.lenis = null;
-            }
+            if (!prefersReduced() || !state.lenis) return;
+            /* Ticker harus dilepas lebih dulu: tanpa itu ia terus memanggil
+               raf() pada instance Lenis yang sudah dihancurkan. */
+            if (state.ticker && window.gsap) window.gsap.ticker.remove(state.ticker);
+            state.ticker = null;
+            state.lenis.destroy();
+            state.lenis = null;
+            root.classList.remove('bk-lenis');
         });
     }
 

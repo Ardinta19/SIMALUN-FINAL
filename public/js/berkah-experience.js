@@ -12,6 +12,43 @@
     document.addEventListener('click', event => { const link = event.target.closest('a[href^="#"]'); if (link && link.hash === location.hash) revealHash(); });
     revealHash();
     const header = document.querySelector('[data-bk-header]');
+
+    /* Gulir programatik harus lewat Lenis bila mesin gerak aktif: memanggil
+       window.scrollTo() saat Lenis berjalan membuat dua pengendali berebut
+       posisi (halaman bisa melompat balik). */
+    const lenisNow = () => (window.BkMotion && window.BkMotion.lenis) || null;
+    const scrollPageTo = (top, animate, done) => {
+        const lenis = lenisNow();
+        let settled = false;
+        const finish = () => { if (settled) return; settled = true; if (done) done(); };
+
+        if (lenis && typeof lenis.scrollTo === 'function') {
+            try {
+                lenis.scrollTo(top, {
+                    duration: animate ? 0.7 : 0,
+                    immediate: !animate,
+                    force: true,
+                    onComplete: finish
+                });
+                window.setTimeout(finish, animate ? 900 : 120);
+                return;
+            } catch (error) { /* jatuh ke gulir asli */ }
+        }
+
+        try {
+            window.scrollTo({ top: top, left: 0, behavior: animate ? 'smooth' : 'auto' });
+        } catch (error) {
+            window.scrollTo(0, top);
+        }
+        window.setTimeout(finish, animate ? 700 : 60);
+    };
+
+    /* Saat logo ringkas dipakai kembali ke atas, header ditahan dalam bentuk
+       ringkas sampai gulir selesai. Tanpa penahan ini header berubah lagi di
+       tengah jalan, tombol berpindah dari bawah kursor, dan klik berikutnya
+       mendarat pada isi halaman di belakangnya. */
+    let headerHold = 0;
+    const clock = () => (window.performance && typeof window.performance.now === 'function' ? window.performance.now() : Date.now());
     // Logo ringkas berfungsi sebagai "kembali ke atas" dan tetap hidup walau
     // dukungan <dialog> tidak tersedia, jadi dipasang sebelum pengecekan itu.
     const compactLogo = header && header.querySelector('[data-bk-expand]');
@@ -20,11 +57,11 @@
             event.preventDefault();
             let reduce = false;
             try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { reduce = false; }
-            try {
-                window.scrollTo({ top: 0, left: 0, behavior: reduce ? 'auto' : 'smooth' });
-            } catch {
-                window.scrollTo(0, 0);
-            }
+
+            headerHold = clock() + 1200;
+            scrollPageTo(0, !reduce, () => { headerHold = 0; syncHeader(); });
+            window.setTimeout(() => { if (headerHold) { headerHold = 0; syncHeader(); } }, 1250);
+
             const topLink = header.querySelector('.bk-logo');
             if (topLink) {
                 window.setTimeout(() => { try { topLink.focus({ preventScroll: true }); } catch { topLink.focus(); } }, reduce ? 0 : 320);
@@ -55,6 +92,7 @@
     };
     let pinned = false;
     const syncHeader = () => {
+        if (clock() < headerHold) return;
         const scrolled = window.scrollY > 180;
         if (!scrolled) {
             pinned = false;
@@ -110,7 +148,7 @@
             const savedScroll = Number(dialog.dataset.returnScroll || NaN);
             // Dialog modal dapat memaksa halaman melompat ke atas; kembalikan posisi baca semula.
             if (Number.isFinite(savedScroll) && window.scrollY + 4 < savedScroll) {
-                try { window.scrollTo({ top: savedScroll, left: 0, behavior: 'auto' }); } catch { window.scrollTo(0, savedScroll); }
+                scrollPageTo(savedScroll, false);
             }
             syncHeader();
             const trigger = document.querySelector(`[data-open-dialog="${dialog.dataset.returnFocus}"]`);

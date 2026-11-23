@@ -32,6 +32,7 @@ body {
     background: var(--surface-50);
     color: var(--ink);
     min-height: 100vh;
+    min-height: 100dvh;
     padding-bottom: calc(var(--space-20) + env(safe-area-inset-bottom, 0px));
     overflow-x: hidden;
 }

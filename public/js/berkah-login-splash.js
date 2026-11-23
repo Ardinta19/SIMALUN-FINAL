@@ -61,37 +61,43 @@
     function finish() {
         if (done) return;
         done = true;
-        document.removeEventListener('keydown', onKey);
-        splash.removeEventListener('click', onSkip);
-        var skipBtn = splash.querySelector('.bk-splash__skip');
-        if (skipBtn) skipBtn.removeEventListener('click', onSkip);
+        detachHandlers();
         setInert(false);
         removeSplash();
     }
 
+    function detachHandlers() {
+        document.removeEventListener('keydown', onKey);
+        splash.removeEventListener('click', onSkip);
+        var skipBtn = splash.querySelector('.bk-splash__skip');
+        if (skipBtn) skipBtn.removeEventListener('click', onSkip);
+    }
+
+    /* Melepas inert SEKARANG, bukan menunggu animasi. Dulu `done` di-set true
+       di sini lalu finish() dipanggil dari onComplete; finish() langsung
+       kembali karena `done` sudah true, sehingga setInert(false) tidak pernah
+       berjalan dan seluruh halaman login tetap inert — klik apa pun tidak
+       bereaksi setelah splash ditutup. */
     function skip() {
         if (done) return;
+        done = true;
+        detachHandlers();
+        setInert(false);
+
         if (timeline && gsap) {
+            timeline.kill();
+            timeline = null;
             gsap.killTweensOf(splash);
             gsap.to(splash, {
                 opacity: 0,
                 duration: 0.24,
                 ease: 'power2.out',
-                onComplete: finish
+                onComplete: removeSplash
             });
-            timeline.kill();
-            timeline = null;
-            done = true;
-            document.removeEventListener('keydown', onKey);
-            splash.removeEventListener('click', onSkip);
-            var skipBtn = splash.querySelector('.bk-splash__skip');
-            if (skipBtn) skipBtn.removeEventListener('click', onSkip);
-            window.setTimeout(function () {
-                if (splash.parentNode) splash.parentNode.removeChild(splash);
-            }, 420);
-        } else {
-            finish();
+            return;
         }
+
+        removeSplash();
     }
 
     function onSkip() {
