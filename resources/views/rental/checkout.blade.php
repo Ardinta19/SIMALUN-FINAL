@@ -21,7 +21,7 @@
 @if(collect(array_keys($fieldLabels))->contains(fn ($field) => $errors->has('units.'.$key.'.'.$field)))
 <div class="bk-unit-errors" id="checkout-errors-{{ $unitNumber }}"><strong>Periksa isian unit {{ $unitNumber }}:</strong><ul>@foreach($fieldLabels as $field => $label)@if($errors->has('units.'.$key.'.'.$field))<li><a href="#checkout-{{ $unitNumber }}-{{ $field }}">{{ $label }}</a></li>@endif @endforeach</ul></div>
 @endif
-<p class="price">Harga dasar Rp {{ number_format($product->base_price, 0, ',', '.') }} / {{ $product->price_unit === 'day' ? 'hari' : 'acara' }}</p><p class="muted">Harga sewa dihitung berdasarkan tanggal atau paket yang dipilih, belum termasuk ongkos. Harga dan paket diperiksa kembali saat pesanan dikirim.</p><p><a class="btn secondary" href="{{ route('catalog.show', $product) }}" target="_blank" rel="noopener noreferrer" rel="noopener noreferrer">Periksa perkiraan ketersediaan (buka tab baru)</a></p>
+<p class="price">Harga dasar Rp {{ number_format($product->base_price, 0, ',', '.') }} / {{ $product->price_unit === 'day' ? 'hari' : 'acara' }}</p><p class="muted">Harga sewa dihitung berdasarkan tanggal atau paket yang dipilih, belum termasuk ongkos. Harga dan paket diperiksa kembali saat pesanan dikirim.</p><p><a class="btn secondary" href="{{ route('catalog.show', $product) }}" target="_blank" rel="noopener noreferrer">Periksa perkiraan ketersediaan (buka tab baru)</a></p>
 @if(!$loop->first)<button type="button" class="btn secondary" data-copy-previous hidden>Salin detail dari unit sebelumnya</button><p class="muted" data-copy-help hidden>Menyalin jadwal, penerima, ucapan, desain, dan serah terima; pilihan paket tidak disalin. Periksa kembali sebelum mengirim.</p><p class="muted" role="status" aria-live="polite" data-copy-status></p>@endif
 <h3>Jadwal sewa</h3><p class="muted">Tanggal acara sekaligus menjadi tanggal papan diterima, baik diantar maupun diambil di outlet. Jika sewa hanya satu hari, pilih tanggal pengembalian yang sama.</p><div class="row"><label for="checkout-{{ $unitNumber }}-event_on">Tanggal acara dan penerimaan <span class="bk-req">(wajib)</span><input type="date" id="checkout-{{ $unitNumber }}-event_on" name="units[{{ $key }}][event_on]" data-fc-range="unit-{{ $key }}" data-fc-unit="{{ $key }}" data-fc-product="{{ $product->id }}" data-fc-stock="{{ (int) $product->stock }}" data-fc-refresh-url="{{ route('catalog.availability', $product) }}" @error('units.'.$key.'.event_on') aria-invalid="true" aria-describedby="checkout-errors-{{ $unitNumber }}" @enderror value="{{ $oldUnit('event_on', $entry['starts_on'] ?? '') }}" min="{{ now('Asia/Jakarta')->toDateString() }}" max="{{ now('Asia/Jakarta')->addDays(\App\Services\RentalAvailability::BOOKING_HORIZON_DAYS - 1)->toDateString() }}" data-fc-disabled='@json($bookedDates[$product->id] ?? [])' required></label><label for="checkout-{{ $unitNumber }}-ends_on">Tanggal pengembalian <span class="bk-req">(wajib)</span><input type="date" id="checkout-{{ $unitNumber }}-ends_on" name="units[{{ $key }}][ends_on]" data-fc-range="unit-{{ $key }}" data-fc-unit="{{ $key }}" data-fc-product="{{ $product->id }}" data-fc-stock="{{ (int) $product->stock }}" data-fc-refresh-url="{{ route('catalog.availability', $product) }}" @error('units.'.$key.'.ends_on') aria-invalid="true" aria-describedby="checkout-errors-{{ $unitNumber }}" @enderror value="{{ $oldUnit('ends_on', $entry['ends_on'] ?? '') }}" min="{{ $returnMin }}" max="{{ now('Asia/Jakarta')->addDays(\App\Services\RentalAvailability::BOOKING_HORIZON_DAYS - 1)->toDateString() }}" data-fc-disabled='@json($bookedDates[$product->id] ?? [])' required></label></div>
 @php
@@ -41,6 +41,14 @@
 <label for="checkout-{{ $unitNumber }}-return_address">Alamat pengambilan kembali <span class="bk-muted-mark">(wajib jika dijemput)</span><textarea autocomplete="street-address" id="checkout-{{ $unitNumber }}-return_address" name="units[{{ $key }}][return_address]" @error('units.'.$key.'.return_address') aria-invalid="true" aria-describedby="checkout-errors-{{ $unitNumber }}" @enderror maxlength="1000">{{ $oldUnit('return_address', $entry['return_address'] ?? '') }}</textarea></label>
 <label>Universitas lokasi pengambilan kembali (opsional)<select id="checkout-{{ $unitNumber }}-return_university_id" name="units[{{ $key }}][return_university_id]" @error('units.'.$key.'.return_university_id') aria-invalid="true" aria-describedby="checkout-errors-{{ $unitNumber }}" @enderror><option value="">Lokasi lain / tidak dijemput</option>@foreach($universities as $university)<option value="{{ $university->id }}" @selected((string) old('units.'.$key.'.return_university_id') === (string) $university->id)>{{ $university->name }} · jemput Rp {{ number_format($university->collection_fee, 0, ',', '.') }}</option>@endforeach</select></label></div><p class="muted" id="checkout-{{ $unitNumber }}-delivery-hint">Diantar penjual: lengkapi alamat tujuan. Diambil di outlet: alamat tidak perlu diisi.</p><p class="muted" id="checkout-{{ $unitNumber }}-return-hint">Dikembalikan ke outlet: alamat tidak perlu diisi. Diambil penjual: lengkapi alamat penjemputan.</p><p class="muted">Pilihan universitas hanya digunakan jika metode terkait adalah diantar atau dijemput. Isi alamat lengkap agar lokasi dapat ditemukan. Tarif akan ditampilkan kembali untuk disetujui.</p>
 </section>@endforeach
+<section class="card body" id="checkout-voucher">
+<h2>Kode voucher</h2>
+<p class="muted">Punya kode voucher? Masukkan di sini. Potongan dihitung dari harga sewa unit dan diperiksa kembali saat pesanan dikirim.</p>
+<label for="voucher_code">Kode voucher <span class="bk-muted-mark">(opsional)</span><input id="voucher_code" name="voucher_code" maxlength="40" autocomplete="off" autocapitalize="characters" spellcheck="false" value="{{ is_scalar(old('voucher_code')) ? old('voucher_code') : '' }}" @error('voucher_code') aria-invalid="true" aria-describedby="voucher-error" @enderror placeholder="Contoh: WISUDA10"></label>
+@error('voucher_code')<p class="bk-field-error" id="voucher-error">{{ $message }}</p>@enderror
+<p><button type="button" class="btn secondary" data-voucher-check>Cek kode</button></p>
+<p class="muted" role="status" aria-live="polite" data-voucher-status>Kode diperiksa saat pesanan dikirim; tombol cek hanya menampilkan perkiraan potongan.</p>
+</section>
 <div class="notice"><strong>Masih dalam pengujian.</strong> Setelah dikirim, pesanan menunggu konfirmasi admin. Penjadwal perlu berjalan untuk memproses tenggat; jangan gunakan data atau pembayaran nyata.</div>
 <section class="card body checkout-terms" id="checkout-terms">
 <h2>Ketentuan penyewaan</h2>
@@ -68,6 +76,42 @@ if (firstInvalid) {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     firstInvalid.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' });
     firstInvalid.focus({ preventScroll: true });
+}
+
+const voucherBox = document.querySelector('[data-voucher-check]');
+const voucherCode = document.getElementById('voucher_code');
+const voucherStatus = document.querySelector('[data-voucher-status]');
+if (voucherBox && voucherCode && voucherStatus) {
+    voucherBox.addEventListener('click', async () => {
+        const code = voucherCode.value.trim();
+        if (!code) {
+            voucherStatus.textContent = 'Isi kode voucher terlebih dahulu.';
+            voucherCode.focus();
+            return;
+        }
+        const tokenField = checkoutForm.querySelector('input[name="_token"]');
+        voucherBox.disabled = true;
+        voucherStatus.textContent = 'Memeriksa kode...';
+        try {
+            const response = await fetch(@json(route('rental.voucher.check')), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': tokenField ? tokenField.value : '' },
+                body: JSON.stringify({ code })
+            });
+            const payload = await response.json();
+            if (!response.ok || !payload.ok) {
+                voucherCode.setAttribute('aria-invalid', 'true');
+                voucherStatus.textContent = payload.message || 'Kode tidak dapat dipakai.';
+                return;
+            }
+            voucherCode.removeAttribute('aria-invalid');
+            voucherStatus.textContent = payload.message + ' Perkiraan potongan ' + payload.discount_text + '. ' + payload.note;
+        } catch (error) {
+            voucherStatus.textContent = 'Tidak dapat memeriksa kode saat ini. Kode tetap diperiksa saat pesanan dikirim.';
+        } finally {
+            voucherBox.disabled = false;
+        }
+    });
 }
 
 window.addEventListener('pageshow', () => {

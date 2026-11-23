@@ -93,3 +93,24 @@ Rincian penilaian per peran ada di `docs/UIUX-PER-ROLE.md`. Yang berubah pada ko
 6. Tes baru `tests/Feature/UiAccessibilityTest.php` (7 tes, tanpa database) menjaga keenam hal di atas pada berkas view. Perkiraan total `php artisan test`: **±336 tes**.
 
 Pemeriksaan di peramban yang masih perlu dilakukan: buka halaman walk-in dan edit profil admin dengan tombol Tab, pastikan cincin fokus tampil; cubit layar pada ponsel di katalog dan halaman admin; periksa tema gelap masih terbaca (garis fokus `#ffb0c4`).
+
+### Babak G — voucher sewa (`belum diuji di Windows`)
+
+Rincian aturan ada di `docs/VOUCHER-SEWA.md`. Ringkasnya:
+
+1. Admin membuat voucher di **Beranda admin → Voucher** (kode, jenis potongan persen/nominal, cakupan "hanya harga sewa" atau "harga sewa + ongkos", minimum belanja, batas potongan, kuota total, batas per pelanggan, masa berlaku, aktif/nonaktif).
+2. Pelanggan memasukkan kode di halaman checkout dan dapat menekan **Cek kode** untuk melihat perkiraan potongan sebelum mengirim.
+3. Potongan dihitung saat pesanan dikirim, disimpan per unit (`discount_amount`, `transport_discount_amount`) dan per pesanan (`discount_amount`), lalu dipakai otomatis oleh tagihan, pembayaran, tenggat, pengingat, dan struk karena semuanya memakai `payableAmount()`.
+4. Voucher ber-cakupan ongkos dihitung ulang setelah pelanggan menyetujui ongkos, dengan batas agar tagihan tidak turun di bawah pembayaran terverifikasi.
+5. Migrasi baru: `2026_11_22_000022_add_rental_voucher_discount.php` (kolom `vouchers.scope`, `vouchers.per_customer_limit`, kolom voucher pada `rental_orders` dan `rental_order_units`, tabel `rental_voucher_usages`).
+6. Tes baru `tests/Feature/RentalVoucherTest.php` (9 tes, `RefreshDatabase`). Perkiraan total `php artisan test`: **±345 tes**.
+
+Pemeriksaan yang perlu dilakukan di Windows setelah `php artisan migrate`:
+
+1. `php artisan test` lalu catat jumlah lulus/gagal.
+2. Buat voucher `UJI10` (persen 10, cakupan harga sewa, kuota 5, sekali per pelanggan), lalu checkout satu papan dua hari; tagihan harus turun 10% dan potongan tampil di detail unit serta struk.
+3. Kirim pesanan yang sama dua kali dengan kode berbeda; pesanan kedua harus dianggap baru, bukan duplikat.
+4. Buat voucher cakupan "harga sewa + ongkos", pesan dengan pengantaran, setujui ongkos, lalu pastikan total potongan bertambah dan tagihan unit berkurang sesuai.
+5. Coba kode yang kuotanya sudah habis dan kode nonaktif; keranjang harus tetap utuh.
+
+Penghapusan modul laundry lama (pesanan, walk-in, keuangan, voucher laundry, kategori, laporan, kurir) **ditunda** sesuai keputusan pemilik. Rute dan halamannya masih ada tetapi tidak tertaut dari navigasi; rencananya dikerjakan sebagai babak tersendiri setelah voucher stabil.

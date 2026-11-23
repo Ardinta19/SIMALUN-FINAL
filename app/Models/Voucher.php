@@ -7,14 +7,22 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Voucher extends Model
 {
+    /** Potongan hanya untuk harga sewa papan. */
+    public const SCOPE_RENTAL = 'rental';
+
+    /** Potongan ikut menutup ongkos antar/jemput yang disetujui pelanggan. */
+    public const SCOPE_RENTAL_TRANSPORT = 'rental_transport';
+
     protected $fillable = [
         'code',
         'description',
         'type',
+        'scope',
         'value',
         'min_order',
         'max_discount',
         'usage_limit',
+        'per_customer_limit',
         'used_count',
         'valid_from',
         'valid_until',
@@ -25,11 +33,54 @@ class Voucher extends Model
         'is_active' => 'boolean',
         'valid_from' => 'date',
         'valid_until' => 'date',
+        'per_customer_limit' => 'integer',
     ];
 
     public function usages(): HasMany
     {
         return $this->hasMany(VoucherUsage::class);
+    }
+
+    /** Pemakaian voucher pada pesanan sewa (tabel terpisah dari pesanan laundry). */
+    public function rentalUsages(): HasMany
+    {
+        return $this->hasMany(RentalVoucherUsage::class);
+    }
+
+    public function coversTransport(): bool
+    {
+        return $this->scope === self::SCOPE_RENTAL_TRANSPORT;
+    }
+
+    public function scopeLabel(): string
+    {
+        return $this->coversTransport() ? 'Harga sewa + ongkos' : 'Hanya harga sewa';
+    }
+
+    /** Jumlah pemakaian oleh satu pelanggan pada alur sewa. */
+    public function usageCountFor(int $customerId): int
+    {
+        return (int) $this->rentalUsages()->where('customer_id', $customerId)->count();
+    }
+
+    /** Sisa kuota total; null berarti tanpa batas. */
+    public function remainingUses(): ?int
+    {
+        if ($this->usage_limit === null) {
+            return null;
+        }
+
+        return max(0, (int) $this->usage_limit - (int) $this->used_count);
+    }
+
+    /** Sisa kuota per pelanggan; null berarti tanpa batas. */
+    public function remainingUsesFor(int $customerId): ?int
+    {
+        if ($this->per_customer_limit === null) {
+            return null;
+        }
+
+        return max(0, (int) $this->per_customer_limit - $this->usageCountFor($customerId));
     }
 
     /**

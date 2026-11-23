@@ -4,6 +4,7 @@
 <p><a class="bk-back" href="{{ route('rental.orders.index') }}">← Pesanan saya</a></p>
 <h1>Detail pesanan</h1>
 <p class="muted">Referensi: {{ $order->reference }}</p>
+@if($order->voucher_code)<p class="muted">Voucher {{ $order->voucher_code }} · potongan Rp {{ number_format((int) $order->discount_amount, 0, ',', '.') }} sudah termasuk pada tagihan tiap unit.</p>@endif
 <p class="muted">Batas konfirmasi: {{ $order->confirmation_deadline->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB</p>
 <p><a class="btn secondary" href="{{ route('rental.receipt', $order) }}">Ringkasan cetak</a></p>
 <div class="notice">Pilih unit untuk memeriksa ongkos, desain, pembayaran, dan perkembangannya. Tanggal ditahan sejak pesanan dikirim sampai admin mengonfirmasi.</div>

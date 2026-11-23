@@ -26,6 +26,7 @@ use App\Http\Controllers\RentalDesignController;
 use App\Http\Controllers\RentalPaymentController;
 use App\Http\Controllers\RentalProgressController;
 use App\Http\Controllers\RentalUniversityController;
+use App\Http\Controllers\RentalVoucherController;
 use App\Http\Controllers\RentalCashBookController;
 use App\Http\Controllers\RentalPaymentSettingController;
 use App\Http\Controllers\RentalScheduleController;
@@ -134,6 +135,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/preview-desain/{preview}/respons', [RentalDesignController::class, 'respond'])->name('rental.design.respond');
         Route::get('/checkout', [RentalOrderController::class, 'create'])->name('rental.checkout');
         Route::post('/checkout', [RentalOrderController::class, 'store'])->middleware('throttle:6,1')->name('rental.checkout.store');
+        Route::post('/voucher-sewa/cek', [RentalVoucherController::class, 'check'])->middleware('throttle:20,1')->name('rental.voucher.check');
         Route::get('/sewa', [RentalOrderController::class, 'index'])->name('rental.orders.index');
         Route::get('/sewa/{order}', [RentalOrderController::class, 'show'])->name('rental.orders.show');
         Route::get('/sewa/{order}/unit/{unit}', [RentalOrderController::class, 'customerUnit'])->name('rental.orders.unit');
@@ -196,6 +198,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/universitas', [RentalUniversityController::class, 'store'])->name('rental.universities.store');
         Route::put('/universitas/{university}', [RentalUniversityController::class, 'update'])->name('rental.universities.update');
         Route::patch('/universitas/{university}/status', [RentalUniversityController::class, 'toggle'])->name('rental.universities.toggle');
+        Route::get('/voucher-sewa', [RentalVoucherController::class, 'index'])->name('rental.vouchers.index');
+        Route::post('/voucher-sewa', [RentalVoucherController::class, 'store'])->name('rental.vouchers.store');
+        Route::patch('/voucher-sewa/{voucher}/status', [RentalVoucherController::class, 'toggle'])->name('rental.vouchers.toggle');
         Route::get('/katalog', [RentalCatalogController::class, 'admin'])->name('catalog.index');
         Route::post('/katalog/kategori', [RentalCatalogController::class, 'categoryStore'])->name('catalog.categories.store');
         Route::put('/katalog/kategori/{category}', [RentalCatalogController::class, 'categoryUpdate'])->name('catalog.categories.update');

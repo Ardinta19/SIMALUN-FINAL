@@ -8,7 +8,9 @@ use App\Models\RentalDurationPackage;
 use App\Models\RentalUniversity;
 use App\Models\RentalPaymentSetting;
 use App\Models\User;
+use App\Models\Voucher;
 use App\Services\RentalAvailability;
+use App\Services\RentalVouchers;
 use App\Services\RentalPaymentDeadline;
 use App\Services\RentalNotifications;
 use Carbon\Carbon;
@@ -66,6 +68,7 @@ class RentalOrderController extends Controller
             'units.*.delivery_address' => ['nullable', 'string', 'max:1000'],
             'units.*.return_method' => ['required', Rule::in(['collection', 'dropoff'])],
             'units.*.return_address' => ['nullable', 'string', 'max:1000'],
+            'voucher_code' => ['nullable', 'string', 'max:40'],
         ]);
         if (count($cart) !== count($data['units']) || array_diff(array_keys($cart), array_keys($data['units']))) {
             throw ValidationException::withMessages(['cart' => 'Keranjang berubah. Periksa kembali sebelum mengirim.']);
@@ -95,8 +98,11 @@ class RentalOrderController extends Controller
         ksort($units);
         foreach ($units as &$values) ksort($values);
         unset($values);
-        $payloadHash = hash('sha256', json_encode($units, JSON_THROW_ON_ERROR));
-        [$order, $created] = DB::transaction(function () use ($request, $cart, $data, $checkoutKey, $payloadHash) {
+        // Kode voucher ikut menjadi bagian isi pesanan: pengiriman ulang dengan
+        // kode berbeda harus dianggap sebagai pesanan berbeda, bukan duplikat.
+        $voucherCode = mb_strtoupper(trim((string) ($data['voucher_code'] ?? '')));
+        $payloadHash = hash('sha256', json_encode([$units, $voucherCode], JSON_THROW_ON_ERROR));
+        [$order, $created] = DB::transaction(function () use ($request, $cart, $data, $checkoutKey, $payloadHash, $voucherCode) {
             // Serialize checkout pelanggan yang sama, termasuk jika dua request
             // membaca sesi sebelum request pertama mengosongkan keranjang.
             User::whereKey($request->user()->id)->lockForUpdate()->firstOrFail();
@@ -122,6 +128,7 @@ class RentalOrderController extends Controller
                 }
             }
             $order = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $request->user()->id, 'confirmation_deadline' => now()->addHours(24), 'checkout_key' => $checkoutKey, 'checkout_payload_hash' => $payloadHash]);
+            $plans = [];
             foreach ($cart as $key => $entry) {
                 $product = $products->get($entry['product_id']);
                 if (! $product || ! $product->is_active || ! $product->category->is_active || $product->stock < 1) throw ValidationException::withMessages(['cart' => 'Ada papan yang tidak tersedia. Perbarui keranjang.']);
@@ -148,7 +155,36 @@ class RentalOrderController extends Controller
                 $hasTransport = $unit['delivery_method'] === 'delivery' || $unit['return_method'] === 'collection';
                 $transport = ['delivery_university' => $delivery?->name, 'delivery_university_fee' => $delivery?->delivery_fee, 'return_university' => $collection?->name, 'return_university_fee' => $collection?->collection_fee];
                 if ($hasTransport && $allFixed) $transport += ['transport_quote' => (int) ($delivery?->delivery_fee ?? 0) + (int) ($collection?->collection_fee ?? 0), 'transport_quote_version' => 1, 'transport_quote_note' => 'Tarif universitas sesuai pilihan saat checkout.'];
-                $order->units()->create(array_merge($unit, $transport, ['rental_product_id' => $product->id, 'product_name' => $product->name, 'unit_price' => $product->base_price, 'price_unit' => $product->price_unit, 'rental_amount' => $amount, 'rental_duration_package_id' => $package?->id, 'package_name' => $package?->name, 'package_days' => $package?->days]));
+                // Unit dibuat setelah potongan voucher diketahui agar setiap
+                // baris unit langsung menyimpan bagian potongannya.
+                $plans[$key] = array_merge($unit, $transport, ['rental_product_id' => $product->id, 'product_name' => $product->name, 'unit_price' => $product->base_price, 'price_unit' => $product->price_unit, 'rental_amount' => $amount, 'rental_duration_package_id' => $package?->id, 'package_name' => $package?->name, 'package_days' => $package?->days]);
+            }
+
+            // Voucher: diperiksa dan dikunci di dalam transaksi supaya kuota
+            // tidak bisa terpakai dua kali oleh pengiriman bersamaan.
+            $vouchers = app(RentalVouchers::class);
+            $rentalBase = array_sum(array_map(fn (array $plan) => (int) $plan['rental_amount'], $plans));
+            $voucher = null;
+            $discount = 0;
+            if ($voucherCode !== '') {
+                $voucher = Voucher::where('code', $voucherCode)->lockForUpdate()->first();
+                if (! $voucher) throw ValidationException::withMessages(['voucher_code' => 'Kode voucher tidak dikenal.']);
+                $problem = $vouchers->problem($voucher, $request->user(), $rentalBase);
+                if ($problem !== null) throw ValidationException::withMessages(['voucher_code' => $problem]);
+                $discount = $vouchers->discountFor($voucher, $rentalBase);
+            }
+            $weights = array_map(fn (array $plan) => (int) $plan['rental_amount'], $plans);
+            $allocation = $vouchers->allocate($discount, $weights);
+            $order->forceFill([
+                'voucher_id' => $voucher?->id,
+                'voucher_code' => $voucher?->code,
+                'discount_amount' => $discount,
+            ])->save();
+            foreach ($plans as $planKey => $plan) {
+                $order->units()->create($plan + ['discount_amount' => (int) ($allocation['rental'][$planKey] ?? 0)]);
+            }
+            if ($voucher && $discount > 0) {
+                $vouchers->record($voucher, $order, $discount, $request->user()->id);
             }
             app(RentalNotifications::class)->admins($order, 'Pesanan sewa baru', 'Pesanan baru menunggu konfirmasi admin.');
             return [$order, true];
@@ -307,6 +343,9 @@ class RentalOrderController extends Controller
             }
             $unit->update(['transport_approved_at' => now()]);
             $unit->transportQuoteEvents()->create(['action' => 'approve', 'version' => $unit->transport_quote_version, 'amount' => (int) $unit->transport_quote, 'note' => null, 'recorded_by' => $request->user()->id]);
+            // Voucher yang mencakup ongkos dihitung ulang setelah ongkos
+            // disetujui, supaya potongan mengikuti tagihan yang sebenarnya.
+            app(RentalVouchers::class)->redistribute($unit->order()->first());
             app(RentalNotifications::class)->admins($unit->order, 'Ongkos disetujui', 'Pelanggan menyetujui ongkos unit '.$unit->product_name.'.');
         });
         return back()->with('success', 'Ongkos disetujui.');
