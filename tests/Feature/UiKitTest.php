@@ -327,18 +327,29 @@ class UiKitTest extends TestCase
             '.customer-radial__links a',
             '.bk-header-radial>summary',
             '.auth-back',
-            '.rating-existing__star',
-            '.rating-stars label',
-            '.rating-existing__star--off',
-            '.code-big',
             '.code-pill',
-            '.help-card details',
         ];
 
         foreach ($selectors as $selector) {
             $pattern = '/html\[data-theme="dark"\][^{]*'.preg_quote($selector, '/').'[^{]*\{[^{}]*background(?:-color)?\s*:/';
 
             $this->assertMatchesRegularExpression($pattern, $theme, 'Permukaan chip/alert belum digelapkan: '.$selector);
+        }
+
+        // Bintang rating, kode galat besar, dan <details> bantuan bukan keping
+        // berlatar: yang dijaga di sini warna teks/garisnya, bukan latarnya.
+        $textOnly = [
+            '.rating-existing__star',
+            '.rating-stars label',
+            '.rating-existing__star--off',
+            '.code-big',
+            '.help-card details',
+        ];
+
+        foreach ($textOnly as $selector) {
+            $pattern = '/html\[data-theme="dark"\][^{]*'.preg_quote($selector, '/').'[^{}]*\{[^{}]*(?:color|border-color)\s*:/';
+
+            $this->assertMatchesRegularExpression($pattern, $theme, 'Nilai tema gelap untuk teks/garis belum ada: '.$selector);
         }
     }
 
