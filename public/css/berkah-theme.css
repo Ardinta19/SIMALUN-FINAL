@@ -292,7 +292,7 @@ html[data-theme="dark"] :is(.customer-radial__heading strong) {
 
 html[data-theme="dark"] :is(
     input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="file"]),
-    select, textarea, .form-input, .field-input, .input, .field, .rating-textarea
+    select, textarea, .form-input, .field-input, .input, .rating-textarea
 ) {
     background: var(--theme-surface-2);
     border-color: var(--theme-line);
