@@ -28,6 +28,9 @@ html[data-theme="dark"] {
     --theme-surface: #201820;
     --theme-surface-2: #2a2028;
     --theme-surface-3: #342730;
+    /* Kartu sedikit terangkat dari panel: tanpa jeda ini kartu menyatu dengan
+       latar dan garis 1px jadi satu-satunya penanda batas. */
+    --theme-card: #241c22;
     --theme-ink: #f6ece8;
     --theme-ink-mid: #d0b9c0;
     --theme-ink-lt: #b5a0a7;
@@ -57,7 +60,7 @@ html[data-theme="dark"] {
     --surface-200: var(--theme-surface-2);
     --surface-300: var(--theme-surface-3);
     --surface-400: #8f7a82;
-    --card: var(--theme-surface);
+    --card: var(--theme-card);
     --line: var(--theme-line);
     --line-soft: var(--theme-line-soft);
     --border: var(--theme-line);
@@ -565,7 +568,12 @@ html[data-theme="dark"] .bk-experience {
     color: var(--theme-ink);
 }
 
-html[data-theme="dark"] :is(.bk-experience .card, .bk-experience .unit-section, .bk-experience .admin-photo) {
+html[data-theme="dark"] .bk-experience .card {
+    background: var(--theme-card);
+    border-color: var(--theme-line);
+}
+
+html[data-theme="dark"] :is(.bk-experience .unit-section, .bk-experience .admin-photo) {
     background: var(--theme-surface);
     border-color: var(--theme-line);
 }

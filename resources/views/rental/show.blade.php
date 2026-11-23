@@ -24,7 +24,7 @@
 <section class="card body bk-feedback-card"><h2>Suka publik</h2><p>{{ $likeCount }} suka. Tautan hanya menampilkan jumlah suka, tanpa data pesanan atau identitasmu.</p>
 @if($likeShare)<div class="bk-share-link"><label for="share-link">Tautan untuk dibagikan</label><div class="bk-share-actions"><input id="share-link" readonly value="{{ route('rental.likes.public', $likeShare->token) }}"><button type="button" class="btn secondary" data-copy-share hidden>Salin tautan</button></div><p class="muted" role="status" data-copy-status>Salin tautan secara manual jika diperlukan.</p></div><p class="muted">Siapa pun yang memiliki tautan dapat melihat jumlah suka. Pelanggan yang masuk dapat memberi atau membatalkan suka.</p><form method="post" action="{{ route('rental.order.share', $order) }}">@csrf<input type="hidden" name="enabled" value="0"><button class="btn secondary">Nonaktifkan tautan</button></form>
 @else<p class="muted">Tautan belum aktif. Kamu dapat menonaktifkannya kapan saja. Jumlah suka tetap tersimpan jika tautan dinonaktifkan.</p><form method="post" action="{{ route('rental.order.share', $order) }}">@csrf<input type="hidden" name="enabled" value="1"><button class="btn secondary">Buat tautan suka</button></form>@endif</section>
-<div class="items">
+<div class="items" data-bk-reveal-group="units" data-bk-reveal-stagger="0.06">
 @forelse($order->units as $unit)
 <article class="card body">
     <h2>Unit {{ $loop->iteration }} · {{ $unit->product_name }}</h2>

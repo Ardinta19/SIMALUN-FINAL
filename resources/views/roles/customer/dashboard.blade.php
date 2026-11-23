@@ -2,11 +2,11 @@
 @section('title', 'Beranda')
 @section('content')
 <div class="bk-dashboard">
-<section class="bk-dashboard-welcome">
+<section class="bk-dashboard-welcome" data-bk-reveal="hero">
   <div><span class="bk-kicker">RUANG PELANGGAN</span><h1>Halo, {{ explode(' ', auth()->user()->name)[0] }}</h1><p>Semua yang kamu butuhkan untuk menyiapkan dan memantau momen istimewa, di satu tempat.</p><a href="{{ route('welcome') }}" class="btn">Jelajahi papan bunga <span aria-hidden="true">↗</span></a></div>
-  <div class="bk-dashboard-flower" aria-hidden="true"><span>✿</span></div>
+  <div class="bk-dashboard-flower" aria-hidden="true" data-bk-parallax="0.08"><span>✿</span></div>
 </section>
-<section class="bk-dashboard-preview" aria-labelledby="preview-title">
+<section class="bk-dashboard-preview" aria-labelledby="preview-title" data-bk-reveal="up">
   <div class="bk-section-heading"><div><span class="bk-kicker">KOLEKSI BERKAH KREATIF</span><h2 id="preview-title">Temukan papan untuk momenmu</h2></div><a href="{{ route('welcome') }}#koleksi">Lihat katalog →</a></div>
   <p class="muted">Beberapa pilihan dari katalog. Pilih papan untuk melihat detailnya.</p>
   <div class="grid bk-preview-grid" data-catalog-preview data-catalog-url="{{ route('welcome') }}" aria-live="polite"><p class="muted">Buka katalog untuk melihat pilihan papan bunga.</p></div>

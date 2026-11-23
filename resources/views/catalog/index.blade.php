@@ -2,7 +2,7 @@
 @section('title', 'Katalog papan bunga')
 @section('hero')
 <div class="intro bk-atelier-hero">
-    <div class="bk-atelier-content"><span class="bk-atelier-label">PAPAN BUNGA · BERKAH KREATIF</span><h1>Setiap momen punya cerita.</h1><p>Temukan papan bunga untuk menyampaikan ucapanmu. Pilih bentuknya, lalu ceritakan desain yang kamu inginkan.</p><a href="#koleksi" class="bk-hero-link">Jelajahi koleksi <span aria-hidden="true">↗</span></a><span class="bk-hero-note">Foto dekoratif ilustrasi suasana</span></div>
+    <div class="bk-atelier-content" data-bk-reveal="hero"><span class="bk-atelier-label">PAPAN BUNGA · BERKAH KREATIF</span><h1>Setiap momen punya cerita.</h1><p>Temukan papan bunga untuk menyampaikan ucapanmu. Pilih bentuknya, lalu ceritakan desain yang kamu inginkan.</p><a href="#koleksi" class="bk-hero-link">Jelajahi koleksi <span aria-hidden="true">↗</span></a><span class="bk-hero-note">Foto dekoratif ilustrasi suasana</span></div>
 </div>
 @endsection
 @section('content')
@@ -12,7 +12,7 @@
     $queryQ = $queryValue('q');
     $queryCategory = $queryValue('category');
 @endphp
-<div class="bk-how" aria-label="Cara memesan"><div><span>01</span><p><strong>Pilih papan</strong><small>Temukan bentuk yang cocok</small></p></div><div><span>02</span><p><strong>Tulis ceritamu</strong><small>Atur tanggal dan ucapan</small></p></div><div><span>03</span><p><strong>Pantau pesanan</strong><small>Tunggu konfirmasi admin</small></p></div></div>
+<div class="bk-how" aria-label="Cara memesan" data-bk-reveal-group="how" data-bk-reveal-stagger="0.08"><div><span>01</span><p><strong>Pilih papan</strong><small>Temukan bentuk yang cocok</small></p></div><div><span>02</span><p><strong>Tulis ceritamu</strong><small>Atur tanggal dan ucapan</small></p></div><div><span>03</span><p><strong>Pantau pesanan</strong><small>Tunggu konfirmasi admin</small></p></div></div>
 <div id="koleksi" class="bk-filter-bar"><div><span class="bk-kicker">Temukan yang tepat</span><h2>Papan untuk momenmu</h2><p class="muted">Cari berdasarkan nama, kategori, atau tanggal.</p></div></div>
 <dialog class="bk-dialog bk-filter-sheet" id="bk-filter" aria-labelledby="bk-filter-title"><div class="bk-dialog-head"><div><span class="bk-eyebrow">PILIHAN KATALOG</span><h2 id="bk-filter-title">Cari papan</h2></div><button type="button" data-close-dialog aria-label="Tutup pencarian">×</button></div><div data-filter-slot></div></dialog>
 <form id="catalog-filter" class="card body stack bk-filter-form" data-filter-form data-filter-errors="{{ $errors->hasAny(['q', 'category', 'starts_on', 'ends_on']) ? '1' : '0' }}" method="get" action="{{ route('welcome') }}">
@@ -42,9 +42,9 @@
 @endif
 <div class="bk-section-heading"><div><span class="bk-kicker">KOLEKSI BERKAH KREATIF</span><h2>Jelajahi katalog</h2></div><span class="muted">{{ $products->total() }} pilihan</span></div>
 @if($dates)<p class="notice" role="status">Menampilkan papan yang diperkirakan tersedia pada {{ \Carbon\Carbon::parse($dates['starts_on'])->format('d/m/Y') }}–{{ \Carbon\Carbon::parse($dates['ends_on'])->format('d/m/Y') }}. Perkiraan ini belum menahan tanggal; tanggal dikunci setelah pesanan dikirim sampai admin mengonfirmasi paling lambat 24 jam.</p>@else<p class="muted">Foto merupakan contoh; desain akhir mengikuti permintaan pelanggan. Pilih tanggal di atas untuk memeriksa ketersediaan.</p>@endif
-<div class="grid" data-catalog-products>
+<div class="grid" data-catalog-products data-bk-reveal-group="cards" data-bk-reveal-stagger="0.055">
 @forelse($products as $product)
-<article class="card bk-product-card">
+<article class="card bk-product-card" data-bk-tilt>
     <a class="bk-product-image-link" href="{{ route('catalog.show', array_merge(['product' => $product->id], $dates ?? [], array_filter(['q' => request('q'), 'category' => request('category')], fn ($v) => is_scalar($v) && $v !== ''))) }}" aria-label="Lihat detail {{ $product->name }}">
     @if($product->image_path)<img loading="lazy" decoding="async" class="photo" src="{{ asset('storage/'.$product->image_path) }}" alt="">@else<div class="photo placeholder" aria-hidden="true">✿</div>@endif</a>
     <div class="body"><p class="muted">{{ $product->category->name }}</p><h3><a class="bk-product-name" href="{{ route('catalog.show', array_merge(['product' => $product->id], $dates ?? [], array_filter(['q' => request('q'), 'category' => request('category')], fn ($v) => is_scalar($v) && $v !== ''))) }}">{{ $product->name }}</a></h3>
@@ -59,7 +59,7 @@
         <button class="bk-qty__btn" type="button" data-bk-qty-step="-1" aria-label="Kurangi jumlah unit {{ $product->name }}">−</button>
         <input class="bk-qty__input" type="number" name="quantity" value="1" min="1" max="{{ max(1, min(20, $product->stock)) }}" step="1" inputmode="numeric" aria-label="Jumlah unit {{ $product->name }}">
         <button class="bk-qty__btn" type="button" data-bk-qty-step="1" aria-label="Tambah jumlah unit {{ $product->name }}">+</button>
-    </div>@if($dates)<input type="hidden" name="starts_on" value="{{ $dates['starts_on'] }}"><input type="hidden" name="ends_on" value="{{ $dates['ends_on'] }}">@endif<button class="bk-atc" type="submit" aria-label="Tambah {{ $product->name }} ke keranjang"><span class="bk-atc__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20.4" r="1.4"></circle><circle cx="19" cy="20.4" r="1.4"></circle><path d="M2.5 3.2h2.1l2.36 11.09a1.9 1.9 0 0 0 1.86 1.51h8.6a1.9 1.9 0 0 0 1.86-1.51L21.4 7.1H6.1"></path></svg></span><span class="bk-atc__label"><span class="bk-atc__label-long">Tambah ke keranjang</span><span class="bk-atc__label-short">Tambah</span></span><span class="bk-atc__bar" aria-hidden="true"></span></button></form>
+    </div>@if($dates)<input type="hidden" name="starts_on" value="{{ $dates['starts_on'] }}"><input type="hidden" name="ends_on" value="{{ $dates['ends_on'] }}">@endif<button class="bk-atc" type="submit" data-bk-press aria-label="Tambah {{ $product->name }} ke keranjang"><span class="bk-atc__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20.4" r="1.4"></circle><circle cx="19" cy="20.4" r="1.4"></circle><path d="M2.5 3.2h2.1l2.36 11.09a1.9 1.9 0 0 0 1.86 1.51h8.6a1.9 1.9 0 0 0 1.86-1.51L21.4 7.1H6.1"></path></svg></span><span class="bk-atc__label"><span class="bk-atc__label-long">Tambah ke keranjang</span><span class="bk-atc__label-short">Tambah</span></span><span class="bk-atc__bar" aria-hidden="true"></span></button></form>
     @else<p class="bk-product-unavailable">Belum tersedia untuk dipesan</p>@endif</div>
 </article>
 @empty<div class="card body">@if($dates)<p>Tidak ada papan yang tersedia pada {{ \Carbon\Carbon::parse($dates['starts_on'])->format('d/m/Y') }}–{{ \Carbon\Carbon::parse($dates['ends_on'])->format('d/m/Y') }}. Semua papan sudah dibooking pada rentang itu atau tanggalnya di luar jendela pemesanan.</p><a class="btn secondary" href="{{ route('welcome', request()->only(['q', 'category'])) }}">Hapus filter tanggal</a>@else<p>Tidak ada papan yang cocok atau tersedia untuk pilihan ini.</p><a class="btn secondary" href="{{ route('welcome') }}">Lihat semua papan</a>@endif</div>@endforelse

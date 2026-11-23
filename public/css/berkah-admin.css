@@ -74,6 +74,37 @@
     --adm-topbar: 64px;
     --adm-max: 1240px;
     --adm-gap: clamp(14px, 2.2vw, 22px);
+
+    /* ── Skala desain (tipografi, jarak, sentuh) ───────────────────────────
+       Dipakai modul baru dan hasil perapian. Nilai lama yang belum disentuh
+       tetap seperti semula agar tidak ada lompatan tata letak di halaman
+       yang belum dirapikan. */
+    --adm-fs-2xs: .75rem;      /* 12px — batas bawah teks yang masih terbaca */
+    --adm-fs-xs: .8125rem;     /* 13px */
+    --adm-fs-sm: .875rem;      /* 14px */
+    --adm-fs-md: .9375rem;     /* 15px */
+    --adm-fs-lg: 1.0625rem;    /* 17px */
+    --adm-lh-tight: 1.2;
+    --adm-lh-snug: 1.4;
+    --adm-lh-body: 1.65;
+    --adm-measure: 68ch;
+
+    --adm-space-1: 4px;
+    --adm-space-2: 8px;
+    --adm-space-3: 12px;
+    --adm-space-4: 16px;
+    --adm-space-5: 20px;
+    --adm-space-6: 24px;
+    --adm-space-7: 32px;
+    --adm-space-8: 40px;
+    --adm-space-9: 48px;
+    --adm-space-10: 64px;
+
+    --adm-touch: 44px;
+    --adm-touch-sm: 38px;
+    --adm-safe-b: env(safe-area-inset-bottom, 0px);
+    --adm-safe-l: env(safe-area-inset-left, 0px);
+    --adm-safe-r: env(safe-area-inset-right, 0px);
 }
 
 html[data-theme="dark"] {
@@ -180,16 +211,16 @@ html[data-theme="dark"] {
 .adm-brand__logo img { width: 100%; height: 100%; object-fit: contain; }
 .adm-brand__text { display: grid; line-height: 1.2; min-width: 0; }
 .adm-brand__name { font-weight: 800; font-size: .98rem; letter-spacing: -.01em; }
-.adm-brand__tag { font-size: .68rem; letter-spacing: .16em; text-transform: uppercase; color: rgba(255, 255, 255, .62); }
+.adm-brand__tag { font-size: var(--adm-fs-2xs); letter-spacing: .1em; text-transform: uppercase; color: rgba(255, 255, 255, .62); }
 
 .adm-nav { display: flex; flex-direction: column; gap: 4px; }
 .adm-nav__group {
-    font-size: .64rem; letter-spacing: .18em; text-transform: uppercase;
+    font-size: var(--adm-fs-2xs); letter-spacing: .08em; text-transform: uppercase;
     color: rgba(255, 255, 255, .48); padding: 14px 12px 6px;
 }
 .adm-nav a {
     position: relative; display: flex; align-items: center; gap: 11px;
-    min-height: 42px; padding: 9px 12px; border-radius: var(--adm-r-md);
+    min-height: var(--adm-touch); padding: 9px 12px; border-radius: var(--adm-r-md);
     color: rgba(255, 255, 255, .82); text-decoration: none;
     font-size: .9rem; font-weight: 600;
     transition: background var(--adm-dur-2) var(--adm-ease), color var(--adm-dur-2) var(--adm-ease), transform var(--adm-dur-2) var(--adm-ease);
@@ -214,7 +245,7 @@ html[data-theme="dark"] {
 .adm-nav__count {
     margin-left: auto; min-width: 22px; padding: 0 7px; border-radius: 99px;
     background: rgba(255, 255, 255, .2); color: #fff;
-    font-size: .72rem; font-weight: 800; text-align: center;
+    font-size: var(--adm-fs-2xs); font-weight: 800; text-align: center;
 }
 
 .adm-side-card {
@@ -223,7 +254,7 @@ html[data-theme="dark"] {
     border: 1px solid rgba(255, 255, 255, .14);
     display: grid; gap: 10px;
 }
-.adm-side-card__label { font-size: .66rem; letter-spacing: .16em; text-transform: uppercase; color: rgba(255, 255, 255, .6); }
+.adm-side-card__label { font-size: var(--adm-fs-2xs); letter-spacing: .1em; text-transform: uppercase; color: rgba(255, 255, 255, .6); }
 .adm-side-card__value { font-size: 1.02rem; font-weight: 800; }
 .adm-side-card__hint { font-size: .76rem; color: rgba(255, 255, 255, .72); line-height: 1.5; }
 
@@ -253,7 +284,7 @@ html[data-theme="dark"] {
 .adm-user__edit:focus-visible { outline: 3px solid var(--adm-rose); outline-offset: 2px; border-radius: 4px; }
 .adm-user__out {
     margin-left: auto; display: grid; place-items: center;
-    width: 34px; height: 34px; border-radius: 10px; border: 0;
+    width: var(--adm-touch-sm); height: var(--adm-touch-sm); border-radius: 10px; border: 0;
     background: rgba(255, 255, 255, .12); color: #fff; cursor: pointer;
     transition: background var(--adm-dur-2) var(--adm-ease), transform var(--adm-dur-2) var(--adm-ease);
 }
@@ -332,7 +363,7 @@ html[data-theme="dark"] {
 .adm-page-head__text { display: grid; gap: 6px; min-width: 0; }
 .adm-kicker {
     display: inline-flex; align-items: center; gap: 7px;
-    font-size: .68rem; font-weight: 800; letter-spacing: .17em; text-transform: uppercase;
+    font-size: var(--adm-fs-2xs); font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
     color: var(--adm-rose);
 }
 .adm-kicker::before {
@@ -463,8 +494,8 @@ html[data-theme="dark"] {
     font-variant-numeric: tabular-nums; line-height: 1.1;
 }
 .adm-stat__label { font-size: .8rem; font-weight: 700; color: var(--adm-ink-2); }
-.adm-stat__hint { font-size: .74rem; color: var(--adm-ink-3); }
-.adm-stat__trend { font-size: .74rem; font-weight: 700; color: var(--adm-ok); }
+.adm-stat__hint { font-size: var(--adm-fs-2xs); color: var(--adm-ink-3); }
+.adm-stat__trend { font-size: var(--adm-fs-2xs); font-weight: 700; color: var(--adm-ok); }
 
 /* --------------------------------------------------------------------------
    7. Badge, chip, status
@@ -472,7 +503,7 @@ html[data-theme="dark"] {
 .adm-badge {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 3px 10px; border-radius: var(--adm-r-pill);
-    font-size: .74rem; font-weight: 800; letter-spacing: .01em;
+    font-size: var(--adm-fs-2xs); font-weight: 800; letter-spacing: .01em;
     background: var(--adm-surface-3); color: var(--adm-ink-2);
     border: 1px solid transparent; white-space: nowrap;
 }
@@ -488,14 +519,14 @@ html[data-theme="dark"] {
 
 .adm-chip {
     display: inline-flex; align-items: center; gap: 6px;
-    padding: 2px 9px; border-radius: 8px; font-size: .72rem; font-weight: 700;
+    padding: 2px 9px; border-radius: 8px; font-size: var(--adm-fs-2xs); font-weight: 700;
     background: var(--adm-surface-3); color: var(--adm-ink-2);
     border: 1px solid var(--adm-line);
 }
 /* Chip yang berfungsi sebagai tautan filter: cukup besar untuk disentuh,
    menandai pilihan aktif, dan tidak bersaing dengan tombol aksi halaman. */
 .adm-chip--link {
-    min-height: 36px; padding: 7px 13px; border-radius: 11px;
+    min-height: var(--adm-touch-sm); padding: 7px 13px; border-radius: 11px;
     font-size: .78rem; font-weight: 700; text-decoration: none;
     color: var(--adm-ink-2); background: var(--adm-surface-2);
     transition: background var(--adm-dur-2) var(--adm-ease), border-color var(--adm-dur-2) var(--adm-ease), color var(--adm-dur-2) var(--adm-ease), transform var(--adm-dur-2) var(--adm-ease);
@@ -505,7 +536,7 @@ html[data-theme="dark"] {
 .adm-chip--link.is-active { background: var(--adm-solid); border-color: var(--adm-solid); color: #fff; }
 .adm-chip--link.is-active:hover { color: #fff; }
 .adm-chipbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 0 16px; }
-.adm-chipbar__label { font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--adm-ink-3); margin-right: 2px; }
+.adm-chipbar__label { font-size: var(--adm-fs-2xs); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--adm-ink-3); margin-right: 2px; }
 
 /* --------------------------------------------------------------------------
    8. Tabel
@@ -654,7 +685,7 @@ html[data-theme="dark"] {
     background: var(--adm-rose); border-color: var(--adm-rose);
     animation: adm-ring 2.4s var(--adm-ease) infinite;
 }
-.adm-timeline__time { font-size: .72rem; font-weight: 700; color: var(--adm-ink-3); letter-spacing: .04em; }
+.adm-timeline__time { font-size: var(--adm-fs-2xs); font-weight: 700; color: var(--adm-ink-3); letter-spacing: .04em; }
 .adm-timeline__title { font-weight: 700; font-size: .9rem; }
 .adm-timeline__note { font-size: .82rem; color: var(--adm-ink-2); }
 
@@ -809,8 +840,8 @@ html.adm-reduced [data-adm-reveal] { opacity: 1 !important; transform: none !imp
     .adm-nav a { justify-content: center; padding: 10px 0; min-height: 44px; }
     .adm-nav a > span:not(.adm-nav__icon):not(.adm-nav__count) { display: none; }
     .adm-nav__count {
-        position: absolute; top: 5px; right: 12px;
-        min-width: 18px; padding: 0 5px; font-size: .6rem;
+        position: absolute; top: 4px; right: 10px;
+        min-width: 20px; padding: 0 5px; font-size: .6rem;
     }
     .adm-side-card { display: none; }
     .adm-user { justify-content: center; padding: 8px; }
@@ -1092,7 +1123,7 @@ body.adm-layer-open { overflow: hidden; }
     .adm-iconbtn svg { width: 17px; height: 17px; }
     .adm-topbar__menu { width: 38px; height: 38px; }
     .adm-page-head { gap: 12px; }
-    .adm-kicker { font-size: .64rem; }
+    .adm-kicker { font-size: var(--adm-fs-2xs); }
     .adm-page-sub { font-size: .84rem; }
     /* Dua tombol berdampingan lebih hemat ruang daripada tumpukan selebar layar. */
     .adm-actions { gap: 8px; }
@@ -1126,7 +1157,7 @@ body.adm-layer-open { overflow: hidden; }
 }
 .adm-page-note summary::-webkit-details-marker { display: none; }
 .adm-page-note summary::after {
-    content: "▾"; font-size: .68rem; line-height: 1;
+    content: "▾"; font-size: var(--adm-fs-2xs); line-height: 1;
     transition: transform var(--adm-dur-2) var(--adm-ease);
 }
 .adm-page-note[open] summary::after { transform: rotate(180deg); }
@@ -1163,7 +1194,7 @@ body.adm-layer-open { overflow: hidden; }
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         gap: 2px; padding: 8px 2px 7px;
         color: var(--adm-ink-3); text-decoration: none;
-        font-size: .62rem; font-weight: 800; letter-spacing: .02em;
+        font-size: var(--adm-fs-2xs); font-weight: 800; letter-spacing: .02em;
         transition: color var(--adm-dur-2) var(--adm-ease);
         -webkit-tap-highlight-color: transparent;
     }
@@ -1256,7 +1287,7 @@ body.adm-layer-open { overflow: hidden; }
 
 @media (max-width: 520px) {
     .adm-app .adm-steps > li { grid-template-columns: 26px minmax(0, 1fr); gap: 10px; }
-    .adm-app .adm-steps__num { width: 26px; height: 26px; font-size: .74rem; }
+    .adm-app .adm-steps__num { width: 26px; height: 26px; font-size: var(--adm-fs-2xs); }
 }
 
 .adm-app .adm-faq { border-top: 1px solid var(--adm-line); padding: 12px 0; }
@@ -1292,4 +1323,69 @@ html[data-theme="dark"] .adm-app .adm-card,
 html[data-theme="dark"] .adm-app .card,
 html[data-theme="dark"] .adm-app .adm-stat {
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 1px 2px rgba(0, 0, 0, .55), 0 14px 32px -20px rgba(0, 0, 0, .85);
+}
+
+
+/* --------------------------------------------------------------------------
+   16. Ritme baca & area sentuh (hasil perapian tipografi–spacing)
+   --------------------------------------------------------------------------
+   Aturan di sini adalah lapisan akhir: ia menyamakan ritme vertikal dan
+   memastikan target sentuh tetap nyaman tanpa mengubah struktur tata letak
+   yang sudah ada.
+   -------------------------------------------------------------------------- */
+
+/* Judul tidak pernah terlalu rapat; paragraf tidak melebar melebihi mata. */
+.adm-app :is(h1, h2, h3) {
+    line-height: var(--adm-lh-tight);
+    text-wrap: balance;
+}
+.adm-app :is(p, li) {
+    line-height: var(--adm-lh-body);
+}
+.adm-app :is(.adm-page-sub, .adm-help, .adm-note, .adm-card__body) {
+    max-width: var(--adm-measure);
+}
+
+/* Jarak antarkartu mengikuti satu skala, bukan angka acak. */
+.adm-grid {
+    gap: clamp(var(--adm-space-4), 2vw, var(--adm-space-6));
+}
+.adm-card__head {
+    gap: var(--adm-space-3);
+    margin-bottom: var(--adm-space-3);
+}
+.adm-card__foot {
+    margin-top: var(--adm-space-4);
+    padding-top: var(--adm-space-3);
+}
+
+/* Tema gelap: permukaan kartu sedikit lebih terang dari latar agar batas
+   kartu terbaca tanpa bergantung pada garis 1px saja. */
+html[data-theme="dark"] .adm-app {
+    --adm-cream: #0e0a0d;
+    --adm-surface: #1c161a;
+    --adm-surface-2: #251d22;
+    --adm-surface-3: #2e242a;
+}
+
+/* Perangkat sentuh: semua kendali utama setinggi ibu jari. */
+@media (pointer: coarse) {
+    .adm-app :is(.adm-btn, .adm-btn--sm, .adm-iconbtn, .adm-chip--link, .adm-user__out, .adm-tabs__item) {
+        min-height: var(--adm-touch);
+    }
+    .adm-app :is(.adm-iconbtn, .adm-user__out) {
+        min-width: var(--adm-touch);
+    }
+    .adm-app :is(input, select, textarea) {
+        font-size: max(1rem, var(--adm-fs-md));
+    }
+}
+
+/* Layar berponi: konten tidak pernah menempel tepi kiri/kanan. */
+@media (max-width: 700px) {
+    .adm-content {
+        padding-left: max(clamp(16px, 2.4vw, 30px), var(--adm-safe-l));
+        padding-right: max(clamp(16px, 2.4vw, 30px), var(--adm-safe-r));
+        padding-bottom: calc(88px + var(--adm-safe-b));
+    }
 }

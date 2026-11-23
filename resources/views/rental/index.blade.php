@@ -15,7 +15,7 @@
     </details>
     @if($errors->hasAny(['q', 'status']))<p class="notice">Pencarian belum diterapkan. Daftar berikut masih mengikuti filter sebelumnya.</p>@endif
     <div class="bk-section-heading"><h2>Daftar pesanan</h2><span class="muted">{{ $orders->total() }} pesanan</span></div>
-    <div class="bk-order-cards">
+    <div class="bk-order-cards" data-bk-reveal-group="orders" data-bk-reveal-stagger="0.06">
     @forelse($orders as $order)
         <article class="bk-order-card">
             <div class="bk-order-card__head"><span class="bk-order-card__mark" aria-hidden="true">✿</span><div><span class="bk-order-card__label">REFERENSI PESANAN</span><h2>{{ $order->reference }}</h2></div></div>

@@ -1,0 +1,147 @@
+/*!
+ * Berkah Kreatif — fondasi gerak & area sentuh (berkah-motion.css)
+ * ------------------------------------------------------------------
+ * Dimuat bersama berkah-motion.js dari
+ * resources/views/layouts/component/_form_controls.blade.php.
+ *
+ * Berkas ini TIDAK menyembunyikan konten apa pun. Keadaan awal animasi
+ * dipasang oleh GSAP saat skrip berjalan; bila skrip gagal, semua elemen
+ * tetap terlihat. Yang diatur di sini hanya:
+ *   1. Token durasi/easing bersama untuk seluruh peran.
+ *   2. Netralisasi gulir CSS saat Lenis aktif.
+ *   3. Area sentuh minimum dan penghapus jeda ketuk ganda.
+ *   4. Ruang aman (safe area) untuk perangkat berponi.
+ *   5. Pengaman prefers-reduced-motion.
+ */
+
+:root {
+    --bk-dur-1: 120ms;
+    --bk-dur-2: 180ms;
+    --bk-dur-3: 260ms;
+    --bk-dur-4: 420ms;
+    --bk-ease: cubic-bezier(.22, .61, .36, 1);
+    --bk-ease-out: cubic-bezier(.16, 1, .3, 1);
+    --bk-ease-spring: cubic-bezier(.34, 1.32, .64, 1);
+
+    /* Area sentuh: 44px adalah ambang nyaman untuk ibu jari. */
+    --bk-touch: 44px;
+    --bk-touch-sm: 38px;
+
+    /* Ruang aman perangkat (poni, home indicator, sudut membulat). */
+    --bk-safe-t: env(safe-area-inset-top, 0px);
+    --bk-safe-r: env(safe-area-inset-right, 0px);
+    --bk-safe-b: env(safe-area-inset-bottom, 0px);
+    --bk-safe-l: env(safe-area-inset-left, 0px);
+}
+
+/* ── 1. Lenis aktif: CSS smooth-scroll harus menyerah ───────────────────── */
+html.bk-lenis {
+    scroll-behavior: auto !important;
+}
+
+html.bk-lenis body {
+    overscroll-behavior-y: none;
+}
+
+/* Elemen yang tetap ingin memakai gulir asli (sheet, panel panjang). */
+html.bk-lenis [data-lenis-prevent] {
+    overscroll-behavior: contain;
+}
+
+/* ── 2. Lapisan animasi GSAP ────────────────────────────────────────────── */
+[data-bk-reveal],
+[data-bk-reveal-group] > * {
+    backface-visibility: hidden;
+}
+
+[data-bk-reveal].is-in,
+[data-bk-reveal-group] > .is-in {
+    will-change: auto;
+}
+
+/* Kartu yang mengikuti kursor butuh konteks 3D sendiri. */
+[data-bk-tilt] {
+    transform-style: preserve-3d;
+    will-change: transform;
+    transition: box-shadow var(--bk-dur-3) var(--bk-ease);
+}
+
+[data-bk-tilt]:hover {
+    box-shadow: 0 18px 40px -22px rgba(84, 5, 31, .45);
+}
+
+/* ── 3. Area sentuh & ketuk ─────────────────────────────────────────────── */
+/* Menghapus jeda 300 ms dan pembesaran tak sengaja saat mengetuk dua kali. */
+a,
+button,
+summary,
+label[for],
+[role="button"],
+[data-bk-press] {
+    touch-action: manipulation;
+}
+
+/* Target sentuh ikon kecil tetap 44 px walau ikonnya 20 px. */
+@media (pointer: coarse) {
+    .bk-iconbtn,
+    .icon-btn,
+    .bk-qty__btn,
+    .bk-nav-icon,
+    .customer-nav__item,
+    .adm-iconbtn {
+        min-width: var(--bk-touch);
+        min-height: var(--bk-touch);
+    }
+
+    /* Ikon di dalam tautan teks tidak boleh jadi target termungil. */
+    a > svg:only-child,
+    button > svg:only-child {
+        min-width: 1.15em;
+        min-height: 1.15em;
+    }
+}
+
+/* ── 4. Ruang aman ──────────────────────────────────────────────────────── */
+/* Bilah bawah (nav pelanggan, nav admin) dan sheet sudah memakai env();
+   di sini ditambahkan pengaman untuk lembar yang menempel tepi kiri/kanan
+   pada layar berponi (mode lanskap). */
+.bk-sheet,
+.bk-dialog,
+.fc-sheet,
+.adm-drawer {
+    padding-left: max(0px, var(--bk-safe-l));
+    padding-right: max(0px, var(--bk-safe-r));
+}
+
+@media (max-width: 700px) {
+    .wrap,
+    .bk-wrap,
+    .container {
+        padding-left: max(clamp(14px, 4vw, 24px), var(--bk-safe-l));
+        padding-right: max(clamp(14px, 4vw, 24px), var(--bk-safe-r));
+    }
+}
+
+/* ── 5. Pengaman gerak minimal ──────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    [data-bk-reveal],
+    [data-bk-reveal-group] > *,
+    [data-bk-tilt] {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+        will-change: auto !important;
+    }
+
+    html {
+        scroll-behavior: auto !important;
+    }
+}
+
+@media print {
+    [data-bk-reveal],
+    [data-bk-reveal-group] > * {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}

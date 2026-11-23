@@ -41,6 +41,14 @@
     {{-- Tandai lebih awal agar normalisasi kontrol tidak berkedip. --}}
     <script>document.documentElement.classList.add('fc-ui');</script>
     <link rel="stylesheet" href="{{ $fcAsset('css/berkah-controls.css') }}">
+    {{-- Gerak bersama: Lenis (gulir halus) + GSAP/ScrollTrigger (kemunculan,
+         parallax, hitungan) + micro-interaction. Semua berkas disajikan dari
+         public/vendor dan public/js, tanpa CDN. --}}
+    <link rel="stylesheet" href="{{ $fcAsset('vendor/lenis/lenis.css') }}">
+    <link rel="stylesheet" href="{{ $fcAsset('css/berkah-motion.css') }}">
     <script src="{{ $fcAsset('vendor/gsap/gsap.min.js') }}"></script>
+    <script src="{{ $fcAsset('vendor/gsap/ScrollTrigger.min.js') }}"></script>
+    <script src="{{ $fcAsset('vendor/lenis/lenis.min.js') }}"></script>
+    <script src="{{ $fcAsset('js/berkah-motion.js') }}"></script>
     <script src="{{ $fcAsset('js/berkah-controls.js') }}"></script>
 @endonce
