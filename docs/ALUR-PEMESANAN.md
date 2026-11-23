@@ -48,10 +48,10 @@ beri rating produk & pesanan  ◄───── unit returned
 | Titik tunggu | Yang menunggu | Yang harus bertindak | Tenggat otomatis | Kalau tidak bertindak |
 | --- | --- | --- | --- | --- |
 | Konfirmasi pesanan | pelanggan | admin | **ada**: 24 jam, `ExpireRentalConfirmations` | unit batal + tanggal dilepas (benar) |
-| Penawaran ongkos | pelanggan | admin | tidak ada | `payableAmount()` = `null`, pembayaran ditolak, unit tidak bisa dibatalkan otomatis |
+| Penawaran ongkos | pelanggan | admin | tidak ada (pengingat: eskalasi desain belum mencakup ongkos) | `payableAmount()` = `null`, pembayaran ditolak, unit tidak bisa dibatalkan otomatis |
 | Persetujuan ongkos | admin | pelanggan | tidak ada | sama seperti di atas |
-| Preview desain | admin (tidak bisa mulai pengerjaan) | pelanggan | tidak ada | unit tetap `waiting` sampai acara, pembayaran penuh pun tidak menolong |
-| Verifikasi bukti bayar | pelanggan (tidak bisa lunas) | admin | tidak ada | serah terima tidak bisa ditandai |
+| Preview desain | admin (tidak bisa mulai pengerjaan) | pelanggan | tidak ada, tetapi ada pengingat harian + eskalasi admin (babak A) | unit tetap `waiting` sampai acara, pembayaran penuh pun tidak menolong |
+| Verifikasi bukti bayar | pelanggan (tidak bisa lunas) | admin | tidak ada, tetapi ada pengingat bila bukti menganggur > 6 jam (babak A) | serah terima tidak bisa ditandai |
 | Tandai kembali | pelanggan (tidak bisa rating) | admin | tidak ada | unit menggantung `handed_over` selamanya |
 | Rating | admin (indikator kualitas) | pelanggan | tidak ada | wajar; bukan penghambat |
 
@@ -107,6 +107,10 @@ _Dampak_: tinggi (uang pelanggan menggantung).
 pengingat H-1, tidak ada email/WhatsApp. Pelanggan harus membuka aplikasi untuk
 tahu ada preview yang menunggu; admin harus membuka dasbor untuk tahu ada bukti
 yang menunggu. Ini memperpanjang semua titik tunggu di atas.
+
+_Babak A_: `rental:remind` membuat pemberitahuan menjadi proaktif (bukti menganggur,
+pelunasan H-1, respons desain, eskalasi admin). Kanalnya tetap di dalam aplikasi;
+email/WhatsApp masuk babak C.
 _Dampak_: tinggi, karena menjadi pengali bagi temuan lain.
 
 ## 4. Temuan B — saling menunggu yang benar-benar mengunci
@@ -121,6 +125,10 @@ unit (refund) — padahal acaranya mungkin besok. Pembatalan otomatis juga tidak
 akan menolong karena `timelyCoverage` sudah menutup tagihan
 (`ExpireRentalPayments.php:36`).
 
+_Babak A_: pelanggan diingatkan setiap hari setelah preview menganggur 24 jam, dan
+admin dieskalasi setelah 48 jam atau bila acara tinggal 3 hari. Status tetap tidak
+berubah — keputusan "lanjut dengan catatan" menunggu babak B.
+
 **DL-2. Verifikasi bukti bayar tanpa tenggat menahan serah terima (sedang-berat).**
 `handed_over` mensyaratkan `verifiedNet() >= payableAmount()`
 (`RentalProgressController.php:25-28`). Bukti yang hanya `pending` tidak menolong,
@@ -128,6 +136,10 @@ meski pengiriman tepat waktu mencegah pembatalan. Bila admin tidak memverifikasi
 papan tidak bisa diserahkan walau pelanggan sudah membayar. Tidak ada pengingat
 otomatis untuk bukti yang menunggu lebih dari X jam; hanya satu notifikasi saat bukti
 dikirim (`RentalPaymentController.php:37`).
+
+_Babak A_: `rental:remind` mengingatkan admin sekali sehari untuk setiap bukti yang
+menganggur lebih dari 6 jam, sehingga antrean tidak lagi hanya bergantung pada
+kartu dasbor.
 
 **DL-3. Penawaran ongkos yang tidak pernah dikirim membuat unit tak bisa dibatalkan
 otomatis (sedang-berat).**
@@ -148,13 +160,18 @@ tanda itu, rating produk dan rating pesanan terkunci
 (`RentalFeedbackController.php:57`), dan unit tetap dihitung "aktif" di dasbor
 selamanya.
 
-**DL-6. `payment_review_hold` lengket (ringan, tetapi mengotori kerja admin).**
+**DL-6. `payment_review_hold` lengket (sudah diperbaiki di babak A).**
 Hold dipasang saat konfirmasi jadwal dekat, saat penjadwal menandai ongkos manual,
-dan saat bukti ditolak (`RentalPaymentController.php:140`), tetapi hanya dilepas
-oleh `resolveReview` (baris 126). Pembayaran lunas dan terverifikasi tidak
-membersihkannya, sehingga kartu "perlu peninjauan" di dasbor
-(`DashboardController.php:154`) menghitung unit yang sebenarnya beres — termasuk
-unit yang sudah `returned`.
+dan saat bukti ditolak (`RentalPaymentController.php:146`). Dulu hanya dilepas oleh
+`resolveReview`, sehingga kartu "perlu peninjauan" menghitung unit yang sebenarnya
+beres — termasuk unit yang sudah `returned`.
+
+Sekarang `verify()` melepas hold otomatis begitu `verifiedNet() >= payableAmount()`
+(`RentalPaymentController.php:69-70`; pembayaran sebagian tidak melepasnya), dan
+antrean memakai scope bersama
+`RentalOrderUnit::needsPaymentReview()` yang mengabaikan unit `returned`. Scope yang
+sama dipakai kartu dasbor dan filter "review" daftar pesanan admin, jadi angkanya
+konsisten.
 
 ## 5. Temuan C — celah konsistensi yang memperparah
 
@@ -179,19 +196,20 @@ sudah ada (transaksi, notifikasi dalam transaksi, perintah penjadwal idempoten).
 ### P0 — mencegah uang atau jadwal menggantung
 
 1. **Tenggat respons desain + eskalasi.**
-   Tambah `design_deadline` per unit (mis. H-3 atau 48 jam setelah preview), perintah
-   `rental:remind-design` yang mengingatkan pelanggan sekali sehari dan menandai
-   admin bila lewat tenggat, serta aksi admin **"lanjutkan dengan catatan"** yang
-   tetap butuh konfirmasi ulang tertulis (audit di `progress_events`) supaya
-   pelanggan yang tidak responsif tidak mengunci operasional.
-   _Menyelesaikan_: DL-1, RT-3, RT-7.
+   Tambah `design_deadline` per unit (mis. H-3 atau 48 jam setelah preview) dan aksi
+   admin **"lanjutkan dengan catatan"** yang tetap butuh konfirmasi ulang tertulis
+   (audit di `progress_events`) supaya pelanggan yang tidak responsif tidak mengunci
+   operasional.
+   _Menyelesaikan_: DL-1, RT-3.
+   _Sudah dikerjakan sebagian (babak A)_: pelanggan diingatkan tiap hari dan admin
+   dieskalasi pada ambang 48 jam / H-3; tenggat dan aksi admin belum ada.
 2. **Auto-bersihkan hold saat tagihan tertutup.**
-   Saat `verify()` membuat `verifiedNet() >= payableAmount()`, set
-   `payment_review_hold = false`. Kartu dasbor juga mengecualikan unit `returned`.
-   _Menyelesaikan_: DL-6.
+   _Selesai (babak A)_: `verify()` melepas hold ketika `verifiedNet() >=
+   payableAmount()`, dan antrean memakai `needsPaymentReview()` yang mengecualikan
+   unit `returned`. _Menyelesaikan_: DL-6.
 3. **Pengingat bukti pembayaran yang menunggu.**
-   Perintah `rental:remind-payments` untuk bukti `pending` lebih dari 6 jam
-   (ke admin) dan H-1 untuk pelanggan yang belum lunas.
+   _Selesai (babak A)_: perintah `rental:remind` mengirim pengingat admin untuk bukti
+   `pending` lebih dari 6 jam dan pengingat pelanggan H-1 bila tagihan belum tertutup.
    _Menyelesaikan_: DL-2, RT-7.
 4. **Jendela pembayaran terlambat yang aman.**
    Entah larang bukti baru setelah pukul 21.00 di hari acara, atau beri tenggang
@@ -235,7 +253,27 @@ sudah ada (transaksi, notifikasi dalam transaksi, perintah penjadwal idempoten).
 13. **Gerbang serah terima** ikut memeriksa `latestPreview->status === 'approved'`
     agar konsisten bila alur diubah kelak.
 
-## 7. Yang sudah benar dan sebaiknya tidak diubah
+## 7. Status pelaksanaan
+
+**Babak A — selesai.**
+
+- `payment_review_hold` dilepas otomatis saat tagihan tertutup; antrean memakai
+  `needsPaymentReview()` (dasbor + filter admin).
+- Perintah `rental:remind` (dijadwalkan tiap lima menit) mengirim empat jenis
+  pengingat dengan dedupe `rental_unit_reminders` (unit + jenis + penerima + tanggal).
+- Tanggal pengingat, ambang, dan pesannya dijelaskan di `docs/PENJADWAL-SEWA.md`.
+- Tes: `tests/Feature/RentalReminderTest.php`.
+
+**Babak B — menunggu keputusan.** Tenggat respons desain + aksi admin "lanjutkan
+dengan catatan" (DL-1), dan aturan pembayaran terlambat (RT-6): larang bukti setelah
+pukul 21.00 di hari acara, atau beri toleransi verifikasi sampai H+1 pukul 12.00.
+
+**Babak C — belum dikerjakan.** Ongkos dua arah (RT-4/DL-3), pembatalan mandiri
+pelanggan (DL-4/RT-5), perbaikan data unit sebelum diproses, pesan ulang, filter
+katalog dan draf checkout yang bertahan (RT-1/RT-2), pengingat penandaan kembali
+(DL-5), kartu dasbor "menunggu pelanggan" (P2).
+
+## 8. Yang sudah benar dan sebaiknya tidak diubah
 
 - Tenggat konfirmasi 24 jam + pembatalan otomatis + pelepasan tanggal, idempoten
   (`ExpireRentalConfirmations`, dijalankan tiap menit).
@@ -247,7 +285,7 @@ sudah ada (transaksi, notifikasi dalam transaksi, perintah penjadwal idempoten).
 - Reservasi tanggal sejak `pending` (babak 10) membuat antrean konfirmasi tidak
   bisa diisi ganda.
 
-## 8. Cara membuktikan perbaikan nanti
+## 9. Cara membuktikan perbaikan nanti
 
 | Temuan | Bukti yang harus ada |
 | --- | --- |

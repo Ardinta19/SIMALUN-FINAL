@@ -16,6 +16,7 @@ Snapshot setelah pengujian Windows pada commit `bdb1101`: **215 tes lulus, 1.225
 | Operasional | Progres per unit, jadwal bulanan dan filter kegiatan, ringkasan cetak | Periksa kesesuaian alur bisnis di perangkat; jadwal bukan bukti serah terima. |
 | Buku kas | Entri manual, perbandingan periode, ekspor CSV, pemasukan dari verifikasi dan pengeluaran dari refund | Audit konsistensi dan duplikasi secara menyeluruh, termasuk data finance lama yang ikut ditampilkan. |
 | Notifikasi | Pemberitahuan rental dalam aplikasi untuk beberapa perubahan | Periksa seluruh transisi, penjadwal dan ketersediaan penerima; bukan jaminan email, WhatsApp, atau pemberitahuan push. |
+| Pengingat | Perintah `rental:remind` dijadwalkan tiap lima menit: bukti menganggur lebih dari 6 jam (admin), pelunasan H-1 (pelanggan), respons desain lebih dari 24 jam (pelanggan), eskalasi 48 jam atau H-3 (admin); satu pesan per unit, jenis, penerima dan tanggal | Uji pada data nyata bahwa pesan tidak menumpuk, penerima nonaktif benar-benar dilewati, dan isi pesan sesuai tagihan; pengingat tidak mengubah status apa pun |
 
 ## Pemeriksaan sebelum penggunaan nyata
 
@@ -46,6 +47,7 @@ Langkah pemeriksaan yang disarankan:
 2. Buka keranjang berisi unit bertanggal kemarin: pastikan muncul peringatan, tautan detail tanpa tanggal, dan tombol tambah unit hilang; ubah tanggal di checkout.
 3. Kirim form dengan nilai berbentuk larik (alat pengembang peramban) pada checkout, profil, alamat, masuk, daftar, lupa sandi, dan katalog admin; halaman harus kembali dengan pesan galat, bukan halaman error 500.
 4. Periksa pesan galat jumlah di detail papan tampil tepat di bawah pemilih jumlah.
+5. Jalankan `php artisan rental:remind` dua kali berturut-turut pada database uji: jalankan kedua tidak boleh menambah notifikasi (dedupe `rental_unit_reminders`), dan tidak boleh ada status unit yang berubah.
 
 ### Merek pada email dan konfigurasi
 

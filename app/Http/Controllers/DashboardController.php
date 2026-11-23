@@ -151,7 +151,7 @@ class DashboardController extends Controller
         $rentalPending = RentalOrderUnit::where('status', 'pending')->count();
         $rentalActive = RentalOrderUnit::where('status', 'confirmed')->where('progress', '!=', 'returned')->count();
         $rentalPaymentPending = RentalPayment::where('status', 'pending')->count();
-        $rentalReview = RentalOrderUnit::where('status', 'confirmed')->where('payment_review_hold', true)->count();
+        $rentalReview = RentalOrderUnit::needsPaymentReview()->count();
         $rentalQuoteNeeded = RentalOrderUnit::whereIn('status', ['pending', 'confirmed'])
             ->where(fn ($q) => $q->where('delivery_method', 'delivery')->orWhere('return_method', 'collection'))
             ->whereNull('transport_quote')->whereNull('transport_approved_at')->count();

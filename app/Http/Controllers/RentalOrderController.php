@@ -211,7 +211,7 @@ class RentalOrderController extends Controller
                     $status = $filters['status'] ?? null;
                     if (in_array($status, ['pending', 'confirmed', 'cancelled'], true)) $unit->where('status', $status);
                     if ($status === 'seller_cancelled') $unit->where('status', 'cancelled')->where('cancel_responsibility', 'seller');
-                    if ($status === 'review') $unit->where('status', 'confirmed')->where('payment_review_hold', true);
+                    if ($status === 'review') $unit->needsPaymentReview();
                     if ($status === 'payment_pending') $unit->whereHas('payments', fn ($payment) => $payment->where('status', 'pending'));
                     if ($status === 'design_pending') $unit->where('status', 'confirmed')->whereHas('previews', fn ($preview) => $preview->where('status', 'pending'));
                     if (in_array($status, ['transport_quote', 'transport_approval'], true)) {

@@ -6,4 +6,17 @@ Laravel menjadwalkan perintah ini setiap menit, tetapi **scheduler harus benar-b
 
 Untuk mencoba sekali pada database preview: `php artisan rental:expire-confirmations`. Untuk menjalankan scheduler secara interaktif pada komputer pengujian: `php artisan schedule:work` (biarkan terminal terbuka; hentikan dengan Ctrl+C). Di server, konfigurasi cron atau layanan scheduler sesuai dokumentasi Laravel dan pantau kegagalannya; jangan bergantung pada terminal interaktif. Pastikan zona waktu aplikasi dan jam server benar. Jangan gunakan `migrate:fresh` atau seeder pada database yang berisi data.
 
+## Pengingat dua arah (`rental:remind`)
+
+Perintah `php artisan rental:remind` mengirim notifikasi tanpa mengubah status apa pun. Tujuannya memutus dua pihak yang saling menunggu: pelanggan menunggu admin, admin menunggu pelanggan.
+
+| Jenis | Penerima | Syarat | Pesan |
+| --- | --- | --- | --- |
+| `payment_proof_pending` | admin | bukti berstatus `pending` sudah dikirim lebih dari **6 jam** | nominal dan unit yang menunggu verifikasi |
+| `payment_due` | pelanggan | unit `confirmed`, `starts_on` **besok**, tagihan sudah pasti, dan bukti tepat waktu belum menutup tagihan | sisa tagihan harus dibayar sebelum 23.59 WIB |
+| `design_response` | pelanggan | preview terbaru `pending` lebih dari **24 jam**, unit masih `waiting`, acara belum lewat | preview menunggu persetujuan |
+| `design_escalation` | admin | preview `pending` lebih dari **48 jam** **atau** acara tinggal **3 hari** lagi | pelanggan belum merespons desain |
+
+Setiap pengingat hanya dikirim sekali per unit, jenis, penerima, dan tanggal. Kuncinya tabel `rental_unit_reminders` dengan indeks unik, sehingga aman dijalankan berulang (dijadwalkan tiap lima menit) dan dua proses penjadwal tidak menggandakan pesan. Unit yang pelanggannya nonaktif atau tidak punya admin aktif dilewati tanpa mencatat baris, jadi pengingatnya masih bisa terkirim setelah akun diaktifkan lagi.
+
 Untuk menjalankan pemeriksaan pembayaran secara manual pada database preview: `php artisan rental:expire-payments`. Perintah tersebut mengubah status data yang memenuhi kriteria; jalankan hanya jika memahami dampaknya.

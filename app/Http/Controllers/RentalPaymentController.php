@@ -63,6 +63,12 @@ class RentalPaymentController extends Controller
             $time = now('Asia/Jakarta');
             $entry = FinanceEntry::create(['entry_date' => $time->toDateString(), 'period_key' => $time->format('Y-m'), 'entry_type' => 'income', 'category' => 'income', 'amount' => $payment->amount, 'source_type' => 'rental_payment', 'source_id' => $payment->id, 'notes' => 'Pembayaran unit sewa #'.$unit->id, 'created_by' => $request->user()->id]);
             $payment->update(['status' => 'verified', 'verified_at' => now(), 'verified_by' => $request->user()->id, 'finance_entry_id' => $entry->id]);
+            // Peninjauan manual selesai dengan sendirinya begitu tagihan tertutup
+            // pembayaran terverifikasi, supaya hold tidak menahan antrean admin
+            // dan tidak menghalangi serah terima.
+            if ($unit->payment_review_hold && $unit->payableAmount() !== null && $unit->verifiedNet() >= $unit->payableAmount()) {
+                $unit->update(['payment_review_hold' => false, 'payment_review_resolved' => true]);
+            }
             app(RentalNotifications::class)->customer($unit->order, 'Pembayaran diverifikasi', 'Pembayaran unit '.$unit->product_name.' telah diverifikasi.');
         });
         return back()->with('success', 'Pembayaran diverifikasi dan dicatat dalam buku kas.');

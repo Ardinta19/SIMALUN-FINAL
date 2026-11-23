@@ -50,5 +50,19 @@ class RentalOrderUnit extends Model
     public function verifiedNet(): int { return (int) $this->payments()->where('status', 'verified')->sum('amount') - (int) $this->refunds()->sum('rental_payment_refunds.amount'); }
     public function allocatedNet(): int { return (int) $this->payments()->whereIn('status', ['pending', 'verified'])->sum('amount') - (int) $this->refunds()->sum('rental_payment_refunds.amount'); }
     public function payments(): HasMany { return $this->hasMany(RentalPayment::class)->latest('id'); }
+    public function reminders(): HasMany { return $this->hasMany(RentalUnitReminder::class)->orderByDesc('sent_on')->orderByDesc('id'); }
+
+    /**
+     * Antrean "perlu peninjauan pembayaran" untuk admin.
+     *
+     * Unit yang sudah dikembalikan tidak lagi memerlukan tindakan, sehingga
+     * tidak boleh ikut dihitung walau baris lama masih menyimpan hold.
+     */
+    public function scopeNeedsPaymentReview($query)
+    {
+        return $query->where('status', self::STATUS_CONFIRMED)
+            ->where('payment_review_hold', true)
+            ->where('progress', '!=', 'returned');
+    }
     public function previews(): HasMany { return $this->hasMany(RentalDesignPreview::class)->orderByDesc('version'); }
 }
