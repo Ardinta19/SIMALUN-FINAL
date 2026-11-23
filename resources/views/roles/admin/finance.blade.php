@@ -210,6 +210,9 @@ body {
 @media (prefers-reduced-motion: reduce){ .toast{animation:none} }
 </style>
 @include('layouts.component._theme_head')
+<link rel="stylesheet" href="{{ asset('css/berkah-admin.css') }}?v={{ filemtime(public_path('css/berkah-admin.css')) }}">
+<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
+<script src="{{ asset('js/page-transitions.js') }}" defer></script>
 </head>
 <body>
 
@@ -410,5 +413,6 @@ body {
 @include('layouts.component._form_controls')
 
 @include('layouts.component._ui_kit')
+<script src="{{ asset('js/berkah-admin.js') }}" defer></script>
 </body>
 </html>

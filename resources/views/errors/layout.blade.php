@@ -32,8 +32,17 @@ p.lead{font-size:.94rem;font-weight:600;color:#5b4149;line-height:1.6;margin-bot
 .tip{margin-top:20px;padding-top:16px;border-top:1.5px dashed #e8d6dc;font-size:.78rem;font-weight:700;color:#7a626a;line-height:1.55}
 .brand{margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:.64rem;font-weight:900;color:rgba(255,255,255,.9);letter-spacing:2.4px;text-transform:uppercase}
 .brand span{display:inline-block}
+/* Animasi masuk: kartu muncul, isi menyusul berurutan. Murni transform +
+   opacity agar tidak memicu tata letak ulang; dimatikan saat gerak dikurangi. */
+.card{animation:errIn .52s cubic-bezier(.22,.7,.25,1) both}
+.code-pill,.code-big,h1,p.lead,.actions,.tip{animation:errRise .5s cubic-bezier(.22,.7,.25,1) both}
+.code-pill{animation-delay:.05s}.code-big{animation-delay:.09s}h1{animation-delay:.13s}
+p.lead{animation-delay:.17s}.actions{animation-delay:.21s}.tip{animation-delay:.25s}
+.hero-emoji{animation:errRise .5s cubic-bezier(.22,.7,.25,1) .07s both,wobble 4.5s ease-in-out .6s infinite}
+@keyframes errIn{from{opacity:0;transform:translateY(16px) scale(.98)}}
+@keyframes errRise{from{opacity:0;transform:translateY(10px)}}
 @media(max-width:360px){.card{padding:28px 18px 24px}.hero-emoji{font-size:3rem}}
-@media(prefers-reduced-motion:reduce){.hero-emoji{animation:none}*,*::before,*::after{transition:none!important}}
+@media(prefers-reduced-motion:reduce){.hero-emoji{animation:none}.card,.code-pill,.code-big,h1,p.lead,.actions,.tip{animation:none}*,*::before,*::after{transition:none!important}}
 </style>
 @include('layouts.component._theme_head')
 </head>

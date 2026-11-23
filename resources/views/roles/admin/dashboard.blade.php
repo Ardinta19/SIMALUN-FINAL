@@ -256,6 +256,9 @@ body {
 .version-tag { text-align: center; margin: 14px 0 6px; font-size: 0.66rem; font-weight: 700; color: var(--ink-lt); letter-spacing: 0.3px; }
 </style>
 @include('layouts.component._theme_head')
+<link rel="stylesheet" href="{{ asset('css/berkah-admin.css') }}?v={{ filemtime(public_path('css/berkah-admin.css')) }}">
+<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
+<script src="{{ asset('js/page-transitions.js') }}" defer></script>
 </head>
 <body>
 @php
@@ -275,9 +278,9 @@ body {
     <svg class="hero__wave" viewBox="0 0 414 46" preserveAspectRatio="none" aria-hidden="true"><path fill="#faf4f3" d="M0,24 C70,46 150,6 230,24 C300,40 360,12 414,22 L414,46 L0,46Z"/></svg>
 </header>
 <section class="stats" aria-label="Ringkasan unit sewa">
-    <div class="stat reveal d1"><div class="stat__ico stat__ico--blue" aria-hidden="true">🌸</div><div class="stat__val">{{ $rentalActive }}</div><div class="stat__lbl">Unit aktif</div></div>
-    <div class="stat reveal d2"><div class="stat__ico stat__ico--orange" aria-hidden="true">📋</div><div class="stat__val">{{ $rentalPending }}</div><div class="stat__lbl">Menunggu</div></div>
-    <div class="stat reveal d3"><div class="stat__ico stat__ico--green" aria-hidden="true">🔎</div><div class="stat__val">{{ $rentalReview }}</div><div class="stat__lbl">Tinjau manual</div></div>
+    <div class="stat reveal d1"><div class="stat__ico stat__ico--blue" aria-hidden="true">🌸</div><div class="stat__val" data-adm-count data-to="{{ (int) $rentalActive }}" data-duration="1">{{ $rentalActive }}</div><div class="stat__lbl">Unit aktif</div></div>
+    <div class="stat reveal d2"><div class="stat__ico stat__ico--orange" aria-hidden="true">📋</div><div class="stat__val" data-adm-count data-to="{{ (int) $rentalPending }}" data-duration="1">{{ $rentalPending }}</div><div class="stat__lbl">Menunggu</div></div>
+    <div class="stat reveal d3"><div class="stat__ico stat__ico--green" aria-hidden="true">🔎</div><div class="stat__val" data-adm-count data-to="{{ (int) $rentalReview }}" data-duration="1">{{ $rentalReview }}</div><div class="stat__lbl">Tinjau manual</div></div>
 </section>
 <main class="body">
     <section class="revenue reveal d3" style="margin-top:18px"><div class="revenue__head"><span class="revenue__cap">Pemasukan hari ini · seluruh buku kas</span></div><div class="revenue__val"><span>Rp</span> {{ number_format($pemasukanHari ?? 0, 0, ',', '.') }}</div><div class="revenue__foot"><span class="revenue__foot-txt">Bulan ini <b>Rp {{ number_format($pemasukanBulan ?? 0, 0, ',', '.') }}</b></span></div></section>
@@ -328,5 +331,6 @@ body {
 @include('layouts.component.admin._navbar_admin', ['active' => 'beranda'])
 @include('layouts.component._form_controls')
 @include('layouts.component._ui_kit')
+<script src="{{ asset('js/berkah-admin.js') }}" defer></script>
 </body>
 </html>

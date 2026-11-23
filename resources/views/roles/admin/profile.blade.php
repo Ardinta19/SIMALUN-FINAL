@@ -273,6 +273,9 @@ body {
 }
 </style>
 @include('layouts.component._theme_head')
+<link rel="stylesheet" href="{{ asset('css/berkah-admin.css') }}?v={{ filemtime(public_path('css/berkah-admin.css')) }}">
+<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
+<script src="{{ asset('js/page-transitions.js') }}" defer></script>
 </head>
 <body>
 
@@ -388,6 +391,36 @@ body {
             </div>
             <span class="menu-card__arrow">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>
         </a>
+        <a href="{{ route('admin.notifications') }}" class="menu-card__item">
+            <div class="menu-card__icon">
+                @include('layouts.component._icon', ['name' => 'bell', 'size' => 20])
+            </div>
+            <div class="menu-card__body">
+                <div class="menu-card__label">Notifikasi admin</div>
+                <div class="menu-card__sub">Pemberitahuan pesanan dan tenggat</div>
+            </div>
+            <span class="menu-card__arrow">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>
+        </a>
+        <a href="{{ route('admin.audit.index') }}" class="menu-card__item">
+            <div class="menu-card__icon">
+                @include('layouts.component._icon', ['name' => 'audit', 'size' => 20])
+            </div>
+            <div class="menu-card__body">
+                <div class="menu-card__label">Audit trail</div>
+                <div class="menu-card__sub">Jejak tindakan admin terakhir</div>
+            </div>
+            <span class="menu-card__arrow">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>
+        </a>
+        <a href="{{ route('profile.edit') }}" class="menu-card__item">
+            <div class="menu-card__icon">
+                @include('layouts.component._icon', ['name' => 'user', 'size' => 20])
+            </div>
+            <div class="menu-card__body">
+                <div class="menu-card__label">Ubah profil</div>
+                <div class="menu-card__sub">Nama, nomor telepon dan foto akun</div>
+            </div>
+            <span class="menu-card__arrow">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>
+        </a>
     </div>
 
     {{-- Banner --}}
@@ -433,5 +466,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 @include('layouts.component._form_controls')
 @include('layouts.component._ui_kit')
+<script src="{{ asset('js/berkah-admin.js') }}" defer></script>
 </body>
 </html>

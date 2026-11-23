@@ -1,154 +1,137 @@
 {{--
     Partial: _navbar_admin.blade.php
-    Usage: @include('layouts.component.admin._navbar_admin', ['active' => 'beranda'])
-    Active options: beranda | pesanan | profil
+    Usage: @include('layouts.component.admin._navbar_admin')
+           Parameter opsional `active` dipertahankan demi kompatibilitas, tetapi
+           penanda halaman aktif kini dihitung dari rute sehingga tidak bisa
+           salah sorot saat halaman baru ditambahkan.
 
-    Visual style mirrors the Customer bottom nav (inline 22px line-icons,
-    persistent labels, active dot). Active state is exact-match only — when
-    `active` matches no key (absent/empty/invalid) NO item is highlighted
-    (no default fallback). Colors/radius/shadow/spacing derive from canonical
-    tokens (_tokens.blade.php), values identical to the Customer nav.
+    Isi: bilah navigasi bawah (semua ukuran layar) berisi tujuan utama admin.
+    Halaman shell (layouts.admin) memakai sidebar penuh; partial ini dipakai
+    halaman admin mandiri yang belum dimigrasikan ke shell.
 --}}
 @php
-    $navActive = isset($active) ? trim((string) $active) : null;
-
     $pendingCount = 0;
-    $unreadCount  = 0;
+    $unreadCount = 0;
     try {
         $pendingCount = \App\Models\RentalOrderUnit::where('status', 'pending')->count();
-        $unreadCount  = auth()->user()?->unreadNotifications?->count() ?? 0;
+        $unreadCount = auth()->user()?->unreadNotifications?->count() ?? 0;
     } catch (\Exception $e) {}
+
+    $navItems = [
+        ['key' => 'beranda', 'label' => 'Beranda', 'route' => 'dashboard.admin', 'match' => ['dashboard.admin', 'admin.dashboard'], 'icon' => 'home', 'badge' => null],
+        ['key' => 'pesanan', 'label' => 'Pesanan', 'route' => 'admin.rental.orders', 'match' => ['admin.rental.orders', 'admin.rental.orders.show'], 'icon' => 'orders', 'badge' => $pendingCount ?: null],
+        ['key' => 'jadwal', 'label' => 'Jadwal', 'route' => 'admin.rental.schedule', 'match' => ['admin.rental.schedule', 'admin.rental.schedule.daily-sheet'], 'icon' => 'calendar', 'badge' => null],
+        ['key' => 'kas', 'label' => 'Buku kas', 'route' => 'admin.rental.cashbook.index', 'match' => ['admin.rental.cashbook.*'], 'icon' => 'finance', 'badge' => null],
+        ['key' => 'notifikasi', 'label' => 'Notifikasi', 'route' => 'admin.notifications', 'match' => ['admin.notifications', 'admin.notifications.*'], 'icon' => 'bell', 'badge' => $unreadCount ?: null],
+        ['key' => 'profil', 'label' => 'Profil', 'route' => 'admin.profile', 'match' => ['admin.profile'], 'icon' => 'user', 'badge' => null],
+    ];
 @endphp
 
-<nav class="admin-nav" id="admin-nav" aria-label="Navigasi utama">
+<nav class="admin-nav" id="admin-nav" aria-label="Navigasi utama admin">
     <div class="admin-nav__inner">
-
-        {{-- Beranda --}}
-        <a href="{{ route('dashboard.admin') }}"
-           class="admin-nav__item {{ $navActive === 'beranda' ? 'is-active' : '' }}"
-           @if($navActive === 'beranda') aria-current="page" @endif
-           aria-label="Beranda">
-            <span class="admin-nav__icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-                    <polyline points="9 22 9 12 15 12 15 22"/>
-                </svg>
-            </span>
-            <span class="admin-nav__label">Beranda</span>
-        </a>
-
-        {{-- Pesanan --}}
-        <a href="{{ route('admin.rental.orders') }}"
-           class="admin-nav__item {{ $navActive === 'pesanan' ? 'is-active' : '' }}"
-           @if($navActive === 'pesanan') aria-current="page" @endif
-           aria-label="Pesanan">
-            <span class="admin-nav__icon">
-                @if($pendingCount > 0)
-                    <span class="admin-nav__badge">{{ $pendingCount > 9 ? '9+' : $pendingCount }}</span>
-                @endif
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
-                    <rect x="9" y="3" width="6" height="4" rx="2"/>
-                    <line x1="9" y1="12" x2="15" y2="12"/>
-                    <line x1="9" y1="16" x2="13" y2="16"/>
-                </svg>
-            </span>
-            <span class="admin-nav__label">Pesanan</span>
-        </a>
-
-        {{-- Profil --}}
-        <a href="{{ route('admin.profile') }}"
-           class="admin-nav__item {{ $navActive === 'profil' ? 'is-active' : '' }}"
-           @if($navActive === 'profil') aria-current="page" @endif
-           aria-label="Profil">
-            <span class="admin-nav__icon">
-                @if($unreadCount > 0)
-                    <span class="admin-nav__badge admin-nav__badge--success">{{ $unreadCount > 9 ? '9+' : $unreadCount }}</span>
-                @endif
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
-                </svg>
-            </span>
-            <span class="admin-nav__label">Profil</span>
-        </a>
-
+        @foreach($navItems as $item)
+            @php $isActive = request()->routeIs(...$item['match']); @endphp
+            <a href="{{ route($item['route']) }}"
+               class="admin-nav__item {{ $isActive ? 'is-active' : '' }}"
+               @if($isActive) aria-current="page" @endif
+               aria-label="{{ $item['label'] }}">
+                <span class="admin-nav__icon">
+                    @if($item['badge'])
+                        <span class="admin-nav__badge">{{ $item['badge'] > 9 ? '9+' : $item['badge'] }}</span>
+                    @endif
+                    @include('layouts.component._icon', ['name' => $item['icon'], 'size' => 22])
+                </span>
+                <span class="admin-nav__label">{{ $item['label'] }}</span>
+            </a>
+        @endforeach
     </div>
 </nav>
 
 <style>
-/* Self-contained: literal values (no host-page token dependency) so the nav
-   renders IDENTICALLY on every page — matches the Customer nav exactly. */
+/* Self-contained (literal values) agar tampil identik di semua halaman admin
+   mandiri, dengan padanan tema gelap dan tanpa animasi saat gerak dikurangi. */
 .admin-nav {
     position: fixed;
     bottom: 0; left: 0; right: 0;
     z-index: 999;
-    background: rgba(255,255,255,0.97);
+    background: rgba(255, 250, 248, .97);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid #e8f0fe;
-    box-shadow: 0 -4px 24px rgba(0, 47, 92, 0.08);
+    border-top: 1px solid #f0dfe1;
+    box-shadow: 0 -4px 24px rgba(60, 10, 25, .08);
     padding-bottom: env(safe-area-inset-bottom, 0px);
 }
+html[data-theme="dark"] .admin-nav {
+    background: rgba(29, 23, 27, .97);
+    border-top-color: #3a2c32;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, .5);
+}
 .admin-nav__inner {
-    max-width: 520px;
+    max-width: 620px;
     margin: 0 auto;
     display: flex;
     align-items: center;
-    height: 64px;
-    padding: 0 8px;
+    min-height: 64px;
+    padding: 0 6px;
 }
 .admin-nav__item {
-    flex: 1;
+    flex: 1 1 0;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 3px;
+    padding: 7px 0;
     text-decoration: none;
-    color: #5f7082;
+    color: #6f5a63;
     position: relative;
-    padding: 6px 0;
-    transition: color 0.2s ease;
+    transition: color .2s ease, transform .2s ease;
     -webkit-tap-highlight-color: transparent;
 }
+html[data-theme="dark"] .admin-nav__item { color: #c9b4bb; }
+.admin-nav__item:active { transform: scale(.96); }
 .admin-nav__item.is-active { color: #85092d; }
+html[data-theme="dark"] .admin-nav__item.is-active { color: #f0b6c4; }
 .admin-nav__item.is-active .admin-nav__icon svg { stroke-width: 2.6; }
-.admin-nav__icon {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+.admin-nav__icon { position: relative; display: flex; align-items: center; justify-content: center; }
+.admin-nav__icon svg { width: 22px; height: 22px; }
 .admin-nav__badge {
     position: absolute;
-    top: -6px; right: -8px;
+    top: -6px; right: -9px;
     background: #b63050;
     color: #fff;
-    font-size: 0.55rem;
+    font-size: .55rem;
     font-weight: 900;
     min-width: 16px; height: 16px;
     border-radius: 99px;
     display: flex; align-items: center; justify-content: center;
     padding: 0 3px;
-    border: 2px solid #fff;
+    border: 2px solid #fffaf8;
     font-family: 'Plus Jakarta Sans', sans-serif;
 }
-.admin-nav__badge--success { background: #087f5b; }
+html[data-theme="dark"] .admin-nav__badge { border-color: #1d171b; }
 .admin-nav__label {
-    font-size: 0.6rem;
+    font-size: .58rem;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.4px;
+    letter-spacing: .35px;
     font-family: 'Plus Jakarta Sans', sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 .admin-nav__item.is-active::after {
     content: '';
     position: absolute;
-    bottom: -2px;
-    width: 4px; height: 4px;
-    background: #85092d;
+    bottom: 0;
+    width: 5px; height: 5px;
+    background: currentColor;
     border-radius: 50%;
 }
-@media (prefers-reduced-motion: reduce) { .admin-nav__item { transition: none; } }
+@media (prefers-reduced-motion: reduce) {
+    .admin-nav__item { transition: none; }
+    .admin-nav__item:active { transform: none; }
+}
 </style>
