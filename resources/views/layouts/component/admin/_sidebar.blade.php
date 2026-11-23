@@ -38,6 +38,10 @@
             @include('layouts.component._icon', ['name' => 'help', 'size' => 16])
             Buka panduan
         </a>
+        <a class="adm-btn adm-btn--ghost adm-btn--sm" href="{{ route('welcome') }}" target="_blank" rel="noopener">
+            @include('layouts.component._icon', ['name' => 'eye', 'size' => 16])
+            Lihat katalog publik
+        </a>
     </div>
 
     <div class="adm-user">

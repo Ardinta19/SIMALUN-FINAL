@@ -142,7 +142,7 @@ html[data-theme="dark"] {
 
 /* Sidebar ---------------------------------------------------------------- */
 .adm-sidebar {
-    position: fixed; inset: 0 auto 0 0; width: var(--adm-sidebar); z-index: 60;
+    position: fixed; inset: 0 auto 0 0; width: var(--adm-sidebar); z-index: 92;
     display: flex; flex-direction: column; gap: 18px;
     padding: 20px 16px 18px;
     color: #fdf3f6;
@@ -276,8 +276,8 @@ html[data-theme="dark"] {
 }
 .adm-topbar__menu:active { transform: scale(.94); }
 
-.adm-crumbs { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: .82rem; color: var(--adm-ink-2); }
-.adm-crumbs a { color: inherit; text-decoration: none; }
+.adm-crumbs { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 0 1 auto; overflow: hidden; font-size: .82rem; color: var(--adm-ink-2); }
+.adm-crumbs a { color: inherit; text-decoration: none; white-space: nowrap; }
 .adm-crumbs a:hover { color: var(--adm-wine); }
 .adm-crumbs__sep { opacity: .5; }
 .adm-crumbs strong { color: var(--adm-ink); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -475,6 +475,20 @@ html[data-theme="dark"] {
     background: var(--adm-surface-3); color: var(--adm-ink-2);
     border: 1px solid var(--adm-line);
 }
+/* Chip yang berfungsi sebagai tautan filter: cukup besar untuk disentuh,
+   menandai pilihan aktif, dan tidak bersaing dengan tombol aksi halaman. */
+.adm-chip--link {
+    min-height: 36px; padding: 7px 13px; border-radius: 11px;
+    font-size: .78rem; font-weight: 700; text-decoration: none;
+    color: var(--adm-ink-2); background: var(--adm-surface-2);
+    transition: background var(--adm-dur-2) var(--adm-ease), border-color var(--adm-dur-2) var(--adm-ease), color var(--adm-dur-2) var(--adm-ease), transform var(--adm-dur-2) var(--adm-ease);
+}
+.adm-chip--link:hover { color: var(--adm-wine); border-color: var(--adm-line-strong); transform: translateY(-1px); }
+.adm-chip--link:active { transform: translateY(0) scale(.98); }
+.adm-chip--link.is-active { background: var(--adm-wine); border-color: var(--adm-wine); color: #fff; }
+.adm-chip--link.is-active:hover { color: #fff; }
+.adm-chipbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 0 16px; }
+.adm-chipbar__label { font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--adm-ink-3); margin-right: 2px; }
 
 /* --------------------------------------------------------------------------
    8. Tabel
@@ -961,4 +975,96 @@ body.adm-layer-open { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
     .adm-app .bk-back,
     .adm-app .bk-back:hover { transform: none; transition: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   21. Tiga wajah layout: ponsel, tablet, desktop
+       Ponsel  (<640px)  : satu kolom, topbar diringkas, menu lewat drawer
+       Tablet  (640–1079): dua kolom, drawer, tabel tetap tabel sampai 760
+       Desktop (≥1080)   : sidebar tetap, konten lebar, tiga kolom untuk grid
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Tablet: tiga kolom menjadi dua supaya kartu tidak sempit ───────────── */
+@media (min-width: 761px) and (max-width: 1079px) {
+    .adm-grid--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .adm-content { padding-bottom: 72px; }
+}
+
+/* ── Desktop tetap: beri ruang baca lebih lega ─────────────────────────── */
+@media (min-width: 1080px) {
+    .adm-content { padding-top: clamp(22px, 2vw, 30px); }
+    .adm-topbar { padding-inline: 30px; }
+    /* Di layar lebar, paragraf penjelasan dibatasi 78 karakter per baris
+       supaya mata tidak menyapu jauh dari kiri ke kanan. */
+    .adm-app .adm-card > p,
+    .adm-app .adm-note,
+    .adm-app .adm-help,
+    .adm-app .adm-page-sub { max-width: 78ch; }
+}
+
+/* ── Ponsel: topbar diringkas, tidak ada ikon yang berdesakan ──────────── */
+@media (max-width: 700px) {
+    /* Tiga alat sekunder (panduan, katalog publik, tema) pindah ke sidebar
+       dan menu mengambang; topbar menyisakan menu, remah, notifikasi, avatar. */
+    .adm-iconbtn--optional { display: none; }
+    .adm-topbar__tools { gap: 6px; }
+    .adm-iconbtn { width: 38px; height: 38px; }
+}
+
+@media (max-width: 560px) {
+    /* Remah roti menampilkan halaman aktif saja; induknya ada di tombol menu. */
+    .adm-crumbs__home,
+    .adm-crumbs__sep { display: none; }
+    .adm-crumbs strong { font-size: .84rem; }
+    .adm-topbar { min-height: 58px; padding: 8px 12px; gap: 10px; }
+    .adm-iconbtn { width: 36px; height: 36px; border-radius: 11px; }
+    .adm-iconbtn svg { width: 17px; height: 17px; }
+    .adm-topbar__menu { width: 38px; height: 38px; }
+    .adm-page-head { gap: 12px; }
+    .adm-kicker { font-size: .64rem; }
+    .adm-page-sub { font-size: .84rem; }
+    /* Dua tombol berdampingan lebih hemat ruang daripada tumpukan selebar layar. */
+    .adm-actions { gap: 8px; }
+    .adm-actions > .btn,
+    .adm-actions > .adm-btn { flex: 1 1 44%; justify-content: center; min-height: 42px; padding-inline: 10px; }
+    .adm-chipbar { gap: 6px; }
+    .adm-chipbar__label { flex: 0 0 100%; margin-bottom: 2px; }
+}
+
+/* ── Drawer di ponsel: lebar nyaman, isi tidak tertutup home-indicator ─── */
+@media (max-width: 640px) {
+    .adm-sidebar {
+        width: min(320px, 88vw);
+        padding: 18px 14px calc(16px + env(safe-area-inset-bottom, 0px));
+    }
+    .adm-backdrop { backdrop-filter: blur(3px); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   22. Keterangan singkat di kepala halaman
+       Paragraf penjelasan panjang diringkas menjadi satu kalimat; sisanya
+       dibuka lewat "Selengkapnya" agar kepala halaman tidak jadi dinding teks.
+   ═══════════════════════════════════════════════════════════════════════ */
+.adm-page-head__text .adm-page-note { margin-top: 2px; }
+.adm-page-note summary {
+    display: inline-flex; align-items: center; gap: 6px;
+    min-height: 30px; padding: 2px 0;
+    color: var(--adm-wine); font-size: .8rem; font-weight: 700;
+    cursor: pointer; list-style: none;
+    transition: color var(--adm-dur-2) var(--adm-ease);
+}
+.adm-page-note summary::-webkit-details-marker { display: none; }
+.adm-page-note summary::after {
+    content: "▾"; font-size: .68rem; line-height: 1;
+    transition: transform var(--adm-dur-2) var(--adm-ease);
+}
+.adm-page-note[open] summary::after { transform: rotate(180deg); }
+.adm-page-note summary:hover { color: var(--adm-wine-deep); }
+.adm-page-note summary:focus-visible { outline: 3px solid var(--adm-rose); outline-offset: 3px; border-radius: 6px; }
+.adm-page-note p {
+    margin: 6px 0 0; max-width: 68ch;
+    font-size: .82rem; line-height: 1.62; color: var(--adm-ink-2);
+}
+@media (prefers-reduced-motion: reduce) {
+    .adm-page-note summary::after { transition: none; }
 }

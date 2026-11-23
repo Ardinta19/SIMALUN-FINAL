@@ -13,7 +13,11 @@
     <div class="adm-page-head__text">
         <span class="adm-kicker">Keuangan</span>
         <h1>Buku kas</h1>
-        <p class="adm-page-sub">Pembayaran sewa masuk otomatis pada tanggal verifikasi. Jangan catat pembayaran itu lagi secara manual. Pengembalian dana dicatat dari pembayaran terkait, begitu pula koreksi nominal.</p>
+        <p class="adm-page-sub">Pembayaran sewa tercatat otomatis; di sini Anda hanya menambah transaksi manual.</p>
+                <details class="adm-page-note">
+                    <summary>Selengkapnya</summary>
+                    <p>Pembayaran sewa masuk otomatis pada tanggal verifikasi. Jangan catat pembayaran itu lagi secara manual. Pengembalian dana dicatat dari pembayaran terkait, begitu pula koreksi nominal.</p>
+                </details>
     </div>
     <div class="adm-actions">
         <a class="btn secondary" href="{{ route('admin.rental.cashbook.export', ['period' => $period, 'date' => $date->toDateString()]) }}">Unduh CSV periode ini</a>

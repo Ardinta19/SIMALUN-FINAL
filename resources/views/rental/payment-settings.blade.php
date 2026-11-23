@@ -15,7 +15,11 @@
     <div class="adm-page-head__text">
         <span class="adm-kicker">Keuangan</span>
         <h1>Pengaturan pembayaran</h1>
-        <p class="adm-page-sub">QRIS adalah pilihan utama. Siapkan QRIS usaha yang benar dan nomor WhatsApp untuk metode lain. Pelanggan tetap mengirim bukti dan admin memverifikasinya secara manual; sistem tidak memeriksa transfer secara otomatis.</p>
+        <p class="adm-page-sub">Atur cara pelanggan membayar: QRIS, nomor WhatsApp, dan petunjuk transfer.</p>
+                <details class="adm-page-note">
+                    <summary>Selengkapnya</summary>
+                    <p>QRIS adalah pilihan utama. Siapkan QRIS usaha yang benar dan nomor WhatsApp untuk metode lain. Pelanggan tetap mengirim bukti dan admin memverifikasinya secara manual; sistem tidak memeriksa transfer secara otomatis.</p>
+                </details>
     </div>
     <div class="adm-actions">
         <span class="adm-badge {{ $hasQris ? 'adm-badge--confirmed' : 'adm-badge--pending' }}">

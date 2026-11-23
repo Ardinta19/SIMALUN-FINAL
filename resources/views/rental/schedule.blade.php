@@ -13,7 +13,11 @@
     <div class="adm-page-head__text">
         <span class="adm-kicker">Operasional</span>
         <h1>Jadwal sewa</h1>
-        <p class="adm-page-sub">Setiap hari dalam periode sewa ditampilkan, termasuk hari penerimaan dan pengembalian. Unit menunggu sudah menahan tanggal sampai tenggat konfirmasi; unit terkonfirmasi menahannya secara tetap. Perkiraan jadwal bukan bukti serah terima aktual.</p>
+        <p class="adm-page-sub">Semua hari dalam periode sewa, termasuk penerimaan dan pengembalian.</p>
+                <details class="adm-page-note">
+                    <summary>Selengkapnya</summary>
+                    <p>Setiap hari dalam periode sewa ditampilkan, termasuk hari penerimaan dan pengembalian. Unit menunggu sudah menahan tanggal sampai tenggat konfirmasi; unit terkonfirmasi menahannya secara tetap. Perkiraan jadwal bukan bukti serah terima aktual.</p>
+                </details>
     </div>
     <div class="adm-actions">
         <a class="btn secondary" href="{{ route('admin.rental.orders') }}">Pesanan sewa</a>

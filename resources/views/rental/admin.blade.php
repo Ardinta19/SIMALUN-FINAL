@@ -9,9 +9,8 @@
         <p class="adm-page-sub">Konfirmasi mencadangkan stok. Periode sewa termasuk hari penerimaan dan pengembalian. Buka detail pesanan untuk menangani setiap unit.</p>
     </div>
     <div class="adm-actions">
-        <a class="btn secondary" href="{{ route('admin.rental.schedule') }}">Jadwal sewa</a>
-        <a class="btn secondary" href="{{ route('admin.rental.payment-settings.edit') }}">Petunjuk pembayaran</a>
-        <a class="btn" href="{{ route('admin.rental.orders', ['status' => 'pending']) }}">Menunggu konfirmasi</a>
+        <a class="adm-btn adm-btn--ghost adm-btn--sm" href="{{ route('admin.rental.schedule') }}">Jadwal sewa</a>
+        <a class="adm-btn adm-btn--ghost adm-btn--sm" href="{{ route('admin.rental.payment-settings.edit') }}">Petunjuk pembayaran</a>
     </div>
 </div>
 
@@ -19,6 +18,17 @@
     <span class="adm-note__title">Mode pengujian</span>
     Pemesanan dan pembayaran belum lengkap; gunakan halaman ini hanya untuk pengujian.
 </div>
+
+@php $activeStatus = $filters['status'] ?? ''; @endphp
+<nav class="adm-chipbar" aria-label="Antrean cepat" data-adm-reveal="filters">
+    <span class="adm-chipbar__label">Antrean cepat</span>
+    <a class="adm-chip adm-chip--link {{ $activeStatus === 'pending' ? 'is-active' : '' }}" @if($activeStatus === 'pending') aria-current="page" @endif href="{{ route('admin.rental.orders', ['status' => 'pending']) }}">Menunggu konfirmasi</a>
+    <a class="adm-chip adm-chip--link {{ $activeStatus === 'payment_pending' ? 'is-active' : '' }}" @if($activeStatus === 'payment_pending') aria-current="page" @endif href="{{ route('admin.rental.orders', ['status' => 'payment_pending']) }}">Bukti pembayaran</a>
+    <a class="adm-chip adm-chip--link {{ in_array($activeStatus, ['transport_quote', 'transport_approval'], true) ? 'is-active' : '' }}" @if(in_array($activeStatus, ['transport_quote', 'transport_approval'], true)) aria-current="page" @endif href="{{ route('admin.rental.orders', ['status' => 'transport_quote']) }}">Ongkos</a>
+    <a class="adm-chip adm-chip--link {{ in_array($activeStatus, ['design_initial', 'design_revision', 'design_pending'], true) ? 'is-active' : '' }}" @if(in_array($activeStatus, ['design_initial', 'design_revision', 'design_pending'], true)) aria-current="page" @endif href="{{ route('admin.rental.orders', ['status' => 'design_initial']) }}">Desain</a>
+    <a class="adm-chip adm-chip--link {{ $activeStatus === 'review' ? 'is-active' : '' }}" @if($activeStatus === 'review') aria-current="page" @endif href="{{ route('admin.rental.orders', ['status' => 'review']) }}">Tinjau manual</a>
+    <a class="adm-chip adm-chip--link {{ $activeStatus === 'return_overdue' ? 'is-active' : '' }}" @if($activeStatus === 'return_overdue') aria-current="page" @endif href="{{ route('admin.rental.orders', ['status' => 'return_overdue']) }}">Lewat kembali</a>
+</nav>
 
 <form class="adm-toolbar" method="get" action="{{ route('admin.rental.orders') }}" data-adm-reveal="filter">
     <div class="adm-field-grid">

@@ -7,7 +7,11 @@
     <div class="adm-page-head__text">
         <span class="adm-kicker">Katalog &amp; penawaran</span>
         <h1>Universitas dan tarif</h1>
-        <p class="adm-page-sub">Masukkan sendiri universitas dan tarif per unit. Tarif antar dan jemput dapat berbeda. Pesanan yang sudah dibuat menyimpan tarif saat checkout.</p>
+        <p class="adm-page-sub">Universitas dan tarif antar/jemput per unit — keduanya boleh berbeda.</p>
+                <details class="adm-page-note">
+                    <summary>Selengkapnya</summary>
+                    <p>Masukkan sendiri universitas dan tarif per unit. Tarif antar dan jemput dapat berbeda. Pesanan yang sudah dibuat menyimpan tarif saat checkout.</p>
+                </details>
     </div>
     <div class="adm-actions">
         <a class="btn secondary" href="{{ route('admin.catalog.index') }}">Kembali ke katalog</a>

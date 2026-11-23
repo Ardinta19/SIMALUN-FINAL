@@ -131,6 +131,62 @@ html[data-theme="dark"] .admin-nav__badge { border-color: #1d171b; }
     background: currentColor;
     border-radius: 50%;
 }
+/* ── Tablet & desktop: bilah bawah berubah menjadi bilah atas ──────────────
+   Halaman admin mandiri memakai satu kolom selebar 520px, jadi navigasi bawah
+   terasa seperti aplikasi ponsel yang diperbesar. Mulai 900px navigasi naik ke
+   atas sebagai baris tautan mendatar; label kembali ke huruf biasa agar mudah
+   dipindai, dan tanda aktif memakai pil lembut, bukan titik. */
+@media (min-width: 900px) {
+    .admin-nav {
+        top: 0; bottom: auto;
+        border-top: 0;
+        border-bottom: 1px solid #f0dfe1;
+        box-shadow: 0 8px 26px -18px rgba(60, 10, 25, .5);
+        padding-bottom: 0;
+        padding-top: env(safe-area-inset-top, 0px);
+    }
+    html[data-theme="dark"] .admin-nav {
+        border-bottom-color: #3a2c32;
+        box-shadow: 0 8px 26px -18px rgba(0, 0, 0, .8);
+    }
+    .admin-nav__inner {
+        max-width: 1120px;
+        min-height: 60px;
+        gap: 2px;
+        padding: 0 20px;
+        justify-content: flex-start;
+    }
+    .admin-nav__item {
+        flex: 0 0 auto;
+        flex-direction: row;
+        gap: 8px;
+        padding: 8px 13px;
+        border-radius: 11px;
+        transition: color .2s ease, background .2s ease;
+    }
+    .admin-nav__item.is-active {
+        background: #f4e8e4;
+    }
+    html[data-theme="dark"] .admin-nav__item.is-active {
+        background: rgba(255, 255, 255, .1);
+    }
+    .admin-nav__item.is-active::after { display: none; }
+    .admin-nav__label {
+        font-size: .78rem;
+        font-weight: 700;
+        letter-spacing: 0;
+        text-transform: none;
+    }
+    .admin-nav__icon svg { width: 18px; height: 18px; }
+    .admin-nav__badge { top: -4px; right: -6px; }
+
+    /* Ruang untuk bilah atas; ruang bilah bawah tidak lagi diperlukan. */
+    body {
+        padding-bottom: 40px;
+        padding-top: calc(60px + env(safe-area-inset-top, 0px));
+    }
+}
+
 /* Layar sangat sempit: butir tambahan (Panduan) menyisakan ikon saja
    supaya enam tujuan utama tetap lega dan labelnya tidak terpotong. */
 @media (max-width: 400px) {

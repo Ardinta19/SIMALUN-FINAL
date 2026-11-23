@@ -131,12 +131,14 @@ body {
 .pulse {
     display: flex; align-items: center; gap: 10px;
     margin-top: 16px; padding: 11px 13px;
-    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.22);
+    background: rgba(84, 5, 31, 0.92); border: 1px solid rgba(255,255,255,0.26);
     border-radius: 14px; text-decoration: none;
+    box-shadow: 0 10px 22px -14px rgba(40, 5, 16, 0.9);
     -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
-    transition: background 0.18s;
+    transition: background 0.18s, transform 0.18s;
 }
-.pulse:active { background: rgba(255,255,255,0.24); }
+.pulse:hover { background: rgba(84, 5, 31, 1); }
+.pulse:active { background: rgba(60, 3, 22, 1); transform: scale(0.995); }
 .pulse__dot { width: 9px; height: 9px; border-radius: 50%; background: var(--orange); flex-shrink: 0; box-shadow: 0 0 0 0 rgba(255,107,53,0.6); animation: ping 1.8s ease-out infinite; }
 .pulse__dot--ok { background: #4ade80; animation: none; }
 @keyframes ping { 0%{box-shadow:0 0 0 0 rgba(255,107,53,.55)} 70%{box-shadow:0 0 0 7px rgba(255,107,53,0)} 100%{box-shadow:0 0 0 0 rgba(255,107,53,0)} }
@@ -254,6 +256,52 @@ body {
 .logout-btn:active { background: #ffe9e9; }
 .logout-btn svg { width: 17px; height: 17px; }
 .version-tag { text-align: center; margin: 14px 0 6px; font-size: 0.66rem; font-weight: 700; color: var(--ink-lt); letter-spacing: 0.3px; }
+
+/* ═══════════════════════════════════════════════
+   RESPONSIF: TABLET (600–899) DAN DESKTOP (≥900)
+   Ponsel tetap satu kolom seperti aslinya; di layar lebar isi dashboard
+   dipisah dua kolom agar tidak menjadi lajur panjang di tengah halaman.
+═══════════════════════════════════════════════ */
+@media (min-width: 600px) {
+    .hero__inner, .stats, .body { max-width: 680px; }
+    .stats { gap: 12px; }
+    .quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 900px) {
+    .hero { padding-bottom: 58px; }
+    .hero__inner, .stats, .body { max-width: 1120px; }
+    .hero__inner { padding-inline: 28px; }
+    .brand__name { font-size: 1.05rem; }
+    .greet__name { font-size: 1.8rem; }
+    .greet__hi, .greet__date { font-size: 0.76rem; }
+    .pulse { max-width: 460px; }
+    .stats { margin-top: -34px; gap: 16px; }
+    .stat { padding: 18px 16px; }
+    .stat__val { font-size: 1.9rem; }
+
+    .body {
+        display: grid;
+        grid-template-columns: minmax(0, 1.28fr) minmax(0, 0.9fr);
+        gap: 0 26px;
+        align-items: start;
+        margin-top: 22px;
+    }
+    .body > .revenue { grid-column: 1 / -1; margin-top: 0; }
+    .body > .section { margin-top: 22px; }
+    .body > .section:nth-of-type(2) { grid-column: 1; }
+    .body > .section:nth-of-type(3) { grid-column: 2; }
+    .body > .section:nth-of-type(4) { grid-column: 1; }
+    .body > .section:nth-of-type(5) { grid-column: 2; }
+    .body > p,
+    .body > .logout-section,
+    .body > .version-tag { grid-column: 1 / -1; }
+    .body > p { margin-top: 26px; }
+    .logout-section { max-width: 360px; }
+    .revenue { padding: 22px 24px; }
+    .revenue__val { font-size: 2.2rem; }
+    .quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+}
 </style>
 @include('layouts.component._theme_head')
 <link rel="stylesheet" href="{{ asset('css/berkah-admin.css') }}?v={{ filemtime(public_path('css/berkah-admin.css')) }}">

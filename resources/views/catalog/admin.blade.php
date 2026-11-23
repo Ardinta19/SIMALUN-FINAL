@@ -13,7 +13,11 @@
     <div class="adm-page-head__text">
         <span class="adm-kicker">Katalog &amp; penawaran</span>
         <h1>Kelola katalog</h1>
-        <p class="adm-page-sub">Tambahkan kategori dan papan. Harga dan stok di sini adalah data dasar, bukan ketersediaan pada tanggal tertentu.</p>
+        <p class="adm-page-sub">Tambahkan kategori lalu papan; harga di sini adalah data dasar, bukan ketersediaan tanggal.</p>
+                <details class="adm-page-note">
+                    <summary>Selengkapnya</summary>
+                    <p>Tambahkan kategori dan papan. Harga dan stok di sini adalah data dasar, bukan ketersediaan pada tanggal tertentu.</p>
+                </details>
     </div>
     <div class="adm-actions">
         <a class="btn secondary" href="{{ route('admin.rental.universities.index') }}">Kelola universitas dan tarif</a>

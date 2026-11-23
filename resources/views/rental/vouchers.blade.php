@@ -7,7 +7,11 @@
     <div class="adm-page-head__text">
         <span class="adm-kicker">Katalog &amp; penawaran</span>
         <h1>Voucher sewa</h1>
-        <p class="adm-page-sub">Pelanggan memasukkan kode ini di halaman checkout. Admin menentukan besaran potongan, apakah potongan ikut menutup ongkos, kuota, dan berapa kali satu pelanggan boleh memakainya. Pesanan yang sudah dibuat tidak berubah saat voucher dinonaktifkan.</p>
+        <p class="adm-page-sub">Kode diskon dipasang pelanggan saat checkout; besaran dan kuotanya Anda tentukan di sini.</p>
+                <details class="adm-page-note">
+                    <summary>Selengkapnya</summary>
+                    <p>Pelanggan memasukkan kode ini di halaman checkout. Admin menentukan besaran potongan, apakah potongan ikut menutup ongkos, kuota, dan berapa kali satu pelanggan boleh memakainya. Pesanan yang sudah dibuat tidak berubah saat voucher dinonaktifkan.</p>
+                </details>
     </div>
 </div>
 
