@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="id" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pratinjau menu radial — SIMALUN-FINAL</title>
+<!--
+    Halaman ini hanya untuk MELIHAT komponen, bukan bagian aplikasi.
+
+    CSS busur tidak disalin: skrip di bawah mengambil blok <style> langsung
+    dari resources/views/layouts/component/customer/_radial_customer.blade.php,
+    jadi pratinjau tidak pernah menyimpang dari kode yang dipakai aplikasi.
+    GSAP, Lenis, dan berkah-radial.js juga berkas asli dari public/.
+-->
+<style>
+    :root { color-scheme: dark light; }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        background: #0c090b;
+        color: #f6ece8;
+        transition: background .3s ease, color .3s ease;
+    }
+    html[data-theme="light"] body { background: #faf4f1; color: #321d24; }
+
+    .demo-bar {
+        display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+        padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,.08);
+        font-size: 13px; letter-spacing: .01em;
+    }
+    html[data-theme="light"] .demo-bar { border-color: rgba(84,5,31,.1); }
+    .demo-bar strong { font-weight: 800; }
+    .demo-bar span { opacity: .7; }
+    .demo-bar button {
+        min-height: 36px; padding: 0 14px; border-radius: 999px; cursor: pointer;
+        border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.06);
+        color: inherit; font: inherit; font-weight: 700;
+    }
+    html[data-theme="light"] .demo-bar button { border-color: rgba(84,5,31,.16); background: #fff; }
+    .demo-bar button[aria-pressed="true"] { background: #85092d; border-color: #85092d; color: #fff; }
+
+    /* Kerangka header tiruan: hanya agar tombol radial duduk di tempat aslinya. */
+    .mock-header {
+        position: sticky; top: 0; z-index: 900; padding: 14px 16px;
+        display: flex; justify-content: center;
+    }
+    .mock-header-inner {
+        display: flex; align-items: center; gap: 10px;
+        width: min(1100px, 100%); min-height: 70px; padding: 10px 14px;
+        border: 1px solid rgba(119,66,77,.28); border-radius: 28px;
+        background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0) 46%), rgba(28,20,24,.86);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 12px 34px rgba(0,0,0,.36);
+        backdrop-filter: blur(18px) saturate(150%);
+        -webkit-backdrop-filter: blur(18px) saturate(150%);
+    }
+    html[data-theme="light"] .mock-header-inner {
+        background: linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,0) 46%), rgba(255,252,248,.9);
+        border-color: rgba(119,66,77,.18);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 12px 34px rgba(74,23,38,.12);
+    }
+    .mock-brand { display: flex; flex-direction: column; line-height: 1.1; margin-right: auto; }
+    .mock-brand b { font-size: 15px; letter-spacing: -.01em; }
+    .mock-brand small { font-size: 11px; opacity: .62; font-weight: 600; }
+    .mock-filter {
+        display: inline-flex; align-items: center; gap: 6px; height: 44px; padding: 0 14px;
+        border-radius: 999px; text-decoration: none; font-size: 13px; font-weight: 700;
+        color: inherit; border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.05);
+    }
+    html[data-theme="light"] .mock-filter { border-color: rgba(84,5,31,.14); background: #fff; }
+
+    /* Busur hanya tampil <=700 px di aplikasi; pratinjau memaksanya tampil. */
+    .demo-page .bk-header-radial { display: block; }
+
+    .mock-content { width: min(1100px, 100%); margin: 0 auto; padding: 22px 18px 120px; }
+    .mock-content h1 { font-size: clamp(22px, 4vw, 34px); line-height: 1.15; margin: 8px 0 6px; letter-spacing: -.02em; }
+    .mock-content p.lead { max-width: 60ch; margin: 0 0 22px; font-size: 14px; line-height: 1.65; opacity: .78; }
+    .mock-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .mock-card {
+        padding: 16px; border-radius: 20px; font-size: 13px; line-height: 1.5;
+        border: 1px solid rgba(255,255,255,.09); background: #201820;
+    }
+    html[data-theme="light"] .mock-card { border-color: #f0dfe1; background: #fffaf8; }
+    .mock-card b { display: block; font-size: 14px; margin-bottom: 4px; }
+    .mock-card span { opacity: .7; }
+    .demo-foot { max-width: 1100px; margin: 0 auto; padding: 0 18px 40px; font-size: 12px; line-height: 1.7; opacity: .6; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+</style>
+</head>
+<body class="demo-page">
+    <div class="demo-bar">
+        <strong>Pratinjau menu radial</strong>
+        <span>CSS diambil langsung dari partial Blade · GSAP + Lenis asli</span>
+        <button type="button" data-demo-theme="dark" aria-pressed="true">Gelap</button>
+        <button type="button" data-demo-theme="light" aria-pressed="false">Terang</button>
+    </div>
+
+    <div class="mock-header">
+        <div class="mock-header-inner">
+            <span class="mock-brand"><b>Berkah Kreatif</b><small>Papan bunga untuk setiap cerita</small></span>
+            <a class="mock-filter" href="#">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                Cari
+            </a>
+
+            <details class="customer-radial bk-header-radial" data-customer-radial>
+                <summary class="customer-nav__item" aria-label="Menu: keranjang, pesanan, notifikasi, dan bantuan, 7 notifikasi belum dibaca">
+                    <span class="customer-nav__icon customer-radial__trigger">
+                        <span class="customer-radial__face customer-radial__face--menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 5h16"/><path d="M4 12h16"/><path d="M4 19h16"/></svg></span>
+                        <span class="customer-radial__face customer-radial__face--close"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span>
+                        <span class="customer-nav__badge" aria-hidden="true">7</span>
+                    </span>
+                    <span class="customer-nav__label">Menu</span>
+                </summary>
+                <div class="customer-radial__panel" aria-label="Menu pelanggan">
+                    <div class="customer-radial__heading"><strong>Menu pelanggan</strong><span>Pilih tujuan</span></div>
+                    <div class="customer-radial__links">
+                        <svg class="customer-radial__goo" viewBox="0 0 320 150" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs><filter id="bk-menu-goo" x="-20%" y="-30%" width="140%" height="160%"><feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/><feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 14 -5"/></filter></defs><g filter="url(#bk-menu-goo)" fill="#ead4d4"><circle cx="42" cy="86" r="26"/><circle cx="118" cy="36" r="26"/><circle cx="202" cy="36" r="26"/><circle cx="278" cy="86" r="26"/><path d="M42 86 Q160 8 278 86 L160 125 Z"/></g></svg>
+                        <a href="#" aria-label="Keranjang, 2 unit">
+                            <span class="customer-radial__glyph" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10a4 4 0 0 1-8 0"/><path d="M3.103 6.034h17.794"/><path d="M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z"/></svg></span>
+                            <span class="customer-radial__badge" aria-hidden="true">2</span>
+                            <span class="customer-radial__text">Keranjang <small>2 unit</small></span>
+                        </a>
+                        <a href="#" aria-label="Pesanan">
+                            <span class="customer-radial__glyph" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span>
+                            <span class="customer-radial__text">Pesanan</span>
+                        </a>
+                        <a href="#" aria-label="Notifikasi, 7 belum dibaca">
+                            <span class="customer-radial__glyph" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg></span>
+                            <span class="customer-radial__badge" aria-hidden="true">7</span>
+                            <span class="customer-radial__text">Notifikasi <small>7 baru</small></span>
+                        </a>
+                        <a href="#" aria-label="Bantuan dan FAQ">
+                            <span class="customer-radial__glyph" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 9.5a3 2.5 0 016 0c0 2-2 2-3 3.5"/><path d="M12 17h.01"/></svg></span>
+                            <span class="customer-radial__text">Bantuan / FAQ</span>
+                        </a>
+                    </div>
+                </div>
+            </details>
+        </div>
+    </div>
+
+    <main class="mock-content">
+        <h1>Tekan tombol menu di kanan atas</h1>
+        <p class="lead">Empat tujuan menyebar dalam busur ke kiri-bawah — arah yang tidak keluar layar bahkan pada ponsel 320&nbsp;px. Busur menyusut kembali ke tombol saat ditutup, ikon menu bertukar menjadi silang, dan lencana angka memantul masuk.</p>
+        <div class="mock-grid">
+            <div class="mock-card"><b>Keranjang</b><span>Lencana 2 unit</span></div>
+            <div class="mock-card"><b>Pesanan</b><span>Riwayat sewa</span></div>
+            <div class="mock-card"><b>Notifikasi</b><span>Lencana 7 belum dibaca</span></div>
+            <div class="mock-card"><b>Bantuan / FAQ</b><span>Panduan pemesanan</span></div>
+        </div>
+    </main>
+
+    <p class="demo-foot">
+        Gerak: GSAP menganimasikan satu variabel <code>--p</code> (<code>expo.out</code>, stagger 55&nbsp;ms), lencana <code>back.out</code>; Lenis dihentikan selama menu terbuka. Coba juga klik di luar, tekan Escape, atau ganti tema. Dengan <code>prefers-reduced-motion: reduce</code> menu tetap terbuka tanpa animasi.
+    </p>
+
+    <script src="../../public/vendor/gsap/gsap.min.js"></script>
+    <script src="../../public/vendor/gsap/ScrollTrigger.min.js"></script>
+    <script src="../../public/vendor/lenis/lenis.min.js"></script>
+    <script src="../../public/js/berkah-motion.js"></script>
+    <script>
+        // Tema: meniru atribut yang dipasang _theme_head.blade.php.
+        const paintTheme = (value) => {
+            document.documentElement.setAttribute('data-theme', value);
+            document.querySelectorAll('[data-demo-theme]').forEach((button) => {
+                button.setAttribute('aria-pressed', button.dataset.demoTheme === value ? 'true' : 'false');
+            });
+        };
+        document.querySelectorAll('[data-demo-theme]').forEach((button) => {
+            button.addEventListener('click', () => paintTheme(button.dataset.demoTheme));
+        });
+    </script>
+    <script>
+        // Ambil blok <style> dari partial asli supaya pratinjau tidak menyimpang.
+        fetch('../../resources/views/layouts/component/customer/_radial_customer.blade.php')
+            .then((response) => response.text())
+            .then((text) => {
+                const match = text.match(/<style>([\s\S]*?)<\/style>/);
+                if (!match) return;
+                const style = document.createElement('style');
+                style.textContent = match[1];
+                document.head.appendChild(style);
+            });
+    </script>
+    <script src="../../public/js/berkah-radial.js" defer></script>
+</body>
+</html>
