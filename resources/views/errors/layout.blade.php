@@ -30,7 +30,7 @@ p.lead{font-size:var(--bk-fs-md);font-weight:600;color:#5b4149;line-height:1.6;m
 .btn:focus-visible{outline:3px solid #bc5b75;outline-offset:3px}
 .btn:active{transform:scale(.97)}
 .btn-primary{background:linear-gradient(135deg,#85092d 0%,#b6435e 100%);color:#fff;box-shadow:0 8px 22px rgba(133,9,45,.32)}
-.btn-secondary{background:#fff;color:#75102e;border:1.5px solid #e5cbd0}
+.btn-secondary{background:#fff;color:#85092d;border:1.5px solid #e5cbd0}
 .tip{margin-top:20px;padding-top:16px;border-top:1.5px dashed #e8d6dc;font-size:var(--bk-fs-2xs);font-weight:700;color:#7a626a;line-height:1.55}
 .brand{margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:var(--bk-fs-2xs);font-weight:900;color:rgba(255,255,255,.9);letter-spacing:2.4px;text-transform:uppercase}
 .brand span{display:inline-block}

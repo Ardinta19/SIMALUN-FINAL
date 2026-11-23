@@ -904,7 +904,8 @@ html[data-theme="dark"] :is(.queue-link, .rating-error) {
    ================================================================ */
 
 /* .auth-main dan .auth-card tidak punya latar sendiri, jadi di mode gelap
-   teksnya harus ikut terang; sebelumnya #75102e di atas #140f12 (1.5:1). */
+   teksnya harus ikut terang; nilai wine tua (#75102e, kini disatukan ke
+   #85092d) hanya mencapai 1.5:1 di atas #140f12. */
 html[data-theme="dark"] :is(.auth-card > p, .auth-foot) {
     color: var(--theme-ink-mid);
 }

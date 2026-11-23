@@ -342,6 +342,22 @@ Konsekuensi yang sengaja diterima:
    didefinisikan;
 4. view tidak lagi menulis `font-size` rem di bawah `1rem` sebagai angka lepas.
 
+Tambahan pada putaran detail:
+
+- `UiDefaultsTest::test_map_library_is_served_locally` — Leaflet ada di
+  `public/vendor/leaflet`, tidak ada `unpkg` di view.
+- `UiDefaultsTest::test_browser_chrome_color_is_one_brand_value` — satu
+  `theme-color` (`#54051f`) untuk seluruh aplikasi.
+- `UiDefaultsTest::test_old_wine_shade_never_returns` — `#75102e` tidak boleh
+  muncul lagi di CSS/view (komentar diabaikan).
+- `MotionAssetsTest::test_shared_motion_respects_reduced_motion_and_avoids_blanket_transitions`
+  — jaring `prefers-reduced-motion` global ada, dan tidak ada
+  `transition: all` di `public/css` maupun view.
+- `MotionAssetsTest::test_design_scales_are_shared_tokens` diperketat: setiap
+  deklarasi `font-size` di `berkah-admin.css` diperiksa (px/rem/em) **dan**
+  token `--adm-fs-*` harus dipakai lebih dari 40 kali, supaya pemeriksaan tidak
+  lolos-hampa ketika semua ukuran pindah ke token.
+
 ### 9.7 Palet biru terakhir: satu merek, bukan dua
 
 Modal bukan satu-satunya tempat biru lama tertinggal. Setelah disisir, enam
@@ -370,7 +386,61 @@ dengan `?v=filemtime` seperti aset lokal lain. Ubin peta tetap dari
 OpenStreetMap (itu data, bukan aset). Penjaga:
 `UiDefaultsTest::test_map_library_is_served_locally`.
 
-### 9.9 Yang sengaja belum disentuh
+### 9.9 Putaran detail: warna bilah, radius, dan gerak
+
+Empat hal kecil yang tersisa setelah palet dan tipografi beres:
+
+| Temuan | Sebelum | Sesudah |
+|---|---|---|
+| `theme-color` | Tiga nilai berbeda: `#75102e` (pemulihan sandi), `#85092d` (halaman bantuan), `#54051f` (partial pelanggan). | Satu definisi di `layouts/component/_theme_head` → `#54051f`. Skrip tema tetap menukarnya ke `#140f12` saat gelap. Penjaga: `UiDefaultsTest::test_browser_chrome_color_is_one_brand_value`. |
+| Radius | `20px`/`12px` ditulis lepas di modal, kerangka pratinjau, dan tombol. | `--bk-r-card: 20px`, `--bk-r-control: 12px`; dipakai dengan fallback `var(--bk-r-card, 20px)`. |
+| Ukuran/gerak modal | Judul `1.1rem`, pesan `--bk-fs-sm`, transisi `.3s`/`.25s`/`.15s`, `translateY(20px)`. | `--bk-fs-lg`, `--bk-fs-md`, `--bk-dur-1..3` + `--bk-ease-spring` (semua ber-fallback), `translateY(var(--bk-space-5))`. |
+| Transisi | Enam `transition: all` di halaman auth/alamat/profil ikut menganimasikan properti tata letak. | Properti eksplisit (`background-color`, `border-color`, `color`, `box-shadow`). Penjaga: `MotionAssetsTest::test_shared_motion_respects_reduced_motion_and_avoids_blanket_transitions`. |
+
+Aturan gelap modal kembali ditulis per tipe (`.confirm-icon.type-danger` dan
+seterusnya) karena `UiKitTest` mengunci keberadaan setiap permukaan — tetapi
+isinya hanya `var(--bk-state-*)`, jadi tetap satu sumber warna.
+
+Halaman yang membawa CSS sendiri (auth, alamat, profil) tidak menulis blok
+`prefers-reduced-motion`; `berkah-theme.css` — dimuat di semua halaman
+bertema — kini punya jaring pengaman `animation-duration/transition-duration:
+.01ms !important` dan `animation-iteration-count: 1`, supaya preferensi sistem
+tidak bergantung pada disiplin tiap halaman.
+
+Pemeriksaan `MotionAssetsTest` untuk lantai 12 px dulu hanya mencari literal
+`font-size: .NNNrem` di `berkah-admin.css`; begitu ukuran pindah ke
+`var(--adm-fs-*)`, pola itu tidak menemukan apa pun. Sekarang berkas itu
+memeriksa setiap deklarasi `font-size` (literal px/rem/em) **dan** memastikan
+token `--adm-fs-*` benar-benar dipakai (>40 kemunculan), bukan sekadar
+dideklarasikan.
+
+### 9.10 Satu wine, bukan dua
+
+Palet kanonik hanya punya tiga langkah (`#f8e9ed`, `#85092d`, `#54051f`), tetapi
+`#75102e` masih dipakai 27 kali di halaman katalog, pesan, profil, dan formulir
+rental. Dua wine tua yang nyaris kembar itu bukan pilihan desain: `#75102e`
+lebih kusam, dan di atas permukaan gelap hanya mencapai 1.5:1 — persis angka
+yang sudah diperbaiki di §7c. Semua pemakaiannya kini disatukan ke `#85092d`:
+
+| Berkas | Sebelum | Sesudah |
+|---|---|---|
+| `berkah-experience.css` (`--bk-wine`, tautan, `accent-color`, `box-shadow`) | 19× `#75102e` | `#85092d` |
+| `_navbar_customer.blade.php` (radial, panel, chip) | 3× | `#85092d` |
+| `customer-forms.css` (`.page-header` `#751b35`) | 2× | `#85092d` |
+| `berkah-auth.css`, `errors/layout` | 1× masing-masing | `#85092d` |
+
+Kontras sesudah penyatuan di atas latar yang dipakai halaman: `#fbf6ef` 9.4:1,
+`#f8e9ed` 8.6:1, `#ead7d3` 7.3:1 — semuanya lolos 4.5:1. Penjaga:
+`UiDefaultsTest::test_old_wine_shade_never_returns` (komentar CSS/Blade
+diabaikan, jadi catatan sejarah di `berkah-theme.css` tetap boleh menyebut
+nilai lama).
+
+Ujung gradien `#b6435e` sengaja **tidak** dipaksa masuk tangga brand-50..950 di
+`tailwind.config.js`: nilainya hanya dipakai sebagai stop terang gradien dan
+hover, dan menggantinya dengan `--brand-400 #c9708a` akan mengubah rupa banner
+serta surel.
+
+### 9.11 Yang sengaja belum disentuh
 
 - `SplitText` untuk judul hero dan `Flip` untuk daftar pesanan — keduanya
   menambah gerak, bukan memperbaiki cacat; menunggu keputusan.

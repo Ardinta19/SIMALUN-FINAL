@@ -183,6 +183,32 @@ class UiDefaultsTest extends TestCase
         }
     }
 
+    public function test_old_wine_shade_never_returns(): void
+    {
+        // #75102e adalah wine lama: nyaris kembar dengan #85092d, dan hanya
+        // mencapai 1.5:1 bila jatuh di atas permukaan gelap. Seluruh pemakaian
+        // sudah disatukan, jadi nilai ini tidak boleh muncul lagi.
+        $offenders = [];
+
+        $files = array_merge(File::allFiles(public_path('css')), File::allFiles(resource_path('views')));
+
+        foreach ($files as $file) {
+            if (! in_array($file->getExtension(), ['css', 'php'], true)) {
+                continue;
+            }
+
+            $source = File::get($file->getPathname());
+            $source = preg_replace('!/\*.*?\*/!s', '', $source);
+            $source = preg_replace('/\{\{--.*?--\}\}/s', '', $source);
+
+            if (stripos((string) $source, '#75102e') !== false) {
+                $offenders[] = str_replace('\\', '/', $file->getRelativePathname());
+            }
+        }
+
+        $this->assertSame([], $offenders, 'Warna wine lama (#75102e) muncul lagi.');
+    }
+
     public function test_browser_chrome_color_is_one_brand_value(): void
     {
         // Warna bilah peramban hanya boleh punya satu nilai merek; skrip tema
