@@ -8,8 +8,8 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'name' => env('LAUNDRY_NAME', 'Azka Laundry'),
-    'tagline' => env('LAUNDRY_TAGLINE', 'Layanan Laundry Terpercaya'),
+    'name' => env('LAUNDRY_NAME', 'Berkah Kreatif'),
+    'tagline' => env('LAUNDRY_TAGLINE', 'Papan bunga untuk setiap cerita'),
     'version' => '2.4.0',
 
     /*

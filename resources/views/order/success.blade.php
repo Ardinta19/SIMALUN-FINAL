@@ -2,8 +2,8 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Pesanan Berhasil – Azka Laundry</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Pesanan Berhasil – {{ \App\Support\Laundry::name() }}</title>
 @include('layouts.component.customer._head_meta')
 <style>
 :root{--blue-dark:#002f5c;--blue-mid:#0072ad;--orange:#c2410c;--green:#087f5b;--surface:#f5f9ff;--border:#ddeeff;--radius:16px;}

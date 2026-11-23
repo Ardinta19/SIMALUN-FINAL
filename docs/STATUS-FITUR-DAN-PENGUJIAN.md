@@ -75,8 +75,21 @@ Langkah pemeriksaan yang disarankan:
 
 ### Merek pada email dan konfigurasi
 
-Email transaksi (termasuk reset kata sandi) masih mengambil nama usaha dari `Laundry::name()` yang membaca `LAUNDRY_NAME` di `.env`, dengan nilai bawaan "Azka Laundry". Ubah nilai berikut pada `.env` produksi sebelum dipakai pelanggan: `APP_NAME`, `LAUNDRY_NAME="Berkah Kreatif"`, `LAUNDRY_TAGLINE`, `LAUNDRY_ADDRESS`, `LAUNDRY_PHONE`, `LAUNDRY_PHONE_DISPLAY`, `LAUNDRY_WA`, serta `MAIL_FROM_ADDRESS`. Ini perubahan konfigurasi, bukan kode; nilai alamat dan nomor harus berasal dari pemilik usaha, jangan dikarang.
+Email transaksi (termasuk reset kata sandi) mengambil nama usaha dari `Laundry::name()` yang membaca `LAUNDRY_NAME` di `.env`. Nilai bawaan kode, `config/laundry.php`, dan `.env.example` sekarang "Berkah Kreatif" (sebelumnya "Azka Laundry"). Bila `.env` Anda masih berisi `LAUNDRY_NAME="Azka Laundry"` dari salinan lama, ubah juga di sana karena nilai `.env` menang atas nilai bawaan. Ubah nilai berikut pada `.env` produksi sebelum dipakai pelanggan: `APP_NAME`, `LAUNDRY_NAME="Berkah Kreatif"`, `LAUNDRY_TAGLINE`, `LAUNDRY_ADDRESS`, `LAUNDRY_PHONE`, `LAUNDRY_PHONE_DISPLAY`, `LAUNDRY_WA`, serta `MAIL_FROM_ADDRESS`. Ini perubahan konfigurasi, bukan kode; nilai alamat dan nomor harus berasal dari pemilik usaha, jangan dikarang.
 
 ### Pemeriksaan form pemesanan (belum dijalankan)
 
 Selain `php artisan test`, periksa di browser: pintasan tanggal satu hari, batas minimal tanggal pengembalian tanpa JavaScript, fokus otomatis ke kolom galat pertama setelah kirim gagal, tombol "Isi sisa tagihan" pada unit dengan sisa pembayaran, serta kewajiban catatan saat memilih "Minta revisi". Uji juga pada layar kecil karena tombol pintasan menjadi selebar layar di bawah 420 px.
+
+### Babak F — UI/UX lintas peran (`belum diuji di Windows`)
+
+Rincian penilaian per peran ada di `docs/UIUX-PER-ROLE.md`. Yang berubah pada kode:
+
+1. Zoom tidak lagi dikunci: 21 halaman yang memakai `maximum-scale=1.0, user-scalable=no` kini hanya `width=device-width, initial-scale=1.0, viewport-fit=cover`.
+2. `public/css/berkah-ui-kit.css` mendapat cincin fokus keyboard global (`:focus-visible`, termasuk varian tema gelap) yang mengalahkan `outline: none` milik halaman.
+3. Merek tunggal: 17 judul halaman, halaman sambutan, dan teks bantuan kurir memakai `Laundry::name()`; nilai bawaan `config/laundry.php`, `app/Support/Laundry.php`, `.env.example` menjadi "Berkah Kreatif".
+4. Nomor WhatsApp bantuan kurir memakai `Laundry::waLink()` (bukan angka contoh `6281234567890`).
+5. Landmark `main` ditambahkan pada 9 halaman peran yang belum punya; `rel="noopener"` ditambahkan pada seluruh tautan `target="_blank"` yang belum memilikinya.
+6. Tes baru `tests/Feature/UiAccessibilityTest.php` (7 tes, tanpa database) menjaga keenam hal di atas pada berkas view. Perkiraan total `php artisan test`: **±336 tes**.
+
+Pemeriksaan di peramban yang masih perlu dilakukan: buka halaman walk-in dan edit profil admin dengan tombol Tab, pastikan cincin fokus tampil; cubit layar pada ponsel di katalog dan halaman admin; periksa tema gelap masih terbaca (garis fokus `#ffb0c4`).

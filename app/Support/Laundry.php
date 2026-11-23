@@ -10,12 +10,12 @@ class Laundry
 {
     public static function name(): string
     {
-        return config('laundry.name', 'Azka Laundry');
+        return config('laundry.name', 'Berkah Kreatif');
     }
 
     public static function tagline(): string
     {
-        return config('laundry.tagline', 'Layanan Laundry Terpercaya');
+        return config('laundry.tagline', 'Papan bunga untuk setiap cerita');
     }
 
     public static function version(): string

@@ -88,7 +88,7 @@ class OrderStatusEmailTest extends TestCase
 
         $this->assertStringContainsString($order->order_code, $html);
         $this->assertStringContainsString('Pesanan Dijemput', $html);
-        $this->assertStringContainsString('Azka Laundry', $html);
+        $this->assertStringContainsString(\App\Support\Laundry::name(), $html);
     }
 
     public function test_email_reset_password_render_tanpa_error(): void
@@ -100,6 +100,6 @@ class OrderStatusEmailTest extends TestCase
             ->render();
 
         $this->assertStringContainsString('Atur Ulang Password', $html);
-        $this->assertStringContainsString('Azka Laundry', $html);
+        $this->assertStringContainsString(\App\Support\Laundry::name(), $html);
     }
 }

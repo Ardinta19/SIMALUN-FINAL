@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Detail Pesanan #{{ strtoupper($order->order_code ?? 'N/A') }} – Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 <script src="{{ asset('vendor/gsap/gsap.min.js') }}?v={{ file_exists(public_path('vendor/gsap/gsap.min.js')) ? filemtime(public_path('vendor/gsap/gsap.min.js')) : '1' }}"></script>
@@ -561,7 +561,7 @@ body {
 </div>
 
 {{-- CONTENT --}}
-<div class="content">
+<div class="content" role="main">
 
     {{-- Proof of Delivery (if completed) --}}
     @if($order->status === 'selesai' && $order->proof_image)
@@ -808,7 +808,7 @@ body {
             Lacak Posisi Kurir
         </a>
         @endif
-        <a href="{{ route('admin.orders.receipt', $order) }}" target="_blank" class="action-btn secondary">
+        <a href="{{ route('admin.orders.receipt', $order) }}" target="_blank" rel="noopener" class="action-btn secondary">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
                 <polyline points="14 2 14 8 20 8"/>

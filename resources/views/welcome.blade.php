@@ -2,11 +2,11 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<title>Azka Laundry – SIMALUN</title>
+<title>{{ \App\Support\Laundry::name() }} – SIMALUN</title>
 <script src="{{ asset('vendor/gsap/gsap.min.js') }}?v={{ file_exists(public_path('vendor/gsap/gsap.min.js')) ? filemtime(public_path('vendor/gsap/gsap.min.js')) : '1' }}"></script>
 
 <style>
@@ -387,8 +387,8 @@ html, body { width:100%; height:100%; overflow:hidden; font-family:'Plus Jakarta
       </svg>
     </div>
     <div id="wordmark">
-      <div class="wm-name">Azka Laundry</div>
-      <div class="wm-sub">LAUNDRY&nbsp;&nbsp;•&nbsp;&nbsp;SIMALUN</div>
+      <div class="wm-name">{{ \App\Support\Laundry::name() }}</div>
+      <div class="wm-sub">PAPAN&nbsp;BUNGA&nbsp;&nbsp;•&nbsp;&nbsp;SIMALUN</div>
       <div class="wm-bar"></div>
     </div>
   </div>

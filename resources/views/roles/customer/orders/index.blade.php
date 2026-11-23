@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Daftar Pesanan – Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 <script src="{{ asset('vendor/gsap/gsap.min.js') }}?v={{ file_exists(public_path('vendor/gsap/gsap.min.js')) ? filemtime(public_path('vendor/gsap/gsap.min.js')) : '1' }}"></script>
@@ -466,7 +466,7 @@ body {
 </div>
 
 {{-- PAGE BODY --}}
-<div class="page-body">
+<div class="page-body" role="main">
 
     {{-- Pesanan Aktif Banner --}}
     @if(isset($pesananAktif) && $pesananAktif)

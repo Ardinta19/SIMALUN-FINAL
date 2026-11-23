@@ -1150,7 +1150,7 @@ class OrderController extends Controller
         $messages = [
             'dicuci' => "Pakaian #{$order->order_code} sudah dijemput dan masuk proses cuci.",
             'dikirim' => "Kurir sedang mengantar pesanan #{$order->order_code} ke rumah kamu.",
-            'selesai' => "Pesanan #{$order->order_code} sudah sampai. Terima kasih sudah menggunakan Azka Laundry.",
+            'selesai' => "Pesanan #{$order->order_code} sudah sampai. Terima kasih sudah menggunakan " . \App\Support\Laundry::name() . '.',
         ];
 
         $order->customer->notify(new OrderStatusUpdated(

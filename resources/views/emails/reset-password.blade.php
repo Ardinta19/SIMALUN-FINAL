@@ -7,7 +7,7 @@
     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 18px;">
         <tr>
             <td style="border-radius:10px;background:#FF6B35;">
-                <a href="{{ $url }}" target="_blank"
+                <a href="{{ $url }}" target="_blank" rel="noopener"
                    style="display:inline-block;padding:13px 28px;font-size:15px;font-weight:800;color:#ffffff;text-decoration:none;border-radius:10px;">
                     Atur Ulang Password
                 </a>

@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>Lacak Pesanan – Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
@@ -295,7 +295,7 @@ body {
 </div>
 
 {{-- SLIDE-UP PANEL --}}
-<div class="panel" id="js-panel">
+<div class="panel" id="js-panel" role="main">
     <div class="panel-handle"></div>
     <div class="panel-inner">
 
@@ -324,7 +324,7 @@ body {
             <div class="driver-actions">
                 @if($driver->phone)
                 <a href="https://wa.me/62{{ ltrim(preg_replace('/[^0-9]/','',$driver->phone),'0') }}?text=Halo%20Kurir%2C%20pesanan%20%23{{ $order->order_code }}"
-                   target="_blank" class="da-btn wa">💬</a>
+                   target="_blank" rel="noopener" class="da-btn wa">💬</a>
                 <a href="tel:{{ $driver->phone }}" class="da-btn call">📞</a>
                 @endif
             </div>

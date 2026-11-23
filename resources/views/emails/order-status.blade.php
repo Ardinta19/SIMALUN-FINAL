@@ -27,7 +27,7 @@
     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 8px;">
         <tr>
             <td style="border-radius:10px;background:#0077b6;">
-                <a href="{{ $url }}" target="_blank"
+                <a href="{{ $url }}" target="_blank" rel="noopener"
                    style="display:inline-block;padding:12px 26px;font-size:14px;font-weight:800;color:#ffffff;text-decoration:none;border-radius:10px;">
                     Lihat Pesanan
                 </a>

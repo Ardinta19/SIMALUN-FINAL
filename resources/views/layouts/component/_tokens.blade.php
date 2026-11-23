@@ -1,6 +1,6 @@
 {{--
 |--------------------------------------------------------------------------
-| Azka Laundry — Canonical Design Tokens (single source of truth)
+| Berkah Kreatif — Canonical Design Tokens (single source of truth)
 |--------------------------------------------------------------------------
 | Emits the canonical :root CSS custom properties that mirror
 | tailwind.config.js one-to-one. Self-contained standalone pages that do

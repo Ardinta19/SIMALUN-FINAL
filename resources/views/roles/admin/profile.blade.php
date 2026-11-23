@@ -297,7 +297,7 @@ body {
     </a>
 </header>
 
-<div class="page-body">
+<div class="page-body" role="main">
 
     @if(session('status') === 'profile-updated')
         <div class="page-alert page-alert--success reveal d1">Profil berhasil diperbarui.</div>

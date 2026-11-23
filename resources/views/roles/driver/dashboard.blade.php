@@ -2,8 +2,8 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Dashboard Kurir – Azka Laundry</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Dashboard Kurir – {{ \App\Support\Laundry::name() }}</title>
 @include('layouts.component.customer._head_meta')
 @include('layouts.component._tokens')
 <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -368,7 +368,7 @@ body {
 </div>
 
 {{-- ══════════════ CONTENT ══════════════ --}}
-<div class="content">
+<div class="content" role="main">
 
     {{-- Tugas Aktif --}}
     <div class="section-hd reveal d2">
@@ -465,7 +465,7 @@ body {
             </button>
         </form>
     </div>
-    <div class="version-tag">AZKA LAUNDRY &bull; Kurir v{{ \App\Support\Laundry::version() }}</div>
+    <div class="version-tag">{{ mb_strtoupper(\App\Support\Laundry::name()) }} &bull; Kurir v{{ \App\Support\Laundry::version() }}</div>
 
 </div>
 

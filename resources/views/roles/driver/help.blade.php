@@ -2,8 +2,8 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Bantuan Kurir – Azka Laundry</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Bantuan Kurir – {{ \App\Support\Laundry::name() }}</title>
 @include('layouts.component.customer._head_meta')
 @include('layouts.component._tokens')
 <style>
@@ -246,7 +246,7 @@ body {
       <h4>Saat Penjemputan</h4>
       <ul>
         <li>Hubungi pelanggan 5-10 menit sebelum tiba</li>
-        <li>Gunakan seragam atau identitas Azka Laundry</li>
+        <li>Gunakan seragam atau identitas {{ \App\Support\Laundry::name() }}</li>
         <li>Konfirmasi nama pelanggan dan nomor pesanan</li>
         <li>Hitung dan catat estimasi jumlah pakaian</li>
         <li>Pastikan cucian sudah masuk kantong laundry rapi</li>
@@ -382,7 +382,7 @@ body {
         <li>Ingin mengajukan izin atau tukar jadwal</li>
       </ul>
     </div>
-    <a href="https://wa.me/6281234567890?text=Halo%20Admin%20Azka%20Laundry%2C%20saya%20kurir%20{{ urlencode(Auth::user()->name ?? '') }}%20perlu%20bantuan" target="_blank" class="contact-btn">
+    <a href="{{ \App\Support\Laundry::waLink('Halo Admin '.\App\Support\Laundry::name().', saya kurir '.(Auth::user()->name ?? '').' perlu bantuan') }}" target="_blank" rel="noopener noreferrer" class="contact-btn">
       @include('layouts.component._icon', ['name' => 'whatsapp', 'size' => 20])
       Hubungi Admin via WhatsApp
     </a>

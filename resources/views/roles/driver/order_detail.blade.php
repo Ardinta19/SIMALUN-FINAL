@@ -2,9 +2,9 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>Detail Tugas #{{ strtoupper($order->order_code) }} – Azka Laundry</title>
+<title>Detail Tugas #{{ strtoupper($order->order_code) }} – {{ \App\Support\Laundry::name() }}</title>
 @include('layouts.component.customer._head_meta')
 @include('layouts.component._tokens')
 <style>
@@ -187,7 +187,7 @@ body {
     </div>
 </div>
 
-<div class="detail-content">
+<div class="detail-content" role="main">
 
     @if(session('success'))
         <div class="detail-alert detail-alert--success reveal d1" role="status">

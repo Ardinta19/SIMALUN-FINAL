@@ -27,7 +27,7 @@ class EditUser extends Command
 
     public function handle(): int
     {
-        $this->info('=== Edit Akun Pengguna — Azka Laundry ===');
+        $this->info('=== Edit Akun Pengguna — ' . \App\Support\Laundry::name() . ' ===');
 
         $key = trim((string) $this->ask('Cari akun berdasarkan email / No. HP / ID'));
         if ($key === '') {

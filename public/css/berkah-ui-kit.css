@@ -1226,3 +1226,31 @@ button.bk-auth::before {
         display: none !important;
     }
 }
+
+/* ==================================================================
+   FOKUS KEYBOARD YANG SELALU TERLIHAT
+   ------------------------------------------------------------------
+   Banyak halaman peran (admin, kurir) mematikan `outline` pada input
+   lalu hanya mengganti warna border. Akibatnya pengguna keyboard dan
+   pembaca layar kehilangan jejak posisi fokus, dan pada beberapa form
+   (mis. order walk-in, edit profil) tidak ada indikator sama sekali.
+
+   Aturan ini memberi cincin fokus pada semua kontrol yang dapat
+   difokus. Spesifisitas `html body :is(...)` (0,2,2) mengalahkan
+   `input:focus { outline:none }` (0,1,1) milik halaman, tanpa perlu
+   `!important` dan tanpa mengubah tampilan saat tidak difokus.
+   ================================================================== */
+html body :is(a, button, summary, input, select, textarea, [tabindex]):focus-visible {
+    outline: 3px solid #b63050;
+    outline-offset: 2px;
+}
+
+html[data-theme="dark"] body :is(a, button, summary, input, select, textarea, [tabindex]):focus-visible {
+    outline-color: #ffb0c4;
+}
+
+/* Target lompat-ke-isi tidak perlu cincin saat menerima fokus program. */
+html body #main-content:focus,
+html body #main-content:focus-visible {
+    outline: none;
+}

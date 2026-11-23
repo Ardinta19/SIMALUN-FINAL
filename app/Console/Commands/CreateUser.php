@@ -30,7 +30,7 @@ class CreateUser extends Command
 
     public function handle(): int
     {
-        $this->info('=== Buat Akun Pengguna Baru — Azka Laundry ===');
+        $this->info('=== Buat Akun Pengguna Baru — ' . \App\Support\Laundry::name() . ' ===');
 
         $name = (string) $this->ask('Nama lengkap');
 

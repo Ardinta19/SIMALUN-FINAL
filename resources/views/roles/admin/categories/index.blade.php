@@ -2,8 +2,8 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Kategori Layanan – Azka Laundry</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Kategori Layanan – {{ \App\Support\Laundry::name() }}</title>
 @include('layouts.component.customer._head_meta')
 @include('layouts.component._tokens')
 <style>
@@ -422,7 +422,7 @@ body {
     </button>
 </div>
 
-<div class="container">
+<div class="container" role="main">
     @if(session('success'))
         <div class="flash flash--ok">
             @include('layouts.component._icon', ['name' => 'success', 'size' => 18])
