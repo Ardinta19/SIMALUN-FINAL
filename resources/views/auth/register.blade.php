@@ -81,6 +81,7 @@ html, body {
   gap:.4rem; margin-bottom:1.3rem;
 }
 .step-dot {
+  position:relative;
   width:28px; height:28px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
   font-weight:800; font-size:.75rem;
@@ -94,6 +95,14 @@ html, body {
 }
 .step-dot.done {
   background:#087f5b; border-color:#087f5b; color:#fff;
+  font-size:0;
+}
+/* Tanda centang digambar dari dua sisi kotak: konsisten di semua perangkat,
+   tidak bergantung pada font emoji. */
+.step-dot.done::after {
+  content:""; width:6px; height:11px; margin-top:-2px;
+  border:2px solid currentColor; border-top:0; border-left:0;
+  transform:rotate(45deg);
 }
 .step-line {
   flex:1; max-width:40px; height:2px;
@@ -120,8 +129,11 @@ html, body {
 .input-wrap { position:relative; }
 .input-icon {
   position:absolute; left:14px; top:50%; transform:translateY(-50%);
-  font-size:.95rem; pointer-events:none; opacity:.7;
+  display:grid; place-items:center; line-height:0;
+  pointer-events:none; opacity:.72;
 }
+.input-icon svg, .pw-toggle svg { display:block; }
+[data-glyph][hidden] { display:none; }
 .form-input {
   width:100%; padding:.78rem .9rem .78rem 2.65rem;
   background:rgba(35,4,16,.42); border:1.5px solid rgba(255,255,255,.26);
@@ -200,13 +212,12 @@ html, body {
   border:1.5px solid rgba(255,255,255,.2); border-radius:12px;
   cursor:pointer; transition:all .2s; text-align:center;
 }
-.gender-label span:first-child { font-size:1.3rem; }
-.gender-label span:last-child { font-size:.68rem; font-weight:800; color:rgba(255,255,255,.7); }
+.gender-label span { font-size:.82rem; font-weight:800; color:rgba(255,255,255,.78); line-height:1.35; }
 .gender-opt:checked + .gender-label {
   background:rgba(255,107,53,.2); border-color:#a92143;
   box-shadow:0 0 0 2px rgba(255,107,53,.25);
 }
-.gender-opt:checked + .gender-label span:last-child { color:#fff; }
+.gender-opt:checked + .gender-label span { color:#fff; }
 
 /* terms checkbox */
 .terms-row { display:flex; align-items:flex-start; gap:.7rem; margin-top:.6rem; }
@@ -275,7 +286,8 @@ html, body {
 #success-state {
   display:none; text-align:center; padding:1rem 0;
 }
-#success-state .success-icon { font-size:3.5rem; margin-bottom:.8rem; }
+#success-state .success-icon { display:grid; place-items:center; margin-bottom:.8rem; color:#ffd9e2; }
+#success-state .success-icon svg { width:3.2rem; height:3.2rem; }
 #success-state .success-title {
   font-weight:800; font-size:1.4rem; color:#fff; margin-bottom:.4rem;
 }
@@ -336,7 +348,7 @@ $oldText = function (string $key, $fallback = '') {
 };
 @endphp
 
-<div id="ambient" aria-hidden="true"><span class="ambient-flower" style="left:12%;top:24%">✿</span><span class="ambient-flower" style="right:12%;top:48%;animation-delay:-2s">✿</span><span class="ambient-flower" style="left:24%;bottom:12%;animation-delay:-4s">✿</span></div>
+<div id="ambient" aria-hidden="true"><span class="ambient-flower bk-i" style="left:12%;top:24%">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span><span class="ambient-flower bk-i" style="right:12%;top:48%;animation-delay:-2s">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span><span class="ambient-flower bk-i" style="left:24%;bottom:12%;animation-delay:-4s">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span></div>
 <div id="wave-band" aria-hidden="true">
   <svg class="ws w1" viewBox="0 0 1440 64" preserveAspectRatio="none">
     <path fill="rgba(255,255,255,.20)" d="M0,32 C200,64 400,0 600,32 C800,64 1000,0 1200,32 C1320,48 1400,20 1440,32 L1440,64 L0,64Z"/>
@@ -367,7 +379,7 @@ $oldText = function (string $key, $fallback = '') {
     <div class="card-sub">Daftar sebagai pelanggan Berkah Kreatif</div>
 
     @if(session('error'))
-      <div class="alert alert-error">⚠️ {{ session('error') }}</div>
+      <div class="alert alert-error">@include('layouts.component._icon', ['name' => 'alert-triangle', 'size' => 20])<span>{{ session('error') }}</span></div>
     @endif
 
     <!-- Step Indicator -->
@@ -389,7 +401,7 @@ $oldText = function (string $key, $fallback = '') {
         <div class="form-group">
           <label class="form-label" for="name">Nama Lengkap</label>
           <div class="input-wrap">
-            <span class="input-icon">👤</span>
+            <span class="input-icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'user', 'size' => 20])</span>
             <input class="form-input @error('name') error @enderror"
               type="text" id="name" name="name" aria-describedby="err-name"
               placeholder="Nama sesuai identitas"
@@ -404,11 +416,11 @@ $oldText = function (string $key, $fallback = '') {
           <div class="gender-row" role="radiogroup" aria-labelledby="gender-label" aria-describedby="err-gender">
             <input type="radio" class="gender-opt" name="gender" id="g-male" value="L" {{ $oldText('gender')=='L' ? 'checked' : '' }}>
             <label class="gender-label" for="g-male">
-              <span>👨</span><span>Laki-laki</span>
+              <span>Laki-laki</span>
             </label>
             <input type="radio" class="gender-opt" name="gender" id="g-female" value="P" {{ $oldText('gender')=='P' ? 'checked' : '' }}>
             <label class="gender-label" for="g-female">
-              <span>👩</span><span>Perempuan</span>
+              <span>Perempuan</span>
             </label>
           </div>
           @error('gender')<div class="form-error show">{{ $message }}</div>@enderror
@@ -460,10 +472,10 @@ $oldText = function (string $key, $fallback = '') {
         <div class="form-group">
           <label class="form-label" for="password">Password</label>
           <div class="input-wrap">
-            <span class="input-icon">🔒</span>
+            <span class="input-icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'lock', 'size' => 20])</span>
             <input class="form-input" type="password" id="password" name="password" aria-describedby="err-pw"
               placeholder="Min. 8 karakter" autocomplete="new-password">
-            <button type="button" class="pw-toggle" id="pw-toggle-1" aria-label="Tampilkan kata sandi" aria-pressed="false">👁️</button>
+            <button type="button" class="pw-toggle" id="pw-toggle-1" aria-label="Tampilkan kata sandi" aria-pressed="false"><span data-glyph="eye">@include('layouts.component._icon', ['name' => 'eye', 'size' => 20])</span><span data-glyph="eye-off" hidden>@include('layouts.component._icon', ['name' => 'eye-off', 'size' => 20])</span></button>
           </div>
           @error('password')<div class="form-error show">{{ $message }}</div>@enderror
           <div class="form-error" aria-live="polite" id="err-pw"></div>
@@ -485,10 +497,10 @@ $oldText = function (string $key, $fallback = '') {
         <div class="form-group">
           <label class="form-label" for="password_confirmation">Konfirmasi Password</label>
           <div class="input-wrap">
-            <span class="input-icon">🔐</span>
+            <span class="input-icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'lock-keyhole', 'size' => 20])</span>
             <input class="form-input" type="password" id="password_confirmation" name="password_confirmation" aria-describedby="err-pwc"
               placeholder="Ulangi password" autocomplete="new-password">
-            <button type="button" class="pw-toggle" id="pw-toggle-2" aria-label="Tampilkan konfirmasi kata sandi" aria-pressed="false">👁️</button>
+            <button type="button" class="pw-toggle" id="pw-toggle-2" aria-label="Tampilkan konfirmasi kata sandi" aria-pressed="false"><span data-glyph="eye">@include('layouts.component._icon', ['name' => 'eye', 'size' => 20])</span><span data-glyph="eye-off" hidden>@include('layouts.component._icon', ['name' => 'eye-off', 'size' => 20])</span></button>
           </div>
           <div class="form-error" aria-live="polite" id="err-pwc"></div>
         </div>
@@ -504,7 +516,7 @@ $oldText = function (string $key, $fallback = '') {
         <div class="form-group">
           <label class="form-label" for="address">Alamat Lengkap</label>
           <div class="input-wrap">
-            <span class="input-icon" style="top:14px;transform:none;">🏠</span>
+            <span class="input-icon" style="top:14px;transform:none;" aria-hidden="true">@include('layouts.component._icon', ['name' => 'home', 'size' => 20])</span>
             <textarea class="form-input" id="address" name="address" aria-describedby="err-address"
               placeholder="Nama jalan, nomor rumah, RT/RW, kelurahan..."
               rows="3" style="padding-left:2.65rem;resize:none;">{{ $oldText('address') }}</textarea>
@@ -516,7 +528,7 @@ $oldText = function (string $key, $fallback = '') {
         <div class="form-group">
           <label class="form-label" for="address_note">Catatan Alamat (Opsional)</label>
           <div class="input-wrap">
-            <span class="input-icon">📝</span>
+            <span class="input-icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'file-text', 'size' => 20])</span>
             <input class="form-input" type="text" id="address_note" name="address_note"
               placeholder="Warna pagar, patokan, dll."
               value="{{ $oldText('address_note') }}">
@@ -567,7 +579,7 @@ $oldText = function (string $key, $fallback = '') {
     <!-- Success State (shown after successful registration) -->
     <div id="success-state">
       @if(session('registered'))
-      <div class="success-icon">🎉</div>
+      <div class="success-icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'party-popper', 'size' => 32])</div>
       <div class="success-title">Akun Berhasil Dibuat!</div>
       <div class="success-sub">
         Selamat datang di SIMALUN!<br>
@@ -625,9 +637,10 @@ document.addEventListener('DOMContentLoaded', function () {
     for (let i = 1; i <= 3; i++) {
       const dot = document.getElementById(`sdot-${i}`);
       dot.classList.remove('active','done');
-      if (i < step) dot.classList.add('done'), dot.textContent = '✓';
-      else if (i === step) dot.classList.add('active'), dot.textContent = i;
-      else dot.textContent = i;
+      // Nomor langkah tetap ditulis; tanda selesai digambar CSS, bukan emoji.
+      if (i < step) dot.classList.add('done');
+      else if (i === step) dot.classList.add('active');
+      dot.textContent = i;
     }
     for (let i = 1; i <= 2; i++) {
       document.getElementById(`sline-${i}`).classList.toggle('done', i < step);
@@ -707,7 +720,8 @@ document.addEventListener('DOMContentLoaded', function () {
     btn.addEventListener('click', function() {
       const show = input.type === 'password';
       input.type = show ? 'text' : 'password';
-      this.textContent = show ? '🙈' : '👁️';
+      this.querySelector('[data-glyph="eye"]').hidden = show;
+    this.querySelector('[data-glyph="eye-off"]').hidden = !show;
       this.setAttribute('aria-pressed', String(show));
       this.setAttribute('aria-label', (show ? 'Sembunyikan ' : 'Tampilkan ') + (inputId === 'password_confirmation' ? 'konfirmasi kata sandi' : 'kata sandi'));
     });

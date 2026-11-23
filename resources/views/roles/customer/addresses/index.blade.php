@@ -20,7 +20,7 @@
         @endforeach
     </div>
     @else
-    <div class="bk-inbox-empty"><span aria-hidden="true">✿</span><h2>Belum ada alamat</h2><p>Tambahkan alamat agar lebih mudah mengisi lokasi pengantaran atau pengambilan.</p><a href="{{ route('customer.addresses.create') }}" class="btn secondary">Tambah alamat</a></div>
+    <div class="bk-inbox-empty"><span aria-hidden="true"><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span></span><h2>Belum ada alamat</h2><p>Tambahkan alamat agar lebih mudah mengisi lokasi pengantaran atau pengambilan.</p><a href="{{ route('customer.addresses.create') }}" class="btn secondary">Tambah alamat</a></div>
     @endif
 </div>
 @endsection

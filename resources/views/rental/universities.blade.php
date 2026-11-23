@@ -94,7 +94,7 @@
     </article>
 @empty
     <div class="adm-empty" data-adm-reveal="empty">
-        <span class="adm-empty__icon" aria-hidden="true">🎓</span>
+        <span class="adm-empty__icon" aria-hidden="true"><span class="bk-i">@include('layouts.component._icon', ['name' => 'graduation-cap', 'size' => 24])</span></span>
         <span class="adm-empty__title">Belum ada universitas</span>
         <p>Tambahkan universitas agar ongkos antar dan jemput bisa dihitung otomatis saat checkout.</p>
     </div>

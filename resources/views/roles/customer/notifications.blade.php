@@ -18,7 +18,7 @@
     </div>
     <div class="pagination">{{ $notifications->links('vendor.pagination.berkah') }}</div>
     @else
-    <div class="bk-inbox-empty"><span aria-hidden="true">✿</span><h2>Belum ada notifikasi</h2><p>Notifikasi pesananmu akan muncul di sini.</p><a href="{{ route('welcome') }}" class="btn secondary">Lihat katalog</a></div>
+    <div class="bk-inbox-empty"><span aria-hidden="true"><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span></span><h2>Belum ada notifikasi</h2><p>Notifikasi pesananmu akan muncul di sini.</p><a href="{{ route('welcome') }}" class="btn secondary">Lihat katalog</a></div>
     @endif
 </div>
 @endsection

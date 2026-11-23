@@ -180,7 +180,7 @@
     </article>
 @empty
     <div class="adm-empty" data-adm-reveal="empty">
-        <span class="adm-empty__icon" aria-hidden="true">🎟️</span>
+        <span class="adm-empty__icon" aria-hidden="true"><span class="bk-i">@include('layouts.component._icon', ['name' => 'ticket', 'size' => 24])</span></span>
         <span class="adm-empty__title">Belum ada voucher</span>
         <p>Buat kode pertama pada formulir di atas; pelanggan memakainya saat checkout.</p>
     </div>

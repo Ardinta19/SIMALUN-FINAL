@@ -16,9 +16,9 @@ $oldText = function (string $key, $fallback = '') {
 };
 @endphp
 <main class="auth-shell">
-    <section class="auth-intro"><a href="{{ route('welcome') }}" class="auth-brand"><img src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt=""><span>Berkah Kreatif<small>Papan bunga untuk setiap cerita</small></span></a><div class="auth-intro-copy"><span class="auth-eyebrow">RUANG PELANGGAN</span><h1>Satu langkah kembali ke akunmu.</h1><p>Jaga akses ke pesanan dan kabar untuk momen istimewamu.</p></div><span class="auth-flower" aria-hidden="true">✿</span></section>
+    <section class="auth-intro"><a href="{{ route('welcome') }}" class="auth-brand"><img src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt=""><span>Berkah Kreatif<small>Papan bunga untuk setiap cerita</small></span></a><div class="auth-intro-copy"><span class="auth-eyebrow">RUANG PELANGGAN</span><h1>Satu langkah kembali ke akunmu.</h1><p>Jaga akses ke pesanan dan kabar untuk momen istimewamu.</p></div><span class="auth-flower bk-i" aria-hidden="true">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span></section>
     <section class="auth-main" aria-labelledby="auth-title"><div class="auth-card">
-        <a class="auth-back" href="{{ route('login') }}">← Kembali ke masuk</a>
+        <a class="auth-back" href="{{ route('login') }}">@include('layouts.component._icon', ['name' => 'arrow-left', 'size' => 20])<span>Kembali ke masuk</span></a>
         @if(session('password_reset_success'))
             <span class="auth-eyebrow">SELESAI</span><h2 id="auth-title">Kata sandi berhasil diubah</h2><p>Kamu dapat masuk menggunakan kata sandi yang baru.</p><a class="auth-button" href="{{ route('login') }}">Masuk ke akun</a>
         @elseif(isset($token))

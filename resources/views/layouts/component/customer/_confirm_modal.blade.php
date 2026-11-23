@@ -16,7 +16,7 @@
 <div id="confirm-modal-overlay" class="confirm-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
     <div class="confirm-backdrop" id="confirm-backdrop"></div>
     <div class="confirm-card" id="confirm-card">
-        <div class="confirm-icon" id="confirm-icon"></div>
+        <div class="confirm-icon" id="confirm-icon" aria-hidden="true"><span class="bk-i" data-confirm-glyph="danger">@include('layouts.component._icon', ['name' => 'zap', 'size' => 24])</span><span class="bk-i" data-confirm-glyph="warning" hidden>@include('layouts.component._icon', ['name' => 'alert-triangle', 'size' => 24])</span><span class="bk-i" data-confirm-glyph="info" hidden>@include('layouts.component._icon', ['name' => 'info', 'size' => 24])</span><span class="bk-i" data-confirm-glyph="success" hidden>@include('layouts.component._icon', ['name' => 'check', 'size' => 24])</span></div>
         <h3 class="confirm-title" id="confirm-title"></h3>
         <p class="confirm-message" id="confirm-message"></p>
         <div class="confirm-actions">
@@ -74,8 +74,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    line-height: 0;
 }
+.confirm-icon [hidden] { display: none; }
+.confirm-icon svg { width: 26px; height: 26px; }
 .confirm-icon.type-danger {
     background: #fff1f1;
     border: 2px solid #fecaca;
@@ -177,12 +179,6 @@
         var okBtn = document.getElementById('confirm-ok');
 
         var type = options.type || 'danger';
-        var icons = {
-            danger: '⚡',
-            warning: '⚠️',
-            info: 'ℹ️',
-            success: '✓'
-        };
 
         title.textContent = options.title || 'Konfirmasi';
         message.textContent = options.message || 'Apakah Anda yakin?';
@@ -190,7 +186,9 @@
         okBtn.textContent = options.confirmText || 'Ya, Lanjutkan';
 
         icon.className = 'confirm-icon type-' + type;
-        icon.textContent = icons[type] || icons.danger;
+        icon.querySelectorAll('[data-confirm-glyph]').forEach(function (node) {
+            node.hidden = node.getAttribute('data-confirm-glyph') !== type;
+        });
         okBtn.className = 'confirm-btn confirm-btn--confirm type-' + type;
 
         _onConfirmCallback = options.onConfirm || null;

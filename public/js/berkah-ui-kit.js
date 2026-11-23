@@ -402,9 +402,11 @@
             button.setAttribute('aria-label', liked ? (button.dataset.bkLabelOn || 'Batalkan suka') : (button.dataset.bkLabelOff || 'Suka'));
             button.classList.toggle('is-liked', liked);
             const sr = button.querySelector('.bk-sr-only');
-            if (sr) sr.textContent = liked ? '♥ Disukai' : '♡ Suka';
-            const total = likeScope(button).querySelector('[data-bk-like-total]');
-            if (total && typeof data.count === 'number') total.textContent = '♡ ' + data.count + ' suka';
+            if (sr) sr.textContent = liked ? 'Disukai' : 'Suka';
+            // Angka suka ada di dalam span sendiri supaya ikon hati tidak ikut
+            // terhapus saat jumlahnya diperbarui.
+            const total = likeScope(button).querySelector('[data-bk-like-count]');
+            if (total && typeof data.count === 'number') total.textContent = data.count;
             announceLike(button, liked ? 'Ditambahkan ke daftar suka' : 'Suka dibatalkan');
             if (liked && !prefersReduced()) {
                 button.classList.add('is-celebrating');

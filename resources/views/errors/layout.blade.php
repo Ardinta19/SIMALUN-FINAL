@@ -1,6 +1,7 @@
 @php
     $accent = $accent ?? '#85092d';
-    $primary = $primary ?? ['url' => url('/'), 'label' => 'Kembali ke Beranda', 'icon' => '🏠'];
+    $primary = $primary ?? ['url' => url('/'), 'label' => 'Kembali ke Beranda', 'icon' => 'home'];
+    $heroIcon = $icon ?? 'alert-triangle';
 @endphp
 <!DOCTYPE html>
 <html lang="id">
@@ -18,7 +19,8 @@ main{width:100%;max-width:440px;position:relative;z-index:2}
 .card{background:#fffaf8;border-radius:28px;padding:34px 26px 30px;box-shadow:0 24px 60px rgba(45,3,20,.4);text-align:center;border:1.5px solid rgba(255,255,255,.5)}
 .logo{width:54px;height:54px;object-fit:contain;border-radius:16px;background:#fff;padding:4px;box-shadow:0 6px 18px rgba(84,5,31,.14);margin-bottom:14px}
 .code-pill{display:inline-block;background:{{ $accent }}1a;color:{{ $accent }};font-weight:900;font-size:.72rem;letter-spacing:1.4px;padding:6px 14px;border-radius:999px;text-transform:uppercase;margin-bottom:14px}
-.hero-emoji{font-size:3.6rem;margin:2px 0 10px;display:inline-block;animation:wobble 4.5s ease-in-out infinite}
+.hero-icon{display:inline-grid;place-items:center;width:3.6rem;height:3.6rem;margin:2px 0 10px;color:{{ $accent }};animation:wobble 4.5s ease-in-out infinite}
+.hero-icon svg{width:100%;height:100%;stroke-width:1.6}
 @keyframes wobble{0%,100%{transform:rotate(-4deg) translateY(0)}50%{transform:rotate(4deg) translateY(-6px)}}
 .code-big{font-weight:800;font-size:clamp(3rem,12vw,4.2rem);color:{{ $accent }};letter-spacing:-1px;margin-bottom:4px;line-height:1.1}
 h1{font-weight:800;font-size:clamp(1.28rem,5vw,1.6rem);color:#54051f;margin-bottom:10px;line-height:1.3}
@@ -38,11 +40,11 @@ p.lead{font-size:.94rem;font-weight:600;color:#5b4149;line-height:1.6;margin-bot
 .code-pill,.code-big,h1,p.lead,.actions,.tip{animation:errRise .5s cubic-bezier(.22,.7,.25,1) both}
 .code-pill{animation-delay:.05s}.code-big{animation-delay:.09s}h1{animation-delay:.13s}
 p.lead{animation-delay:.17s}.actions{animation-delay:.21s}.tip{animation-delay:.25s}
-.hero-emoji{animation:errRise .5s cubic-bezier(.22,.7,.25,1) .07s both,wobble 4.5s ease-in-out .6s infinite}
+.hero-icon{animation:errRise .5s cubic-bezier(.22,.7,.25,1) .07s both,wobble 4.5s ease-in-out .6s infinite}
 @keyframes errIn{from{opacity:0;transform:translateY(16px) scale(.98)}}
 @keyframes errRise{from{opacity:0;transform:translateY(10px)}}
-@media(max-width:360px){.card{padding:28px 18px 24px}.hero-emoji{font-size:3rem}}
-@media(prefers-reduced-motion:reduce){.hero-emoji{animation:none}.card,.code-pill,.code-big,h1,p.lead,.actions,.tip{animation:none}*,*::before,*::after{transition:none!important}}
+@media(max-width:360px){.card{padding:28px 18px 24px}.hero-icon{width:3rem;height:3rem}}
+@media(prefers-reduced-motion:reduce){.hero-icon{animation:none}.card,.code-pill,.code-big,h1,p.lead,.actions,.tip{animation:none}*,*::before,*::after{transition:none!important}}
 </style>
 @include('layouts.component._theme_head')
 </head>
@@ -51,13 +53,13 @@ p.lead{animation-delay:.17s}.actions{animation-delay:.21s}.tip{animation-delay:.
     <div class="card">
         <img class="logo" src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt="Berkah Kreatif" width="54" height="54">
         <span class="code-pill">Error {{ $code }}</span>
-        <div class="hero-emoji" aria-hidden="true">{{ $emoji }}</div>
+        <div class="hero-icon" aria-hidden="true">@include('layouts.component._icon', ['name' => $heroIcon, 'size' => 32])</div>
         <div class="code-big">{{ $code }}</div>
         <h1>{{ $title }}</h1>
         <p class="lead">{{ $message }}</p>
         <div class="actions">
-            <a href="{{ $primary['url'] }}" class="btn btn-primary">{!! $primary['icon'] ?? '🏠' !!} {{ $primary['label'] }}</a>
-            @isset($secondary)<a href="{{ $secondary['url'] }}" class="btn btn-secondary">{!! $secondary['icon'] ?? '↩️' !!} {{ $secondary['label'] }}</a>@endisset
+            <a href="{{ $primary['url'] }}" class="btn btn-primary">@include('layouts.component._icon', ['name' => $primary['icon'] ?? 'home', 'size' => 20])<span>{{ $primary['label'] }}</span></a>
+            @isset($secondary)<a href="{{ $secondary['url'] }}" class="btn btn-secondary">@include('layouts.component._icon', ['name' => $secondary['icon'] ?? 'undo-2', 'size' => 20])<span>{{ $secondary['label'] }}</span></a>@endisset
         </div>
         @isset($tip)<div class="tip">{{ $tip }}</div>@endisset
     </div>

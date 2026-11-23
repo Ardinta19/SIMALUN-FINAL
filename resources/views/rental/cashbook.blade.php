@@ -110,7 +110,7 @@
 
 @if($entries->isEmpty())
     <div class="adm-empty" data-adm-reveal="empty">
-        <span class="adm-empty__icon" aria-hidden="true">📒</span>
+        <span class="adm-empty__icon" aria-hidden="true"><span class="bk-i">@include('layouts.component._icon', ['name' => 'book-open', 'size' => 24])</span></span>
         <span class="adm-empty__title">Belum ada catatan pada periode ini</span>
         <p>Ubah periode di atas, atau tambahkan catatan manual lewat formulir.</p>
     </div>

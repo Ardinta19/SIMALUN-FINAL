@@ -175,7 +175,7 @@
     </details>
 @empty
     <div class="adm-empty" data-adm-reveal="empty">
-        <span class="adm-empty__icon" aria-hidden="true">🌷</span>
+        <span class="adm-empty__icon" aria-hidden="true"><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span></span>
         <span class="adm-empty__title">Belum ada papan</span>
         <p>Tambahkan papan pertama lewat formulir “Tambah papan” di atas.</p>
     </div>

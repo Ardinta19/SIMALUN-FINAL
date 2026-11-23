@@ -53,7 +53,7 @@ antara Lenis, GSAP, dan ScrollTrigger, plus **area sentuh 44 px**.
 | Dimensi | Temuan | Status |
 |---|---|---|
 | Hierarki | Splash merek → kartu formulir. Urutannya benar, tetapi kartu tidak punya "naik" saat muncul. | Gerak splash (GSAP timeline, `rotate:-360`, `inert`) sudah kuat; **tidak diubah** agar kontrak `UiDefaultsTest` tetap utuh. |
-| Tipografi | `.card-sub`, `.form-label` konsisten; pesan galat memakai `.alert` dengan ikon emoji ⚠️/✅. | Emoji status **belum diganti** ikon Lucide (menyusul bersama pembersihan emoji sisa). |
+| Tipografi | `.card-sub`, `.form-label` konsisten; pesan galat memakai `.alert`. | **Selesai (putaran 3)**: ⚠️/✅ diganti `alert-triangle`/`check-circle`; ikon kolom (email/HP/password/alamat) dan sakelar mata memakai glyph Lucide.
 | Spacing | Jarak `form-group` 18–20 px, tombol 48 px. | Sesuai. |
 | Area sentuh | Input 48 px, tombol `.bk-auth` 48 px. | Sesuai. |
 | Gerak | GSAP timeline splash + morph tombol. | Sesuai; Lenis aktif di halaman auth agar gulir formulir panjang terasa sama. |
@@ -129,10 +129,10 @@ Aturan keselamatan yang dipatuhi:
 ## 5. Sisa pekerjaan (urutan yang disarankan)
 
 1. **Customer**: skeleton setinggi kartu pada pratinjau katalog (mencegah lompatan tata letak saat `dashboard-preview.js` mengisi data).
-2. **Auth**: ganti emoji ⚠️/✅ pada `.alert` dengan ikon Lucide agar setara dengan admin.
-4. **Admin**: densitas tabel (`td` padding) dan `data-bk-count` pada kartu statistik dasbor.
-5. **Semua peran**: adopsi `--bk-fs-*`/`--bk-space-*` di view yang masih menulis angka lepas; audit tablet 768–1024 px per halaman.
-6. **Gerak lanjutan (opsional)**: `SplitText` untuk judul hero katalog; `Flip` untuk transisi daftar pesanan saat filter berubah.
+2. **Admin**: densitas tabel (`td` padding) dan `data-bk-count` pada kartu statistik dasbor.
+3. **Semua peran**: adopsi `--bk-fs-*`/`--bk-space-*` di view yang masih menulis angka lepas; audit tablet 768–1024 px per halaman.
+4. **Gerak lanjutan (opsional)**: `SplitText` untuk judul hero katalog; `Flip` untuk transisi daftar pesanan saat filter berubah.
+5. **Modal konfirmasi pelanggan** masih memakai palet biru lama (`type-info: #005f92`); perlu diselaraskan ke token merek.
 
 ---
 
@@ -175,3 +175,63 @@ Berkas yang disentuh pada putaran ini: `public/css/berkah-experience.css`,
 `resources/views/rental/unit.blade.php`, `public/js/berkah-motion.js`
 (syncTouch), `public/css/berkah-motion.css` (token sentuh pindah ke ui-kit),
 `public/css/berkah-ui-kit.css`.
+
+
+---
+
+## 8. Putaran 3 — ikon dari paket resmi, bukan salinan tangan
+
+### 8.1 Keputusan
+
+Satu keluarga ikon saja: **Lucide**. Bukan menambah keluarga kedua, karena
+halaman sudah memakai Lucide di 147 titik dan mencampur dua set membuat
+ketebalan serta sudut ikon tidak lagi seragam. Yang berubah adalah **asal
+geometrinya**:
+
+| Sebelum | Sesudah |
+|---|---|
+| 50 path disalin tangan ke dalam `_icon.blade.php` (sulit ditambah, rawan salah kutip). | 75 glyph dari paket resmi `lucide-static` 1.78.0 (ISC), disalin ke `public/vendor/lucide/icons/`, dirakit oleh `tools/build-lucide-icons.mjs` menjadi `_icon_glyphs.php`. |
+| Menambah ikon = menyalin `d` path dari internet. | Menambah ikon = salin satu `.svg` + jalankan skrip perakit. |
+| Tidak ada jejak lisensi. | `public/vendor/lucide/LICENSE` + `VERSION.txt` + prosedur di dalamnya. |
+
+Logika partial tidak berubah: alias konsep (`'suka' => 'heart'`), normalisasi
+ukuran ke {16, 20, 24, 32}, dan fallback `circle-dot` tetap di
+`_icon.blade.php`. Artinya kontrak aksesibilitas (`role="img"` vs
+`aria-hidden`) dan keseragaman stroke tidak tersentuh.
+
+### 8.2 Emoji yang diganti
+
+| Sebelum | Sekarang | Di mana |
+|---|---|---|
+| ⚠️ / ✅ | `alert-triangle` / `check-circle` | `.alert` login, daftar, alamat |
+| 📧 📱 / 🔒 🔐 / 👁️ 🙈 | `mail`, `phone`, `lock`, `lock-keyhole`, `eye`, `eye-off` | kolom isian & sakelar sandi (login, daftar) |
+| 👤 👨 👩 | `user` & label teks saja | formulir daftar (pilihan jenis kelamin tidak perlu pictogram) |
+| 🏠 📝 🎉 | `home`, `file-text`, `party-popper` | formulir daftar |
+| 🌹 💐 ⏳ 🌺 🌸 🔑 ↩️ 🔄 | `lock-keyhole`, `search`, `clock`, `alert-triangle`, `settings`, `key-round`, `undo-2`, `refresh-cw` | lima halaman galat (hero + tombol aksi) |
+| ★ / ♡ ♥ | `star`, `heart` | ringkasan rating & jumlah suka |
+| ☰ | `menu` | tombol menu pelanggan |
+| 🗂 📒 🎟 🎓 🌷 | `folder-open`, `book-open`, `ticket`, `graduation-cap`, `flower-2` | keadaan kosong panel admin |
+| ⚡ ⚠ ℹ️ ✓ | `zap`, `alert-triangle`, `info`, `check` | modal konfirmasi pelanggan |
+| ✓ (dot langkah) | tanda centang digambar CSS | indikator langkah pendaftaran |
+| ✿ (21 titik) | `flower-2` | kelopak splash, bunga ambient, placeholder foto, penanda kartu pesanan, keadaan kosong |
+
+Emoji bertukar teks di JS juga dibereskan, bukan hanya markup: sakelar sandi
+dan ikon pengenal kini menukar glyph yang sudah ada di DOM (bukan menulis
+emoji ke `textContent`), jumlah suka diperbarui di `<span>` khusus agar ikon
+hati tidak terhapus, dan toast admin menyuntik SVG Lucide yang sama.
+
+### 8.3 Penjaga
+
+`tests/Feature/IconSystemTest.php` memastikan:
+
+1. peta glyph dibangkitkan dari `public/vendor/lucide/icons` dan **sinkron**
+   dengan berkas SVG-nya (kalau tidak, tes menyuruh menjalankan skrip perakit);
+2. setiap nama ikon yang dipakai di view dapat diselesaikan lewat glyph atau
+   alias — tidak ada ikon yang diam-diam jatuh ke `circle-dot`;
+3. **nol emoji pictograf** di seluruh `resources/views` (rentang emoji,
+   simbol teknika, dan variation selector); panah tipografis biasa tetap boleh;
+4. `circle-dot` sebagai fallback resmi masih ada.
+
+Dampak tambahan: CSS `.bk-i` (di `berkah-ui-kit.css`) membuat ikon mewarisi
+ukuran huruf induknya, jadi ikon di dalam teks tidak lagi butuh `width/height`
+manual — sekaligus menyeragamkan bobot goresan (1,75px untuk ikon teks).

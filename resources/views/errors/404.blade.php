@@ -1,8 +1,8 @@
 @php
-    $code = 404; $emoji = '💐'; $title = 'Halaman Tidak Ditemukan'; $accent = '#85092d';
+    $code = 404; $icon = 'search'; $title = 'Halaman Tidak Ditemukan'; $accent = '#85092d';
     $message = 'Halaman yang kamu cari tidak ada. Mungkin URL-nya salah atau sudah dipindahkan.';
-    $primary = auth()->check() ? ['url' => route('dashboard'), 'label' => 'Ke Dashboard', 'icon' => '🏠'] : ['url' => url('/'), 'label' => 'Kembali ke Beranda', 'icon' => '🏠'];
-    $secondary = ['url' => 'javascript:history.back()', 'label' => 'Halaman Sebelumnya', 'icon' => '↩️'];
+    $primary = auth()->check() ? ['url' => route('dashboard'), 'label' => 'Ke Dashboard', 'icon' => 'home'] : ['url' => url('/'), 'label' => 'Kembali ke Beranda', 'icon' => 'home'];
+    $secondary = ['url' => 'javascript:history.back()', 'label' => 'Halaman Sebelumnya', 'icon' => 'undo-2'];
     $tip = 'Coba periksa kembali alamat URL yang kamu ketik.';
 @endphp
-@include('errors.layout', compact('code','emoji','title','message','accent','primary','secondary','tip'))
+@include('errors.layout', compact('code','icon','title','message','accent','primary','secondary','tip'))

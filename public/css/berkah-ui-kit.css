@@ -1287,6 +1287,51 @@ html body #main-content:focus-visible {
 
 
 /* ================================================================
+   Ikon inline (Lucide lokal)
+   ----------------------------------------------------------------
+   `.bk-i` membungkus satu ikon dan mewarisi ukuran huruf induknya,
+   sehingga ikon selalu sejajar dengan teks di sebelahnya tanpa perlu
+   menulis width/height di setiap pemakaian.
+   ================================================================ */
+
+.bk-i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+    vertical-align: -.12em;
+    flex: none;
+}
+
+.bk-i > svg {
+    width: 1em;
+    height: 1em;
+    display: block;
+    /* Koreksi optis: ikon teks 13–20px butuh goresan sedikit lebih tipis
+       daripada ikon kartu 24px agar bobotnya terasa sama. */
+    stroke-width: 1.75;
+}
+
+/* Di dalam tombol/label teks, ikon tidak boleh mendorong teks turun. */
+.btn .bk-i,
+.bk-atc .bk-i,
+button .bk-i,
+summary .bk-i {
+    vertical-align: -.15em;
+}
+
+/* Rating bintang: garis saat belum dipilih, penuh saat dipilih. */
+.bk-star-rating__options .bk-i > svg {
+    stroke-width: 1.8;
+    fill: transparent;
+    transition: fill var(--bk-dur-1, 120ms) ease;
+}
+
+.bk-star-rating__options input:checked ~ label .bk-i > svg {
+    fill: currentColor;
+}
+
+/* ================================================================
    Skala desain — lapisan dasar keterbacaan
    ----------------------------------------------------------------
    Aturan di bawah hanya menyentuh hal yang aman untuk semua peran:

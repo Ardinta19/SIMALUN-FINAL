@@ -1,0 +1,14 @@
+lucide-static 1.78.0
+Lisensi: ISC (lihat LICENSE di folder ini)
+Sumber: paket npm `lucide-static` — https://lucide.dev
+
+Isi folder:
+  icons/     berkas SVG yang dipakai aplikasi ini (salinan apa adanya dari
+             paket, tanpa CDN dan tanpa transformasi saat halaman dibuka).
+  LICENSE    lisensi asli paket.
+
+Alur menambah ikon:
+  1. npm pack lucide-static && tar -xzf lucide-static-*.tgz
+  2. cp package/icons/<nama>.svg public/vendor/lucide/icons/
+  3. node tools/build-lucide-icons.mjs
+  4. pakai di Blade: @include('layouts.component._icon', ['name' => '<nama>'])

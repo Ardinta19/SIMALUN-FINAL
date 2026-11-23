@@ -46,7 +46,7 @@
 @forelse($products as $product)
 <article class="card bk-product-card" data-bk-tilt>
     <a class="bk-product-image-link" href="{{ route('catalog.show', array_merge(['product' => $product->id], $dates ?? [], array_filter(['q' => request('q'), 'category' => request('category')], fn ($v) => is_scalar($v) && $v !== ''))) }}" aria-label="Lihat detail {{ $product->name }}">
-    @if($product->image_path)<img loading="lazy" decoding="async" class="photo" src="{{ asset('storage/'.$product->image_path) }}" alt="">@else<div class="photo placeholder" aria-hidden="true">✿</div>@endif</a>
+    @if($product->image_path)<img loading="lazy" decoding="async" class="photo" src="{{ asset('storage/'.$product->image_path) }}" alt="">@else<div class="photo placeholder" aria-hidden="true"><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span></div>@endif</a>
     <div class="body"><p class="muted">{{ $product->category->name }}</p><h3><a class="bk-product-name" href="{{ route('catalog.show', array_merge(['product' => $product->id], $dates ?? [], array_filter(['q' => request('q'), 'category' => request('category')], fn ($v) => is_scalar($v) && $v !== ''))) }}">{{ $product->name }}</a></h3>
     <p class="price">Rp {{ number_format($product->base_price, 0, ',', '.') }} <span class="muted">/ {{ $product->price_unit === 'day' ? 'hari' : 'acara' }}</span></p>
     @include('catalog.product-feedback', ['product' => $product])

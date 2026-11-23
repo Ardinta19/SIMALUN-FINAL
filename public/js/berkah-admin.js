@@ -402,6 +402,19 @@
 
     window.BKAdmin = {
         init: init,
+        /* Ikon toast memakai geometri Lucide yang sama dengan partial Blade.
+           Disimpan sebagai string kecil di sini supaya toast yang dibuat saat
+           runtime tidak perlu memuat ulang berkas ikon. */
+        toastGlyph: function (variant) {
+            var paths = {
+                ok: '<polyline points="20 6 9 17 4 12"/>',
+                danger: '<path d="M12 9v4"/><path d="M12 17h.01"/><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/>',
+                warn: '<circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/>'
+            };
+            return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" '
+                + 'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+                + (paths[variant] || paths.ok) + '</svg>';
+        },
         toast: function (message, options) {
             var host = document.querySelector('.adm-toasts');
             if (!host) return null;
@@ -411,7 +424,7 @@
             node.className = 'adm-toast adm-toast--' + variant;
             node.setAttribute('data-adm-toast', '');
             node.setAttribute('role', 'status');
-            node.innerHTML = '<span class="adm-toast__icon" aria-hidden="true">' + (variant === 'danger' ? '!' : variant === 'warn' ? 'i' : '✓') + '</span>'
+            node.innerHTML = '<span class="adm-toast__icon" aria-hidden="true">' + window.BKAdmin.toastGlyph(variant) + '</span>'
                 + '<div class="adm-toast__body">' + (opts.title ? '<strong class="adm-toast__title">' + opts.title + '</strong>' : '') + String(message || '') + '</div>'
                 + '<button type="button" class="adm-toast__close" data-adm-toast-close aria-label="Tutup pemberitahuan">&times;</button>'
                 + '<span class="adm-toast__bar" aria-hidden="true"></span>';

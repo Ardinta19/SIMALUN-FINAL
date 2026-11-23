@@ -19,7 +19,7 @@
         @if($available && $product->image_path)
             <img class="cart-image" src="{{ asset('storage/'.$product->image_path) }}" alt="Contoh {{ $product->name }}">
         @else
-            <div class="cart-image cart-placeholder" aria-hidden="true">✿</div>
+            <div class="cart-image cart-placeholder" aria-hidden="true"><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span></div>
         @endif
         <div>
             <p class="cart-number">UNIT {{ $loop->iteration }}</p>

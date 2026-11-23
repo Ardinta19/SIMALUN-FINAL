@@ -64,7 +64,7 @@
 <div class="adm-toasts" aria-live="polite" aria-atomic="false">
     @if(session('success'))
         <div class="adm-toast" data-adm-toast data-adm-life="6000" role="status">
-            <span class="adm-toast__icon" aria-hidden="true">✓</span>
+            <span class="adm-toast__icon" aria-hidden="true"><span class="bk-i">@include('layouts.component._icon', ['name' => 'check', 'size' => 20])</span></span>
             <div class="adm-toast__body"><strong class="adm-toast__title">Berhasil</strong>{{ session('success') }}</div>
             <button type="button" class="adm-toast__close" data-adm-toast-close aria-label="Tutup pemberitahuan">&times;</button>
             <span class="adm-toast__bar" aria-hidden="true"></span>

@@ -18,13 +18,13 @@
     <div class="bk-order-cards" data-bk-reveal-group="orders" data-bk-reveal-stagger="0.06">
     @forelse($orders as $order)
         <article class="bk-order-card">
-            <div class="bk-order-card__head"><span class="bk-order-card__mark" aria-hidden="true">✿</span><div><span class="bk-order-card__label">REFERENSI PESANAN</span><h2>{{ $order->reference }}</h2></div></div>
+            <div class="bk-order-card__head"><span class="bk-order-card__mark" aria-hidden="true"><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span></span><div><span class="bk-order-card__label">REFERENSI PESANAN</span><h2>{{ $order->reference }}</h2></div></div>
             <p class="muted">{{ $order->units_count }} unit · {{ $order->created_at->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB</p>
             <div class="bk-order-status"><span>Menunggu: {{ $order->pending_units_count }}</span><span>Dikonfirmasi: {{ $order->confirmed_units_count }}</span><span>Dibatalkan: {{ $order->cancelled_units_count }}</span></div>
             <a class="bk-order-card__link" href="{{ route('rental.orders.show', $order) }}">Lihat detail <span aria-hidden="true">↗</span></a>
         </article>
     @empty
-        <div class="bk-inbox-empty"><span aria-hidden="true">✿</span><h2>Tidak ada pesanan yang cocok</h2><p>Coba ubah filter atau temukan papan untuk momenmu.</p><a href="{{ route('welcome') }}" class="btn secondary">Lihat katalog</a></div>
+        <div class="bk-inbox-empty"><span aria-hidden="true"><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span></span><h2>Tidak ada pesanan yang cocok</h2><p>Coba ubah filter atau temukan papan untuk momenmu.</p><a href="{{ route('welcome') }}" class="btn secondary">Lihat katalog</a></div>
     @endforelse
     </div>
     <div class="pagination">{{ $orders->links('vendor.pagination.berkah') }}</div>

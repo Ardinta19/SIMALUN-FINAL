@@ -31,7 +31,7 @@
             @if($isCustomer)
                 @include('layouts.component.customer._radial_customer', ['inHeader' => true])
             @else
-                <button type="button" class="bk-menu-trigger" data-open-dialog="bk-menu" hidden aria-label="Buka menu navigasi"><span aria-hidden="true">☰</span></button>
+                <button type="button" class="bk-menu-trigger" data-open-dialog="bk-menu" hidden aria-label="Buka menu navigasi"><span class="bk-i" aria-hidden="true">@include('layouts.component._icon', ['name' => 'menu', 'size' => 24])</span></button>
             @endif
             <button type="button" class="bk-expand" data-bk-expand hidden aria-label="Kembali ke atas"><img src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt=""></button>
         </div>
@@ -49,5 +49,5 @@
     </nav>
 </dialog>
 @if(!$isCustomer)
-<nav class="bk-guest-tabs" aria-label="Navigasi cepat"><a href="{{ route('welcome') }}" @if(request()->routeIs('welcome','catalog.show')) aria-current="page" @endif><span aria-hidden="true">✿</span>Katalog</a><a href="{{ route('cart.index') }}" @if(request()->routeIs('cart.*')) aria-current="page" @endif><span aria-hidden="true">▢</span>Keranjang @if($cartCount)({{ $cartCount }})@endif</a><a href="{{ route('login') }}"><span aria-hidden="true">○</span>Masuk</a></nav>
+<nav class="bk-guest-tabs" aria-label="Navigasi cepat"><a href="{{ route('welcome') }}" @if(request()->routeIs('welcome','catalog.show')) aria-current="page" @endif><span aria-hidden="true" class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span>Katalog</a><a href="{{ route('cart.index') }}" @if(request()->routeIs('cart.*')) aria-current="page" @endif><span aria-hidden="true">▢</span>Keranjang @if($cartCount)({{ $cartCount }})@endif</a><a href="{{ route('login') }}"><span aria-hidden="true">○</span>Masuk</a></nav>
 @endif

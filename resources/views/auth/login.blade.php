@@ -37,7 +37,9 @@ html, body {
 .form-group { margin-bottom:1rem; position:relative; }
 .form-label { display:block; font-size:.75rem; font-weight:800; color:rgba(255,255,255,.85); letter-spacing:.3px; margin-bottom:.45rem; text-transform:uppercase; }
 .input-wrap { position:relative; }
-.input-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:1rem; pointer-events:none; opacity:.7; }
+.input-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); display:grid; place-items:center; line-height:0; pointer-events:none; opacity:.72; }
+.input-icon svg, .pw-toggle svg { display:block; }
+[data-identifier-glyph][hidden], [data-glyph][hidden] { display:none; }
 .form-input { width:100%; padding:.82rem .9rem .82rem 2.7rem; background:rgba(35,4,16,.42); border:1.5px solid rgba(255,255,255,.26); border-radius:12px; color:#fff; font-family:'Plus Jakarta Sans',sans-serif; font-size:.93rem; font-weight:600; outline:none; transition:border-color .2s, background .2s, box-shadow .2s; -webkit-appearance:none; }
 .form-input::placeholder { color:rgba(255,255,255,.62); }
 .form-input:focus { border-color:rgba(255,255,255,.65); background:rgba(35,4,16,.55); box-shadow:0 0 0 3px rgba(255,255,255,.1); }
@@ -76,7 +78,8 @@ html, body {
 .register-row { text-align:center; margin-top:.8rem; font-size:.82rem; font-weight:700; color:rgba(255,255,255,.7); }
 .register-row a { color:rgba(144,224,239,.95); text-decoration:none; font-weight:900; transition:color .2s; }
 .register-row a:hover { color:#fff; }
-.alert { border-radius:12px; padding:.75rem 1rem; margin-bottom:1rem; font-size:.82rem; font-weight:700; display:flex; align-items:center; gap:.5rem; }
+.alert { border-radius:12px; padding:.75rem 1rem; margin-bottom:1rem; font-size:.82rem; font-weight:700; display:flex; align-items:center; gap:.55rem; }
+.alert svg { flex:none; }
 .alert-error { background:rgba(255,80,80,.18); border:1px solid rgba(255,80,80,.35); color:#ffaaaa; }
 .alert-success { background:rgba(0,196,140,.18); border:1px solid rgba(0,196,140,.35); color:#7fffd4; }
 #footer { margin-top:1.6rem; text-align:center; display:inline-block; padding:.3rem .9rem; border-radius:99px; background:rgba(35,4,16,.45); font-size:.68rem; font-weight:700; color:rgba(255,255,255,.72); letter-spacing:.3px; }
@@ -109,7 +112,7 @@ $oldText = function (string $key, $fallback = '') {
 @endphp
 
 <div id="bk-splash" hidden role="dialog" aria-modal="true" aria-label="Membuka halaman masuk Berkah Kreatif">
-  <div class="bk-splash__petals" aria-hidden="true"><span>✿</span><span>✿</span><span>✿</span><span>✿</span></div>
+  <div class="bk-splash__petals" aria-hidden="true"><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span></div>
   <div class="bk-splash__center">
     <div class="bk-splash__logo"><img src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt="Logo Berkah Kreatif"></div>
     <p class="bk-splash__eyebrow">Papan Bunga &amp; Hadiah</p>
@@ -136,7 +139,7 @@ $oldText = function (string $key, $fallback = '') {
 })();
 </script>
 
-<div id="ambient" aria-hidden="true"><span class="ambient-flower" style="left:12%;top:24%">✿</span><span class="ambient-flower" style="right:12%;top:48%;animation-delay:-2s">✿</span><span class="ambient-flower" style="left:24%;bottom:12%;animation-delay:-4s">✿</span></div>
+<div id="ambient" aria-hidden="true"><span class="ambient-flower bk-i" style="left:12%;top:24%">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span><span class="ambient-flower bk-i" style="right:12%;top:48%;animation-delay:-2s">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span><span class="ambient-flower bk-i" style="left:24%;bottom:12%;animation-delay:-4s">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span></div>
 
 <div id="wave-band" aria-hidden="true">
   <svg class="ws w1" viewBox="0 0 1440 64" preserveAspectRatio="none">
@@ -170,11 +173,11 @@ $oldText = function (string $key, $fallback = '') {
     <div class="card-sub">Masuk ke akun Berkah Kreatif kamu</div>
 
     @if(session('error'))
-      <div class="alert alert-error" role="alert">⚠️ {{ session('error') }}</div>
+      <div class="alert alert-error" role="alert">@include('layouts.component._icon', ['name' => 'alert-triangle', 'size' => 20])<span>{{ session('error') }}</span></div>
     @endif
     
     @if(session('success'))
-      <div class="alert alert-success" role="status">✅ {{ session('success') }}</div>
+      <div class="alert alert-success" role="status">@include('layouts.component._icon', ['name' => 'check-circle', 'size' => 20])<span>{{ session('success') }}</span></div>
     @endif
 
     <form method="POST" action="{{ route('login.post') }}" id="login-form" novalidate>
@@ -184,7 +187,7 @@ $oldText = function (string $key, $fallback = '') {
       <div class="form-group">
         <label class="form-label" for="identifier">Email / No. HP</label>
         <div class="input-wrap">
-          <span class="input-icon" id="identifier-icon">📧</span>
+          <span class="input-icon" id="identifier-icon" aria-hidden="true"><span data-identifier-glyph="email">@include('layouts.component._icon', ['name' => 'mail', 'size' => 20])</span><span data-identifier-glyph="phone" hidden>@include('layouts.component._icon', ['name' => 'phone', 'size' => 20])</span></span>
           <input
             class="form-input @error('identifier') input-error @enderror"
             type="text"
@@ -208,7 +211,7 @@ $oldText = function (string $key, $fallback = '') {
       <div class="form-group">
         <label class="form-label" for="password">Password</label>
         <div class="input-wrap">
-          <span class="input-icon">🔒</span>
+          <span class="input-icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'lock', 'size' => 20])</span>
           <input
             class="form-input @error('password') input-error @enderror"
             type="password"
@@ -219,7 +222,7 @@ $oldText = function (string $key, $fallback = '') {
             placeholder="Masukkan password"
             autocomplete="current-password"
           >
-          <button type="button" class="pw-toggle" id="pw-toggle" hidden title="Tampilkan password" aria-label="Tampilkan password" aria-pressed="false">👁️</button>
+          <button type="button" class="pw-toggle" id="pw-toggle" hidden title="Tampilkan password" aria-label="Tampilkan password" aria-pressed="false"><span data-glyph="eye">@include('layouts.component._icon', ['name' => 'eye', 'size' => 20])</span><span data-glyph="eye-off" hidden>@include('layouts.component._icon', ['name' => 'eye-off', 'size' => 20])</span></button>
         </div>
         @error('password')
           <div class="error-msg" id="server-password-error" role="alert">{{ $message }}</div>
@@ -278,11 +281,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const identIcon = document.getElementById('identifier-icon');
   identEl.addEventListener('input', function(){
     const v = this.value.trim();
-    if(/^[0-9+]/.test(v)){
-      identIcon.textContent = '📱';
-    } else {
-      identIcon.textContent = '📧';
-    }
+    const glyph = /^[0-9+]/.test(v) ? 'phone' : 'email';
+    identIcon.querySelectorAll('[data-identifier-glyph]').forEach(function (node) {
+      node.hidden = node.dataset.identifierGlyph !== glyph;
+    });
   });
 
   /* ── PASSWORD TOGGLE ── */
@@ -291,7 +293,8 @@ document.addEventListener('DOMContentLoaded', function () {
   pwToggle.addEventListener('click', function(){
     const show = pwInput.type === 'password';
     pwInput.type = show ? 'text' : 'password';
-    this.textContent = show ? '🙈' : '👁️';
+    this.querySelector('[data-glyph="eye"]').hidden = show;
+    this.querySelector('[data-glyph="eye-off"]').hidden = !show;
     this.setAttribute('aria-pressed', String(show));
     this.setAttribute('aria-label', show ? 'Sembunyikan password' : 'Tampilkan password');
     this.title = show ? 'Sembunyikan password' : 'Tampilkan password';

@@ -220,7 +220,7 @@ $oldText = function (string $key, $fallback = '') {
 
     @if($errors->any())
     <div class="alert-error">
-        ⚠️ Periksa kembali isian berikut:<br>
+        <span class="bk-i" aria-hidden="true">@include('layouts.component._icon', ['name' => 'alert-triangle', 'size' => 20])</span> Periksa kembali isian berikut:<br>
         @foreach($errors->all() as $e) • {{ $e }}<br> @endforeach
     </div>
     @endif
