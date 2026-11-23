@@ -97,7 +97,7 @@ class UiKitTest extends TestCase
 
         $this->assertMatchesRegularExpression('/html\[data-theme="dark"\]\s*\{/', $css);
 
-        foreach (['--ink:', '--card:', '--line:', '--fc-ink:', '--fc-cream:', '--bk-ink:', '--theme-bg:'] as $token) {
+        foreach (['--ink:', '--card:', '--line:', '--fc-ink:', '--fc-cream:', '--bk-ink:', '--wine:', '--paper:', '--theme-bg:'] as $token) {
             $this->assertStringContainsString($token, $css, 'Token gelap hilang: '.$token);
         }
 

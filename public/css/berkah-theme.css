@@ -63,6 +63,8 @@ html[data-theme="dark"] {
     --border: var(--theme-line);
     --border-dash: #5a4149;
     --bg: var(--theme-bg);
+    --wine: var(--theme-accent-text);
+    --paper: var(--theme-surface);
     --shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
     --shadow-md: 0 10px 26px rgba(0, 0, 0, 0.5);
     --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.5);
@@ -110,6 +112,12 @@ html[data-theme="dark"] {
     --bk-toggle-bg: var(--theme-surface-2);
     --bk-toggle-line: var(--theme-line);
     --bk-toggle-ink: var(--theme-ink);
+}
+
+/* Hero halaman lama memakai gradien merek; tetap maroon saat gelap. */
+html[data-theme="dark"] .hero {
+    background: linear-gradient(145deg, #3a0f1d, #5c0f27 60%, #8c2440);
+    color: #fdf2f5;
 }
 
 /* ================================================================
