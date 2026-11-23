@@ -26,12 +26,12 @@
             </nav>
             @if(request()->routeIs('welcome'))
             <a class="bk-header-filter bk-filter-fallback" href="#catalog-filter" aria-label="Cari dan filter katalog">@include('layouts.component._icon', ['name' => 'search', 'size' => 21]) <span>Cari &amp; filter</span></a>
-            <button type="button" class="bk-header-filter" data-open-dialog="bk-filter" hidden aria-label="Cari dan filter katalog">@include('layouts.component._icon', ['name' => 'search', 'size' => 21]) <span>Cari &amp; filter</span></button>
+            <button type="button" class="bk-header-filter" data-open-dialog="bk-filter" hidden aria-haspopup="dialog" aria-expanded="false" aria-label="Cari dan filter katalog">@include('layouts.component._icon', ['name' => 'search', 'size' => 21]) <span>Cari &amp; filter</span></button>
             @endif
             @if($isCustomer)
                 @include('layouts.component.customer._radial_customer', ['inHeader' => true])
             @else
-                <button type="button" class="bk-menu-trigger" data-open-dialog="bk-menu" hidden aria-label="Buka menu navigasi"><span class="bk-i" aria-hidden="true">@include('layouts.component._icon', ['name' => 'menu', 'size' => 24])</span></button>
+                <button type="button" class="bk-menu-trigger" data-open-dialog="bk-menu" hidden aria-haspopup="dialog" aria-expanded="false" aria-label="Buka menu navigasi"><span class="bk-i" aria-hidden="true">@include('layouts.component._icon', ['name' => 'menu', 'size' => 24])</span></button>
             @endif
             <button type="button" class="bk-expand" data-bk-expand hidden aria-label="Kembali ke atas"><img src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt=""></button>
         </div>

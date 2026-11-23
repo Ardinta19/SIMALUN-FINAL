@@ -235,6 +235,25 @@ class UiDefaultsTest extends TestCase
         );
     }
 
+    public function test_admin_mobile_sheet_has_a_controller(): void
+    {
+        // Markup bilah admin menyembunyikan tujuan di luar empat menu harian
+        // di balik tombol "Lainnya". Tanpa pengendali di berkah-admin.js,
+        // tombol itu mati dan separuh menu tak bisa dijangkau di ponsel —
+        // persis cacat yang pernah lolos karena markup-nya "terlihat benar".
+        $nav = File::get(resource_path('views/layouts/component/admin/_navbar_admin.blade.php'));
+        $js = File::get(public_path('js/berkah-admin.js'));
+
+        $this->assertStringContainsString('data-admin-more', $nav);
+        $this->assertStringContainsString('id="admin-sheet"', $nav);
+        $this->assertStringContainsString('data-admin-sheet-close', $nav);
+
+        $this->assertStringContainsString("getElementById('admin-sheet')", $js);
+        $this->assertStringContainsString("'[data-admin-more]'", $js);
+        $this->assertStringContainsString("'[data-admin-sheet-close]'", $js);
+        $this->assertStringContainsString("setAttribute('aria-expanded'", $js);
+    }
+
     public function test_the_old_second_bottom_sheet_is_gone(): void
     {
         $this->assertFileDoesNotExist(resource_path('views/layouts/component/_bottom_sheet_select.blade.php'));

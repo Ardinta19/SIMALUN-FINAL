@@ -136,6 +136,8 @@
     function openDialog(dialog, trigger) {
         if (!dialog || dialog.open || document.querySelector('.bk-dialog[open]')) return;
         dialog.dataset.returnFocus = trigger?.dataset.openDialog || '';
+        // Keadaan pembuka harus ikut terbaca pembaca layar, bukan hanya visual.
+        triggers.forEach(button => button.setAttribute('aria-expanded', button === trigger ? 'true' : 'false'));
         dialog.dataset.returnScroll = String(window.scrollY);
         dialog.showModal();
         focusWithoutScroll(dialog.querySelector('[data-filter-form] [aria-invalid="true"]') || dialog.querySelector('[data-filter-form] input') || dialog.querySelector('[data-close-dialog]'));
@@ -145,6 +147,7 @@
         dialog.querySelector('[data-close-dialog]')?.addEventListener('click', () => dialog.close());
         dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
         dialog.addEventListener('close', () => {
+            triggers.forEach(button => button.setAttribute('aria-expanded', 'false'));
             const savedScroll = Number(dialog.dataset.returnScroll || NaN);
             // Dialog modal dapat memaksa halaman melompat ke atas; kembalikan posisi baca semula.
             if (Number.isFinite(savedScroll) && window.scrollY + 4 < savedScroll) {

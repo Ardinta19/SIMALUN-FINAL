@@ -541,3 +541,26 @@ tangkapan layar:
 Dua perbaikan kecil menyertainya: `<x-input-error>` memberi `role="alert"`
 pada daftar galat (semua halaman auth/profil memakainya), dan isian nomor HP
 memakai `type="tel"` (papan ketik angka di ponsel) tanpa mengubah validasi.
+
+### 9.15 Lembar "Lainnya" admin yang mati
+
+Bilah admin mandiri (`_navbar_admin.blade.php`) menyembunyikan tujuan di luar
+empat menu harian di balik tombol **Lainnya** pada layar ≤899 px, dan markup
+lembar `#admin-sheet` sudah lengkap: backdrop, panel `role="dialog"`,
+`aria-modal`, tombol tutup, seluruh grup menu. Yang tidak ada adalah
+pengendalinya — tidak satu pun skrip menyentuh `[data-admin-more]`, sehingga
+di ponsel tombol itu tidak melakukan apa pun dan separuh menu tak bisa
+dijangkau.
+
+`berkah-admin.js` kini memegangnya: buka/tutup idempoten, `aria-expanded`
+disinkronkan pada pembuka, fokus pindah ke tautan pertama dan kembali ke
+pembuka saat ditutup, Tab terjebak di panel (memakai penjaga Tab yang sama
+dengan sidebar), Escape menutup lebih dulu sebelum sidebar/drawer, latar
+halaman `inert` + `aria-hidden` selama lembar terbuka (dipulihkan apa adanya),
+dan melebar ke ≥900 px menutup lembar karena navigasi sudah pindah ke bilah
+atas.
+
+`UiDefaultsTest::test_admin_mobile_sheet_has_a_controller` mengunci pasangan
+markup–pengendali ini supaya tidak terulang: tombol yang "terlihat benar"
+tetapi tidak tersambung ke skrip adalah cacat yang paling mudah lolos dari
+tinjauan visual.
