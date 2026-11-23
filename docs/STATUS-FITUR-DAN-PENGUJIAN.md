@@ -1,6 +1,6 @@
 # Status fitur dan pemeriksaan Berkah Kreatif
 
-Snapshot kode setelah babak C alur pemesanan (ongkos dua arah, batal mandiri, pesan ulang, draf checkout, pengingat kembali). Hasil `php artisan test` terakhir yang dilaporkan pengguna adalah pada commit `943494e`: **306 lulus, 4 gagal**; kegagalannya diperbaiki di `01b6f4b` tetapi belum diuji ulang, dan perubahan babak C sesudahnya belum dijalankan di Windows. Ini adalah inventaris berdasarkan kode dan tes yang ada, bukan pernyataan bahwa seluruh kebutuhan sudah selesai, aman, atau siap produksi. Dokumen audit awal `AUDIT-BERKAH-KREATIF.md` adalah snapshot historis; status fitur di sana dapat sudah berubah.
+Snapshot kode setelah babak C dan D alur pemesanan (ongkos dua arah, batal mandiri, pesan ulang, draf checkout, pengingat dua arah termasuk ongkos, penutupan otomatis unit menggantung, rating pesanan dengan masa tenggang). Hasil `php artisan test` terakhir yang dilaporkan pengguna adalah pada commit `943494e`: **306 lulus, 4 gagal**; kegagalannya diperbaiki di `01b6f4b` tetapi belum diuji ulang, dan perubahan babak C sesudahnya belum dijalankan di Windows. Ini adalah inventaris berdasarkan kode dan tes yang ada, bukan pernyataan bahwa seluruh kebutuhan sudah selesai, aman, atau siap produksi. Dokumen audit awal `AUDIT-BERKAH-KREATIF.md` adalah snapshot historis; status fitur di sana dapat sudah berubah.
 
 ## Inventaris alur sewa
 
@@ -16,7 +16,8 @@ Snapshot kode setelah babak C alur pemesanan (ongkos dua arah, batal mandiri, pe
 | Operasional | Progres per unit (serah terima memeriksa desain dan tagihan), jadwal bulanan dan filter kegiatan, ringkasan cetak, filter "toleransi" dan "lewat tanggal kembali", kartu dasbor "menunggu pelanggan" | Periksa kesesuaian alur bisnis di perangkat; jadwal bukan bukti serah terima. |
 | Buku kas | Entri manual, perbandingan periode, ekspor CSV, pemasukan dari verifikasi dan pengeluaran dari refund | Audit konsistensi dan duplikasi secara menyeluruh, termasuk data finance lama yang ikut ditampilkan. |
 | Notifikasi | Pemberitahuan rental dalam aplikasi untuk beberapa perubahan | Periksa seluruh transisi, penjadwal dan ketersediaan penerima; bukan jaminan email, WhatsApp, atau pemberitahuan push. |
-| Pengingat | Perintah `rental:remind` dijadwalkan tiap lima menit: bukti menganggur lebih dari 6 jam (admin), pelunasan H-1 (pelanggan), toleransi H+1 (pelanggan dan admin), respons desain lebih dari 24 jam (pelanggan), eskalasi 48 jam atau H-3 (admin), unit belum ditandai kembali H+2 (admin); satu pesan per unit, jenis, penerima dan tanggal | Uji pada data nyata bahwa pesan tidak menumpuk, penerima nonaktif benar-benar dilewati, dan isi pesan sesuai tagihan; pengingat tidak mengubah status apa pun |
+| Pengingat | Perintah `rental:remind` dijadwalkan tiap lima menit: bukti menganggur lebih dari 6 jam (admin), pelunasan H-1 (pelanggan), toleransi H+1 (pelanggan dan admin), respons desain lebih dari 24 jam (pelanggan), eskalasi 48 jam atau H-3 (admin), unit belum ditandai kembali H+2 (admin), ongkos belum ditawarkan 24 jam (admin), penawaran ongkos belum dijawab 24 jam (pelanggan), acara lewat tetapi progres belum selesai (admin); satu pesan per unit, jenis, penerima dan tanggal | Uji pada data nyata bahwa pesan tidak menumpuk, penerima nonaktif benar-benar dilewati, dan isi pesan sesuai tagihan; pengingat tidak mengubah status apa pun |
+| Penutupan otomatis | `rental:close-events` harian 02.00 WIB menutup unit `handed_over` yang 7 hari lewat tanggal kembali, mencatat riwayat "Ditutup otomatis oleh sistem", dan memberi tahu pelanggan + admin | Uji di data nyata bahwa unit dalam tenggang, `ready`, atau batal tidak tersentuh; pastikan admin menerima notifikasi dan rating pesanan terbuka setelahnya |
 
 ## Pemeriksaan sebelum penggunaan nyata
 
@@ -39,6 +40,13 @@ Jangan jalankan transaksi atau pembayaran nyata sebelum pemeriksaan dan keputusa
 6. **Draf checkout.** Isi checkout sebagian, kirim (gagal), buka keranjang, lalu kembali ke checkout: isian tadi harus muncul lagi. Setelah pesanan berhasil, keranjang dan draf harus kosong.
 7. **Pengingat kembali.** Tandai unit serah terima, atur `ends_on` dua hari ke belakang, jalankan `php artisan rental:remind` dua kali: hanya satu notifikasi `return_pending`, dan dasbor menampilkan kartu "sudah lewat tanggal kembali". Filter `return_overdue` dan `grace` di daftar pesanan admin harus menyaring dengan benar.
 8. **Gerbang serah terima.** Coba majukan unit `ready → handed_over` tanpa desain disetujui (ubah data lewat database): harus ditolak dengan pesan desain.
+
+### Uji manual babak D (belum dijalankan)
+
+1. **Pengingat ongkos (dua arah).** Unit antar/jemput tanpa penawaran lebih dari 24 jam (atur `created_at` unit ke belakang): jalankan `php artisan rental:remind` dua kali — admin menerima satu notifikasi "Ongkos belum ditawarkan". Kirim penawaran, atur `created_at` event penawaran ke 25 jam lalu, jalankan lagi — pelanggan menerima "Ongkos menunggu persetujuan". Setelah pelanggan menyetujui, pengingat itu tidak muncul lagi.
+2. **Acara lewat.** Unit `confirmed` dengan `progress = waiting` dan `event_on` kemarin: jalankan `rental:remind` — admin menerima "Tanggal acara sudah lewat" sekali per hari.
+3. **Penutupan otomatis.** Unit `handed_over` dengan `ends_on` 8 hari lalu: `php artisan rental:close-events` harus mengubahnya menjadi `returned`, menambah riwayat "Ditutup otomatis oleh sistem ...", dan mengirim notifikasi ke pelanggan serta admin. Unit dengan `ends_on` 6 hari lalu atau `progress = ready` tidak boleh berubah. Jalankan ulang: tidak ada perubahan ganda. Setelah itu rating pesanan pelanggan harus bisa disimpan.
+4. **Rating dengan masa tenggang.** Pesanan dengan satu unit `returned` dan satu unit `handed_over` yang tanggal acaranya 10 hari lalu: form rating muncul di halaman pesanan dan server menerimanya. Pesanan yang seluruh unitnya batal tetap ditolak.
 
 ## Lampiran laporan kendala
 

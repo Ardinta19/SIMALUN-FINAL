@@ -26,12 +26,15 @@ class RentalReminders
     /** Unit yang sudah lewat sekian hari dari tanggal kembali diingatkan. */
     public const RETURN_GRACE_DAYS = 2;
 
+    /** Antrean antar/jemput dianggap menganggur setelah sekian jam. */
+    public const TRANSPORT_WAIT_HOURS = 24;
+
     /**
-     * @return array{proof:int, due:int, grace:int, grace_admin:int, design:int, design_escalation:int, return:int}
+     * @return array{proof:int, due:int, grace:int, grace_admin:int, design:int, design_escalation:int, return:int, transport_quote:int, transport_approval:int, event_overdue:int}
      */
     public function run(): array
     {
-        $counts = ['proof' => 0, 'due' => 0, 'grace' => 0, 'grace_admin' => 0, 'design' => 0, 'design_escalation' => 0, 'return' => 0];
+        $counts = ['proof' => 0, 'due' => 0, 'grace' => 0, 'grace_admin' => 0, 'design' => 0, 'design_escalation' => 0, 'return' => 0, 'transport_quote' => 0, 'transport_approval' => 0, 'event_overdue' => 0];
         $adminsReachable = User::where('role', 'admin')->where('is_active', true)->exists();
 
         if ($adminsReachable) $this->remindProofs($counts);
@@ -39,8 +42,85 @@ class RentalReminders
         $this->remindGrace($counts, $adminsReachable);
         $this->remindDesign($counts, $adminsReachable);
         $this->remindReturns($counts, $adminsReachable);
+        $this->remindTransport($counts, $adminsReachable);
+        $this->remindEventOverdue($counts, $adminsReachable);
 
         return $counts;
+    }
+
+    /**
+     * Antrean antar/jemput yang tidak pernah dibereskan: admin belum mengirim
+     * penawaran, atau pelanggan belum menyetujui penawaran yang sudah dikirim.
+     * Keduanya membuat tagihan tidak pasti dan pembayaran tidak bisa dikirim.
+     */
+    private function remindTransport(array &$counts, bool $adminsReachable): void
+    {
+        $now = CarbonImmutable::now('Asia/Jakarta');
+        $waitHours = self::TRANSPORT_WAIT_HOURS;
+
+        if ($adminsReachable) {
+            RentalOrderUnit::query()->with('order')
+                ->where('status', RentalOrderUnit::STATUS_CONFIRMED)
+                ->where(fn ($query) => $query->where('delivery_method', 'delivery')->orWhere('return_method', 'collection'))
+                ->whereNull('transport_quote')
+                ->whereNull('transport_approved_at')
+                ->where('created_at', '<=', $now->subHours($waitHours))
+                ->chunkById(200, function ($units) use (&$counts, $waitHours) {
+                    foreach ($units as $unit) {
+                        if (! $this->claim($unit, 'transport_quote_needed', 'admins')) continue;
+                        app(RentalNotifications::class)->admins(
+                            $unit->order,
+                            'Ongkos belum ditawarkan',
+                            'Unit '.$unit->product_name.' memakai antar/jemput tetapi belum ada penawaran ongkos lebih dari '.$waitHours.' jam. Pelanggan belum dapat membayar sebelum ongkos disetujui.'
+                        );
+                        $counts['transport_quote']++;
+                    }
+                });
+        }
+
+        RentalOrderUnit::query()->with('order')
+            ->where('status', RentalOrderUnit::STATUS_CONFIRMED)
+            ->whereNotNull('transport_quote')
+            ->whereNull('transport_approved_at')
+            ->chunkById(200, function ($units) use (&$counts, $now, $waitHours) {
+                foreach ($units as $unit) {
+                    if (! $this->customerReachable($unit)) continue;
+                    $quote = $unit->transportQuoteEvents()->where('action', 'quote')->latest('id')->first();
+                    if (! $quote || $quote->created_at->greaterThan($now->subHours($waitHours))) continue;
+                    if (! $this->claim($unit, 'transport_approval', 'customer')) continue;
+                    app(RentalNotifications::class)->customer(
+                        $unit->order,
+                        'Ongkos menunggu persetujuan',
+                        'Penawaran ongkos unit '.$unit->product_name.' sudah dikirim lebih dari '.$waitHours.' jam. Setujui atau tolak dengan alasan agar pesanan dapat diproses.'
+                    );
+                    $counts['transport_approval']++;
+                }
+            });
+    }
+
+    /**
+     * Unit yang tanggal acaranya sudah lewat tetapi belum selesai dikerjakan.
+     * Pengingat ini menahan antrean "aktif" agar tidak menumpuk tanpa tindakan.
+     */
+    private function remindEventOverdue(array &$counts, bool $adminsReachable): void
+    {
+        if (! $adminsReachable) return;
+        $today = CarbonImmutable::now('Asia/Jakarta')->startOfDay()->toDateString();
+        RentalOrderUnit::query()->with('order')
+            ->where('status', RentalOrderUnit::STATUS_CONFIRMED)
+            ->whereIn('progress', ['waiting', 'production', 'ready'])
+            ->whereDate('event_on', '<', $today)
+            ->chunkById(200, function ($units) use (&$counts) {
+                foreach ($units as $unit) {
+                    if (! $this->claim($unit, 'event_overdue', 'admins')) continue;
+                    app(RentalNotifications::class)->admins(
+                        $unit->order,
+                        'Tanggal acara sudah lewat',
+                        'Unit '.$unit->product_name.' masih berstatus "'.$unit->progress.'" padahal tanggal acaranya sudah lewat. Periksa unit, lalu lanjutkan, tutup, atau batalkan dengan alasan.'
+                    );
+                    $counts['event_overdue']++;
+                }
+            });
     }
 
     /**

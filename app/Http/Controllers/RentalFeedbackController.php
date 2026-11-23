@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\RentalOrder;
 use App\Models\RentalOrderUnit;
 use App\Models\RentalProduct;
+use App\Services\RentalAutoClose;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -54,7 +56,15 @@ class RentalFeedbackController extends Controller
         DB::transaction(function () use ($order, $request, $data) {
             $order = RentalOrder::lockForUpdate()->findOrFail($order->id);
             $units = $order->units()->lockForUpdate()->get();
-            if (! $units->contains(fn ($u) => $u->status === 'confirmed' && $u->progress === 'returned') || $units->contains(fn ($u) => $u->status !== 'cancelled' && ! ($u->status === 'confirmed' && $u->progress === 'returned'))) throw ValidationException::withMessages(['rating' => 'Rating pesanan tersedia setelah seluruh unit selesai atau dibatalkan, dan setidaknya satu unit dikembalikan.']);
+            // Unit dianggap tuntas bila sudah kembali, dibatalkan, atau tanggal
+            // acaranya sudah lewat jauh (unit yang telanjur menggantung tidak boleh
+            // memblokir rating pesanan selamanya). Minimal satu unit tidak dibatalkan,
+            // supaya pesanan yang seluruhnya batal tidak dapat dinilai.
+            $grace = CarbonImmutable::now('Asia/Jakarta')->startOfDay()->subDays(RentalAutoClose::GRACE_DAYS);
+            $settled = fn ($u) => $u->status === 'cancelled'
+                || ($u->status === 'confirmed' && $u->progress === 'returned')
+                || ($u->status === 'confirmed' && $u->event_on !== null && $u->event_on->lessThanOrEqualTo($grace));
+            if (! $units->contains(fn ($u) => $u->status !== 'cancelled') || ! $units->every($settled)) throw ValidationException::withMessages(['rating' => 'Rating pesanan tersedia setelah seluruh unit selesai atau dibatalkan, atau setelah tanggal acara lewat lebih dari '.RentalAutoClose::GRACE_DAYS.' hari; minimal satu unit tidak dibatalkan.']);
             if (DB::table('rental_order_reviews')->where('rental_order_id', $order->id)->exists()) throw ValidationException::withMessages(['rating' => 'Pesanan ini sudah diberi rating.']);
             DB::table('rental_order_reviews')->insert(['rental_order_id' => $order->id, 'user_id' => $request->user()->id, 'rating' => $data['rating'], 'created_at' => now(), 'updated_at' => now()]);
         }, 3);

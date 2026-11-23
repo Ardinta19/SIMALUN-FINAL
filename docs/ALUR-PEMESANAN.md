@@ -171,10 +171,11 @@ pembayaran ditolak (`RentalPaymentController.php:37`), dan penjadwal hanya memas
 tetap `confirmed` dan menahan tanggal tanpa ada tenggat. Admin melihat antreannya di
 dasbor (`rentalQuoteNeeded`), jadi tidak sepenuhnya gelap, tetapi tidak ada
 eskalasi bila antrean bertambah.
-_Sebagian ditutup di babak C_: pelanggan kini dapat menolak penawaran (dengan alasan)
-dan membatalkan unit sendiri sebelum dikerjakan, sehingga kebuntuan tidak lagi
-berakhir di WhatsApp. Eskalasi otomatis untuk antrean ongkos belum dibuat —
-pengingat khusus ongkos masih menjadi sisa.
+_Ditutup di babak C dan D_: pelanggan dapat menolak penawaran (dengan alasan) dan
+membatalkan unit sendiri, admin diingatkan setiap hari bila ongkos belum ditawarkan
+lebih dari 24 jam (`transport_quote_needed`), dan pelanggan diingatkan setiap hari
+bila penawaran belum dijawab lebih dari 24 jam (`transport_approval`). Dengan begitu
+antrean ongkos punya denyut pengingat, bukan hanya tampil di dasbor.
 
 **DL-4. Pelanggan tidak punya jalan keluar selain WhatsApp (selesai di babak C).**
 Rute `rental.cancel.customer` + form "Batalkan unit ini" memberi jalan mundur yang
@@ -213,13 +214,20 @@ konsisten.
 sehingga jalur apa pun yang mencoba menyerahkan unit tanpa desain disetujui akan
 ditolak dengan pesan yang jelas.
 
-**G-2. Tidak ada penyelesaian otomatis setelah acara.**
-Tidak ada perintah yang menandai `returned` atau menutup unit `confirmed` yang
-sudah lewat tanggal. Antrean "aktif" hanya bertambah.
+**G-2. Tidak ada penyelesaian otomatis setelah acara (selesai di babak D).**
+`php artisan rental:close-events` (harian 02.00 WIB) menutup unit `handed_over`
+yang 7 hari lewat tanggal kembali: status diubah menjadi `returned`, riwayat progres
+mendapat catatan "Ditutup otomatis oleh sistem", dan pelanggan + admin diberi tahu.
+Unit yang belum diserahkan tetapi acaranya lewat diingatkan harian (`event_overdue`).
+Penandaan manual tetap jalur utama; penutupan otomatis hanya jaring pengaman agar
+antrean tidak tumbuh tanpa akhir.
 
-**G-3. Rating pesanan menuntut semua unit selesai atau batal.**
-Satu unit yang tersangkut `handed_over` memblokir rating seluruh pesanan
-(`RentalFeedbackController.php:57`).
+**G-3. Rating pesanan menuntut semua unit selesai atau batal (selesai di babak D).**
+Aturan rating kini menganggap unit tuntas bila sudah kembali, dibatalkan, **atau**
+tanggal acaranya lewat lebih dari 7 hari. Syarat "minimal satu unit tidak dibatalkan"
+tetap ada agar pesanan yang seluruhnya batal tidak dapat dinilai. Tombol rating di
+halaman pesanan memakai aturan yang sama dengan server, sehingga tidak ada tombol
+yang muncul lalu ditolak.
 
 ## 6. Rekomendasi berprioritas
 
@@ -355,9 +363,13 @@ sudah ada (transaksi, notifikasi dalam transaksi, perintah penjadwal idempoten).
 - Tes: `tests/Feature/RentalCustomerControlsTest.php`,
   `tests/Feature/RentalWaitingQueuesTest.php`,
   `tests/Feature/RentalCheckoutDraftTest.php`.
-- Sisa yang belum ditutup: eskalasi otomatis untuk antrean ongkos yang tidak pernah
-  ditawar (DL-3), penutupan otomatis setelah acara (G-2), rating pesanan yang masih
-  menuntut semua unit selesai (G-3), dan batas jumlah revisi desain (RT-3).
+- **Babak D — selesai.** Eskalasi antrean ongkos (DL-3) lewat pengingat harian dua
+  arah, penutupan otomatis unit menggantung (G-2) lewat `rental:close-events`, dan
+  pelonggaran rating pesanan (G-3) dengan masa tenggang 7 hari. Tes:
+  `tests/Feature/RentalTransportWaitTest.php` dan
+  `tests/Feature/RentalAutoCloseTest.php`.
+- Sisa yang belum ditutup: batas jumlah revisi desain (RT-3) — keputusan bisnis,
+  bukan bug; serta hal-hal yang memang butuh uji manual/konkurensi MySQL.
 
 ## 8. Yang sudah benar dan sebaiknya tidak diubah
 
@@ -382,3 +394,5 @@ sudah ada (transaksi, notifikasi dalam transaksi, perintah penjadwal idempoten).
 | RT-6 | **ada**: `RentalLatePaymentGraceTest` (bukti H+1 diterima sampai 12.00, ditolak sesudahnya, DP hangus, pengingat toleransi) |
 | RT-1/RT-2 | **ada**: `RentalCheckoutDraftTest` (tautan kembali membawa query; draf bertahan setelah mampir ke keranjang; keranjang & draf bersih setelah pesanan berhasil) |
 | DL-5/P2 | **ada**: `RentalWaitingQueuesTest` (dasbor "menunggu pelanggan", filter toleransi & lewat kembali, pengingat kembali sekali per hari) |
+| DL-3 sisa | **ada**: `RentalTransportWaitTest` (admin diingatkan bila ongkos tak pernah ditawar, pelanggan diingatkan bila penawaran tak dijawab, keduanya sekali per hari dan berhenti setelah ada tindakan) |
+| G-2/G-3 | **ada**: `RentalAutoCloseTest` (tutup otomatis H+7 + riwayat Sistem + notifikasi, idempoten, tidak menyentuh unit dalam tenggang/`ready`, rating pesanan terbuka) |

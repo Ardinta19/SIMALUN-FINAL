@@ -8,7 +8,15 @@
 <p><a class="btn secondary" href="{{ route('rental.receipt', $order) }}">Ringkasan cetak</a></p>
 <div class="notice">Pilih unit untuk memeriksa ongkos, desain, pembayaran, dan perkembangannya. Tanggal ditahan sejak pesanan dikirim sampai admin mengonfirmasi.</div>
 <section class="card body bk-feedback-card"><h2>Rating pesanan</h2>
-@if($rating)<p>Rating kamu: {{ $rating }} dari 5 bintang.</p>@elseif($order->units->contains(fn ($u) => $u->status === 'confirmed' && $u->progress === 'returned') && !$order->units->contains(fn ($u) => $u->status !== 'cancelled' && !($u->status === 'confirmed' && $u->progress === 'returned')))
+@php
+    // Samakan dengan aturan server: unit tuntas bila kembali, dibatalkan, atau
+    // tanggal acaranya sudah lewat lebih dari masa tenggang penutupan otomatis.
+    $ratingGrace = now('Asia/Jakarta')->startOfDay()->subDays(\App\Services\RentalAutoClose::GRACE_DAYS);
+    $ratingSettled = fn ($u) => $u->status === 'cancelled'
+        || ($u->status === 'confirmed' && $u->progress === 'returned')
+        || ($u->status === 'confirmed' && $u->event_on !== null && $u->event_on->lessThanOrEqualTo($ratingGrace));
+@endphp
+@if($rating)<p>Rating kamu: {{ $rating }} dari 5 bintang.</p>@elseif($order->units->contains(fn ($u) => $u->status !== 'cancelled') && $order->units->every($ratingSettled))
 <form method="post" action="{{ route('rental.order.rating', $order) }}">@csrf<fieldset class="bk-star-rating" @error('rating') aria-invalid="true" aria-describedby="order-rating-error" @enderror><legend>Nilai pengalaman pesanan</legend><div class="bk-star-rating__options">@for($i = 5; $i >= 1; $i--)<input type="radio" id="order-rating-{{ $i }}" name="rating" value="{{ $i }}" @checked(is_scalar(old('rating')) && (string) old('rating') === (string) $i) @if($i === 5) required @endif><label for="order-rating-{{ $i }}"><span aria-hidden="true">★</span><span class="bk-sr-only">{{ $i }} bintang</span></label>@endfor</div></fieldset>@error('rating')<p class="bk-field-error" id="order-rating-error">{{ $message }}</p>@enderror<p><button class="btn secondary">Simpan rating pesanan</button></p></form>
 @else<p class="muted">Rating tersedia setelah semua unit selesai atau dibatalkan, dan setidaknya satu unit telah dikembalikan.</p>@endif
 </section>

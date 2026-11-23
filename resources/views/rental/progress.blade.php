@@ -5,7 +5,7 @@
 <h3>Perkembangan unit</h3>
 <p>{{ $progressLabels[$unit->progress] ?? $unit->progress }}</p>
 @if($unit->progressEvents->isNotEmpty())
-<ul>@foreach($unit->progressEvents as $event)<li>{{ $progressLabels[$event->progress] ?? $event->progress }} · {{ $event->created_at->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB @if($admin) · {{ $event->recorder->name }} @endif @if($event->note) — {{ $event->note }} @endif</li>@endforeach</ul>
+<ul>@foreach($unit->progressEvents as $event)<li>{{ $progressLabels[$event->progress] ?? $event->progress }} · {{ $event->created_at->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB @if($admin) · {{ $event->recorder?->name ?? 'Sistem' }} @endif @if($event->note) — {{ $event->note }} @endif</li>@endforeach</ul>
 @endif
 @if($admin && $unit->status === 'confirmed' && isset($nextLabels[$unit->progress]))
 <p class="muted">Pengerjaan memerlukan persetujuan preview terbaru, atau keputusan "lanjutkan dengan catatan" setelah tenggat respons desain lewat; serah terima memerlukan pembayaran lunas terverifikasi.</p>
