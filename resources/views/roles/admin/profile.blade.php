@@ -15,8 +15,8 @@
 ═══════════════════════════════════════════════════════════ */
 :root {
     /* Page-local aliases — only reference canonical tokens (no literals) */
-    --brand-100: #f8e9ed; --brand-500: #85092d; --brand-900: #54051f;
-    --surface-50: #faf4f3; --surface-100: #fff7f7; --surface-200: #f0dfe1; --surface-400: #806975;
+    /* Palet merek datang dari _tokens.blade.php (wine), tidak lagi
+       ditimpa per halaman. */
     --ink:        var(--brand-900);
     --ink-muted:  var(--surface-400);
     --line:       var(--surface-200);
@@ -90,7 +90,7 @@ body {
     background: var(--accent-500);
     color: var(--surface-raised);
     border-radius: var(--radius-pill);
-    font-size: .55rem;
+    font-size: var(--adm-fs-2xs);
     font-weight: 900;
     display: flex; align-items: center; justify-content: center;
     padding: 0 3px;
@@ -104,7 +104,7 @@ body {
 .page-alert {
     padding: var(--space-3) var(--space-4);
     border-radius: var(--radius-btn);
-    font-size: .85rem;
+    font-size: var(--adm-fs-sm);
     font-weight: 700;
     margin-bottom: var(--space-3);
 }
@@ -124,7 +124,7 @@ body {
     box-shadow: var(--shadow-card);
 }
 .profile-card__name { font-weight: 800; font-size: 1.25rem; color: var(--ink); line-height: 1.2; }
-.profile-card__role { font-size: .8rem; font-weight: 600; color: var(--ink-muted); margin-top: var(--space-1); }
+.profile-card__role { font-size: var(--adm-fs-xs); font-weight: 600; color: var(--ink-muted); margin-top: var(--space-1); }
 .profile-card__status {
     display: inline-flex;
     align-items: center;
@@ -134,7 +134,7 @@ body {
     border-radius: var(--radius-pill);
     background: color-mix(in srgb, var(--success-500) 12%, transparent);
     border: 1px solid color-mix(in srgb, var(--success-500) 28%, transparent);
-    font-size: .72rem;
+    font-size: var(--adm-fs-2xs);
     font-weight: 700;
     color: var(--success-500);
 }
@@ -167,13 +167,13 @@ body {
 .stat-card__icon--amber { background: color-mix(in srgb, var(--warning-500) 16%, transparent); color: var(--warning-500); }
 .stat-card__num { font-weight: 800; font-size: 1.25rem; color: var(--ink); line-height: 1; }
 .stat-card__label {
-    font-size: .62rem; font-weight: 700; color: var(--ink-muted);
+    font-size: var(--adm-fs-2xs); font-weight: 700; color: var(--ink-muted);
     text-transform: uppercase; letter-spacing: .3px; margin-top: var(--space-1);
 }
 
 /* ── Section Label ── */
 .section-label {
-    font-size: .68rem;
+    font-size: var(--adm-fs-2xs);
     font-weight: 800;
     color: var(--ink-muted);
     text-transform: uppercase;
@@ -212,8 +212,8 @@ body {
     flex-shrink: 0;
 }
 .menu-card__body { flex: 1; min-width: 0; }
-.menu-card__label { font-weight: 700; font-size: .9rem; color: var(--ink); }
-.menu-card__sub { font-size: .72rem; font-weight: 500; color: var(--ink-muted); margin-top: 1px; }
+.menu-card__label { font-weight: 700; font-size: var(--adm-fs-sm); color: var(--ink); }
+.menu-card__sub { font-size: var(--adm-fs-2xs); font-weight: 500; color: var(--ink-muted); margin-top: 1px; }
 .menu-card__arrow { color: var(--ink-muted); display: flex; flex-shrink: 0; }
 
 /* ── Banner ── */
@@ -239,7 +239,7 @@ body {
     line-height: 1.3; margin-bottom: var(--space-1); position: relative; z-index: 1;
 }
 .ops-banner__sub {
-    font-size: .78rem; font-weight: 500; color: rgba(255,255,255,.72);
+    font-size: var(--adm-fs-2xs); font-weight: 500; color: rgba(255,255,255,.72);
     position: relative; z-index: 1;
 }
 
@@ -257,7 +257,7 @@ body {
     color: var(--danger-500);
     font-family: var(--font);
     font-weight: 700;
-    font-size: .9rem;
+    font-size: var(--adm-fs-sm);
     cursor: pointer;
     transition: background .15s, transform .12s ease;
 }
@@ -266,7 +266,7 @@ body {
 .version-text {
     text-align: center;
     margin-top: var(--space-3);
-    font-size: .68rem;
+    font-size: var(--adm-fs-2xs);
     font-weight: 600;
     color: var(--ink-muted);
     letter-spacing: .3px;

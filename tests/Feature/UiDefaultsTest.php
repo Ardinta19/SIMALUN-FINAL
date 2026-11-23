@@ -153,6 +153,36 @@ class UiDefaultsTest extends TestCase
         }
     }
 
+    public function test_map_library_is_served_locally(): void
+    {
+        foreach (['leaflet.js', 'leaflet.css', 'images/marker-icon.png', 'images/layers.png'] as $asset) {
+            $this->assertFileExists(
+                public_path('vendor/leaflet/'.$asset),
+                'Aset peta belum dilokalkan: vendor/leaflet/'.$asset
+            );
+        }
+
+        $this->assertFileExists(public_path('vendor/leaflet/LICENSE'));
+        $this->assertFileExists(public_path('vendor/leaflet/VERSION.txt'));
+
+        foreach (['roles/customer/addresses/create.blade.php', 'roles/customer/addresses/edit.blade.php'] as $path) {
+            $blade = File::get(resource_path('views/'.$path));
+
+            $this->assertStringContainsString('vendor/leaflet/leaflet.js', $blade, $path.' tidak memakai peta lokal.');
+            $this->assertStringContainsString('vendor/leaflet/leaflet.css', $blade, $path.' tidak memakai gaya peta lokal.');
+            $this->assertStringContainsString('filemtime(public_path(', $blade, $path.' belum memakai ?v=filemtime.');
+            $this->assertStringNotContainsString('unpkg.com', $blade, $path.' masih memuat peta dari CDN.');
+        }
+
+        foreach ($this->bladeFiles() as $path) {
+            $this->assertStringNotContainsString(
+                'unpkg.com',
+                File::get(resource_path('views/'.$path)),
+                $path.' masih memuat aset dari unpkg.'
+            );
+        }
+    }
+
     public function test_the_old_second_bottom_sheet_is_gone(): void
     {
         $this->assertFileDoesNotExist(resource_path('views/layouts/component/_bottom_sheet_select.blade.php'));

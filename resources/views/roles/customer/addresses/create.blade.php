@@ -6,8 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Tambah Alamat – Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.css') }}?v={{ filemtime(public_path('vendor/leaflet/leaflet.css')) }}">
+<script src="{{ asset('vendor/leaflet/leaflet.js') }}?v={{ filemtime(public_path('vendor/leaflet/leaflet.js')) }}"></script>
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <style>
 :root {
@@ -52,7 +52,7 @@ body {
 }
 .btn-back svg { width:18px; height:18px; }
 .header-title { flex:1; font-weight:800; font-size:1.3rem; color:white; }
-.header-sub { font-size:.68rem; font-weight:800; color:rgba(255,255,255,.65); margin-top:2px; letter-spacing:.5px; }
+.header-sub { font-size:var(--bk-fs-2xs); font-weight:800; color:rgba(255,255,255,.65); margin-top:2px; letter-spacing:.5px; }
 
 /* ── BODY ────────────────────────────── */
 .page-body { max-width:520px; margin:0 auto; padding:16px; }
@@ -76,16 +76,16 @@ body {
 .section-num {
     width:28px; height:28px; border-radius:50%;
     background:var(--blue-mid); color:white;
-    font-weight:800; font-size:.88rem;
+    font-weight:800; font-size:var(--bk-fs-sm);
     display:flex; align-items:center; justify-content:center;
     flex-shrink:0;
 }
-.section-title { font-weight:800; font-size:.95rem; color:var(--blue-dark); }
+.section-title { font-weight:800; font-size:var(--bk-fs-md); color:var(--blue-dark); }
 .section-body { padding:14px 16px; display:flex; flex-direction:column; gap:12px; }
 
 /* ── FORM ELEMENTS ───────────────────── */
 .field-label {
-    font-size:.72rem; font-weight:900; color:var(--ink-mid);
+    font-size:var(--bk-fs-2xs); font-weight:900; color:var(--ink-mid);
     letter-spacing:.5px; text-transform:uppercase; margin-bottom:5px;
     display:flex; align-items:center; gap:6px;
 }
@@ -93,7 +93,7 @@ body {
 .field-input {
     width:100%; padding:12px 14px;
     border:1.5px solid var(--border); border-radius:var(--radius-sm);
-    font-family:'Plus Jakarta Sans',sans-serif; font-size:.93rem; font-weight:600;
+    font-family:'Plus Jakarta Sans',sans-serif; font-size:var(--bk-fs-md); font-weight:600;
     color:var(--ink); background:white; outline:none;
     transition:border-color .2s, box-shadow .2s;
     appearance:none;
@@ -105,7 +105,7 @@ body {
 .field-input.is-error { border-color:var(--red); box-shadow:0 0 0 3px rgba(239,68,68,.1); }
 .field-input::placeholder { color:var(--ink-lt); font-weight:600; }
 textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
-.field-error { font-size:.72rem; font-weight:800; color:var(--red); margin-top:4px; }
+.field-error { font-size:var(--bk-fs-2xs); font-weight:800; color:var(--red); margin-top:4px; }
 
 /* ── ZONE PILLS ──────────────────────── */
 .zone-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
@@ -115,9 +115,9 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
     background:white; position:relative; transition:all .2s;
 }
 .zone-pill input[type=radio] { position:absolute; opacity:0; }
-.zone-name { font-weight:800; font-size:.95rem; color:var(--ink); display:block; }
-.zone-desc { font-size:.68rem; font-weight:800; color:var(--ink-lt); display:block; margin-top:2px; }
-.zone-price { font-size:.7rem; font-weight:900; color:var(--green); display:block; margin-top:2px; }
+.zone-name { font-weight:800; font-size:var(--bk-fs-md); color:var(--ink); display:block; }
+.zone-desc { font-size:var(--bk-fs-2xs); font-weight:800; color:var(--ink-lt); display:block; margin-top:2px; }
+.zone-price { font-size:var(--bk-fs-2xs); font-weight:900; color:var(--green); display:block; margin-top:2px; }
 .zone-pill:has(input:checked), .zone-pill.is-checked {
     border-color:var(--blue-mid);
     background:rgba(0,119,182,.06);
@@ -132,7 +132,7 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
     margin-bottom:4px;
 }
 .map-hint {
-    font-size:.7rem; font-weight:700; color:var(--ink-lt);
+    font-size:var(--bk-fs-2xs); font-weight:700; color:var(--ink-lt);
     display:flex; align-items:center; gap:5px;
 }
 .map-hint svg { width:12px; height:12px; }
@@ -142,8 +142,8 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
     display:flex; align-items:center; justify-content:space-between;
     padding:2px 0;
 }
-.toggle-label { font-size:.85rem; font-weight:800; color:var(--ink); }
-.toggle-sub   { font-size:.72rem; font-weight:700; color:var(--ink-lt); margin-top:2px; }
+.toggle-label { font-size:var(--bk-fs-sm); font-weight:800; color:var(--ink); }
+.toggle-sub   { font-size:var(--bk-fs-2xs); font-weight:700; color:var(--ink-lt); margin-top:2px; }
 .toggle-switch {
     width:48px; height:26px; border-radius:99px;
     background:var(--border); cursor:pointer;
@@ -171,7 +171,7 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
     width:100%; padding:14px;
     background:linear-gradient(135deg, var(--blue-dark) 0%, var(--blue-mid) 100%);
     color:white; font-family:'Plus Jakarta Sans',sans-serif; font-weight:900;
-    font-size:.95rem; border:none; border-radius:var(--radius-sm);
+    font-size:var(--bk-fs-md); border:none; border-radius:var(--radius-sm);
     cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
     box-shadow:0 6px 20px rgba(0,119,182,.35);
     transition:transform .15s;
@@ -183,7 +183,7 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
 .alert-error {
     background:#fff1f1; border:1.5px solid #fecaca;
     border-radius:var(--radius-sm); padding:12px 14px;
-    font-size:.82rem; font-weight:700; color:var(--red);
+    font-size:var(--bk-fs-xs); font-weight:700; color:var(--red);
     margin-bottom:14px;
 }
 .map-hint[hidden]{display:none}

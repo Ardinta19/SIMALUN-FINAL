@@ -116,7 +116,7 @@ html.fc-ui input[type="file"]::file-selector-button:hover {
     background: #fff;
     color: var(--fc-ink);
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-    font-size: 0.95rem;
+    font-size: var(--bk-fs-md);
     font-weight: 600;
     line-height: 1.3;
     text-align: left;
@@ -189,7 +189,7 @@ html.fc-ui input[type="file"]::file-selector-button:hover {
     margin: 6px 0 0;
     color: var(--fc-danger);
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-    font-size: 0.78rem;
+    font-size: var(--bk-fs-2xs);
     font-weight: 600;
     line-height: 1.4;
 }
@@ -203,7 +203,7 @@ html.fc-ui input[type="file"]::file-selector-button:hover {
     border-radius: 50%;
     background: var(--fc-danger);
     color: #fff;
-    font-size: 0.68rem;
+    font-size: var(--bk-fs-2xs);
     font-weight: 800;
     line-height: 15px;
     text-align: center;
@@ -317,7 +317,7 @@ html.fc-ui input[type="file"]::file-selector-button:hover {
 }
 
 .fc-layer--pop .fc-layer__title {
-    font-size: 0.78rem;
+    font-size: var(--bk-fs-2xs);
     font-weight: 800;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -327,7 +327,7 @@ html.fc-ui input[type="file"]::file-selector-button:hover {
 .fc-layer__sub {
     margin: 3px 0 0;
     color: var(--fc-muted);
-    font-size: 0.8rem;
+    font-size: var(--bk-fs-xs);
     font-weight: 500;
     line-height: 1.4;
 }
@@ -380,7 +380,7 @@ html.fc-ui input[type="file"]::file-selector-button:hover {
 .fc-group {
     padding: 12px 12px 4px;
     color: var(--fc-muted);
-    font-size: 0.7rem;
+    font-size: var(--bk-fs-2xs);
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -398,7 +398,7 @@ html.fc-ui input[type="file"]::file-selector-button:hover {
     background: transparent;
     color: var(--fc-ink);
     font-family: inherit;
-    font-size: 0.92rem;
+    font-size: var(--bk-fs-md);
     font-weight: 600;
     text-align: left;
     cursor: pointer;
@@ -441,7 +441,7 @@ html.fc-ui input[type="file"]::file-selector-button:hover {
 
 .fc-opt__sub {
     color: var(--fc-muted);
-    font-size: 0.76rem;
+    font-size: var(--bk-fs-2xs);
     font-weight: 500;
 }
 
@@ -519,7 +519,7 @@ html.fc-ui input[type="file"]::file-selector-button:hover {
     background: #fff;
     color: var(--fc-ink);
     font-family: inherit;
-    font-size: 0.98rem;
+    font-size: var(--bk-fs-md);
     font-weight: 800;
     text-align: center;
     -moz-appearance: textfield;
@@ -561,7 +561,7 @@ html.fc-ui input[type="file"]::file-selector-button:hover {
     background: transparent;
     color: var(--fc-ink-soft);
     font-family: inherit;
-    font-size: 0.86rem;
+    font-size: var(--bk-fs-sm);
     font-weight: 700;
     white-space: nowrap;
     cursor: pointer;
@@ -639,7 +639,7 @@ html.fc-ui input[type="file"]::file-selector-button:hover {
 .fc-cal__month {
     margin: 0;
     color: var(--fc-wine-dark);
-    font-size: 0.98rem;
+    font-size: var(--bk-fs-md);
     font-weight: 800;
     text-align: center;
 }
@@ -653,7 +653,7 @@ html.fc-ui input[type="file"]::file-selector-button:hover {
 .fc-cal__dow {
     padding: 4px 0 6px;
     color: var(--fc-muted);
-    font-size: 0.68rem;
+    font-size: var(--bk-fs-2xs);
     font-weight: 800;
     letter-spacing: 0.04em;
     text-align: center;
@@ -670,7 +670,7 @@ html.fc-ui input[type="file"]::file-selector-button:hover {
     background: transparent;
     color: var(--fc-ink);
     font-family: inherit;
-    font-size: 0.88rem;
+    font-size: var(--bk-fs-sm);
     font-weight: 600;
     cursor: pointer;
     transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
@@ -750,7 +750,7 @@ html[data-theme="dark"] .fc-cal__day.is-blocked {
     background: #fff;
     color: var(--fc-ink);
     font-family: inherit;
-    font-size: 0.9rem;
+    font-size: var(--bk-fs-sm);
     font-weight: 700;
     letter-spacing: 0.01em;
     cursor: pointer;
@@ -809,7 +809,7 @@ html[data-theme="dark"] .fc-cal__day.is-blocked {
     background: #fff;
     color: var(--fc-wine-dark);
     font-family: inherit;
-    font-size: 0.85rem;
+    font-size: var(--bk-fs-sm);
     font-weight: 700;
     cursor: pointer;
     transition: background 0.14s ease, border-color 0.14s ease;
@@ -840,7 +840,7 @@ html[data-theme="dark"] .fc-cal__day.is-blocked {
 .fc-cal__note {
     margin: 10px 2px 0;
     color: var(--fc-muted);
-    font-size: 0.74rem;
+    font-size: var(--bk-fs-2xs);
     font-weight: 500;
     line-height: 1.45;
 }
@@ -909,7 +909,7 @@ html[data-theme="dark"] .fc-cal__day.is-blocked {
 
     .fc-opt {
         min-height: 52px;
-        font-size: 0.95rem;
+        font-size: var(--bk-fs-md);
     }
 
     .fc-cal__day {

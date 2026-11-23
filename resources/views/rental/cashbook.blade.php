@@ -123,7 +123,7 @@
                         <th scope="col">Tanggal</th>
                         <th scope="col">Jenis</th>
                         <th scope="col">Kategori</th>
-                        <th scope="col">Nominal</th>
+                        <th scope="col" class="adm-table__amount">Nominal</th>
                         <th scope="col">Sumber</th>
                         <th scope="col">Catatan</th>
                     </tr>
@@ -138,14 +138,14 @@
                                 </span>
                             </td>
                             <td data-label="Kategori">{{ $entry->category ?: '-' }}</td>
-                            <td data-label="Nominal" class="adm-table__num"><strong>Rp {{ number_format($entry->amount, 0, ',', '.') }}</strong></td>
+                            <td data-label="Nominal" class="adm-table__num adm-table__amount"><strong>Rp {{ number_format($entry->amount, 0, ',', '.') }}</strong></td>
                             <td data-label="Sumber">{{ $entry->source_type ?: 'Tidak diketahui' }}</td>
                             <td data-label="Catatan">
                                 <span>{{ $entry->notes }}</span>
                                 @if($entry->source_type === 'manual' && !$entry->source_id)
-                                    <details style="margin-top:6px">
-                                        <summary style="cursor:pointer;font-weight:700;font-size:.82rem">Ubah catatan manual</summary>
-                                        <form class="adm-stack" style="margin-top:10px" method="post" action="{{ route('admin.rental.cashbook.update', $entry) }}">
+                                    <details class="adm-table__details">
+                                        <summary class="bk-disclosure">Ubah catatan manual</summary>
+                                        <form class="adm-stack adm-table__form" method="post" action="{{ route('admin.rental.cashbook.update', $entry) }}">
                                             @csrf
                                             @method('PUT')
                                             @include('rental.cashbook-fields', ['entry' => $entry])
@@ -153,7 +153,7 @@
                                         </form>
                                     </details>
                                 @else
-                                    <p class="adm-help" style="margin:6px 0 0">Catatan terkait transaksi tidak dapat diubah dari buku kas.</p>
+                                    <p class="adm-help adm-table__help">Catatan terkait transaksi tidak dapat diubah dari buku kas.</p>
                                 @endif
                             </td>
                         </tr>

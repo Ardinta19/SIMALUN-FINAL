@@ -14,8 +14,8 @@
    emitted by layouts.component._tokens (mirrors tailwind.config.js).
 ═══════════════════════════════════════════════════════════ */
 :root {
-    --brand-100: #f8e9ed; --brand-500: #85092d; --brand-900: #54051f;
-    --surface-50: #faf4f3; --surface-100: #fff4f5; --surface-200: #f0dfe1; --surface-400: #6f5a63;
+    /* Palet merek datang dari _tokens.blade.php (wine), tidak lagi
+       ditimpa per halaman. */
     /* Page-local aliases */
     --ink:        var(--brand-900);
     --ink-muted:  var(--surface-400);
@@ -57,9 +57,9 @@ body {
 .icon-btn:active { transform: scale(.94); background: var(--surface-100); }
 .appbar__title { flex: 1; font-size: 1.15rem; font-weight: 800; color: var(--brand-900); line-height: 1.1; }
 
-.read-all { border: 1px solid #d8b8c1; border-radius: 10px; padding: 8px; background: #fff; color: #85092d; font: inherit; font-size: .72rem; font-weight: 800; cursor: pointer; }
+.read-all { border: 1px solid #d8b8c1; border-radius: 10px; padding: 8px; background: #fff; color: #85092d; font: inherit; font-size: var(--adm-fs-2xs); font-weight: 800; cursor: pointer; }
 .read-all:focus-visible, .notif:focus-visible, .queue-link:focus-visible { outline: 3px solid #bc5b75; outline-offset: 2px; }
-.queue-link { color: #85092d; font-size: .8rem; font-weight: 800; display: inline-block; margin-top: 8px; }
+.queue-link { color: #85092d; font-size: var(--adm-fs-xs); font-weight: 800; display: inline-block; margin-top: 8px; }
 .row > div { min-width: 0; }
 .row__title, .notif__msg { overflow-wrap: anywhere; }
 @media(max-width: 360px) { .appbar { flex-wrap: wrap; } .appbar form { margin-left: auto; } .row { flex-wrap: wrap; } .notif__time { white-space: normal; } }
@@ -73,7 +73,7 @@ body {
 .card__pad { padding: var(--space-4); }
 .card__title {
     display: flex; align-items: center; gap: var(--space-2);
-    font-size: .92rem; font-weight: 800; color: var(--ink); margin-bottom: var(--space-3);
+    font-size: var(--adm-fs-md); font-weight: 800; color: var(--ink); margin-bottom: var(--space-3);
 }
 .card__title svg { color: var(--brand-500); }
 
@@ -84,12 +84,12 @@ body {
     border-radius: var(--radius-btn); margin-bottom: var(--space-2);
 }
 .row:last-child { margin-bottom: 0; }
-.row__title { font-size: .88rem; font-weight: 800; color: var(--ink); }
-.row__meta { font-size: .72rem; font-weight: 700; color: var(--ink-muted); margin-top: var(--space-1); line-height: 1.5; }
+.row__title { font-size: var(--adm-fs-sm); font-weight: 800; color: var(--ink); }
+.row__meta { font-size: var(--adm-fs-2xs); font-weight: 700; color: var(--ink-muted); margin-top: var(--space-1); line-height: 1.5; }
 
 /* ── Status badge ── */
 .badge {
-    font-size: .66rem; font-weight: 800; padding: var(--space-1) var(--space-2);
+    font-size: var(--adm-fs-2xs); font-weight: 800; padding: var(--space-1) var(--space-2);
     border-radius: var(--radius-pill); align-self: flex-start; white-space: nowrap;
     background: color-mix(in srgb, var(--warning-500) 16%, var(--surface-raised));
     color: var(--warning-500);
@@ -116,9 +116,9 @@ body {
     background: var(--brand-100); color: var(--brand-500);
 }
 .notif__body { flex: 1; min-width: 0; }
-.notif__title { font-size: .88rem; font-weight: 800; color: var(--ink); }
-.notif__msg { font-size: .74rem; font-weight: 700; color: var(--ink-muted); margin-top: 2px; line-height: 1.5; }
-.notif__time { font-size: .68rem; font-weight: 700; color: var(--ink-muted); text-align: right; flex-shrink: 0; white-space: nowrap; }
+.notif__title { font-size: var(--adm-fs-sm); font-weight: 800; color: var(--ink); }
+.notif__msg { font-size: var(--adm-fs-2xs); font-weight: 700; color: var(--ink-muted); margin-top: 2px; line-height: 1.5; }
+.notif__time { font-size: var(--adm-fs-2xs); font-weight: 700; color: var(--ink-muted); text-align: right; flex-shrink: 0; white-space: nowrap; }
 
 /* ── Empty state (designed) ── */
 .empty-state { text-align: center; padding: var(--space-10) var(--space-5); }
@@ -127,11 +127,11 @@ body {
     border-radius: var(--radius-pill); background: var(--brand-100);
     display: flex; align-items: center; justify-content: center; color: var(--brand-500);
 }
-.empty-state__text { color: var(--ink-muted); font-size: .9rem; font-weight: 700; line-height: 1.5; }
+.empty-state__text { color: var(--ink-muted); font-size: var(--adm-fs-sm); font-weight: 700; line-height: 1.5; }
 
 /* ── Pagination ── */
 .pagination-wrap { display: flex; justify-content: center; margin-top: var(--space-3); }
-.pagination-wrap nav { font-size: .85rem; }
+.pagination-wrap nav { font-size: var(--adm-fs-sm); }
 </style>
 @include('layouts.component._theme_head')
 <link rel="stylesheet" href="{{ asset('css/berkah-admin.css') }}?v={{ filemtime(public_path('css/berkah-admin.css')) }}">

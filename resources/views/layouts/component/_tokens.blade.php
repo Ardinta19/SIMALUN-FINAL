@@ -14,10 +14,12 @@
 --}}
 <style>
     :root {
-        /* Brand (tailwind: colors.brand) */
-        --brand-100: #e0efff;
-        --brand-500: #0072ad;
-        --brand-900: #002f4d;
+        /* Brand (tailwind: colors.brand) — wine/rose, bukan biru lama.
+           Nilai ini yang dipakai halaman mandiri; tailwind.config.js dan
+           resources/css/app.css mencerminkan angka yang sama. */
+        --brand-100: #f8e9ed;
+        --brand-500: #85092d;
+        --brand-900: #54051f;
 
         /* Accent (tailwind: colors.accent) */
         --accent-500: #c2410c;
@@ -28,10 +30,10 @@
         --danger-500: #c62f2f;
 
         /* Surface (tailwind: colors.surface) */
-        --surface-50: #f8fafc;
-        --surface-100: #f1f5f9;
-        --surface-200: #e2e8f0;
-        --surface-400: #5f7082;
+        --surface-50: #faf4f3;
+        --surface-100: #fff7f7;
+        --surface-200: #f0dfe1;
+        --surface-400: #6f5a63;
         --surface-raised: #ffffff;
 
         /* Radius (tailwind: borderRadius) */
@@ -40,8 +42,8 @@
         --radius-pill: 9999px;
 
         /* Shadows (tailwind: boxShadow) */
-        --shadow-card: 0 2px 12px rgba(0, 47, 92, 0.06);
-        --shadow-nav: 0 -2px 16px rgba(0, 47, 92, 0.08);
+        --shadow-card: 0 2px 12px rgba(84, 5, 31, 0.06);
+        --shadow-nav: 0 -2px 16px rgba(84, 5, 31, 0.08);
 
         /* Spacing scale — explicit 4px base unit (multiples of 4px) */
         --space-1: 4px;

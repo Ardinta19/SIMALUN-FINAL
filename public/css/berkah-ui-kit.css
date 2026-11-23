@@ -67,6 +67,71 @@
     /* Area sentuh: 44px adalah ambang nyaman untuk ujung jari. */
     --bk-touch: 44px;
     --bk-touch-sm: 38px;
+
+    /* ── Dialog konfirmasi (resources/views/layouts/component/_confirm_modal)
+       Palet status dulu ditulis langsung di dalam partial (biru #005f92 /
+       #0d6fb8 untuk "info"). Sekarang semua lewat token: satu tempat untuk
+       nilai terang, satu untuk gelap (berkah-theme.css), satu untuk cetak.
+       "info" memakai plum — masih satu keluarga hangat dengan merek wine,
+       tetapi tidak bisa tertukar dengan merah "danger". */
+    --bk-scrim: rgba(38, 8, 20, .55);
+    --bk-modal-bg: #fffaf6;
+    --bk-modal-ink: #301722;
+    --bk-modal-ink-mid: #6f5a63;
+    --bk-modal-line: #eadbd6;
+    --bk-modal-shadow: 0 20px 60px rgba(84, 5, 31, .22), 0 4px 12px rgba(0, 0, 0, .08);
+    --bk-cancel-bg: #f6ecec;
+    --bk-cancel-bg-hover: #efe0e2;
+    --bk-cancel-ink: #6f5a63;
+    --bk-cancel-line: #e4d3d6;
+    --bk-focus-ring: #bc5b75;
+    --bk-state-danger-soft: #fff1f1;
+    --bk-state-danger-line: #fecaca;
+    --bk-state-danger-ink: #b3252a;
+    --bk-state-danger-solid: #b3252a;
+    --bk-state-warning-soft: #fffbeb;
+    --bk-state-warning-line: #fde68a;
+    --bk-state-warning-ink: #8a4a07;
+    --bk-state-warning-solid: #8a4a07;
+    --bk-state-info-soft: #f4eff8;
+    --bk-state-info-line: #ded2e9;
+    --bk-state-info-ink: #5a3a70;
+    --bk-state-info-solid: #5a3a70;
+    --bk-state-success-soft: #ecfdf5;
+    --bk-state-success-line: #a7f3d0;
+    --bk-state-success-ink: #046c4e;
+    --bk-state-success-solid: #046c4e;
+
+    /* Kendali buka-tutup (summary) yang dipakai lintas peran. */
+    --bk-disclosure-hover: #f7edee;
+
+    /* Kerangka (skeleton) pratinjau katalog di beranda pelanggan. */
+    --bk-skel-card: #ffffff;
+    --bk-skel-bg: #f3e7e6;
+    --bk-skel-line: #eadbd6;
+}
+
+.bk-disclosure {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--bk-space-2);
+    min-height: var(--bk-touch-sm);
+    margin-left: calc(var(--bk-space-2) * -1);
+    padding: 0 var(--bk-space-2);
+    border-radius: 10px;
+    font-size: var(--bk-fs-sm);
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.bk-disclosure:hover {
+    background: var(--bk-disclosure-hover);
+}
+
+.bk-disclosure:focus-visible {
+    outline: 3px solid var(--bk-focus-ring);
+    outline-offset: 2px;
 }
 
 .bk-sr-only {
@@ -205,7 +270,7 @@
     background: var(--bk-del-bg);
     color: var(--bk-del-ink);
     font: inherit;
-    font-size: 0.82rem;
+    font-size: var(--bk-fs-xs);
     font-weight: 800;
     cursor: pointer;
     overflow: hidden;
@@ -840,7 +905,7 @@ html[data-theme="dark"] .bk-theme-btn .bk-theme-btn__moon {
 
 .bk-theme-dialog__eyebrow {
     display: block;
-    font-size: 0.68rem;
+    font-size: var(--bk-fs-2xs);
     font-weight: 800;
     letter-spacing: 0.16em;
     text-transform: uppercase;
@@ -880,7 +945,7 @@ html[data-theme="dark"] .bk-theme-btn .bk-theme-btn__moon {
 
 .bk-theme-dialog__hint {
     margin: 6px 0 0;
-    font-size: 0.86rem;
+    font-size: var(--bk-fs-sm);
     line-height: 1.55;
     opacity: 0.85;
     text-align: center;
@@ -902,7 +967,7 @@ html[data-theme="dark"] .bk-theme-btn .bk-theme-btn__moon {
     background: transparent;
     color: inherit;
     font: inherit;
-    font-size: 0.86rem;
+    font-size: var(--bk-fs-sm);
     font-weight: 700;
     cursor: pointer;
 }
@@ -1022,7 +1087,7 @@ html[data-theme="dark"] .bk-theme-btn .bk-theme-btn__moon {
 @media (max-width: 360px) {
     .bk-atc {
         padding-inline: 0.7em;
-        font-size: 0.82rem;
+        font-size: var(--bk-fs-xs);
     }
 
     .bk-atc__icon {
@@ -1144,7 +1209,7 @@ html[data-theme="dark"] .bk-theme-btn .bk-theme-btn__moon {
     border-radius: 999px;
     background: var(--bk-unit-chip-bg);
     color: var(--bk-unit-chip-ink);
-    font-size: 0.78rem;
+    font-size: var(--bk-fs-2xs);
     font-weight: 700;
     line-height: 1.25;
 }
@@ -1188,7 +1253,7 @@ html[data-theme="dark"] .bk-theme-btn .bk-theme-btn__moon {
     border-radius: 10px;
     background: #fdf4e3;
     color: #8a6a3f;
-    font-size: 0.78rem;
+    font-size: var(--bk-fs-2xs);
     font-weight: 700;
     line-height: 1.45;
 }

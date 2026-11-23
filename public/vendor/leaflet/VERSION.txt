@@ -1,0 +1,14 @@
+leaflet 1.9.4
+Sumber  : npm pack leaflet@1.9.4 (dist/ dari paket resmi di registry.npmjs.org)
+Lisensi : BSD-2-Clause — lihat LICENSE di folder ini
+Disalin : leaflet.js, leaflet.css, images/* (penanda & lapisan)
+
+Memperbarui:
+  cd /tmp && npm pack leaflet@<versi> && tar xzf leaflet-<versi>.tgz
+  cp package/dist/leaflet.js package/dist/leaflet.css <repo>/public/vendor/leaflet/
+  cp package/dist/images/* <repo>/public/vendor/leaflet/images/
+  cp package/LICENSE <repo>/public/vendor/leaflet/
+
+Dipakai di: resources/views/roles/customer/addresses/{create,edit}.blade.php
+Catatan  : ubin peta (tile) tetap diambil dari OpenStreetMap — yang dilokalkan
+           adalah pustakanya, bukan datanya. Tidak ada lagi permintaan ke unpkg.

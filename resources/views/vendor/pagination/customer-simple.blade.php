@@ -1,13 +1,15 @@
 @if ($paginator->hasPages())
 <style>
+    /* Palet merek, sepasang dengan aturan tema gelap .pg-item--* di
+       berkah-theme.css. Sebelumnya halaman ini masih biru (#0072ad/#005f92). */
     .pg { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px 0; }
-    .pg-item { display: inline-block; padding: 8px 12px; border-radius: 10px; font-size: .82rem; font-weight: 800; text-decoration: none; min-width: 36px; text-align: center; }
+    .pg-item { display: inline-block; padding: 8px 12px; border-radius: 10px; font-size: var(--bk-fs-xs); font-weight: 800; text-decoration: none; min-width: 36px; text-align: center; }
     .pg-item--wide { padding: 8px 14px; }
-    .pg-item--muted { color: #5f7082; background: #f1f5f9; border: 1.5px solid #ddeeff; cursor: default; }
-    .pg-item--step { color: #005f92; background: #e0f4ff; border: 1.5px solid #bae6fd; }
-    .pg-item--page { color: #1a2332; background: #fff; border: 1.5px solid #ddeeff; }
-    .pg-item--current { color: #fff; background: #0072ad; font-weight: 900; }
-    .pg-dots { padding: 8px 10px; color: #5f7082; font-weight: 800; }
+    .pg-item--muted { color: #6f5a63; background: #f6ecec; border: 1.5px solid #eadbd6; cursor: default; }
+    .pg-item--step { color: #85092d; background: #f7edee; border: 1.5px solid #eadbd6; }
+    .pg-item--page { color: #301722; background: #fffaf6; border: 1.5px solid #eadbd6; }
+    .pg-item--current { color: #fff; background: #85092d; font-weight: 900; }
+    .pg-dots { padding: 8px 10px; color: #6f5a63; font-weight: 800; }
 </style>
 <nav role="navigation" aria-label="Halaman" class="pg">
     @if ($paginator->onFirstPage())

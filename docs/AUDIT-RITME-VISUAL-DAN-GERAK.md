@@ -126,15 +126,18 @@ Aturan keselamatan yang dipatuhi:
 
 ---
 
-## 5. Sisa pekerjaan (urutan yang disarankan)
+## 5. Sisa pekerjaan (status putaran 4)
 
-1. **Customer**: skeleton setinggi kartu pada pratinjau katalog (mencegah lompatan tata letak saat `dashboard-preview.js` mengisi data).
-2. **Admin**: densitas tabel (`td` padding) dan `data-bk-count` pada kartu statistik dasbor.
-3. **Semua peran**: adopsi `--bk-fs-*`/`--bk-space-*` di view yang masih menulis angka lepas; audit tablet 768–1024 px per halaman.
-4. **Gerak lanjutan (opsional)**: `SplitText` untuk judul hero katalog; `Flip` untuk transisi daftar pesanan saat filter berubah.
-5. **Modal konfirmasi pelanggan** masih memakai palet biru lama (`type-info: #005f92`); perlu diselaraskan ke token merek.
+Semua butir di bawah **sudah dikerjakan** pada putaran 4 (§9). Yang tersisa
+hanya pekerjaan opsional gerak lanjutan, dan itu memang bukan cacat:
 
----
+| # | Butir | Status |
+|---|---|---|
+| 1 | Skeleton setinggi kartu pada pratinjau katalog pelanggan | Selesai — `.bk-preview-skeleton` + `dashboard-preview.js` |
+| 2 | Densitas tabel admin dan angka statistik yang berhitung naik | Selesai — `td` 8×12 px, `Nominal` rata kanan, `.revenue__val` ikut `data-adm-count` |
+| 3 | Adopsi `--bk-fs-*`/`--bk-space-*` di view + audit tablet 768–1024 px | Selesai — 170+ ukuran lepas disapu; `.grid` 3 kolom sampai 1024 px |
+| 4 | Gerak lanjutan: `SplitText` hero, `Flip` daftar pesanan | **Belum** — opsional, tidak ada cacat yang ditutup |
+| 5 | Palet `type-info` modal konfirmasi | Selesai — plum via token, dua salinan partial digabung |
 
 ## 6. Cara memeriksa
 
@@ -147,13 +150,22 @@ ls public/vendor/gsap public/vendor/lenis
 php artisan test --filter=UiDefaultsTest
 php artisan test --filter=MotionAssetsTest
 
-# keterbacaan: tidak boleh ada teks di bawah 12 px
-grep -o "font-size: *\.[0-9]*rem" public/css/berkah-admin.css | sort -u
+# keterbacaan: tidak boleh ada ukuran literal di bawah 12 px
+php artisan test --filter=TypographyScaleTest
+grep -rho "font-size: *0\?\.[0-9]*rem" public/css resources/views | sort -u  # harus kosong
+grep -rho "font-size: *\(9\|10\|11\)px" public/css resources/views | sort -u
+
+# ikon & modal
+php artisan test --filter=IconSystemTest
+grep -rn "data-confirm-glyph\|#005f92" resources/views public/css   # harus kosong
 ```
 
-Di peramban: matikan JavaScript → konten harus tetap utuh; aktifkan
+Di peramban: matikan JavaScript → konten harus tetap utuh (pratinjau katalog
+tetap menampilkan teks cadangan, bukan kerangka kosong); aktifkan
 `prefers-reduced-motion: reduce` → tidak boleh ada gerak; buka sheet filter →
-gulir halaman di belakangnya harus terkunci.
+gulir halaman di belakangnya harus terkunci; buka modal konfirmasi →
+Tab hanya berputar antara Batal dan Konfirmasi, dan fokus kembali ke tombol
+pemicu setelah ditutup.
 
 
 ---
@@ -235,3 +247,132 @@ hati tidak terhapus, dan toast admin menyuntik SVG Lucide yang sama.
 Dampak tambahan: CSS `.bk-i` (di `berkah-ui-kit.css`) membuat ikon mewarisi
 ukuran huruf induknya, jadi ikon di dalam teks tidak lagi butuh `width/height`
 manual — sekaligus menyeragamkan bobot goresan (1,75px untuk ikon teks).
+
+---
+
+## 9. Putaran 4 — sisa §5 ditutup
+
+### 9.1 Modal konfirmasi: satu sumber, satu palet
+
+| Dulu | Sekarang |
+|---|---|
+| Dua partial: `_confirm_modal` (bersama) dan `customer/_confirm_modal` (salinan). Salinan pelanggan menyimpang: default `type: 'danger'`, `type-info` biru `#005f92`, tanpa `type-success`. | `customer/_confirm_modal` hanya `@include` partial bersama, jadi path lama tetap jalan tetapi tidak ada lagi dua perilaku. |
+| Warna ditulis di dalam `<style>` partial (`#e0f4ff`, `#0d6fb8`, `#005f92`, `#c62f2f`, …) lalu ditambal per selektor di tema gelap (`.confirm-icon.type-info`, `.type-danger`, `.type-warning`, `.type-success`, `.confirm-btn--cancel`, `.confirm-message`). | Token `--bk-state-{danger,warning,info,success}-{soft,line,ink,solid}`, `--bk-modal-*`, `--bk-cancel-*`, `--bk-focus-ring`, `--bk-scrim` (terang di `berkah-ui-kit.css`, gelap di `berkah-theme.css` §8, dan dikembalikan di blok `@media print`). Enam tambalan tema gelap dihapus. |
+| `type-info` biru — satu-satunya keluarga warna di luar merek. | `type-info` **plum** (`#5a3a70` / `#f4eff8`), masih hangat dan sekeluarga dengan wine, tetapi tidak bisa tertukar dengan merah `type-danger`. |
+
+Detail kecil yang ikut dibereskan:
+
+- jarak/tipe memakai `--bk-space-*` dan `--bk-fs-*`; tombol `min-height: var(--bk-touch)` (44 px) dan `touch-action: manipulation`;
+- `#confirm-icon` memakai `<span class="bk-i">` sehingga ikon mengikuti `font-size` induk, bukan atribut `width/height` SVG;
+- dialog diberi `aria-describedby="confirm-message"`, ikon dekoratif `aria-hidden`, dan cincin fokus `--bk-focus-ring`;
+- fokus awal jatuh ke **Batal** untuk `danger` dan ke aksi utama untuk tipe lain; Tab dijebak di antara dua tombol dan fokus kembali ke pemicu saat ditutup;
+- gulir halaman dikunci lewat kelas `confirm-locked` + penanda `lenis-stopped-lock` (dibaca `berkah-motion.js`), dengan kompensasi lebar bilah gulir supaya tata letak tidak bergeser;
+- kartu dibatasi `max-height` dengan fallback `vh` lalu `dvh`, `overscroll-behavior: contain`, dan `data-lenis-prevent` supaya pesan panjang tetap bisa digulir;
+- `prefers-reduced-motion: reduce` mematikan transisi buka/tutup;
+- nama tipe tak dikenal jatuh ke `info`, bukan kelas tanpa gaya.
+
+### 9.2 Pratinjau katalog: kerangka setinggi kartu
+
+`dashboard-preview.js` mengisi empat kartu setelah `fetch` selesai. Dulu wadah
+hanya berisi satu paragraf, jadi tinggi bagian melompat saat kartu masuk.
+Sekarang:
+
+- markup memuat `.bk-preview-skeleton` (empat kartu: media 4/3, tiga baris teks,
+  satu tombol) dengan atribut `hidden` — tanpa JavaScript yang tampil tetap
+  teks cadangan, bukan ruang kosong;
+- skrip memasang `is-loading` + `aria-busy="true"` **sebelum** `fetch`, dan
+  melepasnya di ketiga ujung alur (berhasil / kosong / gagal) sehingga kerangka
+  tidak pernah tertinggal;
+- denyut kerangka (`bk-skel-pulse`) mati saat `prefers-reduced-motion: reduce`;
+- di ≤560 px hanya dua kartu kerangka yang tampil, menyesuaikan grid dua kolom.
+
+### 9.3 Admin: densitas tabel dan angka berhitung
+
+- `td`/`th` memakai `--adm-space-2` × `--adm-space-3` (8 × 12 px) menggantikan
+  12 px seragam; `.adm-table` memakai `--adm-fs-sm`.
+- Kolom `Nominal` rata kanan (`--adm-table__amount`) hanya saat tabel benar-benar
+  berbentuk tabel (`min-width: 761px`); pada mode bertumpuk nilainya mengikuti
+  kolom kanan.
+- Kendali "Ubah catatan manual" dan dua kendali serupa di halaman admin lain
+  memakai kelas bersama `.bk-disclosure` (min 38 px, fokus terlihat), bukan lagi
+  `style` sebaris.
+- `.revenue__val` kini ikut berhitung naik lewat `data-adm-count` (kontrak angka
+  naik milik admin; `data-bk-count` tetap milik halaman pelanggan). `.stat__val`
+  dan `.adm-stat__value` sudah memakainya lebih dulu, jadi tidak ada lagi angka
+  besar yang diam.
+
+### 9.4 Satu tangga tipe, batas bawah 12 px
+
+Sapuan menyeluruh: **170 ukuran lepas di 25 view** dan **132 ukuran lepas di
+CSS** diganti token (`--bk-fs-*` untuk guest/auth/customer, `--adm-fs-*` untuk
+admin). Nilai 9–11 px yang tadinya lolos di `.55`–`.74rem` (label bilah bawah,
+lencana, blok Riwayat, watermark splash, catatan kas) kini 12 px.
+
+Konsekuensi yang sengaja diterima:
+
+- lencana angka (`admin-nav__badge`, `customer-nav__badge`, `bk-action-badge`)
+  ikut tumbuh dari 17 px → 19 px, dan lencana admin 16 px → 18 px, karena teks
+  12 px tidak muat di lingkaran 16 px;
+- override `@media (max-width: 380px) .admin-nav__label { font-size: … }`
+  dihapus — dengan lantai 12 px ia menjadi aturan yang tidak berbeda dari
+  dasarnya; elipsis tetap menjadi jaring pengaman;
+- `.revenue__val span` dipersempit menjadi `.revenue__val .revenue__cur` supaya
+  angka yang berhitung tidak mewarisi ukuran mata uang.
+
+### 9.5 Audit tablet 768–1024 px
+
+| Temuan | Perbaikan |
+|---|---|
+| `.grid` katalog masih empat kolom sampai 900 px; pada 1024 px tiap kartu hanya ±225 px sehingga judul dua baris dan tombol berdesakan. | Empat kolom baru di atas 1024 px; 768–1024 px memakai tiga kolom. |
+| Pratinjau pelanggan berisi tepat empat kartu; dengan tiga kolom satu kartu menggantung sendirian. | Pada 651–1024 px pratinjau memakai 2×2 (`.grid.bk-preview-grid`). |
+| Shell admin sudah punya pita tablet (`761–1079 px`, sidebar jadi rel 84 px) — tidak ada yang perlu diubah. | Dicatat sebagai sudah benar, bukan diubah. |
+| Bilah navigasi bawah pelanggan: label 10 px dan pada ≤350 px turun ke 9 px. | Label 12 px dengan `--bk-lh-tight`; override 350 px dihapus. |
+
+### 9.6 Penjaga baru
+
+`tests/Feature/TypographyScaleTest.php` (4 tes):
+
+1. kedua peran punya token tangga tipe yang sama nilainya;
+2. tidak ada ukuran literal di bawah 12 px — termasuk angka di dalam `clamp()`
+   dan `px` — di seluruh CSS dan `<style>` view (email/PDF dikecualikan karena
+   klien surel tidak mengenal custom property);
+3. setiap `var(--bk-fs-*)`/`var(--adm-fs-*)` yang dipakai benar-benar
+   didefinisikan;
+4. view tidak lagi menulis `font-size` rem di bawah `1rem` sebagai angka lepas.
+
+### 9.7 Palet biru terakhir: satu merek, bukan dua
+
+Modal bukan satu-satunya tempat biru lama tertinggal. Setelah disisir, enam
+tempat masih memakai palet biru (#0072ad / #0077b6 / #002f5c / #005f92):
+
+| Tempat | Dulu | Sekarang |
+|---|---|---|
+| `layouts/component/_tokens.blade.php` (token kanonik, dipakai 7 halaman) | `--brand-500: #0072ad` biru | `#85092d` wine; `--surface-*` juga dipanaskan, bayangan `rgba(84,5,31,…)` |
+| `roles/admin/{notifications,profile,audit,profile_edit}` | Dua halaman menimpa token secara lokal, dua halaman lain tetap biru — shell admin dua warna. | Override lokal dihapus; keempatnya membaca token kanonik yang sama. |
+| `customer/addresses/index` | `:root{--blue:#0072ad;--bg:#f4f8fc}` — seluruh halaman biru. | Nama variabel dipertahankan, nilainya wine/cream, jadi tidak ada satu pun aturan halaman yang perlu disentuh. |
+| `profile/edit` | Aksen `#0072ad` pada fokus, tombol, dan tautan kembali. | Wine. |
+| `vendor/pagination/customer-simple` | Langkah halaman biru (`#0072ad/#005f92`). | Wine, sepasang dengan aturan gelapnya di `berkah-theme.css`. |
+| `roles/customer/addresses/{create,edit}` | `--blue-dark/-mid/-light` (nama lama, isi wine) — dibiarkan, hanya nama. | Tidak diubah: nilainya sudah benar; mengganti nama variabel akan menyentuh ratusan aturan tanpa manfaat visual. |
+| `emails/layout`, favicon & `theme-color` | Gradien biru, huruf favicon "A" (sisa nama lama). | Gradien wine, huruf "B", `theme-color` wine. |
+
+`tailwind.config.js` dan `resources/css/app.css` ikut disamakan supaya
+"mirror one-to-one" di komentar token tetap benar, meski bundle Vite tidak
+dipakai halaman mana pun saat ini.
+
+### 9.8 Pustaka peta: unpkg → `public/vendor/leaflet`
+
+Dua halaman alamat memuat Leaflet 1.9.4 dari `unpkg.com` — satu-satunya CDN
+yang tersisa. Sekarang `npm pack leaflet@1.9.4` → `public/vendor/leaflet/`
+(`leaflet.js`, `leaflet.css`, `images/*`, `LICENSE`, `VERSION.txt`), dirujuk
+dengan `?v=filemtime` seperti aset lokal lain. Ubin peta tetap dari
+OpenStreetMap (itu data, bukan aset). Penjaga:
+`UiDefaultsTest::test_map_library_is_served_locally`.
+
+### 9.9 Yang sengaja belum disentuh
+
+- `SplitText` untuk judul hero dan `Flip` untuk daftar pesanan — keduanya
+  menambah gerak, bukan memperbaiki cacat; menunggu keputusan.
+- Nama variabel `--blue-*` di dua halaman alamat dan komentar `--blue-*` di
+  `berkah-theme.css` §7f (nilainya sudah wine).
+- Ukuran `11px` di template surel: klien surel tidak mengenal custom property,
+  jadi lantai 12 px di sana harus literal dan tidak diuji token.

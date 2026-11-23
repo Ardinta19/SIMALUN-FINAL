@@ -8,17 +8,17 @@
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:'Plus Jakarta Sans', sans-serif; background:#f4f8fc; color:#1a2332; padding:24px 16px; }
     .container { max-width:520px; margin:0 auto; }
-    h1 { font-size:1.4rem; margin-bottom:18px; color:#002f5c; }
+    h1 { font-size:1.4rem; margin-bottom:18px; color:#54051f; }
     .card { background:#fff; border:1.5px solid #ddeeff; border-radius:14px; padding:18px; margin-bottom:14px; }
     .field { margin-bottom:14px; }
-    label { display:block; font-size:.78rem; font-weight:800; color:#3d5066; margin-bottom:5px; text-transform:uppercase; letter-spacing:.4px; }
-    input, textarea { width:100%; padding:11px 13px; border:1.5px solid #ddeeff; border-radius:10px; font-family:inherit; font-size:.95rem; }
-    input:focus, textarea:focus { outline:none; border-color:#0072ad; }
-    button { width:100%; padding:12px; background:#0072ad; color:#fff; border:none; border-radius:99px; font-weight:800; cursor:pointer; }
-    .alert { padding:11px 14px; border-radius:10px; font-weight:700; margin-bottom:14px; font-size:.88rem; }
+    label { display:block; font-size:var(--bk-fs-2xs); font-weight:800; color:#3d5066; margin-bottom:5px; text-transform:uppercase; letter-spacing:.4px; }
+    input, textarea { width:100%; padding:11px 13px; border:1.5px solid #ddeeff; border-radius:10px; font-family:inherit; font-size:var(--bk-fs-md); }
+    input:focus, textarea:focus { outline:none; border-color:#85092d; }
+    button { width:100%; padding:12px; background:#85092d; color:#fff; border:none; border-radius:99px; font-weight:800; cursor:pointer; }
+    .alert { padding:11px 14px; border-radius:10px; font-weight:700; margin-bottom:14px; font-size:var(--bk-fs-sm); }
     .alert-success { background:#e6fff6; color:#047857; }
     .alert-error { background:#fff1f1; color:#b91c1c; }
-    a.back { color:#0072ad; font-weight:800; text-decoration:none; display:inline-block; margin-bottom:12px; }
+    a.back { color:#85092d; font-weight:800; text-decoration:none; display:inline-block; margin-bottom:12px; }
 </style>
 @include('layouts.component._theme_head')
 </head>
@@ -74,7 +74,7 @@
         @csrf
         @method('put')
         <div class="card">
-            <h2 style="font-size:1rem; margin-bottom:12px; color:var(--theme-ink, #002f5c);">Ganti Password</h2>
+            <h2 style="font-size:1rem; margin-bottom:12px; color:var(--theme-ink, #301722);">Ganti Password</h2>
             <div class="field">
                 <label>Password Saat Ini</label>
                 <input type="password" name="current_password" autocomplete="current-password">

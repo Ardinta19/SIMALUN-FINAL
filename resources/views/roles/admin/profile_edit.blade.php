@@ -14,6 +14,8 @@
    emitted by layouts.component._tokens (mirrors tailwind.config.js).
 ═══════════════════════════════════════════════════════════ */
 :root {
+    /* Palet merek datang dari _tokens.blade.php (wine), tidak lagi
+       ditimpa per halaman. */
     --ink:        var(--brand-900);
     --ink-muted:  var(--surface-400);
     --line:       var(--surface-200);
@@ -61,7 +63,7 @@ body {
     border-radius: var(--radius-btn);
     padding: var(--space-3) var(--space-4);
     margin-bottom: var(--space-4);
-    font-size: .85rem;
+    font-size: var(--adm-fs-sm);
     font-weight: 700;
     display: flex; align-items: center; gap: var(--space-2);
 }
@@ -86,7 +88,7 @@ body {
     font-weight: 800; font-size: 1.1rem; color: var(--ink);
 }
 .card-title svg { color: var(--brand-500); }
-.card-sub { font-size: .8rem; font-weight: 600; color: var(--ink-muted); margin-top: var(--space-1); margin-bottom: var(--space-4); }
+.card-sub { font-size: var(--adm-fs-xs); font-weight: 600; color: var(--ink-muted); margin-top: var(--space-1); margin-bottom: var(--space-4); }
 
 /* ── Avatar ── */
 .avatar-edit-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: var(--space-5); }
@@ -105,18 +107,18 @@ body {
     background: var(--brand-100);
     color: var(--brand-500);
     border: 1px solid var(--surface-200);
-    font-family: var(--font); font-size: .8rem; font-weight: 800;
+    font-family: var(--font); font-size: var(--adm-fs-xs); font-weight: 800;
     cursor: pointer;
     transition: transform .12s ease, background .15s ease;
 }
 .avatar-file:active { transform: scale(.96); }
 .avatar-file input[type="file"] { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); border: 0; }
-.avatar-file__name { font-size: .72rem; font-weight: 600; color: var(--ink-muted); margin-top: var(--space-2); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.avatar-file__name { font-size: var(--adm-fs-2xs); font-weight: 600; color: var(--ink-muted); margin-top: var(--space-2); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ── Form ── */
 .form-group { margin-bottom: var(--space-4); }
 .form-label {
-    display: block; font-size: .72rem; font-weight: 800; color: var(--ink-muted);
+    display: block; font-size: var(--adm-fs-2xs); font-weight: 800; color: var(--ink-muted);
     letter-spacing: .4px; margin-bottom: var(--space-2); text-transform: uppercase; padding-left: var(--space-1);
 }
 .input-wrap { position: relative; display: flex; align-items: center; }
@@ -133,7 +135,7 @@ body {
     border-radius: var(--radius-btn);
     color: var(--ink);
     font-family: var(--font);
-    font-size: .95rem;
+    font-size: var(--adm-fs-md);
     font-weight: 600;
     outline: none;
     transition: border-color .15s ease, box-shadow .15s ease;
@@ -150,7 +152,7 @@ body {
     border-radius: var(--radius-pill);
     font-family: var(--font);
     font-weight: 800;
-    font-size: .95rem;
+    font-size: var(--adm-fs-md);
     letter-spacing: .3px;
     cursor: pointer;
     transition: transform .12s ease, box-shadow .15s ease;
@@ -161,7 +163,7 @@ body {
 
 .footer-text {
     text-align: center; margin-top: var(--space-4);
-    font-size: .68rem; font-weight: 700; color: var(--ink-muted); letter-spacing: 1px; text-transform: uppercase;
+    font-size: var(--adm-fs-2xs); font-weight: 700; color: var(--ink-muted); letter-spacing: 1px; text-transform: uppercase;
 }
 </style>
 @include('layouts.component._theme_head')

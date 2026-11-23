@@ -56,7 +56,7 @@
         color:#fff;
     }
     .header-sub {
-        font-size:.68rem;
+        font-size:var(--bk-fs-2xs);
         font-weight:800;
         color:rgba(255,255,255,.65);
         margin-top:2px;
@@ -68,7 +68,7 @@
     .alert {
         border-radius:var(--radius-sm);
         padding:12px 14px;
-        font-size:.85rem;
+        font-size:var(--bk-fs-sm);
         font-weight:700;
         margin-bottom:14px;
     }
@@ -105,13 +105,13 @@
         background:var(--blue-mid);
         color:#fff;
         font-weight:800;
-        font-size:.88rem;
+        font-size:var(--bk-fs-sm);
         display:flex; align-items:center; justify-content:center;
         flex-shrink:0;
     }
     .section-title {
         font-weight:800;
-        font-size:.98rem;
+        font-size:var(--bk-fs-md);
         color:var(--blue-dark);
     }
     .section-body { padding:16px; display:flex; flex-direction:column; gap:14px; }
@@ -131,7 +131,7 @@
         background:var(--blue-sky);
     }
     .avatar-action {
-        font-size:.78rem;
+        font-size:var(--bk-fs-2xs);
         font-weight:800;
         color:var(--blue-mid);
         cursor:pointer;
@@ -142,7 +142,7 @@
     .avatar-action input { display:none; }
 
     .field-label {
-        font-size:.72rem;
+        font-size:var(--bk-fs-2xs);
         font-weight:900;
         color:var(--ink-mid);
         letter-spacing:.4px;
@@ -156,7 +156,7 @@
         border:1.5px solid var(--border);
         border-radius:var(--radius-sm);
         font-family:'Plus Jakarta Sans', sans-serif;
-        font-size:.93rem;
+        font-size:var(--bk-fs-md);
         font-weight:600;
         color:var(--ink);
         background:#fff;
@@ -174,13 +174,13 @@
     .field-input::placeholder { color:var(--ink-lt); font-weight:600; }
     textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
     .field-error {
-        font-size:.72rem;
+        font-size:var(--bk-fs-2xs);
         font-weight:800;
         color:var(--red);
         margin-top:5px;
     }
     .field-hint {
-        font-size:.7rem;
+        font-size:var(--bk-fs-2xs);
         font-weight:700;
         color:var(--ink-lt);
         margin-top:4px;
@@ -192,7 +192,7 @@
         background:linear-gradient(135deg, var(--orange) 0%, #ff8c5a 100%);
         color:#fff;
         font-weight:900;
-        font-size:.95rem;
+        font-size:var(--bk-fs-md);
         border:none;
         border-radius:99px;
         cursor:pointer;
@@ -213,7 +213,7 @@
         border:1.5px solid var(--red);
         border-radius:99px;
         font-weight:800;
-        font-size:.85rem;
+        font-size:var(--bk-fs-sm);
         cursor:pointer;
         transition:all .2s;
     }
@@ -286,7 +286,7 @@ $oldText = function (string $key, $fallback = '') {
 
                 @if($user->avatar)
                 <div style="text-align:center; margin-top:4px;">
-                    <button type="button" class="btn-danger" style="width:auto; padding:8px 18px; font-size:.78rem;" id="btn-delete-avatar">Hapus Foto Profil</button>
+                    <button type="button" class="btn-danger" style="width:auto; padding:8px 18px; font-size:var(--bk-fs-2xs);" id="btn-delete-avatar">Hapus Foto Profil</button>
                 </div>
                 @endif
 

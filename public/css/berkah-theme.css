@@ -76,7 +76,10 @@ html[data-theme="dark"] {
     /* Tint & warna semantik halaman */
     --brand-100: #33222a;
     --brand-tint: #33222a;
-    --brand-900: #0a2a40;
+    /* Nilai gelap brand: tetap wine, tidak boleh jadi terang — --brand-900
+       dipakai sebagai ujung gradien banner yang bertuliskan putih. */
+    --brand-500: #c12f57;
+    --brand-900: #4a0d1e;
     --accent-tint: #3a2a20;
     --accent-lt: #3a2a20;
     --success-tint: var(--theme-success-soft);
@@ -497,12 +500,8 @@ html[data-theme="dark"] :is(
 }
 
 /* Teks literal gelap di atas permukaan yang kini gelap */
-html[data-theme="dark"] :is(.badge-muted, .confirm-btn--cancel, .confirm-message, .help-muted, .manual-note, p.lead) {
+html[data-theme="dark"] :is(.badge-muted, .help-muted, .manual-note, p.lead) {
     color: var(--theme-ink-mid);
-}
-
-html[data-theme="dark"] :is(.confirm-title) {
-    color: var(--theme-ink);
 }
 
 html[data-theme="dark"] :is(.help-notice) {
@@ -516,7 +515,7 @@ html[data-theme="dark"] :is(
     color: var(--theme-success-ink);
 }
 
-html[data-theme="dark"] :is(.status-badge.dijemput, .confirm-icon.type-info, a.back) {
+html[data-theme="dark"] :is(.status-badge.dijemput, a.back) {
     color: #8fd0ff;
 }
 
@@ -543,10 +542,6 @@ html[data-theme="dark"] .bk-cal-hint {
     border-color: #5a4a2a;
     background: var(--theme-warning-soft);
     color: var(--theme-warning-ink);
-}
-
-html[data-theme="dark"] :is(.confirm-icon.type-success) {
-    color: var(--theme-success-ink);
 }
 
 /* Teks gelap literal di halaman admin/driver */
@@ -1013,7 +1008,7 @@ html[data-theme="dark"] :is(.status-badge, .status-badge.menunggu, .status-badge
 
 /* netral / chip informasi */
 
-html[data-theme="dark"] :is(.status-badge.dijemput, .confirm-icon.type-info) {
+html[data-theme="dark"] :is(.status-badge.dijemput) {
     background: var(--theme-surface-3);
     border-color: var(--theme-line);
 }
@@ -1024,37 +1019,19 @@ html[data-theme="dark"] :is(.status-badge.disetrika) {
     border-color: var(--theme-line);
 }
 
-html[data-theme="dark"] :is(.badge, .badge-muted, .manual-locked, .items-mini, .rating-existing__comment, .confirm-btn--cancel, .cancel-btn--secondary) {
+html[data-theme="dark"] :is(.badge, .badge-muted, .manual-locked, .items-mini, .rating-existing__comment, .cancel-btn--secondary) {
     background: var(--theme-surface-2);
     color: var(--theme-ink-mid);
     border-color: var(--theme-line);
 }
 
-html[data-theme="dark"] :is(.confirm-btn--cancel:hover, .cancel-btn--secondary:hover) {
+html[data-theme="dark"] :is(.cancel-btn--secondary:hover) {
     background: var(--theme-surface-3);
 }
 
 html[data-theme="dark"] :is(.step-circle, .step-chip.active) {
     background: var(--theme-surface-3);
     color: var(--theme-ink);
-    border-color: var(--theme-line);
-}
-
-html[data-theme="dark"] :is(.confirm-icon.type-danger) {
-    background: var(--theme-danger-soft);
-    color: var(--theme-danger-ink);
-    border-color: var(--theme-danger-line);
-}
-
-html[data-theme="dark"] :is(.confirm-icon.type-warning) {
-    background: var(--theme-warning-soft);
-    color: var(--theme-warning-ink);
-    border-color: var(--theme-line);
-}
-
-html[data-theme="dark"] :is(.confirm-icon.type-success) {
-    background: var(--theme-success-soft);
-    color: var(--theme-success-ink);
     border-color: var(--theme-line);
 }
 
@@ -1343,6 +1320,40 @@ html[data-theme="dark"] {
     --bk-qty-btn-hover: #472e38;
     --bk-qty-ink: #ffd9e3;
     --bk-unit-chip-bg: #2e2229;
+
+    /* Dialog konfirmasi: permukaan ikut lapisan tema, status memakai token
+       warna tema yang sudah ada supaya tidak perlu tambalan per selektor. */
+    --bk-scrim: rgba(0, 0, 0, .62);
+    --bk-modal-bg: var(--theme-surface);
+    --bk-modal-ink: var(--theme-ink);
+    --bk-modal-ink-mid: var(--theme-ink-mid);
+    --bk-modal-line: var(--theme-line);
+    --bk-modal-shadow: 0 24px 60px rgba(0, 0, 0, .6);
+    --bk-cancel-bg: var(--theme-surface-2);
+    --bk-cancel-bg-hover: var(--theme-surface-3);
+    --bk-cancel-ink: var(--theme-ink-mid);
+    --bk-cancel-line: var(--theme-line);
+    --bk-focus-ring: #f2a1b4;
+    --bk-state-danger-soft: var(--theme-danger-soft);
+    --bk-state-danger-line: var(--theme-danger-line);
+    --bk-state-danger-ink: var(--theme-danger-ink);
+    --bk-state-danger-solid: #b0201b;
+    --bk-state-warning-soft: var(--theme-warning-soft);
+    --bk-state-warning-line: var(--theme-line);
+    --bk-state-warning-ink: var(--theme-warning-ink);
+    --bk-state-warning-solid: #a1620c;
+    --bk-state-info-soft: #2e2438;
+    --bk-state-info-line: #4b3a5c;
+    --bk-state-info-ink: #dcc4ee;
+    --bk-state-info-solid: #7b4f9b;
+    --bk-state-success-soft: var(--theme-success-soft);
+    --bk-state-success-line: var(--theme-line);
+    --bk-state-success-ink: var(--theme-success-ink);
+    --bk-state-success-solid: #0d7a5c;
+    --bk-disclosure-hover: var(--theme-surface-3);
+    --bk-skel-card: var(--theme-surface);
+    --bk-skel-bg: var(--theme-surface-3);
+    --bk-skel-line: var(--theme-line);
     --bk-unit-chip-ink: var(--theme-ink-mid);
 }
 
@@ -1421,9 +1432,10 @@ html[data-theme="dark"] #bk-theme-switch .bk-theme-svg__knob-ring {
         --surface-100: #fbf7f8;
         --surface-400: #a08f95;
         --border-dash: #d8c6cb;
-        --brand-100: #f7e6ea;
-        --brand-tint: #f7e6ea;
-        --brand-900: #eaf3fb;
+        --brand-100: #f8e9ed;
+        --brand-tint: #f8e9ed;
+        --brand-500: #85092d;
+        --brand-900: #54051f;
         --accent-tint: #fdf0e8;
         --accent-lt: #fdf0e8;
         --blue-lt: #eaf4fd;
@@ -1464,6 +1476,37 @@ html[data-theme="dark"] #bk-theme-switch .bk-theme-svg__knob-ring {
         --bk-qty-btn-hover: #efd6db;
         --bk-qty-ink: #85092d;
         --bk-unit-chip-bg: #f6ecee;
+        --bk-scrim: rgba(38, 8, 20, .55);
+        --bk-modal-bg: #ffffff;
+        --bk-modal-ink: #301722;
+        --bk-modal-ink-mid: #6f5a63;
+        --bk-modal-line: #eadbd6;
+        --bk-modal-shadow: none;
+        --bk-cancel-bg: #f6ecec;
+        --bk-cancel-bg-hover: #efe0e2;
+        --bk-cancel-ink: #6f5a63;
+        --bk-cancel-line: #e4d3d6;
+        --bk-focus-ring: #bc5b75;
+        --bk-state-danger-soft: #fff1f1;
+        --bk-state-danger-line: #fecaca;
+        --bk-state-danger-ink: #b3252a;
+        --bk-state-danger-solid: #b3252a;
+        --bk-state-warning-soft: #fffbeb;
+        --bk-state-warning-line: #fde68a;
+        --bk-state-warning-ink: #8a4a07;
+        --bk-state-warning-solid: #8a4a07;
+        --bk-state-info-soft: #f4eff8;
+        --bk-state-info-line: #ded2e9;
+        --bk-state-info-ink: #5a3a70;
+        --bk-state-info-solid: #5a3a70;
+        --bk-state-success-soft: #ecfdf5;
+        --bk-state-success-line: #a7f3d0;
+        --bk-state-success-ink: #046c4e;
+        --bk-state-success-solid: #046c4e;
+        --bk-disclosure-hover: #f7edee;
+        --bk-skel-card: #ffffff;
+        --bk-skel-bg: #f3e7e6;
+        --bk-skel-line: #eadbd6;
     }
 
     /* Permukaan yang memakai nilai literal tetap perlu disetel manual. */

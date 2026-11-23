@@ -55,7 +55,7 @@ html, body {
 }
 @keyframes ring-spin { to{transform:rotate(360deg);} }
 .wm-name { font-weight:800; font-size:clamp(1.4rem,5.5vw,1.9rem); color:#fff; letter-spacing:-.5px; text-shadow:0 3px 18px rgba(0,0,0,.28); line-height:1; }
-.wm-sub  { font-size:clamp(.5rem,1.9vw,.62rem); font-weight:800; color:rgba(144,224,239,.9); letter-spacing:5px; text-transform:uppercase; margin-top:.18rem; }
+.wm-sub  { font-size:clamp(var(--bk-fs-2xs),1.8vw,var(--bk-fs-xs)); font-weight:800; color:rgba(144,224,239,.9); letter-spacing:5px; text-transform:uppercase; margin-top:.18rem; }
 .wm-bar  { width:60px; height:2.5px; background:#a92143; border-radius:99px; margin:.3rem auto 0; opacity:.75; }
 
 /* ── CARD ── */
@@ -71,7 +71,7 @@ html, body {
   color:#fff; text-align:center; margin-bottom:.2rem; text-shadow:0 2px 12px rgba(0,0,0,.2);
 }
 .card-sub {
-  font-size:.78rem; font-weight:700; color:rgba(255,255,255,.7);
+  font-size:var(--bk-fs-2xs); font-weight:700; color:rgba(255,255,255,.7);
   text-align:center; margin-bottom:1.2rem; letter-spacing:.2px;
 }
 
@@ -84,7 +84,7 @@ html, body {
   position:relative;
   width:28px; height:28px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
-  font-weight:800; font-size:.75rem;
+  font-weight:800; font-size:var(--bk-fs-2xs);
   border:2px solid rgba(255,255,255,.42);
   color:rgba(255,255,255,.68);
   transition:all .3s ease;
@@ -122,7 +122,7 @@ html, body {
 
 .form-group { margin-bottom:.9rem; position:relative; }
 .form-label {
-  display:block; font-size:.73rem; font-weight:800;
+  display:block; font-size:var(--bk-fs-2xs); font-weight:800;
   color:rgba(255,255,255,.85); letter-spacing:.3px;
   margin-bottom:.4rem; text-transform:uppercase;
 }
@@ -138,7 +138,7 @@ html, body {
   width:100%; padding:.78rem .9rem .78rem 2.65rem;
   background:rgba(35,4,16,.42); border:1.5px solid rgba(255,255,255,.26);
   border-radius:12px; color:#fff;
-  font-family:'Plus Jakarta Sans',sans-serif; font-size:.91rem; font-weight:600;
+  font-family:'Plus Jakarta Sans',sans-serif; font-size:var(--bk-fs-md); font-weight:600;
   outline:none; transition:border-color .2s, background .2s, box-shadow .2s;
   -webkit-appearance:none;
 }
@@ -151,13 +151,13 @@ html, body {
 
 .pw-toggle {
   position:absolute; right:12px; top:50%; transform:translateY(-50%);
-  background:none; border:none; cursor:pointer; font-size:.95rem;
+  background:none; border:none; cursor:pointer; font-size:var(--bk-fs-md);
   color:rgba(255,255,255,.72); padding:.25rem; transition:color .2s; line-height:1;
 }
 .pw-toggle:hover { color:rgba(255,255,255,.9); }
 
 .form-error {
-  font-size:.7rem; font-weight:700; color:#ffb0b0;
+  font-size:var(--bk-fs-2xs); font-weight:700; color:#ffb0b0;
   margin-top:.3rem; display:none; padding-left:.2rem;
 }
 .form-error.show { display:block; }
@@ -176,14 +176,14 @@ html, body {
   width:0%; transition:width .3s, background .3s;
 }
 .pw-strength-lbl {
-  font-size:.65rem; font-weight:800; color:rgba(255,255,255,.7);
+  font-size:var(--bk-fs-2xs); font-weight:800; color:rgba(255,255,255,.7);
   letter-spacing:.3px;
 }
 
 /* password hint checklist */
 .pw-hints { list-style:none; margin-top:.4rem; display:flex; flex-wrap:wrap; gap:.3rem; }
 .pw-hint {
-  font-size:.63rem; font-weight:700;
+  font-size:var(--bk-fs-2xs); font-weight:700;
   color:rgba(255,255,255,.68); padding:.15rem .45rem;
   background:rgba(255,255,255,.08); border-radius:99px;
   border:1px solid rgba(255,255,255,.15);
@@ -197,7 +197,7 @@ html, body {
   display:flex; align-items:center; justify-content:center;
   padding:.78rem .8rem; background:rgba(255,255,255,.1);
   border:1.5px solid rgba(255,255,255,.22); border-radius:12px;
-  font-size:.85rem; font-weight:800; color:rgba(255,255,255,.8);
+  font-size:var(--bk-fs-sm); font-weight:800; color:rgba(255,255,255,.8);
   white-space:nowrap; flex-shrink:0; letter-spacing:.2px;
 }
 .phone-input-wrap { flex:1; position:relative; }
@@ -212,7 +212,7 @@ html, body {
   border:1.5px solid rgba(255,255,255,.2); border-radius:12px;
   cursor:pointer; transition:all .2s; text-align:center;
 }
-.gender-label span { font-size:.82rem; font-weight:800; color:rgba(255,255,255,.78); line-height:1.35; }
+.gender-label span { font-size:var(--bk-fs-xs); font-weight:800; color:rgba(255,255,255,.78); line-height:1.35; }
 .gender-opt:checked + .gender-label {
   background:rgba(255,107,53,.2); border-color:#a92143;
   box-shadow:0 0 0 2px rgba(255,107,53,.25);
@@ -222,7 +222,7 @@ html, body {
 /* terms checkbox */
 .terms-row { display:flex; align-items:flex-start; gap:.7rem; margin-top:.6rem; }
 .terms-cb { width:18px; height:18px; flex-shrink:0; cursor:pointer; accent-color:#a92143; margin-top:2px; }
-.terms-txt { font-size:.75rem; font-weight:700; color:rgba(255,255,255,.75); line-height:1.5; }
+.terms-txt { font-size:var(--bk-fs-2xs); font-weight:700; color:rgba(255,255,255,.75); line-height:1.5; }
 .terms-txt a { color:rgba(144,224,239,.9); text-decoration:none; font-weight:900; }
 
 /* ── BUTTONS ── */
@@ -231,7 +231,7 @@ html, body {
   padding:.82rem 1.1rem; background:rgba(255,255,255,.12);
   border:1.5px solid rgba(255,255,255,.22); border-radius:99px;
   color:rgba(255,255,255,.8); font-family:'Plus Jakarta Sans',sans-serif;
-  font-weight:800; font-size:.88rem; cursor:pointer;
+  font-weight:800; font-size:var(--bk-fs-sm); cursor:pointer;
   transition:background .2s; white-space:nowrap;
 }
 .btn-back-step:hover { background:rgba(255,255,255,.2); }
@@ -240,7 +240,7 @@ html, body {
   flex:1; padding:.85rem; border:none; border-radius:99px;
   background:linear-gradient(135deg,#a92143 0%,#c05a71 100%);
   color:#fff; font-family:'Plus Jakarta Sans',sans-serif; font-weight:900;
-  font-size:.95rem; letter-spacing:.3px; cursor:pointer; position:relative; overflow:hidden;
+  font-size:var(--bk-fs-md); letter-spacing:.3px; cursor:pointer; position:relative; overflow:hidden;
   box-shadow:0 8px 24px rgba(255,107,53,.45), inset 0 1px 0 rgba(255,255,255,.2);
   transition:transform .15s, box-shadow .15s;
 }
@@ -267,7 +267,7 @@ html, body {
 /* alert */
 .alert {
   border-radius:12px; padding:.7rem .9rem; margin-bottom:.9rem;
-  font-size:.8rem; font-weight:700; display:flex; align-items:center; gap:.5rem;
+  font-size:var(--bk-fs-xs); font-weight:700; display:flex; align-items:center; gap:.5rem;
 }
 .alert-error { background:rgba(255,80,80,.18); border:1px solid rgba(255,80,80,.35); color:#ffaaaa; }
 .alert-success { background:rgba(0,196,140,.18); border:1px solid rgba(0,196,140,.35); color:#7fffd4; }
@@ -275,7 +275,7 @@ html, body {
 /* login link */
 .login-row {
   text-align:center; margin-top:.9rem;
-  font-size:.8rem; font-weight:700; color:rgba(255,255,255,.65);
+  font-size:var(--bk-fs-xs); font-weight:700; color:rgba(255,255,255,.65);
 }
 .login-row a {
   color:rgba(144,224,239,.95); text-decoration:none; font-weight:900; transition:color .2s;
@@ -292,14 +292,14 @@ html, body {
   font-weight:800; font-size:1.4rem; color:#fff; margin-bottom:.4rem;
 }
 #success-state .success-sub {
-  font-size:.82rem; font-weight:700; color:rgba(255,255,255,.75);
+  font-size:var(--bk-fs-xs); font-weight:700; color:rgba(255,255,255,.75);
   line-height:1.6; margin-bottom:1.2rem;
 }
 .btn-to-login {
   display:inline-flex; align-items:center; gap:.4rem;
   background:linear-gradient(135deg,#047857 0%,#04805f 100%);
   color:#fff; font-family:'Plus Jakarta Sans',sans-serif; font-weight:900;
-  font-size:.95rem; border:none; border-radius:99px;
+  font-size:var(--bk-fs-md); border:none; border-radius:99px;
   padding:.82rem 2rem; cursor:pointer; text-decoration:none;
   box-shadow:0 8px 24px rgba(0,196,140,.45);
   transition:transform .15s, box-shadow .15s;
@@ -309,7 +309,7 @@ html, body {
 /* footer */
 #footer {
   margin-top:1.4rem; text-align:center; display:inline-block; padding:.3rem .9rem; border-radius:99px; background:rgba(35,4,16,.45);
-  font-size:.67rem; font-weight:700; color:rgba(255,255,255,.72); letter-spacing:.3px;
+  font-size:var(--bk-fs-2xs); font-weight:700; color:rgba(255,255,255,.72); letter-spacing:.3px;
 }
 
 /* back button fixed */
@@ -331,7 +331,7 @@ html, body {
 .ambient-flower{position:absolute;color:rgba(255,255,255,.35);font-size:28px;animation:flower-float 5s ease-in-out infinite alternate}
 @keyframes brand-intro{from{transform:rotate(-120deg) scale(.85)}to{transform:rotate(0) scale(1)}}
 @keyframes flower-float{from{transform:translateY(0) rotate(0)}to{transform:translateY(-14px) rotate(20deg)}}
-#registration-progress{font-size:.76rem;color:#fff;text-align:center;margin-bottom:12px;min-height:1em}
+#registration-progress{font-size:var(--bk-fs-2xs);color:#fff;text-align:center;margin-bottom:12px;min-height:1em}
 html:not(.register-enhanced) #registration-progress{display:none}
 #btn-back,.btn-back-step,.btn-next-step,.btn-submit,.pw-toggle{min-height:44px;min-width:44px}
 :focus-visible{outline:3px solid #fff;outline-offset:3px}
@@ -464,7 +464,7 @@ $oldText = function (string $key, $fallback = '') {
           </div>
           @error('email')<div class="form-error show">{{ $message }}</div>@enderror
           <div class="form-error" aria-live="polite" id="err-email"></div>
-          <div style="font-size:.66rem;font-weight:700;color:rgba(255,255,255,.72);margin-top:.35rem;line-height:1.4;">
+          <div style="font-size:var(--bk-fs-2xs);font-weight:700;color:rgba(255,255,255,.72);margin-top:.35rem;line-height:1.4;">
             Nomor HP digunakan untuk kontak. Notifikasi pesanan tersedia di dalam aplikasi.
           </div>
         </div>
@@ -485,7 +485,7 @@ $oldText = function (string $key, $fallback = '') {
               <div class="pw-strength-fill" id="pw-strength-fill"></div>
             </div>
             <div class="pw-strength-lbl" id="pw-strength-lbl">Ketik password...</div>
-            <p style="font-size:.7rem;color:#fff;margin-top:.4rem">Selain minimal 8 karakter, kombinasi berikut disarankan, bukan wajib.</p><ul class="pw-hints">
+            <p style="font-size:var(--bk-fs-2xs);color:#fff;margin-top:.4rem">Selain minimal 8 karakter, kombinasi berikut disarankan, bukan wajib.</p><ul class="pw-hints">
               <li class="pw-hint" id="hint-len">Min. 8 karakter</li>
               <li class="pw-hint" id="hint-upper">Huruf besar</li>
               <li class="pw-hint" id="hint-num">Angka</li>

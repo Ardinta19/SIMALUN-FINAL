@@ -260,7 +260,7 @@
 
                         @if($payment->status === 'verified' && $payment->finance_entry_id)
                             <details style="margin-top:10px">
-                                <summary style="cursor:pointer;font-weight:700;font-size:.86rem">Koreksi nominal pembayaran</summary>
+                                <summary class="bk-disclosure">Koreksi nominal pembayaran</summary>
                                 <p class="adm-help">Gunakan hanya jika nominal pembayaran terverifikasi salah. Catatan kas terkait dan sisa tagihan akan berubah; tanggal kas tetap tanggal verifikasi semula. Alasan dapat dilihat pelanggan.</p>
                                 <form class="adm-stack" method="post" action="{{ route('admin.rental.payment.correct', $payment) }}">
                                     @csrf
@@ -282,7 +282,7 @@
 
                         @if($payment->status === 'verified' && $payment->amount > $payment->refunds->sum('amount'))
                             <details style="margin-top:10px">
-                                <summary style="cursor:pointer;font-weight:700;font-size:.86rem">Catat pengembalian dana</summary>
+                                <summary class="bk-disclosure">Catat pengembalian dana</summary>
                                 <p class="adm-help">Lakukan pengembalian kepada pelanggan terlebih dahulu. Form ini hanya mencatat pengembalian yang sudah dilakukan, bukan mengirim uang. Maksimal Rp {{ number_format($payment->amount - $payment->refunds->sum('amount'), 0, ',', '.') }}.</p>
                                 <form class="adm-stack" method="post" action="{{ route('admin.rental.payment.refund', $payment) }}">
                                     @csrf

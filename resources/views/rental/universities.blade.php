@@ -70,7 +70,7 @@
         </div>
 
         <details style="margin-top:10px">
-            <summary style="cursor:pointer;font-weight:700;font-size:.86rem">Ubah nama dan tarif</summary>
+            <summary class="bk-disclosure">Ubah nama dan tarif</summary>
             <form class="adm-stack" style="margin-top:12px" method="post" action="{{ route('admin.rental.universities.update', $university) }}">
                 @csrf
                 @method('PUT')

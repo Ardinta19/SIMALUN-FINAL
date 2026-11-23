@@ -15,6 +15,8 @@
    local literal palette — only canonical-token aliases below.
 ═══════════════════════════════════════════════════════════ */
 :root {
+    /* Palet merek datang dari _tokens.blade.php (wine), tidak lagi
+       ditimpa per halaman. */
     /* Page-local aliases — only reference canonical tokens (no literals) */
     --ink:        var(--brand-900);
     --ink-mid:    var(--surface-400);
@@ -59,7 +61,7 @@ body {
     color: var(--ink-mid);
     padding: var(--space-2) var(--space-3);
     border-radius: var(--radius-pill);
-    font-size: .72rem; font-weight: 800;
+    font-size: var(--adm-fs-2xs); font-weight: 800;
     text-decoration: none;
     transition: transform .12s ease, background .15s ease, color .15s ease;
 }
@@ -76,7 +78,7 @@ body {
 .card__pad { padding: var(--space-4); }
 .card__title {
     display: flex; align-items: center; gap: var(--space-2);
-    font-size: .92rem; font-weight: 800; color: var(--ink); margin-bottom: var(--space-3);
+    font-size: var(--adm-fs-md); font-weight: 800; color: var(--ink); margin-bottom: var(--space-3);
 }
 .card__title svg { color: var(--brand-500); }
 
@@ -84,14 +86,14 @@ body {
 .filter-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-3); }
 .field-block { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
 .field-label {
-    font-size: .68rem; font-weight: 800; color: var(--ink-mid);
+    font-size: var(--adm-fs-2xs); font-weight: 800; color: var(--ink-mid);
     text-transform: uppercase; letter-spacing: .4px; padding-left: 2px;
 }
 .field {
     width: 100%; min-width: 0; min-height: var(--space-11);
     padding: var(--space-2) var(--space-3); border-radius: var(--radius-btn);
     border: 1px solid var(--surface-200); font-family: var(--font);
-    font-size: .9rem; font-weight: 600; color: var(--ink);
+    font-size: var(--adm-fs-sm); font-weight: 600; color: var(--ink);
     background: var(--surface-raised); outline: none;
     transition: border-color .15s ease;
 }
@@ -106,7 +108,7 @@ body {
 .filter-actions { display: flex; gap: var(--space-2); margin-top: var(--space-4); }
 .btn {
     min-height: var(--space-11); padding: 0 var(--space-5); border-radius: var(--radius-btn);
-    font-family: var(--font); font-size: .82rem; font-weight: 800;
+    font-family: var(--font); font-size: var(--adm-fs-xs); font-weight: 800;
     border: 1px solid transparent; cursor: pointer; text-decoration: none;
     display: inline-flex; align-items: center; justify-content: center; gap: var(--space-1);
     transition: transform .12s ease;
@@ -129,21 +131,21 @@ body {
     gap: var(--space-2); margin-bottom: var(--space-1);
 }
 .log-row__action {
-    font-size: .76rem; font-weight: 800; color: var(--brand-900);
+    font-size: var(--adm-fs-2xs); font-weight: 800; color: var(--brand-900);
     font-family: ui-monospace, 'Courier New', monospace;
     background: var(--brand-100);
     padding: 3px var(--space-2); border-radius: var(--radius-btn);
     word-break: break-word;
 }
-.log-row__time { font-size: .68rem; color: var(--ink-lt); font-weight: 700; flex-shrink: 0; white-space: nowrap; }
-.log-row__summary { font-size: .88rem; color: var(--ink); margin-bottom: var(--space-2); line-height: 1.45; }
-.log-row__meta { font-size: .72rem; color: var(--ink-lt); font-weight: 600; display: flex; gap: var(--space-3); flex-wrap: wrap; }
+.log-row__time { font-size: var(--adm-fs-2xs); color: var(--ink-lt); font-weight: 700; flex-shrink: 0; white-space: nowrap; }
+.log-row__summary { font-size: var(--adm-fs-sm); color: var(--ink); margin-bottom: var(--space-2); line-height: 1.45; }
+.log-row__meta { font-size: var(--adm-fs-2xs); color: var(--ink-lt); font-weight: 600; display: flex; gap: var(--space-3); flex-wrap: wrap; }
 .log-row__meta b { color: var(--ink-mid); font-weight: 800; }
 
 .log-diff {
     margin-top: var(--space-2); padding: var(--space-2) var(--space-3);
     background: var(--surface-50); border-radius: var(--radius-btn);
-    font-size: .72rem; font-family: ui-monospace, 'Courier New', monospace; overflow-x: auto;
+    font-size: var(--adm-fs-2xs); font-family: ui-monospace, 'Courier New', monospace; overflow-x: auto;
 }
 .log-diff__row { display: flex; gap: var(--space-2); margin-bottom: 2px; }
 .log-diff__key { color: var(--ink-lt); font-weight: 800; min-width: 110px; }
@@ -158,11 +160,11 @@ body {
     border-radius: var(--radius-pill); background: var(--brand-100);
     display: flex; align-items: center; justify-content: center; color: var(--brand-500);
 }
-.empty-state__text { color: var(--ink-mid); font-size: .9rem; font-weight: 700; line-height: 1.5; }
+.empty-state__text { color: var(--ink-mid); font-size: var(--adm-fs-sm); font-weight: 700; line-height: 1.5; }
 
 /* ── Pagination ── */
 .pagination-wrap { display: flex; justify-content: center; margin-top: var(--space-4); margin-bottom: var(--space-4); }
-.pagination-wrap nav { font-size: .85rem; }
+.pagination-wrap nav { font-size: var(--adm-fs-sm); }
 </style>
 @include('layouts.component._theme_head')
 <link rel="stylesheet" href="{{ asset('css/berkah-admin.css') }}?v={{ filemtime(public_path('css/berkah-admin.css')) }}">

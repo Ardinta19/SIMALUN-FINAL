@@ -18,21 +18,21 @@ body::after{width:200px;height:200px;bottom:-60px;left:-60px}
 main{width:100%;max-width:440px;position:relative;z-index:2}
 .card{background:#fffaf8;border-radius:28px;padding:34px 26px 30px;box-shadow:0 24px 60px rgba(45,3,20,.4);text-align:center;border:1.5px solid rgba(255,255,255,.5)}
 .logo{width:54px;height:54px;object-fit:contain;border-radius:16px;background:#fff;padding:4px;box-shadow:0 6px 18px rgba(84,5,31,.14);margin-bottom:14px}
-.code-pill{display:inline-block;background:{{ $accent }}1a;color:{{ $accent }};font-weight:900;font-size:.72rem;letter-spacing:1.4px;padding:6px 14px;border-radius:999px;text-transform:uppercase;margin-bottom:14px}
+.code-pill{display:inline-block;background:{{ $accent }}1a;color:{{ $accent }};font-weight:900;font-size:var(--bk-fs-2xs);letter-spacing:1.4px;padding:6px 14px;border-radius:999px;text-transform:uppercase;margin-bottom:14px}
 .hero-icon{display:inline-grid;place-items:center;width:3.6rem;height:3.6rem;margin:2px 0 10px;color:{{ $accent }};animation:wobble 4.5s ease-in-out infinite}
 .hero-icon svg{width:100%;height:100%;stroke-width:1.6}
 @keyframes wobble{0%,100%{transform:rotate(-4deg) translateY(0)}50%{transform:rotate(4deg) translateY(-6px)}}
 .code-big{font-weight:800;font-size:clamp(3rem,12vw,4.2rem);color:{{ $accent }};letter-spacing:-1px;margin-bottom:4px;line-height:1.1}
 h1{font-weight:800;font-size:clamp(1.28rem,5vw,1.6rem);color:#54051f;margin-bottom:10px;line-height:1.3}
-p.lead{font-size:.94rem;font-weight:600;color:#5b4149;line-height:1.6;margin-bottom:22px;max-width:34ch;margin-left:auto;margin-right:auto;overflow-wrap:anywhere}
+p.lead{font-size:var(--bk-fs-md);font-weight:600;color:#5b4149;line-height:1.6;margin-bottom:22px;max-width:34ch;margin-left:auto;margin-right:auto;overflow-wrap:anywhere}
 .actions{display:flex;flex-direction:column;gap:10px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:13px 22px;border-radius:999px;font-weight:800;font-size:.92rem;text-decoration:none;border:0;cursor:pointer;transition:transform .15s ease}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:13px 22px;border-radius:999px;font-weight:800;font-size:var(--bk-fs-md);text-decoration:none;border:0;cursor:pointer;transition:transform .15s ease}
 .btn:focus-visible{outline:3px solid #bc5b75;outline-offset:3px}
 .btn:active{transform:scale(.97)}
 .btn-primary{background:linear-gradient(135deg,#85092d 0%,#b6435e 100%);color:#fff;box-shadow:0 8px 22px rgba(133,9,45,.32)}
 .btn-secondary{background:#fff;color:#75102e;border:1.5px solid #e5cbd0}
-.tip{margin-top:20px;padding-top:16px;border-top:1.5px dashed #e8d6dc;font-size:.78rem;font-weight:700;color:#7a626a;line-height:1.55}
-.brand{margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:.64rem;font-weight:900;color:rgba(255,255,255,.9);letter-spacing:2.4px;text-transform:uppercase}
+.tip{margin-top:20px;padding-top:16px;border-top:1.5px dashed #e8d6dc;font-size:var(--bk-fs-2xs);font-weight:700;color:#7a626a;line-height:1.55}
+.brand{margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:var(--bk-fs-2xs);font-weight:900;color:rgba(255,255,255,.9);letter-spacing:2.4px;text-transform:uppercase}
 .brand span{display:inline-block}
 /* Animasi masuk: kartu muncul, isi menyusul berurutan. Murni transform +
    opacity agar tidak memicu tata letak ulang; dimatikan saat gerak dikurangi. */

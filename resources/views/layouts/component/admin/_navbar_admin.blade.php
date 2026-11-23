@@ -190,12 +190,15 @@ html[data-theme="dark"] .admin-nav__item.is-active { color: #f0b6c4; }
     top: -6px; right: -9px;
     background: #b63050;
     color: #fff;
-    font-size: .55rem;
+    /* Angka lencana dulu 8.8px di dalam lingkaran 16px. Sekarang 12px, jadi
+       lingkaran ikut tumbuh (18px) dan lebarnya mengikuti jumlah digit. */
+    font-size: var(--adm-fs-2xs);
     font-weight: 900;
-    min-width: 16px; height: 16px;
+    line-height: 1;
+    min-width: 18px; min-height: 18px;
     border-radius: 99px;
     display: flex; align-items: center; justify-content: center;
-    padding: 0 3px;
+    padding: 1px 4px;
     border: 2px solid #fffaf8;
     font-family: 'Plus Jakarta Sans', sans-serif;
 }
@@ -203,7 +206,7 @@ html[data-theme="dark"] .admin-nav__badge { border-color: #1d171b; }
 /* Huruf biasa (bukan kapital semua) supaya sama dengan bilah bawah shell
    admin dan lebih mudah dibaca di layar kecil. */
 .admin-nav__label {
-    font-size: .62rem;
+    font-size: var(--adm-fs-2xs);
     font-weight: 800;
     text-transform: none;
     letter-spacing: 0;
@@ -265,7 +268,7 @@ html[data-theme="dark"] .admin-sheet__panel {
     gap: 12px; margin-bottom: 12px;
 }
 .admin-sheet__eyebrow {
-    font-size: .62rem; font-weight: 800; letter-spacing: .14em;
+    font-size: var(--adm-fs-2xs); font-weight: 800; letter-spacing: .14em;
     text-transform: uppercase; color: #9a7b83;
 }
 html[data-theme="dark"] .admin-sheet__eyebrow { color: #b39aa1; }
@@ -283,7 +286,7 @@ html[data-theme="dark"] .admin-sheet__close { background: #2a2126; border-color:
 html[data-theme="dark"] .admin-sheet__close:hover { background: #33272c; }
 .admin-sheet__group {
     margin: 14px 0 8px;
-    font-size: .64rem; font-weight: 800; letter-spacing: .12em;
+    font-size: var(--adm-fs-2xs); font-weight: 800; letter-spacing: .12em;
     text-transform: uppercase; color: #9a7b83;
 }
 html[data-theme="dark"] .admin-sheet__group { color: #b39aa1; }
@@ -297,7 +300,7 @@ html[data-theme="dark"] .admin-sheet__group { color: #b39aa1; }
     min-height: 50px; padding: 10px 12px;
     border: 1px solid #f0dfe1; border-radius: 14px;
     background: #fff; color: #46323a;
-    text-decoration: none; font-size: .84rem; font-weight: 700;
+    text-decoration: none; font-size: var(--adm-fs-xs); font-weight: 700;
     line-height: 1.3;
 }
 html[data-theme="dark"] .admin-sheet__link {
@@ -310,8 +313,8 @@ html[data-theme="dark"] .admin-sheet__link.is-active { border-color: #d76b86; co
 .admin-sheet__badge {
     margin-left: auto;
     background: #b63050; color: #fff;
-    font-size: .58rem; font-weight: 900;
-    min-width: 18px; height: 18px; padding: 0 5px;
+    font-size: var(--adm-fs-2xs); font-weight: 900; line-height: 1;
+    min-width: 20px; min-height: 20px; padding: 1px 5px;
     border-radius: 99px;
     display: inline-flex; align-items: center; justify-content: center;
 }
@@ -354,7 +357,7 @@ body.admin-sheet-open { overflow: hidden; }
     }
     .admin-nav__item.is-active::after { display: none; }
     .admin-nav__label {
-        font-size: .78rem;
+        font-size: var(--adm-fs-2xs);
         font-weight: 700;
         letter-spacing: 0;
         text-transform: none;
@@ -379,7 +382,7 @@ body.admin-sheet-open { overflow: hidden; }
     .admin-nav__inner { padding: 0 2px; }
     .admin-nav__item { padding: 6px 0; gap: 2px; }
     .admin-nav__label {
-        font-size: .6rem;
+        font-size: var(--adm-fs-2xs);
         letter-spacing: 0;
         max-width: 100%;
         white-space: nowrap;
@@ -387,9 +390,6 @@ body.admin-sheet-open { overflow: hidden; }
         text-overflow: ellipsis;
     }
     .admin-nav__item .admin-nav__icon svg { width: 20px; height: 20px; }
-}
-@media (max-width: 380px) {
-    .admin-nav__label { font-size: .56rem; }
 }
 @media (prefers-reduced-motion: reduce) {
     .admin-nav__item { transition: none; }

@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Alamat Saya – {{ \App\Support\Laundry::name() }}</title>
 <style>
-:root{--blue:#0072ad;--blue-dark:#002f5c;--bg:#f4f8fc;--card:#fff;--ink:#1a2332;--muted:#556579;--line:#ddeeff;--green:#087f5b;--red:#c62f2f;--r:16px}
+/* Nama variabel dipertahankan supaya seluruh aturan halaman tidak perlu
+   disentuh; nilainya dipindah dari palet biru lama ke palet merek. */
+:root{--blue:#85092d;--blue-dark:#54051f;--bg:#faf4f3;--card:#fffaf6;--ink:#301722;--muted:#6f5a63;--line:#eadbd6;--green:#087f5b;--red:#c62f2f;--r:16px}
 *{box-sizing:border-box}body{margin:0;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink)}
 .wrap{max-width:860px;margin:0 auto;padding:18px}
 .top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
@@ -15,20 +17,20 @@
 .card{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:12px;box-shadow:0 4px 14px rgba(0,47,92,.05)}
 .card-title{font-weight:900;margin-bottom:10px;color:var(--blue-dark)}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.label{font-size:.72rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.label{font-size:var(--bk-fs-2xs);font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
 .input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:.65rem .7rem;font:600 .92rem 'Plus Jakarta Sans',sans-serif}
 textarea.input{min-height:72px;resize:vertical}
 .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
 .btn-danger{background:#fff5f5;color:var(--red);border-color:#fecaca}
-.badge{display:inline-block;background:#ecfeff;color:#0e7490;border:1px solid #bae6fd;border-radius:999px;padding:.15rem .5rem;font-size:.72rem;font-weight:900}
-.badge-muted{display:inline-block;background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;border-radius:999px;padding:.15rem .5rem;font-size:.72rem;font-weight:900;margin-left:6px}
+.badge{display:inline-block;background:#ecfeff;color:#0e7490;border:1px solid #bae6fd;border-radius:999px;padding:.15rem .5rem;font-size:var(--bk-fs-2xs);font-weight:900}
+.badge-muted{display:inline-block;background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;border-radius:999px;padding:.15rem .5rem;font-size:var(--bk-fs-2xs);font-weight:900;margin-left:6px}
 .row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.err{font-size:.75rem;color:var(--red);font-weight:700;margin-top:4px}
+.err{font-size:var(--bk-fs-2xs);color:var(--red);font-weight:700;margin-top:4px}
 .input.is-error{border-color:#fca5a5;background:#fff5f5}
 .head-actions{display:flex;gap:8px;align-items:center}
 .ok{background:#ecfdf5;border:1.5px solid #bbf7d0;color:#166534;border-radius:10px;padding:.65rem .75rem;font-weight:800;margin-bottom:10px}
-.meta{font-size:.78rem;color:var(--muted);margin-top:4px}
+.meta{font-size:var(--bk-fs-2xs);color:var(--muted);margin-top:4px}
 @media(max-width:700px){.grid{grid-template-columns:1fr}.wrap{padding:14px}.btn{padding:.5rem .72rem}}
 </style>
 @include('layouts.component._theme_head')
