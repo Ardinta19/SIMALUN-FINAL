@@ -924,3 +924,41 @@ body.adm-layer-open { overflow: hidden; }
     .adm-app a.adm-card:hover,
     .adm-app a.adm-card:active { transform: none; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   20. Tautan kembali gaya sistem (.bk-back) di dalam shell admin
+       Berkah-experience.css hanya dimuat di halaman pelanggan, jadi padanan
+       ini dipakai agar tautan "← kembali" berpenampilan sama di panel admin.
+   ═══════════════════════════════════════════════════════════════════════ */
+.adm-app .bk-back,
+.adm-app a.bk-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    max-width: 100%;
+    margin: 0 0 14px;
+    padding: 10px 16px;
+    border: 1px solid var(--adm-line-strong);
+    border-radius: var(--adm-r-md);
+    background: var(--adm-surface-2);
+    color: var(--adm-wine);
+    font-weight: 700;
+    font-size: .86rem;
+    line-height: 1.35;
+    text-decoration: none;
+    transition: background var(--adm-dur-2) var(--adm-ease), transform var(--adm-dur-2) var(--adm-ease), border-color var(--adm-dur-2) var(--adm-ease);
+}
+.adm-app .bk-back:hover {
+    background: var(--adm-rose-soft);
+    border-color: var(--adm-rose);
+    transform: translateX(-2px);
+}
+.adm-app .bk-back:focus-visible {
+    outline: 3px solid var(--adm-rose);
+    outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+    .adm-app .bk-back,
+    .adm-app .bk-back:hover { transform: none; transition: none; }
+}

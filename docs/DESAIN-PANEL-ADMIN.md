@@ -159,6 +159,13 @@ kelompok **"Modul laundry lama"** agar tidak ada halaman yatim.
    form (sebelumnya memakai `form="…"` yang berisiko salah target).
 7. ID field kini unik per unit/produk (`cash-*-{{ id ?? 'new' }}`,
    `product-{{ id ?? 'new' }}`) sehingga label `<label for>` tidak menunjuk elemen lain.
+8. Tautan `class="bk-back"` dipulihkan di `rental/schedule`, `rental/payment-settings`,
+   `rental/universities`, `rental/admin-detail`, dan `rental/vouchers` (kontrak
+   `UiKitTest::test_secondary_actions_use_the_design_system`), lengkap dengan gaya
+   `.adm-app .bk-back` (berkah-admin.css bagian 20) karena `berkah-experience.css`
+   tidak dimuat di panel admin.
+9. Dasbor admin memuat **kedua** tautan aksi cepat: Voucher **dan** Panduan admin
+   (`RentalAdminDashboardTest::test_admin_navigation_reaches_the_help_guide`).
 
 ## 9. Pemeriksaan statis yang dijalankan
 
