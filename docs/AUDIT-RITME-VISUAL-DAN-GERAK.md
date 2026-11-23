@@ -467,3 +467,40 @@ untuk cetak (kembali terang).
   `berkah-theme.css` §7f (nilainya sudah wine).
 - Ukuran `11px` di template surel: klien surel tidak mengenal custom property,
   jadi lantai 12 px di sana harus literal dan tidak diuji token.
+
+### 9.13 Klik beruntun, gulir lalu klik
+
+Sisi interaktif punya cacat yang tidak terlihat pada tangkapan layar: elemen
+yang sama diklik dua kali, atau halaman digulir dulu lalu elemen diketuk tepat
+saat animasi/penundaan masih berjalan. Aturan yang dipakai sekarang:
+
+- **Satu lapisan, satu pemilik.** `openLayer()` di `berkah-controls.js`
+  menutup lapisan aktif sebelum membuat yang baru. Lapisan yang sedang
+  beranimasi tutup tidak boleh menimpa `aria-expanded` maupun menarik fokus
+  dari lapisan pengganti (dijaga oleh tanda `superseded`). Di admin,
+  `openLayer()` menutup sidebar/drawer lain lebih dulu karena keduanya berbagi
+  satu backdrop, dan pemulihan fokus hanya terjadi bila tak ada lapisan tersisa.
+- **Fokus punya tempat pulang yang jelas.** Dialog tema mengembalikan fokus ke
+  tombol pembuka; bila `lastFocus` jatuh ke `<body>` (dialog dibuka lewat
+  skrip), tombol pembuka dipakai sebagai cadangan.
+- **Kiriman ganda dibatalkan, bukan dinonaktifkan.** Tombol kirim tetap bisa
+  difokus dan dibaca pembaca layar; `preventDefault()` pada submit kedua yang
+  menahan data terkirim dua kali.
+- **Penanda sekali-jalan memakai kunci berbeda dari atribut pemicunya.**
+  `once(el, key)` menulis `data-<key>`; memakai `bkParallax` sebagai kunci
+  membuat guard selalu benar karena atribut `data-bk-parallax` sudah berisi
+  kedalaman (mis. `0.08`) — parallax tak pernah dibuat. Kuncinya kini
+  `bkParallaxReady`/`bkTiltReady`.
+- **Satu jalur gulir programatik.** Semua lompatan memakai `scrollPageTo()`
+  (Lenis `scrollTo(..., { immediate, force })` atau `window.scrollTo`), dengan
+  `headerHold` 1,2 dtk supaya header ringkas tidak berubah bentuk di tengah
+  animasi dan tombol tidak berpindah dari bawah kursor.
+- **Sasaran sentuh 44 px.** Tombol menu/tema topbar admin dan chip kategori
+  pelanggan ikut membesar lewat `@media (pointer: coarse)`, mengikuti token
+  `--adm-touch`/`--bk-touch` yang sudah ada.
+
+Bukti di sandbox (jsdom, tanpa peramban nyata): `interactions` 30, `controls`
+18, `modal` 22, `preview` 18, `kit` 34, `race` 9 asersi — semuanya lulus.
+Uji `race` sengaja dijalankan juga terhadap kode lama: dua asersinya gagal
+(`aria-expanded` tertimpa `false`, fokus ditarik ke pemicu di belakang dialog),
+jadi perbaikannya memang menutup celah, bukan sekadar menambah kode.

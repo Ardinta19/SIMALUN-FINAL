@@ -139,9 +139,23 @@
         return container.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
     }
 
-    function openLayer(layer, backdrop) {
+    function openLayer(layer, backdrop, opener) {
         if (!layer) return;
-        lastFocus = document.activeElement;
+        /* Sidebar dan drawer berbagi satu backdrop. Bila lapisan lain masih
+           terbuka (mis. drawer dibuka dari dalam sidebar di ponsel), tutup
+           dulu tanpa memulihkan fokus — kalau tidak, dua lapisan bertumpuk
+           dan backdrop bisa hilang saat lapisan atas ditutup. */
+        each('.adm-drawer[data-open="true"], .adm-sidebar[data-open="true"]', document, function (other) {
+            if (other === layer) return;
+            other.setAttribute('data-open', 'false');
+            other.setAttribute('aria-hidden', 'true');
+        });
+        /* Pemulihan fokus menuju pembuka. Bila fokus sedang berada di <body>
+           atau di dalam lapisan yang baru saja ditutup, simpan pembuka yang
+           diklik agar fokus tidak mendarat di konten tersembunyi. */
+        var active = document.activeElement;
+        var lost = !active || active === document.body || (active.closest && active.closest('.adm-drawer, .adm-sidebar'));
+        lastFocus = lost && opener ? opener : active;
         layer.setAttribute('data-open', 'true');
         layer.removeAttribute('aria-hidden');
         if (backdrop) backdrop.setAttribute('data-open', 'true');
@@ -156,7 +170,11 @@
         layer.setAttribute('aria-hidden', 'true');
         if (backdrop) backdrop.setAttribute('data-open', 'false');
         document.body.classList.remove('adm-layer-open');
-        if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus({ preventScroll: true });
+        /* Fokus hanya dikembalikan bila tidak ada lapisan lain yang masih
+           terbuka; memfokuskannya lebih awal akan menarik keluar dari lapisan
+           yang masih tampil. */
+        var stillOpen = document.querySelector('.adm-drawer[data-open="true"], .adm-sidebar[data-open="true"]');
+        if (!stillOpen && lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus({ preventScroll: true });
     }
 
     function layers() {
@@ -185,7 +203,7 @@
         each('[data-adm-nav-toggle]', document, function (btn) {
             on(btn, 'click', function () {
                 if (sidebar.getAttribute('data-open') === 'true') closeLayer(sidebar, backdrop);
-                else openLayer(sidebar, backdrop);
+                else openLayer(sidebar, backdrop, btn);
                 syncSidebar();
             });
         });
@@ -195,7 +213,8 @@
             on(btn, 'click', function (event) {
                 event.preventDefault();
                 var id = btn.getAttribute('data-adm-open');
-                openLayer(document.getElementById(id), backdrop);
+                openLayer(document.getElementById(id), backdrop, btn);
+                syncSidebar();
             });
         });
 
