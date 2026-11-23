@@ -164,11 +164,22 @@ class DashboardController extends Controller
         $rentalWaitingGrace = RentalOrderUnit::where('status', 'cancelled')->where('cancel_code', 'payment_timeout')->whereNull('deposit_forfeited_at')->count();
         $rentalReturnOverdue = RentalOrderUnit::where('status', 'confirmed')->where('progress', 'handed_over')
             ->whereDate('ends_on', '<', now('Asia/Jakarta')->toDateString())->count();
+        // Umur tunggu: agar admin tahu antrean mana yang paling lama menganggur.
+        $rentalWaitingDesignSince = \App\Models\RentalDesignPreview::where('status', 'pending')
+            ->whereHas('unit', fn ($query) => $query->where('status', 'confirmed')->where('progress', 'waiting'))
+            ->min('created_at');
+        $rentalWaitingTransportSince = \App\Models\RentalTransportQuoteEvent::where('action', 'quote')
+            ->whereHas('unit', fn ($query) => $query->where('status', 'confirmed')->whereNotNull('transport_quote')->whereNull('transport_approved_at'))
+            ->min('created_at');
+        $graceUnitNearest = RentalOrderUnit::where('status', 'cancelled')->where('cancel_code', 'payment_timeout')
+            ->whereNull('deposit_forfeited_at')->orderBy('starts_on')->first();
+        $rentalWaitingGraceNearest = $graceUnitNearest ? app(\App\Services\RentalPaymentDeadline::class)->graceDeadline($graceUnitNearest) : null;
         $recentRentalOrders = RentalOrder::with('customer')->withCount('units')->latest()->take(5)->get();
 
         return view('roles.admin.dashboard', compact(
             'rentalPending', 'rentalActive', 'rentalPaymentPending', 'rentalReview', 'rentalQuoteNeeded', 'rentalDesignNeeded', 'rentalSellerCancelled',
-            'rentalWaitingDesign', 'rentalWaitingTransport', 'rentalWaitingGrace', 'rentalReturnOverdue', 'recentRentalOrders',
+            'rentalWaitingDesign', 'rentalWaitingTransport', 'rentalWaitingGrace', 'rentalReturnOverdue',
+            'rentalWaitingDesignSince', 'rentalWaitingTransportSince', 'rentalWaitingGraceNearest', 'recentRentalOrders',
             'jumlahDiproses',
             'jumlahPrioritas',
             'jumlahSelesaiHari',

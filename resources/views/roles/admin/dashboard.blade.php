@@ -292,9 +292,16 @@ body {
         <p style="font-size:.78rem;line-height:1.6;color:var(--theme-ink-mid,#705963);margin:10px 2px 0">Pembatalan karena penjual mencakup seluruh riwayat, termasuk yang sudah ditindaklanjuti.</p>
     </section>
     <section class="section reveal"><div class="section__head"><div><div class="section__title">Menunggu pelanggan</div><div class="section__title-sm">Tindakannya ada di pihak pelanggan, bukan admin</div></div></div>
-        <a href="{{ route('admin.rental.orders', ['status' => 'design_pending']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">🌷</span><span class="quick-item__label">{{ $rentalWaitingDesign }} unit menunggu persetujuan desain</span></a>
-        <a href="{{ route('admin.rental.orders', ['status' => 'transport_approval']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">📍</span><span class="quick-item__label">{{ $rentalWaitingTransport }} unit menunggu persetujuan ongkos</span></a>
-        <a href="{{ route('admin.rental.orders', ['status' => 'grace']) }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">⏳</span><span class="quick-item__label">{{ $rentalWaitingGrace }} unit dalam toleransi pembayaran sampai H+1 pukul 12.00</span></a>
+        <a href="{{ route('admin.rental.orders', ['status' => 'design_pending']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">🌷</span><span class="quick-item__label">{{ $rentalWaitingDesign }} unit menunggu persetujuan desain
+@if($rentalWaitingDesignSince)· menunggu sejak {{ \Carbon\Carbon::parse($rentalWaitingDesignSince)->timezone('Asia/Jakarta')->format('d/m H:i') }} WIB
+@endif</span></a>
+        <a href="{{ route('admin.rental.orders', ['status' => 'transport_approval']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">📍</span><span class="quick-item__label">{{ $rentalWaitingTransport }} unit menunggu persetujuan ongkos
+@if($rentalWaitingTransportSince)· penawaran tertua {{ \Carbon\Carbon::parse($rentalWaitingTransportSince)->timezone('Asia/Jakarta')->format('d/m H:i') }} WIB
+@endif</span></a>
+        <a href="{{ route('admin.rental.orders', ['status' => 'grace']) }}" class="quick-item"><span class="quick-item__icon" aria-hidden="true">⏳</span><span class="quick-item__label">{{ $rentalWaitingGrace }} unit dalam toleransi pembayaran
+@if($rentalWaitingGraceNearest)· batas terdekat {{ $rentalWaitingGraceNearest->copy()->timezone('Asia/Jakarta')->format('d/m H:i') }} WIB
+@else· sampai H+1 pukul 12.00 WIB
+@endif</span></a>
     </section>
     <section class="section reveal"><div class="section__head"><div><div class="section__title">Pesanan sewa terbaru</div><div class="section__title-sm">Periksa setiap unit secara terpisah</div></div><a href="{{ route('admin.rental.orders') }}" class="section__link">Semua →</a></div>
         @forelse($recentRentalOrders as $order)

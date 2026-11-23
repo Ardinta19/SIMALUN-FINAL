@@ -266,35 +266,42 @@ sudah ada (transaksi, notifikasi dalam transaksi, perintah penjadwal idempoten).
    boleh mengirim versi baru selama belum ada pembayaran (reset
    `transport_approved_at`, naikkan `transport_quote_version`) — pelanggan wajib
    menyetujui versi terbaru, sudah didukung pengecekan versi.
-   _Menyelesaikan_: RT-4, DL-3.
+   _Selesai (babak C)_, riwayat penawaran di `rental_transport_quote_events`, dan
+   pengingat dua arah 24 jam (babak D). _Menyelesaikan_: RT-4, DL-3.
 6. **Pelanggan dapat membatalkan sendiri** dengan konsekuensi DP yang tertulis dan
    konfirmasi ganda; memakai alur `cancel` yang sudah ada (catat
    `cancel_responsibility = customer`).
-   _Menyelesaikan_: DL-4, RT-5.
+   _Selesai (babak C)_. _Menyelesaikan_: DL-4, RT-5.
 7. **Perbaiki data unit sebelum diproses** (nama penerima, ucapan, alamat) selama
    `progress = waiting` dan belum ada pembayaran terverifikasi; setiap perubahan
    dicatat sebagai event agar teraudit.
-   _Menyelesaikan_: RT-5.
+   _Selesai (babak C)_. _Menyelesaikan_: RT-5.
 8. **"Pesan ulang" dari unit batal**: isi otomatis keranjang/checkout dengan data
    unit lama plus tanggal baru divalidasi ketersediaan.
-   _Menyelesaikan_: RT-5.
+   _Selesai (babak C)_. _Menyelesaikan_: RT-5.
 9. **Pertahankan filter katalog** saat kembali dari detail (kirim query asal), dan
    **simpan draf checkout** di sesi sehingga bolak-balik ke keranjang tidak
    menghapus isian.
-   _Menyelesaikan_: RT-1, RT-2.
+   _Selesai (babak C)_. _Menyelesaikan_: RT-1, RT-2.
 
 ### P2 — penyelesaian dan pemantauan
 
-10. **Pengingat & tutup otomatis setelah acara**: tandai `returned` bila H+2 belum
-    ditandai (dengan catatan sistem) atau setidaknya munculkan peringatan di dasbor.
+10. **Pengingat & tutup otomatis setelah acara**: pengingat H+2 ke admin, kartu dan
+    filter dasbor, lalu penutupan otomatis H+7 dengan catatan sistem (babak C/D).
     _Menyelesaikan_: DL-5, G-2.
 11. **Kartu dasbor "menunggu pelanggan"** (preview pending, ongkos menunggu
     persetujuan, bukti pending) beserta umur tunggu, agar admin melihat dua arah
     antrean, bukan hanya yang menunggu admin.
+    _Selesai (babak C/D)_: tiga kartu + umur tunggu (preview terlama, penawaran
+    tertua, batas toleransi terdekat); antrean bukti pending sudah ada di kartu
+    "bukti menunggu pemeriksaan".
 12. **Kanal pemberitahuan kedua** (email atau tautan WhatsApp siap kirim) karena
     semua titik tunggu bergantung pada pelanggan membuka aplikasi.
+    _Belum dikerjakan — keputusan lingkup_: butuh kredensial SMTP/WhatsApp gateway
+    dari pemilik usaha; lihat RT-7.
 13. **Gerbang serah terima** ikut memeriksa `latestPreview->status === 'approved'`
     agar konsisten bila alur diubah kelak.
+    _Selesai (babak C)_: `handed_over` memeriksa `designApprovedForProduction()`.
 
 ## 7. Status pelaksanaan
 
@@ -388,6 +395,9 @@ sudah ada (transaksi, notifikasi dalam transaksi, perintah penjadwal idempoten).
   `tests/Feature/RentalAutoCloseTest.php`.
 - Sisa yang belum ditutup: batas jumlah revisi desain (RT-3) — keputusan bisnis,
   bukan bug; serta hal-hal yang memang butuh uji manual/konkurensi MySQL.
+- **Verifikasi:** pengguna menjalankan `php artisan test` di Windows pada commit
+  `d13f6b7` — **326 tes lulus (2.683 assertion)**. Perubahan sesudah itu hanya umur
+  tunggu pada kartu dasbor beserta asersinya.
 
 ## 8. Yang sudah benar dan sebaiknya tidak diubah
 

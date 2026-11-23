@@ -50,7 +50,8 @@ class RentalWaitingQueuesTest extends TestCase
             ->assertSee('Menunggu pelanggan')
             ->assertSee('1 unit menunggu persetujuan desain')
             ->assertSee('1 unit menunggu persetujuan ongkos')
-            ->assertSee('unit dalam toleransi pembayaran');
+            ->assertSee('unit dalam toleransi pembayaran')
+            ->assertSee('menunggu sejak');
     }
 
     public function test_admin_filters_for_grace_and_overdue_returns(): void

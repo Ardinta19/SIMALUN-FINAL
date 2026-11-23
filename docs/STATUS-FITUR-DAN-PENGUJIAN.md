@@ -1,6 +1,6 @@
 # Status fitur dan pemeriksaan Berkah Kreatif
 
-Snapshot kode setelah babak C dan D alur pemesanan (ongkos dua arah, batal mandiri, pesan ulang, draf checkout, pengingat dua arah termasuk ongkos, penutupan otomatis unit menggantung, rating pesanan dengan masa tenggang). Hasil `php artisan test` terakhir yang dilaporkan pengguna adalah pada commit `943494e`: **306 lulus, 4 gagal**; kegagalannya diperbaiki di `01b6f4b` tetapi belum diuji ulang, dan perubahan babak C sesudahnya belum dijalankan di Windows. Ini adalah inventaris berdasarkan kode dan tes yang ada, bukan pernyataan bahwa seluruh kebutuhan sudah selesai, aman, atau siap produksi. Dokumen audit awal `AUDIT-BERKAH-KREATIF.md` adalah snapshot historis; status fitur di sana dapat sudah berubah.
+Snapshot kode setelah babak C dan D alur pemesanan (ongkos dua arah, batal mandiri, pesan ulang, draf checkout, pengingat dua arah termasuk ongkos, penutupan otomatis unit menggantung, rating pesanan dengan masa tenggang). Diverifikasi pengguna di Windows pada commit `d13f6b7`: **326 tes lulus, 2.683 assertion** (13,93 detik). Satu perubahan kecil sesudah itu — umur tunggu pada kartu dasbor "menunggu pelanggan" beserta asersinya — belum dijalankan di Windows. Ini adalah inventaris berdasarkan kode dan tes yang ada, bukan pernyataan bahwa seluruh kebutuhan sudah selesai, aman, atau siap produksi. Dokumen audit awal `AUDIT-BERKAH-KREATIF.md` adalah snapshot historis; status fitur di sana dapat sudah berubah.
 
 ## Inventaris alur sewa
 
@@ -54,7 +54,9 @@ Lampiran laporan baru disimpan pada disk lokal privat dan ditampilkan melalui ru
 
 ## Hasil tes pengguna terbaru
 
-Pada commit `943494e`, pengguna menjalankan `php artisan test` di Windows: **306 lulus, 4 gagal (2.539 assertion)**; empat kegagalan itu diperbaiki di `01b6f4b` dengan `RentalCategory::firstOrCreate` dan `actingAs($admin)` pada tes tenggat desain, tetapi hasil ulangnya belum dilaporkan. Hasil stabil terakhir sebelum rangkaian perbaikan alur adalah **230 passed, 1.469 assertions** pada commit `4870668`. Hasil ini mencakup tes fitur rating dan suka serta kebijakan referrer tautan publik. Perubahan setelah commit tersebut belum termasuk hasil ini. Tes otomatis tersebut bukan pengganti uji visual browser, uji konkurensi MySQL, atau pemeriksaan kesiapan produksi.
+Pada commit `d13f6b7`, pengguna menjalankan `php artisan test` di Windows: **326 lulus, 2.683 assertion**, 13,93 detik — seluruh tes hijau, termasuk `RentalCustomerControlsTest`, `RentalWaitingQueuesTest`, `RentalCheckoutDraftTest`, `RentalTransportWaitTest`, dan `RentalAutoCloseTest`. `php artisan list rental` juga memastikan empat perintah tersedia: `rental:expire-confirmations`, `rental:expire-payments`, `rental:remind`, `rental:close-events`.
+
+Riwayat: pada commit `943494e` pernah tercatat 306 lulus / 4 gagal; penyebab sebenarnya adalah `$request` yang tidak di-`use` di closure `approveTransport` (rollback transaksi tanpa pesan galat) dan dua tes yang memanggil rute admin sebagai pelanggan, diperbaiki di `4435220`. Tes otomatis ini tetap bukan pengganti uji browser, uji konkurensi MySQL, atau pemeriksaan kesiapan produksi. Hasil ini mencakup tes fitur rating dan suka serta kebijakan referrer tautan publik. Perubahan setelah commit tersebut belum termasuk hasil ini. Tes otomatis tersebut bukan pengganti uji visual browser, uji konkurensi MySQL, atau pemeriksaan kesiapan produksi.
 
 ### Perubahan setelah `4870668` yang belum diuji di Windows
 
