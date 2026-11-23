@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8"><meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <title>Login – Berkah Kreatif</title>
@@ -99,7 +99,7 @@ html, body {
 :focus-visible{outline:3px solid #fff;outline-offset:3px}
 @media(prefers-reduced-motion:reduce){#brand-logo,.ambient-flower,#drum-spin-ring,#drum-wrap::after,#btn-login::before{animation:none!important}}
 </style>
-<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}"><script src="{{ asset('js/page-transitions.js') }}" defer></script>
+<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}?v={{ filemtime(public_path('css/page-transitions.css')) }}"><script src="{{ asset('js/page-transitions.js') }}?v={{ filemtime(public_path('js/page-transitions.js')) }}" defer></script>
 <link rel="stylesheet" href="{{ asset('css/berkah-login-splash.css') }}?v={{ file_exists(public_path('css/berkah-login-splash.css')) ? filemtime(public_path('css/berkah-login-splash.css')) : '1' }}">
 @include('layouts.component._theme_head')
 </head>

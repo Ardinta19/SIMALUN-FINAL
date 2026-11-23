@@ -42,5 +42,5 @@
 </article>
 @empty<p>Pesanan ini belum memiliki unit.</p>@endforelse
 </div>
-<script src="{{ asset('js/rental-share.js') }}" defer></script>
+<script src="{{ asset('js/rental-share.js') }}?v={{ filemtime(public_path('js/rental-share.js')) }}" defer></script>
 @endsection

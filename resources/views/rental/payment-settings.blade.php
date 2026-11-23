@@ -70,7 +70,7 @@
     <div class="adm-field-grid">
         <div class="adm-field">
             <label for="pay-wa">Nomor WhatsApp untuk metode lain</label>
-            <input id="pay-wa" type="tel" name="whatsapp_number" inputmode="numeric" maxlength="15" placeholder="6281234567890" value="{{ $oldText('whatsapp_number', $settings?->whatsapp_number) }}">
+            <input autocomplete="tel" id="pay-wa" type="tel" name="whatsapp_number" inputmode="numeric" maxlength="15" placeholder="6281234567890" value="{{ $oldText('whatsapp_number', $settings?->whatsapp_number) }}">
             <span class="adm-help">Awali 62, hanya angka tanpa tanda plus atau spasi. Kosongkan jika belum tersedia.</span>
         </div>
     </div>

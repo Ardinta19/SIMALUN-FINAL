@@ -169,8 +169,8 @@ body {
 </style>
 @include('layouts.component._theme_head')
 <link rel="stylesheet" href="{{ asset('css/berkah-admin.css') }}?v={{ filemtime(public_path('css/berkah-admin.css')) }}">
-<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
-<script src="{{ asset('js/page-transitions.js') }}" defer></script>
+<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}?v={{ filemtime(public_path('css/page-transitions.css')) }}">
+<script src="{{ asset('js/page-transitions.js') }}?v={{ filemtime(public_path('js/page-transitions.js')) }}" defer></script>
 </head>
 <body>
 
@@ -224,7 +224,7 @@ body {
                 <label class="form-label" for="email">Alamat Email</label>
                 <div class="input-wrap">
                     <span class="input-icon">@include('layouts.component._icon', ['name' => 'message-circle', 'size' => 16])</span>
-                    <input type="email" id="email" name="email" class="form-input" value="{{ old('email', $user->email) }}" required>
+                    <input autocomplete="email" type="email" id="email" name="email" class="form-input" value="{{ old('email', $user->email) }}" required>
                 </div>
             </div>
 
@@ -256,7 +256,7 @@ body {
                 <label class="form-label" for="current_password">Password Saat Ini</label>
                 <div class="input-wrap">
                     <span class="input-icon">@include('layouts.component._icon', ['name' => 'eye', 'size' => 16])</span>
-                    <input type="password" id="current_password" name="current_password" class="form-input" placeholder="••••••••">
+                    <input autocomplete="current-password" type="password" id="current_password" name="current_password" class="form-input" placeholder="••••••••">
                 </div>
             </div>
 
@@ -264,7 +264,7 @@ body {
                 <label class="form-label" for="password">Password Baru</label>
                 <div class="input-wrap">
                     <span class="input-icon">@include('layouts.component._icon', ['name' => 'settings', 'size' => 16])</span>
-                    <input type="password" id="password" name="password" class="form-input" placeholder="Min. 8 karakter">
+                    <input autocomplete="new-password" type="password" id="password" name="password" class="form-input" placeholder="Min. 8 karakter">
                 </div>
             </div>
 
@@ -272,7 +272,7 @@ body {
                 <label class="form-label" for="password_confirmation">Konfirmasi Password Baru</label>
                 <div class="input-wrap">
                     <span class="input-icon">@include('layouts.component._icon', ['name' => 'check-circle', 'size' => 16])</span>
-                    <input type="password" id="password_confirmation" name="password_confirmation" class="form-input" placeholder="Ulangi password">
+                    <input autocomplete="new-password" type="password" id="password_confirmation" name="password_confirmation" class="form-input" placeholder="Ulangi password">
                 </div>
             </div>
 

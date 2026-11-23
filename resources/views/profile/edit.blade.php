@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Edit Profil</title>
+<title>Edit Profil · Berkah Kreatif</title>
 <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:'Plus Jakarta Sans', sans-serif; background:#f4f8fc; color:#1a2332; padding:24px 16px; }
@@ -56,7 +56,7 @@
             </div>
             <div class="field">
                 <label for="profile-email">Email</label>
-                <input id="profile-email" type="email" name="email" value="{{ old('email', $user->email) }}" required>
+                <input autocomplete="email" id="profile-email" type="email" name="email" value="{{ old('email', $user->email) }}" required>
             </div>
             <div class="field">
                 <label for="profile-phone">Nomor HP</label>

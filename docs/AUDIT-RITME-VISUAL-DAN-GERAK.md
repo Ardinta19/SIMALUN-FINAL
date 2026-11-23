@@ -602,3 +602,31 @@ Penjaga: `BackUrlSafetyTest::test_error_pages_never_use_javascript_urls` menolak
 `UiDefaultsTest::test_buttons_inside_forms_declare_their_type` memakai pemindai
 sadar-kutip (mengganti `->` lebih dulu agar atribut Blade tidak memotong tag)
 supaya tombol baru tanpa `type` langsung ketahuan.
+
+#### 9.16a Sapuan lanjutan: isian, judul, dan cache
+
+Sapuan berikutnya menyasar hal-hal yang tidak terlihat di layar tetapi terasa
+saat dipakai:
+
+- **`autocomplete` pada isian pribadi.** Empat belas isian email, telepon, dan
+  kata sandi di halaman profil dan alamat kini memberi tahu peramban isi yang
+  diharapkan: `email`, `tel`, `current-password` untuk kata sandi lama dan
+  `new-password` untuk kata sandi baru. Tanpa itu pengelola kata sandi menebak,
+  dan isian "ulangi kata sandi" sering terisi acak.
+- **Judul halaman seragam.** Dua halaman masih berjudul `Edit Profil` tanpa
+  nama merek; sekarang `Edit Profil · Berkah Kreatif`. `rental/help-layout`
+  diberi judul cadangan supaya tidak pernah menghasilkan " · Berkah Kreatif"
+  yang menggantung.
+- **Deskripsi katalog.** `catalog/layout` belum punya `meta description`,
+  padahal itu halaman yang dibagikan orang. Sekarang ada, dan tiap halaman
+  boleh menimpanya lewat `@section('description')`.
+- **`noindex` untuk halaman pribadi.** Verifikasi email, masuk, daftar, lupa
+  kata sandi, ringkasan pesanan, lembar harian, dan layout tamu tidak boleh
+  masuk indeks mesin pencari — ringkasan pesanan pun memuat nomor pesanan dan
+  total tagihan.
+- **Versi berkas aset.** `page-transitions.css/js`, `dashboard-preview.js`,
+  `rental-share.js`, dan `berkah-auth.css` dimuat tanpa penanda versi, sehingga
+  peramban bisa memakai salinan lama setelah pembaruan. Semuanya kini memakai
+  pola `?v=` + `filemtime` yang sudah dipakai aset lain. Empat halaman yang
+  memakai closure `$asset()` tidak perlu diubah karena closure itu sudah
+  menambahkan versi.

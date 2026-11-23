@@ -32,5 +32,5 @@
 </section>
 <p class="muted">Sistem masih dalam pengujian dan belum untuk transaksi nyata.</p>
 </div>
-<script src="{{ asset('js/dashboard-preview.js') }}" defer></script>
+<script src="{{ asset('js/dashboard-preview.js') }}?v={{ filemtime(public_path('js/dashboard-preview.js')) }}" defer></script>
 @endsection

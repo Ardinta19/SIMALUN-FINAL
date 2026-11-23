@@ -4,7 +4,7 @@
 @php $asset = fn (string $path) => asset($path).(file_exists(public_path($path)) ? '?v='.filemtime(public_path($path)) : ''); @endphp
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Edit Profil</title>
+<title>Edit Profil · Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <style>
@@ -300,7 +300,7 @@ $oldText = function (string $key, $fallback = '') {
 
                 <div>
                     <label class="field-label" for="profile-email">Email <span style="font-weight:600;color:var(--ink-lt)">(opsional)</span></label>
-                    <input type="email" id="profile-email" name="email"
+                    <input autocomplete="email" type="email" id="profile-email" name="email"
                            class="field-input {{ $errors->has('email') ? 'is-error' : '' }}"
                            value="{{ $oldText('email', $user->email) }}"
                            placeholder="Boleh dikosongkan">
@@ -309,7 +309,7 @@ $oldText = function (string $key, $fallback = '') {
 
                 <div>
                     <label class="field-label" for="profile-phone">Nomor HP / WhatsApp <span class="req">*</span></label>
-                    <input type="tel" id="profile-phone" name="phone"
+                    <input autocomplete="tel" type="tel" id="profile-phone" name="phone"
                            class="field-input"
                            value="{{ $oldText('phone', $user->phone) }}"
                            placeholder="08xxxxxxxxxx" required>
@@ -350,7 +350,7 @@ $oldText = function (string $key, $fallback = '') {
 
                 <div>
                     <label class="field-label" for="profile-address-phone">No. HP Penerima</label>
-                    <input type="tel" id="profile-address-phone" name="phone"
+                    <input autocomplete="tel" type="tel" id="profile-address-phone" name="phone"
                            class="field-input"
                            value="{{ $oldText('phone', $primaryAddress->phone ?? $user->phone) }}"
                            placeholder="08xxxxxxxxxx">
@@ -426,7 +426,7 @@ $oldText = function (string $key, $fallback = '') {
                     @method('delete')
                     <div>
                         <label class="field-label" for="profile-delete-password">Konfirmasi Password <span class="req">*</span></label>
-                        <input type="password" id="profile-delete-password" name="password" class="field-input" required placeholder="Masukkan password Anda">
+                        <input autocomplete="current-password" type="password" id="profile-delete-password" name="password" class="field-input" required placeholder="Masukkan password Anda">
                         @error('password') <div class="field-error">{{ $message }}</div> @enderror
                     </div>
                     <button type="button" class="btn-danger" style="margin-top:12px;" id="btn-delete-account">Nonaktifkan Akun</button>

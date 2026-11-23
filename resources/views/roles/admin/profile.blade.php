@@ -275,8 +275,8 @@ body {
 </style>
 @include('layouts.component._theme_head')
 <link rel="stylesheet" href="{{ asset('css/berkah-admin.css') }}?v={{ filemtime(public_path('css/berkah-admin.css')) }}">
-<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}">
-<script src="{{ asset('js/page-transitions.js') }}" defer></script>
+<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}?v={{ filemtime(public_path('css/page-transitions.css')) }}">
+<script src="{{ asset('js/page-transitions.js') }}?v={{ filemtime(public_path('js/page-transitions.js')) }}" defer></script>
 </head>
 <body>
 
