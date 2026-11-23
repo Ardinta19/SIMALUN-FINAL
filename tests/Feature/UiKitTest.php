@@ -465,6 +465,15 @@ class UiKitTest extends TestCase
             '.status-badge.dibatalkan',
             'footer',
             '.field label',
+            '.field__required',
+            '.field__error',
+            '.field-label .required',
+            '.field-error',
+            '.field-label .req',
+            '.status-label',
+            '.at-time.current',
+            '.ir-value.orange',
+            '.service-card:has(input:checked) .service-name',
         ];
 
         $missing = array_values(array_filter($selectors, fn (string $selector) => ! $this->themeMentions($theme, $selector)));

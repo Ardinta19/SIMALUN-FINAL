@@ -1157,6 +1157,11 @@ html[data-theme="dark"] :is(
     .order-card__badge--batal,
     .summary-card__value.expense,
     .tx-amount.expense
+    .field__required,
+    .field__error,
+    .field-label .required,
+    .field-error,
+    .field-label .req,
 ) {
     color: var(--theme-danger-ink);
 }
@@ -1180,6 +1185,14 @@ html[data-theme="dark"] :is(
     .stat-card__num--amber,
     .rate__stars,
     .review__rate
+    .service-card:has(input:checked) .service-name,
+    .service-card:has(input:checked) .service-price,
+    .dr-value.total,
+    .status-label,
+    .pk__lbl--peak,
+    .stat__ico--orange,
+    .ir-value.orange,
+    .at-time.current,
 ) {
     color: var(--theme-warning-ink);
 }
