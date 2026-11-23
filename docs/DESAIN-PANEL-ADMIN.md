@@ -195,7 +195,9 @@ php artisan optimize:clear
 php artisan test --filter="RentalCatalogTest|UIkitTest|UiKitTest|UiDefaultsTest|ResponsiveLayoutTest|UiAccessibilityTest|RentalCashBookTest|RentalScheduleTest|RentalAdminSearchTest|RentalWaitingQueuesTest|RentalVoucherTest|RentalAdminDashboardTest"
 ```
 
-4. **Kemungkinan kegagalan yang paling perlu dicurigai**:
+4. **Sudah diverifikasi pemilik:** `php artisan test` pada commit `8ad9d38` = **346 lulus, 2.773 asersi**.
+5. **Jika tampilan tidak berubah setelah `git pull`:** jalankan `php artisan view:clear` (atau `optimize:clear`). Blade hanya mengompilasi ulang bila mtime sumber lebih baru dari berkas di `storage/framework/views`; berkas hasil sinkronisasi bisa membawa mtime lama sehingga versi lama terus dipakai.
+6. **Kemungkinan kegagalan yang paling perlu dicurigai**:
    `RentalCatalogTest` (frasa `object-fit:contain`, `Foto Papan Berfoto`, `Belum ada foto`),
    `RentalScheduleTest` (`substr_count('Mawar unik') === 1`), dan
    `RentalCashBookTest` (nominal `12.000/4.000/16.000`).
