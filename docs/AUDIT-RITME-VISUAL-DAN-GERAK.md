@@ -440,7 +440,26 @@ Ujung gradien `#b6435e` sengaja **tidak** dipaksa masuk tangga brand-50..950 di
 hover, dan menggantinya dengan `--brand-400 #c9708a` akan mengubah rupa banner
 serta surel.
 
-### 9.11 Yang sengaja belum disentuh
+### 9.11 Layout tamu: halaman auth yang masih berwajah Breeze
+
+Tiga halaman yang benar-benar dipakai — verifikasi email, atur ulang kata
+sandi, konfirmasi kata sandi — memakai `layouts/guest` bawaan Breeze:
+
+| Temuan | Sebelum | Sesudah |
+|---|---|---|
+| Identitas | Logo **Laravel** di tautan beranda tanpa nama aksesibel. | Logo Berkah Kreatif + wordmark; tautan punya nama dari teks di dalamnya. |
+| Font | `fonts.bunny.net` (CDN pihak ketiga), Figtree. | Plus Jakarta Sans dari Google Fonts, sama dengan halaman auth lain. |
+| Warna | `bg-gray-100`, `text-gray-900`, kartu putih ber-shadow abu. | Token `--bk-page-bg`, `--bk-page-ink`, `--bk-modal-*`, `--bk-field-bg`, `--bk-link-ink`; tema gelap ikut tanpa tambalan per selektor. |
+| Kontrol | Komponen Breeze bergantung pada Tailwind (`border-gray-300`, `bg-gray-800`). | Input, label, daftar galat, dan tombol ditata dari token: 44 px, radius `--bk-r-control`, fokus `--bk-focus-ring`. |
+| Judul | `config('app.name')` — satu judul untuk semua halaman. | `<x-guest-layout :title="…">` → `<title>` per halaman; `GuestLayout` menerima properti `$title`. |
+| Bahasa | Label campur: "Password", "Confirm Password", "Reset Password". | "Kata Sandi Baru", "Ulangi Kata Sandi Baru", "Simpan Kata Sandi Baru". |
+| Build | `@vite(['resources/css/app.css', 'resources/js/app.js'])` — halaman gagal total bila manifest Vite tidak ada. | Tanpa `@vite`; gaya datang dari stylesheet lokal. Tailwind/Vite tidak lagi dipanggil halaman mana pun. |
+
+Token halaman mandiri ikut dipetakan untuk gelap (`--theme-bg`, `--theme-ink`,
+`--theme-surface-2`, `#efa8b9` untuk tautan — 9:1 di atas permukaan gelap) dan
+untuk cetak (kembali terang).
+
+### 9.12 Yang sengaja belum disentuh
 
 - `SplitText` untuk judul hero dan `Flip` untuk daftar pesanan — keduanya
   menambah gerak, bukan memperbaiki cacat; menunggu keputusan.
