@@ -72,7 +72,6 @@
             item.style.setProperty('--ry', defaults[index][1]);
         });
         menu.classList.remove('is-arc-u');
-        menu.style.removeProperty('--bk-orbit');
     };
 
     const applyArc = () => {
@@ -95,9 +94,6 @@
             item.style.setProperty('--ry', arc.points[index][1] + 'px');
         });
         menu.classList.add('is-arc-u');
-        // Cincin orbit dan gumpalan ikut membesar bersama busur; dipasang di
-        // <details> supaya diwarisi seluruh isi panel.
-        menu.style.setProperty('--bk-orbit', Math.round((arc.radius + 12) * 2) + 'px');
     };
 
     let timeline = null;
@@ -137,9 +133,16 @@
         }
     };
 
+    /* Busur terbuka penuh, tanpa sisa animasi yang terpotong: dipanggil di
+       akhir tween masuk maupun saat penutupan dibatalkan. */
+    const settle = () => {
+        if (menu.open) setProgress(1);
+    };
+
     const open = () => {
         syncAria();
         if (!menu.open) return;
+        closing = false;
         // Posisi busur ditentukan saat membuka: pil ringkas berada di tengah,
         // header penuh menaruh tombol di ujung kanan. Keduanya butuh bentuk
         // yang berbeda, dan lebarnya bisa berubah setelah rotasi.
@@ -155,12 +158,15 @@
         menu.classList.add('is-gsap');
         setProgress(0);
         if (timeline) timeline.kill();
-        timeline = gsap.timeline();
+        timeline = gsap.timeline({ onComplete: settle });
         timeline.to(items, {
             '--p': 1,
-            duration: 0.52,
+            duration: 0.42,
             ease: 'expo.out',
-            stagger: 0.055
+            // Jarak antar-tujuan dirapatkan: dulu 55 ms, sehingga dua tujuan
+            // terakhir masih di tengah tombol saat mata sudah menyapu busur —
+            // terbaca sebagai “menunya belum lengkap”.
+            stagger: 0.028
         });
         if (badges.length) {
             /* Lencana menyusul dengan pantulan kecil, seperti pil angka pada
@@ -220,6 +226,21 @@
         if (!menu.open) return;
         if (!gsapCore() || reduceMotion.matches) return;
         event.preventDefault();
+        // Klik kedua saat busur sedang menyusut dulu ditelan: menu menutup
+        // pelan-pelan dan pengguna harus mengklik sekali lagi. Sekarang klik
+        // itu membatalkan penutupan dan mengembalikan seluruh tujuan.
+        if (closing) {
+            closing = false;
+            if (timeline) timeline.kill();
+            timeline = gsapCore().timeline({ onComplete: settle });
+            timeline.to(items, {
+                '--p': 1,
+                duration: 0.3,
+                ease: 'power2.out',
+                stagger: { each: 0.02, from: 'end' }
+            });
+            return;
+        }
         close();
     });
 

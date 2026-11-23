@@ -1129,6 +1129,8 @@ jadi busur lama tetap menjadi jaring pengaman, bukan dibuang.
 gumpalan goo memakai peubah yang sama, dipasang pada `<details>`; saat busur U
 dipakai keduanya membesar mengikuti radius, sehingga bentuk U tidak terlihat
 sempit di dalam cincin lama. `useServerArc()` menghapus peubah itu kembali.
+**Keduanya dihapus pada §9.26** — di layar keduanya justru terbaca sebagai
+“latar” di belakang busur.
 Tidak ada perubahan `aria-*`, tidak ada tujuan yang hilang, dan sasaran tetap
 46 px (>44 px).
 
@@ -1151,3 +1153,52 @@ mengembalikan `null` untuk satu tujuan dan untuk ruang sempit. `RadialMenuTest`
 menambah penjaga untuk `var(--bk-orbit,244px)`, `is-arc-u`, `ARC_GAP = 50`, dan
 `orientationchange`. Harness: phpstub 75/0/200, `.tmp-verify` 26/0, blade-scan
 93 view 0/0, jsdom 225/0.
+
+### 9.26 Busur tanpa latar, dan klik kedua tidak lagi setengah jadi
+
+Dua keluhan setelah §9.25 diuji di ponsel. Keduanya berasal dari hal berbeda:
+satu dari hiasan, satu dari jalur animasi.
+
+**A. “Seperti ada background saat radial dibuka.”** Di belakang tujuan ada dua
+hiasan: cincin orbit 244 px (`::before` pada `.customer-radial__links`) dan
+gumpalan goo (`#bk-menu-goo`, empat lingkaran + satu path, blur 6 px) pada
+`opacity:.16`. Di atas latar terang keduanya menjadi bidang pucat besar — persis
+“latar” yang membuat busurnya tidak jelas. Keduanya dilepas: cincin dihapus dari
+CSS, gumpalan diganti `display:none` (elemennya tetap ada karena `id="bk-menu-goo"`
+dipakai oleh uji). Yang tersisa hanya lingkaran 46 px milik tiap tujuan plus
+cincin tipis 58 px di sekeliling tombol. Konsekuensinya `--bk-orbit` tidak lagi
+dipakai: `berkah-radial.js` tidak memasang maupun menghapusnya, dan aturan
+`calc(var(--bk-orbit,238px) * .98)` ikut hilang.
+
+**B. “Klik dua kali hasilnya beda: ada yang sedikit, ada yang lengkap.”** Bukan
+jumlah tujuan yang berubah — semuanya selalu ada. Yang berubah adalah *jarak*
+kedatangan dan *apa yang terjadi pada klik kedua*:
+
+1. Jeda antar-tujuan 55 ms membuat tween masuk total ±0,80 s. Dua tujuan
+   terakhir masih di tengah tombol (opacity = `--p`, sekaligus kecil karena
+   `scale` ikut `--p`) ketika mata sudah menyapu busur — terbaca “belum
+   lengkap”. Jeda dirapatkan ke 28 ms dan durasi tween 0,52 s → 0,42 s, jadi
+   seluruh busur tiba dalam ±0,56 s.
+2. Setelah tween masuk selesai, `settle()` menulis `--p:1` untuk semua tujuan.
+   Animasi yang terpotong tidak bisa lagi meninggalkan tujuan separuh.
+3. Klik kedua saat busur sedang menyusut dulu di-`preventDefault` lalu
+   diabaikan karena `closing` masih true — menu menutup sendiri dan pengguna
+   harus mengklik sekali lagi. Sekarang klik itu **membatalkan** penutupan:
+   `closing` dimatikan, timeline lama dibunuh, lalu tujuan dianimasikan kembali
+   ke `--p:1` dengan jeda 20 ms dari ujung terakhir (`from:'end'`), sehingga
+   busur kembali penuh di tempat, tanpa melompat ke pusat lebih dulu.
+   `open()` juga mereset `closing = false`, jadi status tidak bisa tersangkut.
+
+**C. Pratinjau.** `docs/preview/radial.html` menambah tombol “Buka / tutup
+busur” (memanggil `click()` pada `<summary>`) untuk mencoba klik berulang tanpa
+mencari tombolnya, dan teksnya diperbarui: tidak ada bidang di belakang busur,
+jeda 28 ms, serta penjelasan bahwa klik kedua membatalkan penutupan.
+
+**D. Verifikasi.** `radial.test.js` 47 pemeriksaan (tambah 7: klik saat menutup
+tidak diteruskan ke `<details>`, seluruh `--p` kembali `1`, menu tetap terbuka,
+klik berikutnya menutup lagi; ditambah pemeriksaan bahwa `--bk-orbit` tidak
+dipasang pada mode U). `RadialMenuTest` menukar penjaga cincin menjadi penjaga
+ketiadaan latar (`goo{display:none}`, tanpa `::before` cincin, tanpa
+`--bk-orbit`) dan penjaga `stagger: 0.028`, `duration: 0.42`, `onComplete:
+settle`, serta cabang `if (closing)`. Harness: phpstub 75/0/200, `.tmp-verify`
+26/0, blade-scan 93 view 0/0, jsdom 232/0.

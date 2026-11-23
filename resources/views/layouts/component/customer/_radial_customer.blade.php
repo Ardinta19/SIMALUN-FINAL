@@ -94,9 +94,9 @@
 html[data-theme] .bk-header-radial .customer-radial__panel{position:absolute;top:50%;right:50%;width:0;height:0;padding:0;margin:0;border:0;border-radius:0;background:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;transform:translate(50%,-50%);overflow:visible;max-height:none;z-index:1200}
 .bk-header-radial .customer-radial__heading{display:none}
 .bk-header-radial .customer-radial__links{position:relative;display:block;width:0;height:0;margin:0;padding:0;overflow:visible}
-.bk-header-radial .customer-radial__links::before{content:"";position:absolute;left:0;top:0;width:var(--bk-orbit,244px);height:var(--bk-orbit,244px);transform:translate(-50%,-50%) scale(.72);border:1px solid rgba(133,9,45,.16);border-radius:50%;opacity:0;pointer-events:none;transition:opacity .26s ease,transform .5s cubic-bezier(.34,1.4,.64,1)}
-.bk-header-radial[open] .customer-radial__links::before{opacity:1;transform:translate(-50%,-50%) scale(1)}
-.bk-header-radial .customer-radial__goo{position:absolute;left:0;top:0;width:calc(var(--bk-orbit,238px) * .98);height:calc(var(--bk-orbit,238px) * .98);margin:calc(var(--bk-orbit,238px) * -.49) 0 0 calc(var(--bk-orbit,238px) * -.49);opacity:.16;pointer-events:none;transition:opacity .3s ease}
+/* Tidak ada cincin atau bidang di belakang busur: tujuan melayang langsung
+   di atas halaman, jadi tidak ada yang terbaca sebagai “latar” menu. */
+.bk-header-radial .customer-radial__goo{display:none}
 
 /* Satu tujuan: lingkaran kaca 46 px (>44 px sasaran sentuh). */
 .bk-header-radial .customer-radial__item{
@@ -135,7 +135,6 @@ html[data-theme="dark"] .bk-header-radial .customer-radial__item{background:rgba
 html[data-theme="dark"] .bk-header-radial .customer-radial__item:hover,
 html[data-theme="dark"] .bk-header-radial .customer-radial__item:focus-visible,
 html[data-theme="dark"] .bk-header-radial .customer-radial__item[aria-current]{background:#f3a8bb;border-color:#f3a8bb;color:#2a1219}
-html[data-theme="dark"] .bk-header-radial .customer-radial__links::before{border-color:rgba(243,168,187,.22)}
 html[data-theme="dark"] .bk-header-radial .customer-radial__item--theme{background:none;border:0;box-shadow:none}
 html[data-theme="dark"] .bk-header-radial .customer-radial__item--theme .bk-theme-btn{background:rgba(38,30,34,.92);border-color:rgba(124,94,104,.55);color:#f3a8bb;box-shadow:0 10px 26px rgba(0,0,0,.5)}
 html[data-theme="dark"] .bk-header-radial .customer-radial__item--theme .bk-theme-btn:hover{background:#f3a8bb;border-color:#f3a8bb;color:#2a1219}
@@ -171,7 +170,6 @@ html[data-theme="dark"] .bk-header-radial>summary:hover{background:#33222a;color
 
 @media (prefers-reduced-motion: reduce){
     .bk-header-radial .customer-radial__item,
-    .bk-header-radial .customer-radial__links::before,
     .bk-header-radial>summary::after,
     .customer-radial__badge,
     .bk-header-radial .customer-radial__face{transition:none}

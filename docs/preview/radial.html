@@ -132,6 +132,7 @@
         <span>CSS diambil langsung dari partial Blade · GSAP + Lenis asli</span>
         <button type="button" data-demo-theme="dark" aria-pressed="true">Gelap</button>
         <button type="button" data-demo-theme="light" aria-pressed="false">Terang</button>
+        <button type="button" data-demo-replay>Buka / tutup busur</button>
     </div>
 
     <div class="mock-header">
@@ -191,7 +192,7 @@
 
     <main class="mock-content">
         <h1>Tekan tombol menu di kanan atas</h1>
-        <p class="lead">Lima tujuan dan satu tombol tema menyebar dalam busur ke kiri-bawah — arah yang tidak keluar layar bahkan pada ponsel 320&nbsp;px. Busur menyusut kembali ke tombol saat ditutup, ikon menu bertukar menjadi silang, dan lencana angka memantul masuk.</p>
+        <p class="lead">Lima tujuan dan satu tombol tema menyebar dalam busur — ke kiri-bawah bila tombol menempel di ujung kanan, atau berbentuk <strong>U</strong> bila tombol berada di tengah. Tidak ada bidang, cincin, atau gumpalan di belakang busur: tujuannya melayang langsung di atas halaman. Saat ditutup busur menyusut kembali ke tombol, ikon menu bertukar menjadi silang, dan lencana angka memantul masuk.</p>
         <div class="mock-grid">
             <div class="mock-card"><b>Keranjang</b><span>Lencana 2 unit</span></div>
             <div class="mock-card"><b>Pesanan</b><span>Riwayat sewa</span></div>
@@ -208,7 +209,7 @@
     </main>
 
     <p class="demo-foot">
-        Gerak: GSAP menganimasikan satu variabel <code>--p</code> (<code>expo.out</code>, stagger 55&nbsp;ms), lencana <code>back.out</code>; Lenis dihentikan selama menu terbuka. Coba juga klik di luar, tekan Escape, atau ganti tema. Dengan <code>prefers-reduced-motion: reduce</code> menu tetap terbuka tanpa animasi.
+        Gerak: GSAP menganimasikan satu variabel <code>--p</code> (<code>expo.out</code>, jeda 28&nbsp;ms — cukup rapat sehingga seluruh tujuan tiba hampir bersamaan), lencana <code>back.out</code>; Lenis dihentikan selama menu terbuka. Tekan tombol menu dua kali dengan cepat: klik kedua <em>membatalkan</em> penutupan dan seluruh tujuan kembali penuh, jadi busur tidak pernah tertinggal separuh. Coba juga klik di luar, tekan Escape, atau ganti tema. Dengan <code>prefers-reduced-motion: reduce</code> menu tetap terbuka tanpa animasi.
     </p>
 
     <script src="../../public/vendor/gsap/gsap.min.js"></script>
@@ -233,6 +234,14 @@
                 paintTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
             });
         });
+        // Tombol coba-coba: buka/tutup busur tanpa harus mencari tombolnya.
+        const replay = document.querySelector('[data-demo-replay]');
+        if (replay) {
+            replay.addEventListener('click', () => {
+                const trigger = document.querySelector('[data-customer-radial] > summary');
+                if (trigger) trigger.click();
+            });
+        }
         // ?embed=1 dipakai oleh bingkai 320 px di bawah.
         if (!window.frameElement && new URLSearchParams(location.search).get('embed') === '1') {
             document.body.classList.add('demo-embed');

@@ -72,7 +72,7 @@ class RadialMenuTest extends TestCase
         // GSAP: satu timeline, stagger, dan lencana memantul.
         $this->assertStringContainsString('gsap.timeline', $js);
         $this->assertStringContainsString("'--p': 1", $js);
-        $this->assertStringContainsString('stagger: 0.055', $js);
+        $this->assertStringContainsString('stagger: 0.028', $js);
         $this->assertStringContainsString("ease: 'expo.out'", $js);
         $this->assertStringContainsString("ease: 'back.out(2.4)'", $js);
 
@@ -131,12 +131,14 @@ class RadialMenuTest extends TestCase
         $view = File::get(resource_path('views/layouts/component/customer/_radial_customer.blade.php'));
         $js = File::get(public_path('js/berkah-radial.js'));
 
-        // Cincin orbit dan gumpalan tidak lagi berukuran tetap: ukurannya
-        // mengikuti busur yang sedang dipakai, supaya bentuk U tidak terlihat
-        // sempit di dalam cincin 244 px.
-        $this->assertStringContainsString('width:var(--bk-orbit,244px)', $view);
-        $this->assertStringContainsString('calc(var(--bk-orbit,238px) * .98)', $view);
-        $this->assertStringNotContainsString('width:238px;height:238px', $view);
+        // Tidak ada bidang atau cincin di belakang busur: dulu ada cincin
+        // orbit 244 px dan gumpalan goo di belakang tujuan, dan keduanya
+        // terbaca sebagai “latar” menu. Elemen goo tetap ada (id dipakai uji)
+        // tetapi tidak digambar lagi.
+        $this->assertStringContainsString('.bk-header-radial .customer-radial__goo{display:none}', $view);
+        $this->assertStringNotContainsString('customer-radial__links::before{content', $view);
+        $this->assertStringContainsString('id="bk-menu-goo"', $view);
+        $this->assertStringNotContainsString('--bk-orbit', $view);
 
         // Tombol di tengah (pil ringkas) memakai busur U; tombol di ujung
         // kanan kembali ke busur kiri-bawah dari server.
@@ -149,5 +151,18 @@ class RadialMenuTest extends TestCase
 
         // Nilai awal dari server disimpan, bukan ditimpa langsung.
         $this->assertStringContainsString("getPropertyValue('--rx')", $js);
+
+        // Busur selalu berakhir utuh: jeda antar-tujuan dirapatkan (55 ms
+        // membuat dua tujuan terakhir masih di tengah tombol saat disapu
+        // mata), dan ada penyelesaian paksa setelah tween masuk.
+        $this->assertStringContainsString('stagger: 0.028', $js);
+        $this->assertStringContainsString('duration: 0.42', $js);
+        $this->assertStringContainsString('onComplete: settle', $js);
+        $this->assertStringContainsString('const settle = ', $js);
+
+        // Klik kedua saat busur menyusut tidak lagi ditelan: penutupan
+        // dibatalkan dan seluruh tujuan kembali penuh.
+        $this->assertStringContainsString('if (closing) {', $js);
+        $this->assertStringContainsString("from: 'end'", $js);
     }
 }
