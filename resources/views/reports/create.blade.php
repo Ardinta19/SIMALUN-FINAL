@@ -11,9 +11,9 @@
     --blue-dark: #54051f;
     --blue: #85092d;
     --blue-lt: #f8e9ed;
-    --green: #059669;
+    --green: #047857;
     --green-lt: #ecfdf5;
-    --orange: #f59e0b;
+    --orange: #b45309;
     --orange-lt: #fef3c7;
     --red: #dc2626;
     --red-lt: #fef2f2;

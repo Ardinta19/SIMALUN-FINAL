@@ -134,7 +134,7 @@
     border: 2px solid #fff;
     font-family: 'Plus Jakarta Sans', sans-serif;
 }
-.admin-nav__badge--success { background: #00C48C; }
+.admin-nav__badge--success { background: #087f5b; }
 .admin-nav__label {
     font-size: 0.6rem;
     font-weight: 800;

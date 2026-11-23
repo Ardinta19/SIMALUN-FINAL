@@ -118,7 +118,7 @@
 .driver-nav__badge {
     position: absolute;
     top: -6px; right: -8px;
-    background: #FF6B35;
+    background: #c2410c;
     color: #fff;
     font-size: 0.55rem;
     font-weight: 900;

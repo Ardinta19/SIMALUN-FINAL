@@ -13,11 +13,11 @@
     --blue-mid:   #0077b6;
     --blue-light: #00b4d8;
     --blue-sky:   #e0f4ff;
-    --orange:     #FF6B35;
+    --orange:     #c2410c;
     --orange-lt:  #fff3ee;
-    --green:      #00C48C;
+    --green:      #087f5b;
     --green-lt:   #e6fff6;
-    --red:        #ef4444;
+    --red:        #c62f2f;
     --red-lt:     #fff1f1;
     --yellow:     #f59e0b;
     --yellow-lt:  #fffbeb;

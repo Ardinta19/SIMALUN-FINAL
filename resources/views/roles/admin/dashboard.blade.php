@@ -23,11 +23,11 @@
     --teal:       #0d9488;
     --teal-lt:    #ccfbf1;
     --orange:     #a92143;
-    --amber:      #f59e0b;
+    --amber:      #b45309;
     --orange-lt:  #fff1ea;
-    --green:      #059669;
+    --green:      #047857;
     --green-lt:   #e7faf2;
-    --red:        #e23b3b;
+    --red:        #c62f2f;
     --red-lt:     #fff1f1;
     --violet:     #6366f1;
     --violet-lt:  #eef0ff;

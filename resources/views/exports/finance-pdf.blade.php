@@ -19,7 +19,7 @@ body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 9pt; color: #1a
 .summary-table td { padding: 10px 14px; text-align: center; width: 33.33%; }
 .summary-label { font-size: 7.5pt; font-weight: bold; color: #8896a6; text-transform: uppercase; letter-spacing: 0.3px; }
 .summary-value { font-size: 13pt; font-weight: bold; margin-top: 3px; }
-.summary-value.income { color: #059669; }
+.summary-value.income { color: #047857; }
 .summary-value.expense { color: #dc2626; }
 .summary-value.balance { color: #0b5394; }
 
@@ -44,7 +44,7 @@ body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 9pt; color: #1a
 .data-table .right { text-align: right; }
 
 .badge { padding: 2px 8px; border-radius: 3px; font-size: 7pt; font-weight: bold; }
-.badge-in { background-color: #ecfdf5; color: #059669; }
+.badge-in { background-color: #ecfdf5; color: #047857; }
 .badge-out { background-color: #fef2f2; color: #dc2626; }
 
 .footer { margin-top: 20px; text-align: center; font-size: 7.5pt; color: #8896a6; border-top: 1px solid #e2e8f0; padding-top: 10px; }
@@ -107,7 +107,7 @@ body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 9pt; color: #1a
             <td>{{ $e->entry_date->format('d/m/Y') }}</td>
             <td>{{ Str::limit($e->notes ?? '-', 40) }}</td>
             <td><span class="badge {{ $e->entry_type === 'income' ? 'badge-in' : 'badge-out' }}">{{ $e->entry_type === 'income' ? 'Masuk' : 'Keluar' }}</span></td>
-            <td class="right" style="color:{{ $e->entry_type === 'income' ? '#059669' : '#dc2626' }}">{{ number_format($e->amount, 0, ',', '.') }}</td>
+            <td class="right" style="color:{{ $e->entry_type === 'income' ? '#047857' : '#dc2626' }}">{{ number_format($e->amount, 0, ',', '.') }}</td>
             <td>{{ $e->order?->order_code ?? '-' }}</td>
         </tr>
         @empty

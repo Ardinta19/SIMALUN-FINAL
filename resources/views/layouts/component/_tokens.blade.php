@@ -20,12 +20,12 @@
         --brand-900: #002f4d;
 
         /* Accent (tailwind: colors.accent) */
-        --accent-500: #FF6B35;
+        --accent-500: #c2410c;
 
         /* Semantic (tailwind: colors.success / warning / danger) */
-        --success-500: #00C48C;
-        --warning-500: #f59e0b;
-        --danger-500: #ef4444;
+        --success-500: #087f5b;
+        --warning-500: #b45309;
+        --danger-500: #c62f2f;
 
         /* Surface (tailwind: colors.surface) */
         --surface-50: #f8fafc;

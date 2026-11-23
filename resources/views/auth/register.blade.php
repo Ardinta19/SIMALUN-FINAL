@@ -93,7 +93,7 @@ html, body {
   box-shadow:0 0 14px rgba(255,107,53,.5);
 }
 .step-dot.done {
-  background:rgba(0,196,140,.9); border-color:#00C48C; color:#fff;
+  background:#087f5b; border-color:#087f5b; color:#fff;
 }
 .step-line {
   flex:1; max-width:40px; height:2px;

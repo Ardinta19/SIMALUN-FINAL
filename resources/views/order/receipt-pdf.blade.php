@@ -187,7 +187,7 @@ body {
 
 .payment-paid {
     background-color: #ecfdf5;
-    color: #059669;
+    color: #047857;
     border: 1px solid #a7f3d0;
 }
 
@@ -376,7 +376,7 @@ body {
     @if($discount > 0)
     <div class="total-row">
         <span class="label">Diskon</span>
-        <span class="value" style="color: #059669;">- Rp {{ number_format($discount, 0, ',', '.') }}</span>
+        <span class="value" style="color: #047857;">- Rp {{ number_format($discount, 0, ',', '.') }}</span>
     </div>
     @endif
     <hr class="total-divider">

@@ -27,7 +27,7 @@
     height: 36px;
     border-radius: 10px;
     background: #fff7ed;
-    color: #f59e0b;
+    color: #b45309;
     display: grid;
     place-items: center;
     font-size: 1.1rem;
@@ -64,7 +64,7 @@
 .rating-stars input:checked ~ label,
 .rating-stars label:hover,
 .rating-stars label:hover ~ label {
-    color: #f59e0b;
+    color: #b45309;
     transform: scale(1.05);
 }
 .rating-textarea {
@@ -105,7 +105,7 @@
     font-size: 1.4rem;
     line-height: 1;
 }
-.rating-existing__star { color: #f59e0b; }
+.rating-existing__star { color: #b45309; }
 .rating-existing__star--off { color: #e2e8f0; }
 .rating-existing__comment {
     margin-top: 10px;

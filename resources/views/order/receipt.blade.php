@@ -18,7 +18,7 @@
     --ink-lt: #8896a6;
     --accent: #0b5394;
     --accent-lt: #e8f4fd;
-    --green: #059669;
+    --green: #047857;
     --green-lt: #ecfdf5;
     --red: #dc2626;
     --border: #e2e8f0;

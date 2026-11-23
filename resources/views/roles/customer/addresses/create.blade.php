@@ -15,8 +15,8 @@
     --blue-mid:   #85092d;
     --blue-light: #b6435e;
     --blue-sky:   #f8e9ed;
-    --orange:     #FF6B35;
-    --green:      #00C48C;
+    --orange:     #c2410c;
+    --green:      #087f5b;
     --surface:    #faf4f3;
     --card:       #ffffff;
     --ink:        #1a2332;
@@ -25,7 +25,7 @@
     --border:     #f0dfe1;
     --radius:     16px;
     --radius-sm:  10px;
-    --red:        #ef4444;
+    --red:        #c62f2f;
 }
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 body {

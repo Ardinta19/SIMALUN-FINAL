@@ -10,7 +10,7 @@
 <style>
     :root {
         --blue-dark:#54051f; --blue-mid:#85092d; --blue-light:#b6435e;
-        --blue-sky:#f8e9ed; --orange:#FF6B35; --green:#00C48C; --red:#ef4444;
+        --blue-sky:#f8e9ed; --orange:#c2410c; --green:#087f5b; --red:#c62f2f;
         --ink:#1a2332; --ink-mid:#3d5066; --ink-lt:#5f7082;
         --surface:#faf4f3; --border:#f0dfe1; --radius:16px; --radius-sm:10px;
     }

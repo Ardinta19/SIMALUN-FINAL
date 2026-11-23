@@ -155,7 +155,7 @@ html, body { width:100%; height:100%; overflow:hidden; font-family:'Plus Jakarta
 .panel-num {
   position:absolute; top:8px; right:8px;
   width:22px; height:22px; border-radius:50%;
-  background:#FF6B35; color:#fff;
+  background:#c2410c; color:#fff;
   font-weight:800; font-size:.8rem;
   display:flex; align-items:center; justify-content:center;
   box-shadow:0 2px 8px rgba(255,107,53,.5);

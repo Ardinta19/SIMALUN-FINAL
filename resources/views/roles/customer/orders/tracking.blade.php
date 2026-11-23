@@ -14,8 +14,8 @@
     --blue-dark:  #002f5c;
     --blue-mid:   #0077b6;
     --blue-light: #00b4d8;
-    --orange:     #FF6B35;
-    --green:      #00C48C;
+    --orange:     #c2410c;
+    --green:      #087f5b;
     --surface:    #f4f8fc;
     --card:       #ffffff;
     --ink:        #1a2332;

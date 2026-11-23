@@ -15,9 +15,9 @@
   --blue-mid:   #0077b6;
   --blue-light: #00b4d8;
   --blue-sky:   #e0f4ff;
-  --orange:     #FF6B35;
+  --orange:     #c2410c;
   --orange-lt:  #fff3ee;
-  --green:      #00C48C;
+  --green:      #087f5b;
   --white:      #ffffff;
   --ink:        #1a2332;
   --ink-mid:    #3d5066;
@@ -690,8 +690,8 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
             <span class="sum-value" id="sum-pickup-cost">Rp 5.000</span>
           </div>
           <div class="sum-row" id="sum-discount-row" style="display: none;">
-            <span class="sum-label" style="color: #059669;">Diskon Voucher</span>
-            <span class="sum-value" id="sum-discount" style="color: #059669;">- Rp 0</span>
+            <span class="sum-label" style="color: #047857;">Diskon Voucher</span>
+            <span class="sum-value" id="sum-discount" style="color: #047857;">- Rp 0</span>
           </div>
           <hr class="sum-divider">
           <div class="sum-row">
@@ -959,7 +959,7 @@ const voucherBtn = document.getElementById('voucher-check-btn');
 const voucherResult = document.getElementById('voucher-result');
 
 function setVoucherSuccess(data) {
-  voucherResult.innerHTML = '<span style="color: #059669;">✓ ' + data.description
+  voucherResult.innerHTML = '<span style="color: #047857;">✓ ' + data.description
     + ' &mdash; potongan ' + data.discount_label + '</span>';
 }
 

@@ -12,10 +12,10 @@
     --blue-mid:   #0077b6;
     --blue-light: #00b4d8;
     --blue-sky:   #e0f4ff;
-    --orange:     #FF6B35;
-    --green:      #00C48C;
+    --orange:     #c2410c;
+    --green:      #087f5b;
     --green-lt:   #e6fff6;
-    --red:        #ef4444;
+    --red:        #c62f2f;
     --yellow:     #f59e0b;
     --surface:    #f4f8fc;
     --card:       #ffffff;

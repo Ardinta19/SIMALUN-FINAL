@@ -548,6 +548,20 @@ class UiKitTest extends TestCase
         $this->assertStringContainsString("DARK_THEME_COLOR = '#140f12'", $js);
     }
 
+    public function test_semantic_color_tokens_are_readable_in_light_theme(): void
+    {
+        $tokens = File::get(resource_path('views/layouts/component/_tokens.blade.php'));
+
+        // Token ini dipakai sebagai warna teks di atas putih sekaligus latar
+        // tombol bertulisan putih; keduanya harus >= 4.5:1.
+        foreach (['success-500' => '#087f5b', 'warning-500' => '#b45309', 'danger-500' => '#c62f2f', 'accent-500' => '#c2410c'] as $name => $hex) {
+            $this->assertStringContainsString('--'.$name.': '.$hex, $tokens, 'Nilai '.$name.' berubah menjadi lebih pucat.');
+
+            $this->assertGreaterThanOrEqual(4.5, $this->contrastRatio($hex, '#ffffff'), $name.' tidak terbaca sebagai teks di atas putih.');
+            $this->assertGreaterThanOrEqual(4.5, $this->contrastRatio('#ffffff', $hex), 'Teks putih di atas '.$name.' tidak terbaca.');
+        }
+    }
+
     public function test_print_view_stays_light_in_dark_theme(): void
     {
         $css = File::get(public_path('css/berkah-theme.css'));

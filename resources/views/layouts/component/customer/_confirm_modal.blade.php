@@ -79,12 +79,12 @@
 .confirm-icon.type-danger {
     background: #fff1f1;
     border: 2px solid #fecaca;
-    color: #ef4444;
+    color: #c62f2f;
 }
 .confirm-icon.type-warning {
     background: #fffbeb;
     border: 2px solid #fde68a;
-    color: #f59e0b;
+    color: #b45309;
 }
 .confirm-icon.type-info {
     background: #e0f4ff;
@@ -94,7 +94,7 @@
 .confirm-icon.type-success {
     background: #ecfdf5;
     border: 2px solid #a7f3d0;
-    color: #059669;
+    color: #047857;
 }
 .confirm-title {
     font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;
@@ -137,7 +137,7 @@
     background: #e2e8f0;
 }
 .confirm-btn--confirm.type-danger {
-    background: #ef4444;
+    background: #c62f2f;
     color: #ffffff;
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
@@ -145,7 +145,7 @@
     background: #dc2626;
 }
 .confirm-btn--confirm.type-warning {
-    background: #f59e0b;
+    background: #b45309;
     color: #ffffff;
     box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
 }
