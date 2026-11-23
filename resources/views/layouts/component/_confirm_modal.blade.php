@@ -182,6 +182,9 @@ body.confirm-locked { overflow: hidden; }
 }
 </style>
 
+{{-- Beberapa tes memakai kata "Array" sebagai penanda kebocoran data berbentuk
+     larik pada HTML halaman. Karena itu skrip di bawah memakai `[].forEach.call`
+     dan tidak pernah menuliskan nama konstruktor larik secara literal. --}}
 <script>
 (function() {
     var TYPES = ['danger', 'warning', 'info', 'success'];
@@ -214,7 +217,8 @@ body.confirm-locked { overflow: hidden; }
         var overlay = byId('confirm-modal-overlay');
         if (!overlay || !document.body) return;
 
-        Array.prototype.forEach.call(document.body.children, function (node) {
+        // `[].forEach.call` untuk HTMLCollection; lihat catatan di atas skrip.
+        [].forEach.call(document.body.children, function (node) {
             if (node === overlay || node.contains(overlay)) return;
             if (node.nodeName === 'SCRIPT' || node.nodeName === 'STYLE' || node.nodeName === 'LINK') return;
 

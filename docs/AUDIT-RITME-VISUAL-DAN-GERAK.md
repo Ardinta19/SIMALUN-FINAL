@@ -695,3 +695,26 @@ admin → `admin.profile`, pelanggan → `customer.profile`, peran lain →
 `ProfileTest::test_alamat_pendek_profile_mengarahkan_ke_profil_sesuai_peran`
 dan `test_tamu_yang_membuka_profile_diarahkan_ke_halaman_masuk` mengunci
 perilaku ini.
+
+### 9.19 Kata "Array" yang membocorkan diri ke HTML
+
+`ProfileTest::test_profile_and_address_forms_render_safely_after_non_scalar_retry`
+mengirim `name => ['Budi']` (larik, bukan teks) lalu memastikan halaman
+`/profile/edit` tetap tampil tanpa mencetak kata "Array". Tes itu gagal, dan
+penyebabnya bukan data lama: halaman memuat `_confirm_modal`, dan skrip
+sebaris di dalamnya menulis `Array.prototype.forEach.call(document.body.children, …)`.
+Skrip apa pun yang menyebut nama konstruktor larik akan menaruh kata itu di
+HTML — tepat kata yang dipakai tes sebagai penanda kebocoran.
+
+Dua hal diperbaiki:
+
+1. Skrip modal memakai `[].forEach.call(...)`, bentuk yang sama tanpa menyebut
+   nama konstruktor. Perilakunya identik, termasuk untuk `HTMLCollection`.
+2. `roles/admin/profile_edit.blade.php` — satu-satunya halaman sunting profil
+   yang masih memakai `old('name')` mentah — kini memakai penjaga `$oldText`
+   yang sama dengan halaman pelanggan (`is_scalar($value) ? (string) $value : ''`),
+   jadi kiriman berbentuk larik tidak pernah tercetak sebagai teks larik.
+
+Penjaga: `UiDefaultsTest::test_no_view_prints_the_word_array` memindai seluruh
+view (komentar Blade dibuang lebih dulu, karena tidak ikut terkirim ke
+peramban) dan gagal bila kata itu muncul lagi di markup atau skrip sebaris.

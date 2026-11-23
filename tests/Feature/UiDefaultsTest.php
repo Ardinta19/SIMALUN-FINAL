@@ -254,6 +254,31 @@ class UiDefaultsTest extends TestCase
         $this->assertStringContainsString("setAttribute('aria-expanded'", $js);
     }
 
+    public function test_no_view_prints_the_word_array(): void
+    {
+        // Beberapa tes fitur memakai kata "Array" sebagai penanda bahwa suatu
+        // halaman mencetak larik mentah (mis. old('name') saat isian dikirim
+        // sebagai name[]). Penanda itu hanya berguna kalau kata tersebut tidak
+        // pernah muncul sah di HTML — termasuk dari skrip sebaris. Karena itu
+        // skrip memakai `[].forEach.call`, bukan nama konstruktor larik.
+        $root = dirname(__DIR__, 2).'/resources/views';
+        $offenders = [];
+
+        $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS));
+        foreach ($files as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+            // Komentar Blade dibuang saat kompilasi, jadi tidak ikut terkirim.
+            $source = (string) preg_replace('/\{\{--.*?--\}\}/s', '', (string) file_get_contents($file->getPathname()));
+            if (str_contains($source, 'Array')) {
+                $offenders[] = $file->getFilename();
+            }
+        }
+
+        $this->assertSame([], $offenders, 'Kata "Array" akan mengacaukan penanda tes.');
+    }
+
     public function test_buttons_inside_forms_declare_their_type(): void
     {
         // <button> tanpa type di dalam <form> selalu berarti submit. Itu tidak
