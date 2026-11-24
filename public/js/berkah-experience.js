@@ -172,7 +172,15 @@
             }
             syncHeader();
             const trigger = document.querySelector(`[data-open-dialog="${dialog.dataset.returnFocus}"]`);
-            focusWithoutScroll(trigger && (!header.contains(trigger) || !header.classList.contains('is-compact')) ? trigger : expand);
+            const back = trigger && (!header.contains(trigger) || !header.classList.contains('is-compact')) ? trigger : expand;
+            focusWithoutScroll(back);
+            /* Pemicu bisa saja sudah tidak bisa difokuskan saat dialog ditutup
+               (mis. filter diterapkan lalu tombolnya disembunyikan). Fokus yang
+               gagal mendarat akan jatuh ke <body>, jadi pakai tombol logo
+               sebagai jaring pengaman — sama seperti busur radial di ponsel. */
+            if (back && expand && back !== expand && document.activeElement !== back) {
+                focusWithoutScroll(expand);
+            }
             syncHeader();
         });
     });

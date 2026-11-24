@@ -1121,6 +1121,18 @@ class UiKitTest extends TestCase
         );
     }
 
+    public function test_fokus_dialog_kembali_ke_logo_bila_pemicu_tersembunyi(): void
+    {
+        $script = File::get(public_path('js/berkah-experience.js'));
+
+        // Pemicu dialog (mis. tombol filter) bisa disembunyikan setelah filter
+        // diterapkan. Memfokuskannya gagal, fokus jatuh ke <body>, jadi tombol
+        // logo dipakai sebagai jaring pengaman.
+        $this->assertStringContainsString('const back = trigger && (!header.contains(trigger)', $script);
+        $this->assertStringContainsString('document.activeElement !== back', $script);
+        $this->assertStringContainsString('focusWithoutScroll(expand);', $script);
+    }
+
     public function test_dialog_tema_mengembalikan_fokus_ke_tombol_busur(): void
     {
         $kit = File::get(public_path('js/berkah-ui-kit.js'));

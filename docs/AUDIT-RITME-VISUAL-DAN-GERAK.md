@@ -1392,3 +1392,27 @@ pratinjau).
 
 **C. Harness.** phpstub 80/0/200, `.tmp-verify` 26/0, blade-scan 93 view 0/0,
 jsdom 259/0.
+
+### 9.32 Kelas cacat yang sama di dialog filter: fokus ke pemicu yang tersembunyi
+
+Setelah fokus dialog tema diperbaiki (§9.30), pola yang sama diperiksa di
+seluruh aplikasi. Satu tempat lain memakai pola itu: dialog filter
+(`#bk-filter`) di `berkah-experience.js`. Saat ditutup, fokus dikembalikan ke
+`[data-open-dialog="bk-filter"]`; kode lama hanya berjaga untuk pemicu yang
+berada di header ringkas (dialihkan ke tombol logo). Bila pemicu disembunyikan
+karena sebab lain — mis. filter sudah diterapkan lalu tombol filternya tidak
+ditampilkan lagi — `focus()` gagal dan fokus jatuh ke `<body>`, sehingga
+pengguna papan ketik harus mulai Tab dari awal halaman.
+
+Perbaikannya tidak menebak visibilitas (jsdom tidak punya tata letak, dan
+`getClientRects()` selalu kosong di sana): fokus dipindahkan ke sasaran, lalu
+**diperiksa hasilnya**. Bila `document.activeElement` bukan sasaran itu, fokus
+dipindahkan ke tombol logo — sasaran yang selalu ada ketika header dalam mode
+ringkas. Di peramban asli pemeriksaan ini menangkap elemen `display:none`; di
+jsdom pemeriksaan ini lolos tanpa mengubah tes lama.
+
+**Verifikasi.** `dialog.test.js` 11 pemeriksaan (+2): pemicu yang `focus()`-nya
+dinetralkan → setelah dialog ditutup fokus mendarat di `[data-bk-expand]`.
+`UiKitTest` menambah penjaga untuk baris `const back = trigger && …`,
+`document.activeElement !== back`, dan `focusWithoutScroll(expand);`. Harness:
+phpstub 81/0/200, `.tmp-verify` 26/0, blade-scan 93 view 0/0, jsdom 261/0.
