@@ -195,6 +195,21 @@ class ResponsiveLayoutTest extends TestCase
         $this->assertStringContainsString("'.bk-how', '.bk-category-strip'", $motion);
     }
 
+    /** Header lama yang dipakai admin saat meninjau katalog publik masih
+     *  hidup di layout katalog. Tautannya dulu teks tanpa tinggi, jadi di
+     *  ponsel sasarannya di bawah 44 px — sekarang setinggi sasaran sentuh. */
+    public function test_header_katalog_untuk_admin_punya_tautan_setinggi_sasaran_sentuh(): void
+    {
+        $layout = File::get(resource_path('views/catalog/layout.blade.php'));
+
+        $this->assertStringContainsString(
+            '.nav a{color:white;font-size:var(--bk-fs-sm);font-weight:700;text-decoration:none;min-height:44px;display:inline-flex;align-items:center}',
+            $layout
+        );
+        // Di bawah 650 px tautan tetap membungkus selebar header.
+        $this->assertStringContainsString('.top .nav{width:100%;margin-left:0;gap:6px 16px}', $layout);
+    }
+
     /** Catatan admin adalah spanduk di atas chipbar: jaraknya satu skala
      *  dengan blok di bawahnya, lebarnya selebar blok itu, dan aksen kirinya
      *  tidak menonjol keluar lengkung kartu. */

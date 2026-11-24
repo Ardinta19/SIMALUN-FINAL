@@ -1936,3 +1936,32 @@ setelah dihapus.
 `docs/kl/i18n.md` ditulis ulang: struktur yang benar (satu kamus), tabel
 istilah baku, alasan kamus mati dihapus, dan panduan “rapikan istilah saat
 menyentuh view” — menggantikan rujukan ke berkas yang sudah tidak ada.
+
+---
+
+## 9.45 — Tautan header katalog untuk admin: 38 px, bukan 44 px
+
+`catalog/layout.blade.php` punya dua header. Untuk tamu dan pelanggan ia
+memuat `catalog.customer-navigation` (header kaca yang sudah dirapikan di
+gelombang C–G). Untuk **admin yang meninjau halaman publik** ia memakai
+cabang `else` berisi header lama `.hero > .top > .nav`.
+
+Diukur pada aturan yang berlaku:
+
+| Aturan | Tinggi tautan |
+|---|---|
+| `.nav a` (dasar) | hanya tinggi baris ≈ 22 px |
+| `@media(max-width:650px) .nav a{padding:8px 0}` | 8 + 22 + 8 ≈ **38 px** |
+
+Jadi tepat di lebar ponsel — saat jari yang dipakai, bukan kursor — tautan
+header admin justru turun ke 38 px, di bawah sasaran 44 px yang dipakai
+seluruh header lain. `.nav a` kini `min-height:44px;display:inline-flex;
+align-items:center`, dan aturan ≤650 px yang membungkus nav selebar header
+tetap berlaku. Dikunci
+`ResponsiveLayoutTest::test_header_katalog_untuk_admin_punya_tautan_setinggi_sasaran_sentuh`.
+
+Satu hal yang **tidak** perlu ditambal: header ini memang tidak punya slot
+`data-bk-theme-host`. Bukan celah — `berkah-ui-kit.js` sudah punya jalur
+cadangan `.bk-theme-dock` yang menempelkan tombol tema ke `body` bila tidak
+ada slot yang terlihat, jadi admin tetap bisa berganti tema dari halaman
+katalog. Menambahkan slot kedua hanya akan membuat pemilihan host berebut.
