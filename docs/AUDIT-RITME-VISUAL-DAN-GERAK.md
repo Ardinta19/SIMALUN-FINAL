@@ -945,7 +945,9 @@ klik di luar, Escape, atau gulir.
 **C. Gerak.** Satu angka, `--p` (0→1), menggerakkan seluruh busur: tiap tujuan
 punya `translate(calc(var(--rx) * var(--p)), …)` dan `scale(calc(.42 + .58 * var(--p)))`.
 GSAP hanya menganimasikan angka itu (`expo.out`, 520 ms, stagger 55 ms), lalu
-lencana menyusul dengan `back.out(2.4)`. Menutup: `power2.in`, 240 ms, stagger
+lencana menyusul dengan `back.out(2.4)`.
+**Diperbarui di §9.26–§9.28:** jeda 55 ms → 28 ms, durasi 520 ms → 420 ms, dan
+lencana dianimasikan lewat `--bp` (bukan `transform`). Menutup: `power2.in`, 240 ms, stagger
 dari tujuan terakhir. Karena GSAP tidak menulis `transform`, hover dan
 `:active` tetap bekerja — pelajaran dari `.bk-hero-link`.
 
@@ -1252,3 +1254,49 @@ ujung, `Home`/`End`, dan `preventDefault` pada panah. `RadialMenuTest` menambah
 penjaga untuk `RADIAL_SELECTOR`, `window.bkRadials`, `other.element.open`,
 `filledItems()`, `childElementCount > 0`, dan keenam tombol panah. Harness:
 phpstub 75/0/200, `.tmp-verify` 26/0, blade-scan 93 view 0/0, jsdom 247/0.
+
+### 9.28 Lencana yang tidak lagi menulis transform, dan penutupan dari luar
+
+Dua sisa terakhir dari audit busur: satu pelanggaran aturan yang sudah
+ditetapkan sendiri, satu keadaan yang tertinggal saat busur ditutup bukan oleh
+skripnya.
+
+**A. Lencana melanggar aturan “GSAP tidak menulis `transform`”.** Animasi
+lencana memakai `fromTo(badges, { scale: 0.3, opacity: 0 }, { scale: 1, … })`.
+GSAP menulis `transform` **inline dan permanen** pada tiap lencana, sehingga
+setelah busur pertama dibuka `scale(calc(.4 + .6 * var(--p)))` dari CSS tidak
+pernah berlaku lagi: lencana berhenti mengecil bersama busur dan tidak ikut
+memantul pada pembukaan berikutnya. Ini persis pelajaran `data-bk-press` yang
+dilarang dipakai pada elemen bertransform hover.
+
+Perbaikan: lencana mendapat variabel sendiri, `--bp` (bawaan 1 supaya tanpa JS
+tampilannya sama). GSAP hanya menulis `--bp` 0 → 1 dengan `back.out(2.4)`
+(nilai boleh melewati 1, itu yang memberi pantulan), lalu CSS menggabungkannya:
+
+```css
+opacity: calc(var(--p) * var(--bp, 1));
+transform: scale(calc((.4 + .6 * var(--p)) * (.3 + .7 * var(--bp, 1))));
+```
+
+Tidak ada `transform` inline yang tersisa — `berkah-radial.js` kini tidak
+mengandung `scale:` sama sekali, dan penjaganya ada di `RadialMenuTest`.
+
+**B. Ditutup dari luar skrip tetap menyisakan keadaan separuh.**
+`berkah-experience.js` bisa melepas `[open]` langsung (`radialMenu.open =
+false`) ketika `window.bkRadial.close()` tidak tersedia. Dulu cabang `toggle`
+hanya menjalankan `setProgress(0)` bila `is-gsap` **belum** dipasang, jadi pada
+busur yang pernah dianimasikan sisa `--p` menempel, tween lama masih berjalan,
+`closing` bisa tertinggal `true`, dan `aria-expanded` tetap `"true"` padahal
+panel sudah tertutup. Sekarang cabang itu selalu: menghentikan `timeline`,
+mereset `closing`, `setProgress(0)`, `syncAria()`, lalu `restoreFocus()` —
+sehingga busur berikutnya selalu mulai dari nol, dan pembaca layar tidak
+mengumumkan menu yang sudah hilang.
+
+**C. Verifikasi.** `radial.test.js` kini 68 pemeriksaan (+6): lencana memakai
+`--bp` dan tidak punya `transform` inline, penutupan dari luar mengembalikan
+semua `--p` ke 0, `aria-expanded` ikut turun ke `false`, pembukaan berikutnya
+tetap penuh, dan klik tombol setelahnya kembali menutup (bukan meneruskan
+“pembatalan” yang sudah basi). `RadialMenuTest` menambah penjaga
+`opacity:calc(var(--p) * var(--bp,1))`, `setProperty('--bp', '0')`, `'--bp': 1`,
+tidak adanya `scale:` di skrip, dan penanda penutupan dari luar. Harness:
+phpstub 75/0/200, `.tmp-verify` 26/0, blade-scan 93 view 0/0, jsdom 253/0.

@@ -147,7 +147,10 @@ html[data-theme] .bk-header-radial .customer-radial__glyph svg{display:block;wid
 .bk-header-radial .customer-radial__text{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
 
 /* Lencana jumlah: angka kecil di sudut kanan atas (gaya Chrome). */
-.customer-radial__badge{position:absolute;top:-5px;right:-6px;display:grid;place-items:center;min-width:20px;height:20px;padding:0 4px;border:2px solid #fffaf8;border-radius:99px;background:#85092d;color:#fff;font-size:var(--bk-fs-2xs);font-weight:800;line-height:1;opacity:var(--p);transform:scale(calc(.4 + .6 * var(--p)));pointer-events:none}
+/* Lencana: --bp (0..1, boleh melewati 1 karena back.out) memantulkan angkanya,
+   --p mengikuti busur. Dua-duanya custom property, jadi GSAP tidak pernah
+   menulis transform inline yang menempel dan mengunci keadaan. */
+.customer-radial__badge{position:absolute;top:-5px;right:-6px;display:grid;place-items:center;min-width:20px;height:20px;padding:0 4px;border:2px solid #fffaf8;border-radius:99px;background:#85092d;color:#fff;font-size:var(--bk-fs-2xs);font-weight:800;line-height:1;opacity:calc(var(--p) * var(--bp,1));transform:scale(calc((.4 + .6 * var(--p)) * (.3 + .7 * var(--bp,1))));pointer-events:none;transition:none}
 html[data-theme="dark"] .customer-radial__badge{border-color:#201820;background:#f3a8bb;color:#2a1219}html[data-theme="dark"] .customer-radial__goo g{fill:#f3a8bb;opacity:.55}
 
 /* Tombol pusat: dua ikon bertukar (menu ⇄ tutup) dan cincin orbit. */

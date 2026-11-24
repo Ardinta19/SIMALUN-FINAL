@@ -194,10 +194,12 @@
             });
             if (badges.length) {
                 /* Lencana menyusul dengan pantulan kecil, seperti pil angka pada
-                   menu radial Chrome. */
-                timeline.fromTo(badges, { scale: 0.3, opacity: 0 }, {
-                    scale: 1,
-                    opacity: 1,
+                   menu radial Chrome. Yang dianimasikan --bp, bukan `transform`:
+                   GSAP menulis transform inline secara permanen, dan itu akan
+                   mengunci skala lencana setelah busur pertama dibuka. */
+                badges.forEach(badge => badge.style.setProperty('--bp', '0'));
+                timeline.to(badges, {
+                    '--bp': 1,
                     duration: 0.4,
                     ease: 'back.out(2.4)',
                     stagger: 0.05
@@ -274,7 +276,16 @@
                 return;
             }
             freezeScroll(false);
-            if (!menu.classList.contains('is-gsap')) setProgress(0);
+            /* Ditutup dari luar skrip ini (berkah-experience.js, header
+               diganti, atau [open] dilepas program lain): hentikan tween yang
+               masih berjalan dan kembalikan seluruh tujuan ke titik pusat.
+               Dulu, saat `is-gsap` aktif, sisa animasi menempel dan busur
+               berikutnya terbuka dari keadaan separuh. */
+            if (timeline) timeline.kill();
+            closing = false;
+            setProgress(0);
+            syncAria();
+            restoreFocus();
         });
 
         /* Tombol tema tinggal di dalam busur (lihat berkah-ui-kit.js). Saat ia

@@ -162,6 +162,18 @@ class RadialMenuTest extends TestCase
         $this->assertStringContainsString('const filledItems = () =>', $js);
         $this->assertStringContainsString('childElementCount > 0', $js);
 
+        // Lencana memakai --bp, bukan `transform`: GSAP menulis transform
+        // inline permanen, dan itu mengunci skala lencana setelah busur
+        // pertama dibuka.
+        $this->assertStringContainsString('opacity:calc(var(--p) * var(--bp,1))', $view);
+        $this->assertStringContainsString("badge.style.setProperty('--bp', '0')", $js);
+        $this->assertStringContainsString("'--bp': 1", $js);
+        $this->assertStringNotContainsString('scale:', $js);
+
+        // Ditutup dari luar skrip ini (berkah-experience.js): tween dihentikan,
+        // tujuan kembali ke pusat, dan aria-expanded ikut turun.
+        $this->assertStringContainsString('Ditutup dari luar skrip ini', $js);
+
         // Navigasi panah di dalam busur (Tab tetap bekerja).
         $this->assertStringContainsString("'ArrowRight'", $js);
         $this->assertStringContainsString("event.key === 'Home'", $js);
