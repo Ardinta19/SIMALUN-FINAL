@@ -222,6 +222,10 @@ html[data-theme="dark"] .bk-header-radial .customer-radial__item--theme .bk-them
 .bk-header-radial>summary{position:relative;display:grid;place-items:center;width:48px;height:48px;padding:0;border:1px solid #ead9d6;border-radius:50%;background:rgba(255,250,248,.94);color:#85092d;box-shadow:0 8px 20px rgba(84,5,31,.14);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:background-color .2s ease,color .2s ease,border-color .2s ease}
 .bk-header-radial>summary::after{content:"";position:absolute;inset:-5px;border:1px solid rgba(133,9,45,.22);border-radius:50%;opacity:0;transform:scale(.86);pointer-events:none;transition:opacity .24s ease,transform .36s cubic-bezier(.34,1.4,.64,1)}
 .bk-header-radial[open]>summary::after{opacity:1;transform:scale(1)}
+/* Pil ringkas hanya setinggi 44+8 px; cincin 5 px di luarnya akan menyentuh
+   tepi pil (terlihat seperti tombol yang menembus header). Di mode ringkas
+   cincinnya dirapatkan 2 px supaya tetap berada di dalam pil. */
+.bk-header.is-compact .bk-header-radial>summary::after{inset:-3px}
 /* Ikon mengikuti kotak tombolnya (48 px, 44 px saat header ringkas) supaya
    tombol tamu tidak melebar keluar pil. */
 html[data-theme] .bk-header-radial>summary .customer-nav__icon.customer-radial__trigger{width:100%;height:100%;background:transparent;border:0}

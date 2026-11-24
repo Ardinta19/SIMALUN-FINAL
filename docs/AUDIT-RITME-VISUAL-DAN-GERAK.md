@@ -1680,5 +1680,18 @@ sehingga validasi selalu berbicara tentang keadaan terbaru. Diuji di jsdom:
 isian diubah lewat skrip → pesan masih menempel → `submit` melepasnya →
 form bisa dikirim.
 
+**4. Cincin tombol menembus pil ringkas.** Cincin `summary::after` berjarak
+5 px di luar tombol 48 px. Saat header menjadi pil ringkas (padding 4 px,
+tombol 44 px, tinggi pil 52 px), cincin 54 px menyentuh tepi pil — persis
+gejala yang terlihat pada tombol X di `image-103`. Di mode ringkas cincinnya
+dirapatkan menjadi 3 px, jadi 50 px dan tetap di dalam pil; di header biasa
+(tinggi isi 64 px) cincin 58 px tetap utuh.
+
+**5. Wordmark di halaman selain katalog.** Aturan pemendek wordmark hanya ada
+untuk `.bk-header--catalog` (beranda), padahal keranjang dan detail produk
+memakai header yang sama tanpa kelas itu. `min-width:0` + `overflow:hidden`
+sekarang berlaku untuk semua header di ≤700 px, jadi teks memendek dengan
+elipsis di halaman mana pun, bukan hanya di beranda.
+
 **Harness.** phpstub **84/0**/201, `.tmp-verify` **26/0**, blade-scan **93
 view 0/0**, jsdom **284/0** + validasi **15/0** + validasi-submit **7/0**.
