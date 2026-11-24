@@ -1361,3 +1361,34 @@ menambah penjaga cincin fokus, varian tema gelap, dan blok
 `hiddenByClosedDetails`, `node.tagName === 'DETAILS' && !node.open`,
 `node.querySelector('summary') !== el`, dan urutan cadangan fokus. Harness:
 phpstub 76/0/200, `.tmp-verify` 26/0, blade-scan 93 view 0/0, jsdom 259/0.
+
+### 9.31 Pratinjau menampilkan tamu, dan tes yang menjaga geometrinya
+
+**A. Pratinjau hanya memperlihatkan peran pelanggan.** `docs/preview/radial.html`
+selalu menggambar lima tujuan pelanggan, padahal busur tamu (empat tujuan)
+adalah inti §9.24 dan geometrinya berbeda: 6 titik radius 143 px versus 5 titik
+radius 114 px. Karena itu pratinjau kini memuat **dua** busur dalam satu header
+tiruan, ditandai `data-demo-role="customer"` dan `"guest"`; CSS menampilkan
+salah satunya, dan `?tamu=1` (dipakai bingkai ponsel kedua) memilih tamu. Kedua
+busur diinisialisasi `berkah-radial.js` — mungkin karena §9.27 membuat skripnya
+menangani semua `[data-customer-radial]`; busur yang tersembunyi berukuran nol
+sehingga geometrinya tidak dihitung ulang, dan membuka satu menutup yang lain.
+
+**B. Tidak ada tes yang menjaga pratinjau.** Pratinjau adalah artefak yang
+dipakai untuk menilai komponen, tetapi tidak ada yang memeriksa apakah isinya
+masih sama dengan partial. `PreviewRadialTest` (baru) menghitung ulang geometri
+dengan rumus yang sama seperti Blade — `$span = 101`, `$radius =
+max(86, round(25 / sin(step/2)))` — lalu memastikan setiap pasangan
+`--rx/--ry` untuk 6 titik dan 5 titik benar-benar tertulis di pratinjau. Tes itu
+langsung menemukan satu selisih: saya menulis `-72px` dari hitungan tangan,
+sedangkan PHP membulatkan `cos(129.5°) × 114` menjadi **-73px**.
+
+Empat pemeriksaan:`test_pratinjau_memakai_css_dan_skrip_asli` (CSS dari partial,
+GSAP/Lenis/`berkah-radial.js` lokal, tanpa CDN), posisi pelanggan 6 titik, posisi
+tamu 5 titik + empat tujuan (`Katalog`, `Keranjang`, `Daftar akun`, `Masuk`) +
+bingkai `?tamu=1`, dan `test_pratinjau_tidak_menghidupkan_lagi_cincin_atau_gumpalan`
+(tidak ada `--bk-orbit` maupun `::before` cincin — penjaga §9.26 di tingkat
+pratinjau).
+
+**C. Harness.** phpstub 80/0/200, `.tmp-verify` 26/0, blade-scan 93 view 0/0,
+jsdom 259/0.

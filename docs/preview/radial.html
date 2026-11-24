@@ -79,6 +79,10 @@
 
     /* Busur hanya tampil <=700 px di aplikasi; pratinjau memaksanya tampil. */
     .demo-page .bk-header-radial { display: block; }
+    /* Peran: pelanggan (5 tujuan) atau tamu (4 tujuan). Hanya satu yang tampil,
+       dan bingkai tamu membukanya lewat ?tamu=1. */
+    body.demo-guest [data-demo-role="customer"] { display: none; }
+    body:not(.demo-guest) [data-demo-role="guest"] { display: none; }
 
     .mock-content { width: min(1100px, 100%); margin: 0 auto; padding: 22px 18px 120px; }
     .mock-content h1 { font-size: clamp(22px, 4vw, 34px); line-height: 1.15; margin: 8px 0 6px; letter-spacing: -.02em; }
@@ -144,7 +148,7 @@
                 Cari
             </a>
 
-            <details class="customer-radial bk-header-radial" data-customer-radial>
+            <details class="customer-radial bk-header-radial" data-customer-radial data-demo-role="customer">
                 <summary class="customer-nav__item" aria-controls="bk-radial-panel" aria-label="Menu: keranjang, pesanan, notifikasi, alamat, dan bantuan, 7 notifikasi belum dibaca">
                     <span class="customer-nav__icon customer-radial__trigger">
                         <span class="customer-radial__face customer-radial__face--menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 5h16"/><path d="M4 12h16"/><path d="M4 19h16"/></svg></span>
@@ -188,6 +192,45 @@
                     </div>
                 </div>
             </details>
+
+            {{-- Tamu: empat tujuan (katalog, keranjang, daftar, masuk) + slot tema.
+                 Posisi memakai busur 5 titik (radius 114 px) dari partial asli. --}}
+            <details class="customer-radial bk-header-radial" data-customer-radial data-demo-role="guest">
+                <summary class="customer-nav__item" aria-controls="bk-radial-panel-tamu" aria-label="Menu: katalog, keranjang, daftar, dan masuk">
+                    <span class="customer-nav__icon customer-radial__trigger">
+                        <span class="customer-radial__face customer-radial__face--menu"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 5h16"/><path d="M4 12h16"/><path d="M4 19h16"/></svg></span>
+                        <span class="customer-radial__face customer-radial__face--close"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span>
+                    </span>
+                    <span class="customer-nav__label">Menu</span>
+                </summary>
+                <div class="customer-radial__panel" id="bk-radial-panel-tamu" role="group" aria-label="Menu pengunjung">
+                    <div class="customer-radial__heading"><strong>Menu pengunjung</strong><span>Pilih tujuan</span></div>
+                    <div class="customer-radial__links">
+                        <a href="#" class="customer-radial__item" style="--rx:-114px;--ry:0px" aria-label="Katalog">
+                            <span class="customer-radial__glyph" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 16.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 1 1 12 7.5a4.5 4.5 0 1 1 4.5 4.5 4.5 4.5 0 1 1-4.5 4.5"/></svg></span>
+                            <span class="customer-radial__text">Katalog</span>
+                        </a>
+                        <a href="#" class="customer-radial__item" style="--rx:-103px;--ry:49px" aria-label="Keranjang">
+                            <span class="customer-radial__glyph" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg></span>
+                            <span class="customer-radial__text">Keranjang</span>
+                        </a>
+                        <a href="#" class="customer-radial__item" style="--rx:-73px;--ry:88px" aria-label="Daftar akun">
+                            <span class="customer-radial__glyph" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M22 11h-6"/></svg></span>
+                            <span class="customer-radial__text">Daftar</span>
+                        </a>
+                        <a href="#" class="customer-radial__item" style="--rx:-28px;--ry:110px" aria-label="Masuk">
+                            <span class="customer-radial__glyph" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/></svg></span>
+                            <span class="customer-radial__text">Masuk</span>
+                        </a>
+                        <span class="customer-radial__item customer-radial__item--theme" data-bk-theme-host="radial" style="--rx:22px;--ry:112px">
+                            <button type="button" class="bk-theme-btn" data-demo-theme-toggle aria-pressed="true" aria-label="Ganti tema">
+                                <svg class="bk-theme-btn__sun" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+                                <svg class="bk-theme-btn__moon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </details>
         </div>
     </div>
 
@@ -202,6 +245,11 @@
             <div class="mock-card"><b>Bantuan / FAQ</b><span>Panduan pemesanan</span></div>
             <div class="mock-card"><b>Mode gelap / terang</b><span>Tombol tema pindah ke dalam busur</span></div>
         </div>
+        <section class="demo-phone-wrap">
+            <h2>Tamu: empat tujuan</h2>
+            <p>Jumlah tujuan tamu berbeda (katalog, keranjang, daftar, masuk), dan geometrinya ikut menghitung ulang: busur 5 titik dengan radius 114 px, bukan 6 titik 143 px. Bingkai ini memakai <code>?tamu=1</code>.</p>
+            <div class="demo-phone"><iframe src="?embed=1&amp;tamu=1" title="Pratinjau busur tamu pada lebar 320 piksel" width="320" height="620" loading="lazy"></iframe></div>
+        </section>
         <section class="demo-phone-wrap">
             <h2>Pada ponsel 320 px</h2>
             <p>Di dalam bingkai ini aturan aslinya berlaku: menu hanya muncul di bawah 700 px. Pilnya berada di tengah, jadi tombol menu punya ruang di kiri <em>dan</em> kanan — busurnya berubah menjadi <strong>bentuk U</strong> yang simetris, bukan menyapu ke kiri seperti saat tombol menempel di ujung kanan header.</p>
@@ -249,6 +297,9 @@
         }
         if (window.frameElement) {
             document.body.classList.add('demo-embed');
+        }
+        if (new URLSearchParams(location.search).get('tamu') === '1') {
+            document.body.classList.add('demo-guest');
         }
     </script>
     <script>
