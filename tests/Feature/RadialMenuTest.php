@@ -152,6 +152,22 @@ class RadialMenuTest extends TestCase
         // Nilai awal dari server disimpan, bukan ditimpa langsung.
         $this->assertStringContainsString("getPropertyValue('--rx')", $js);
 
+        // Satu halaman bisa memuat dua busur (header dan menu atas): semuanya
+        // diinisialisasi, dan membuka satu menutup yang lain.
+        $this->assertStringContainsString('RADIAL_SELECTOR', $js);
+        $this->assertStringContainsString('window.bkRadials', $js);
+        $this->assertStringContainsString('other.element.open', $js);
+
+        // Slot tema yang kosong tidak boleh menyisakan lubang di busur.
+        $this->assertStringContainsString('const filledItems = () =>', $js);
+        $this->assertStringContainsString('childElementCount > 0', $js);
+
+        // Navigasi panah di dalam busur (Tab tetap bekerja).
+        $this->assertStringContainsString("'ArrowRight'", $js);
+        $this->assertStringContainsString("event.key === 'Home'", $js);
+        $this->assertStringContainsString("event.key === 'End'", $js);
+        $this->assertStringContainsString('event.preventDefault();', $js);
+
         // Busur selalu berakhir utuh: jeda antar-tujuan dirapatkan (55 ms
         // membuat dua tujuan terakhir masih di tengah tombol saat disapu
         // mata), dan ada penyelesaian paksa setelah tween masuk.

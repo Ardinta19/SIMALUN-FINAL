@@ -1147,11 +1147,12 @@ tetap di ujung kanan dan busur kiri-bawah masih bisa dibandingkan.
 
 **Verifikasi.** `radial.test.js` bertambah 13 pemeriksaan: U punya tujuan di
 kiri *dan* kanan, simetris, semuanya di bawah tombol, tidak keluar layar 320 px,
-jarak antarpusat ≥46 px, kelas `is-arc-u` dipasang, orbit ikut membesar; tombol
-di ujung kanan memulihkan `--rx` server dan melepas kelasnya; `layoutArc()`
-mengembalikan `null` untuk satu tujuan dan untuk ruang sempit. `RadialMenuTest`
-menambah penjaga untuk `var(--bk-orbit,244px)`, `is-arc-u`, `ARC_GAP = 50`, dan
-`orientationchange`. Harness: phpstub 75/0/200, `.tmp-verify` 26/0, blade-scan
+jarak antarpusat ≥46 px, kelas `is-arc-u` dipasang; tombol di ujung kanan
+memulihkan `--rx` server dan melepas kelasnya; `layoutArc()` mengembalikan
+`null` untuk satu tujuan dan untuk ruang sempit. `RadialMenuTest` menambah
+penjaga untuk `is-arc-u`, `ARC_GAP = 50`, dan `orientationchange`.
+**Diperbarui di §9.26:** orbit (`--bk-orbit`) dihapus bersama cincin dan
+gumpalan, jadi penjaganya ikut dilepas. Harness: phpstub 75/0/200, `.tmp-verify` 26/0, blade-scan
 93 view 0/0, jsdom 225/0.
 
 ### 9.26 Busur tanpa latar, dan klik kedua tidak lagi setengah jadi
@@ -1202,3 +1203,52 @@ ketiadaan latar (`goo{display:none}`, tanpa `::before` cincin, tanpa
 `--bk-orbit`) dan penjaga `stagger: 0.028`, `duration: 0.42`, `onComplete:
 settle`, serta cabang `if (closing)`. Harness: phpstub 75/0/200, `.tmp-verify`
 26/0, blade-scan 93 view 0/0, jsdom 232/0.
+
+### 9.27 Busur kedua di halaman yang sama, slot kosong, dan navigasi panah
+
+Sisa detail setelah §9.26. Semuanya soal keadaan yang jarang terlihat tetapi
+nyata begitu komponen dipakai di lebih dari satu tempat.
+
+**A. Skrip hanya menangani busur pertama.** `berkah-radial.js` memakai
+`document.querySelector('[data-customer-radial]')`, jadi bila satu halaman
+memuat dua busur — header (`_navbar_customer`) dan menu atas
+(`_radial_header`, untuk halaman yang memakai header sendiri) — hanya yang
+pertama mendapat animasi, kunci gulir, dan pemulihan fokus; yang kedua jatuh ke
+perilaku `<details>` mentah tanpa gerak. Sekarang skrip memindai
+`querySelectorAll` dan menjalankan `setup(menu)` untuk tiap busur: keadaan
+(`timeline`, `closing`), pendengar, dan geometri terpisah. `window.bkRadial`
+tetap menunjuk busur pertama (dipakai `berkah-experience.js` dan tes), dan
+`window.bkRadials` memuat semuanya. Membuka satu busur menutup yang lain lewat
+daftar `registry`, supaya dua panel tidak pernah terbuka bersamaan.
+
+Catatan: `_radial_header.blade.php` kini tidak di-`@include` di mana pun —
+halaman katalog memakai `catalog/customer-navigation.blade.php` dan halaman
+pelanggan memakai header biasa. Berkasnya dibiarkan karena hanya membungkus
+partial yang sama, jadi tidak ada rintangan versi bila dipakai lagi. Karena
+busur kedua mungkin ada, panel tetap memakai satu `id="bk-radial-panel"`
+(selektor teruji) — satu halaman praktiknya hanya merender satu busur.
+
+**B. Slot tema kosong menyisakan lubang.** Slot tema disembunyikan CSS lewat
+`:empty` ketika tombol tema diparkir di header (layar >700 px atau halaman tanpa
+kit). Geometri lama tetap menghitung slot itu, jadi busur punya satu titik yang
+tidak pernah terisi dan jarak antarpusat tidak rata. `filledItems()` menyaring
+slot tema tanpa isi setiap kali `applyArc()` berjalan, jadi sudut dibagi untuk
+slot yang benar-benar ada; slot kosong tidak pernah dipindahkan dari posisi
+server.
+
+**C. Navigasi panah.** Busur adalah satu kelompok tujuan, jadi arah panah
+berpindah antar-tujuan: `→`/`↓` maju, `←`/`↑` mundur (memutar di ujung),
+`Home`/`End` langsung ke ujung. Urutan DOM sama dengan urutan visual busur, jadi
+tidak perlu memetakan sudut. Fokus dipindahkan ke elemen fokus di dalam slot
+(tautan tujuan, atau tombol tema di dalam slot tema), `preventScroll` dipakai
+agar halaman tidak melompat, dan `preventDefault` menahan gulir halaman saat
+panah ditekan. Tab, Escape, dan pemulihan fokus tetap seperti sebelumnya.
+
+**D. Verifikasi.** `radial.test.js` kini 62 pemeriksaan (+15): dua busur
+terdaftar, `bkRadial` menunjuk yang pertama, membuka yang kedua menutup yang
+pertama dan sebaliknya; slot tema kosong menghasilkan busur 5 titik yang
+simetris tanpa memindahkan slot kosong; panah kanan/kiri maju-mundur, memutar di
+ujung, `Home`/`End`, dan `preventDefault` pada panah. `RadialMenuTest` menambah
+penjaga untuk `RADIAL_SELECTOR`, `window.bkRadials`, `other.element.open`,
+`filledItems()`, `childElementCount > 0`, dan keenam tombol panah. Harness:
+phpstub 75/0/200, `.tmp-verify` 26/0, blade-scan 93 view 0/0, jsdom 247/0.

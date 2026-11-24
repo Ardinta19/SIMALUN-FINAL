@@ -124,6 +124,7 @@
     body.demo-embed .mock-content { padding: 14px 12px 40px; }
     body.demo-embed .mock-content h1 { font-size: 19px; }
     code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+    kbd { font: inherit; font-size: 11px; font-weight: 700; padding: 1px 5px; border-radius: 5px; border: 1px solid currentColor; }
 </style>
 </head>
 <body class="demo-page">
@@ -209,7 +210,7 @@
     </main>
 
     <p class="demo-foot">
-        Gerak: GSAP menganimasikan satu variabel <code>--p</code> (<code>expo.out</code>, jeda 28&nbsp;ms — cukup rapat sehingga seluruh tujuan tiba hampir bersamaan), lencana <code>back.out</code>; Lenis dihentikan selama menu terbuka. Tekan tombol menu dua kali dengan cepat: klik kedua <em>membatalkan</em> penutupan dan seluruh tujuan kembali penuh, jadi busur tidak pernah tertinggal separuh. Coba juga klik di luar, tekan Escape, atau ganti tema. Dengan <code>prefers-reduced-motion: reduce</code> menu tetap terbuka tanpa animasi.
+        Gerak: GSAP menganimasikan satu variabel <code>--p</code> (<code>expo.out</code>, jeda 28&nbsp;ms — cukup rapat sehingga seluruh tujuan tiba hampir bersamaan), lencana <code>back.out</code>; Lenis dihentikan selama menu terbuka. Tekan tombol menu dua kali dengan cepat: klik kedua <em>membatalkan</em> penutupan dan seluruh tujuan kembali penuh, jadi busur tidak pernah tertinggal separuh. Papan ketik: <kbd>Tab</kbd> berpindah seperti biasa, <kbd>←</kbd>/<kbd>→</kbd>/<kbd>↑</kbd>/<kbd>↓</kbd> memutar antar-tujuan, <kbd>Home</kbd>/<kbd>End</kbd> langsung ke ujung, <kbd>Esc</kbd> menutup dan mengembalikan fokus ke tombol. Coba juga klik di luar busur atau ganti tema. Dengan <code>prefers-reduced-motion: reduce</code> menu tetap terbuka tanpa animasi.
     </p>
 
     <script src="../../public/vendor/gsap/gsap.min.js"></script>
