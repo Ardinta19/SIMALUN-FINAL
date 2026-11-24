@@ -293,8 +293,11 @@ Tidak perlu restart apa pun karena queue jalan via cron `--stop-when-empty`
 - `chmod -R 775 storage` dan pastikan owner benar.
 
 **CSS/JS tidak ter-load**
-- Jalankan `npm run build` di lokal, lalu upload folder `public/build`.
-  (Aset Vite di-compile saat build, bukan di server.)
+- Aset produksi dilayani langsung dari `public/css` dan `public/js` (sudah ada
+  di repo, tanpa langkah build). Pastikan kedua folder itu ikut terunggah utuh
+  dan permission file 644.
+- `public/build` (keluaran Vite) **tidak** dimuat halaman mana pun saat ini dan
+  tidak lagi terlacak git; mengunggahnya tidak memperbaiki tampilan.
 
 **Email reset password masuk spam / tidak terkirim**
 - Pakai email domain Hostinger (`no-reply@domainmu`) sebagai `MAIL_FROM_ADDRESS`.

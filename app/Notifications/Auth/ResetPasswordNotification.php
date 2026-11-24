@@ -20,7 +20,7 @@ class ResetPasswordNotification extends ResetPassword
         $expiresInMinutes = config('auth.passwords.users.expire', 60);
 
         return (new MailMessage)
-            ->subject('Reset Password Akun '.$brand)
+            ->subject('Atur ulang kata sandi akun '.$brand)
             ->view('emails.reset-password', [
                 'name' => $notifiable->name ?? 'Pelanggan '.$brand,
                 'url' => $url,

@@ -225,6 +225,47 @@ class UiAccessibilityTest extends TestCase
         $this->assertSame([], $offenders, 'Istilah “Password” masih tersisa: '.implode(', ', $offenders));
     }
 
+    /** “Password” boleh hidup sebagai nama atribut atau nama variabel —
+     *  begitu ia muncul di teks yang dibaca pengguna, istilahnya bercampur
+     *  dengan “kata sandi” di kalimat sebelahnya. Pemindaian ini membuang
+     *  komentar, direktif, dan atribut Blade lebih dulu, lalu menyisir teks
+     *  yang benar-benar dirender (termasuk isi __('…')). */
+    public function test_kata_password_tidak_tersisa_di_teks_yang_dibaca(): void
+    {
+        $offenders = [];
+
+        foreach ($this->viewFiles() as $file) {
+            $text = $this->visibleText($this->read($file));
+
+            if (preg_match('/(?<![A-Za-z])password(?![A-Za-z])/i', $text)) {
+                $offenders[] = $this->relative($file);
+            }
+        }
+
+        $this->assertSame([], $offenders, 'Kata “password” masih tampil di teks: '.implode(', ', $offenders));
+    }
+
+    /** Teks yang akan dibaca pengunjung: atribut, komentar, dan direktif
+     *  dibuang; isi __('…')/@lang('…') dipertahankan karena ikut dirender. */
+    private function visibleText(string $template): string
+    {
+        $text = preg_replace('#<(style|script)\b[^>]*>.*?</\1>#is', ' ', $template) ?? '';
+        $text = preg_replace('/@php\b.*?@endphp/s', ' ', $text) ?? '';
+        $text = preg_replace('/<\?php\b.*?\?>/s', ' ', $text) ?? '';
+        $text = preg_replace('/\{\{--.*?--\}\}/s', ' ', $text) ?? '';
+
+        preg_match_all('/(?:__|@lang)\(\s*([\'"])(.*?)\1/s', $text, $matches);
+        $strings = $matches[2] ?? [];
+
+        $text = preg_replace('/\{\{.*?\}\}|\{!!.*?!!\}/s', ' ', $text) ?? '';
+        $text = preg_replace('/@\w+\s*(\((?:[^()]|\([^()]*\))*\))?/s', ' ', $text) ?? '';
+
+        // Tag HTML boleh memuat ">" di dalam atribut (mis. $errors->get(…)).
+        $text = preg_replace('/<(?:[^>"\']|"[^"]*"|\'[^\']*\')*>/s', "\n", $text) ?? '';
+
+        return $text."\n".implode("\n", $strings);
+    }
+
     /** High Contrast memaksa latar, bayangan, dan warna merek menjadi palet
      *  sistem. Tanpa aturan sendiri, busur, kotak centang, dan aksen catatan
      *  admin bisa menyatu dengan halaman. */

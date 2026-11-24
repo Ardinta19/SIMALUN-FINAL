@@ -6,7 +6,7 @@
     <meta name="color-scheme" content="light only">
     <title>{{ \App\Support\Laundry::name() }}</title>
 </head>
-<body style="margin:0;padding:0;background:#eef4fa;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1a2332;-webkit-text-size-adjust:100%;">
+<body style="margin:0;padding:0;background:#faf4f3;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#321d24;-webkit-text-size-adjust:100%;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#faf4f3;padding:24px 12px;">
         <tr>
             <td align="center">
@@ -22,20 +22,20 @@
 
                     {{-- Content --}}
                     <tr>
-                        <td style="padding:28px 28px 12px;font-size:15px;line-height:1.65;color:#1a2332;">
+                        <td style="padding:28px 28px 12px;font-size:15px;line-height:1.65;color:#321d24;">
                             @yield('content')
                         </td>
                     </tr>
 
                     {{-- Footer --}}
                     <tr>
-                        <td style="padding:18px 28px 26px;border-top:1px solid #eef2f7;">
-                            <div style="font-size:12px;color:#64748b;line-height:1.7;">
-                                <strong style="color:#1a2332;">{{ \App\Support\Laundry::name() }}</strong><br>
+                        <td style="padding:18px 28px 26px;border-top:1px solid #f0e4e0;">
+                            <div style="font-size:12px;color:#6f5960;line-height:1.7;">
+                                <strong style="color:#321d24;">{{ \App\Support\Laundry::name() }}</strong><br>
                                 {{ \App\Support\Laundry::address() }}<br>
                                 WhatsApp/Telp: {{ \App\Support\Laundry::phoneDisplay() }}
                             </div>
-                            <div style="font-size:11px;color:#94a3b8;margin-top:12px;">
+                            <div style="font-size:11px;color:#806975;margin-top:12px;">
                                 &copy; {{ date('Y') }} {{ \App\Support\Laundry::name() }}. Email otomatis — mohon tidak dibalas.
                             </div>
                         </td>

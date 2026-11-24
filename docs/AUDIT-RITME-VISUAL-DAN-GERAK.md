@@ -1768,3 +1768,53 @@ terhadap **kotak padding** — persegi — sementara permukaan kartu berlengkung
 memotong lapisannya) plus `overflow-wrap: anywhere` supaya kata panjang
 dipatahkan, bukan dipotong. Dikunci oleh
 `ResponsiveLayoutTest::test_admin_note_shares_the_rhythm_of_the_blocks_below_it`.
+
+---
+
+## 9.42 — Kata “password” yang lolos, dan surel yang masih biru
+
+Penjaga §9.40 hanya menyisir kata `Password` berhuruf besar. Sapuan ulang
+memakai pipeline yang membuang `<style>`/`<script>`, blok `@php`, komentar
+Blade, ekspresi `{{ }}`, dan direktif `@…` lebih dulu — lalu memeriksa teks
+yang benar-benar dibaca pengunjung (termasuk isi `__('…')`) — menemukan empat
+sisa berhuruf kecil pada dua halaman dan satu subjek surel:
+
+| Lokasi | Sebelum | Sesudah |
+|---|---|---|
+| `auth/confirm-password` | “Silakan konfirmasi password Anda …” | “konfirmasi kata sandi Anda” |
+| `emails/reset-password` (3 kalimat) | “mengatur ulang password akun”, “halaman lupa password”, “password lama tetap aman” | “kata sandi …” |
+| `ResetPasswordNotification` | subjek `Reset Password Akun …` | `Atur ulang kata sandi akun …` |
+
+Kata “password” tetap sah sebagai nama atribut (`type="password"`,
+`autocomplete="new-password"`, `name="password"`) dan sebagai nama variabel
+(`updatePassword`), jadi pemindaian teks tampil — bukan pemindaian baris —
+adalah satu-satunya cara yang tidak menghasilkan positif palsu. Dikunci
+`UiAccessibilityTest::test_kata_password_tidak_tersisa_di_teks_yang_dibaca`
+(pembaca: `visibleText()`), diuji ulang dengan menyuntikkan kembali pelanggaran:
+tes gagal, lalu hijau setelah dipulihkan.
+
+### Palet surel masih milik templat lama
+
+`emails/reset-password` memakai tombol **#FF6B35 (oranye)** di tengah header
+maroon `#54051f → #b6435e`, sementara `emails/layout` memakai teks navy
+`#1a2332` dan abu dingin `#64748b`/`#94a3b8` di atas latar `#eef4fa` biru.
+Empat warna biru itu tidak pernah ikut palet hangat aplikasi:
+
+| Peran | Sebelum | Sesudah | Kontras di putih |
+|---|---|---|---|
+| latar bodi | `#eef4fa` | `#faf4f3` | — |
+| tinta isi | `#1a2332` | `#321d24` | 13,4 : 1 |
+| teks bantu | `#64748b` | `#6f5960` | 6,4 : 1 |
+| teks kaki (11 px) | `#94a3b8` | `#806975` | 5,0 : 1 (sebelumnya 2,6 : 1 — gagal AA) |
+| tombol utama | `#FF6B35` | `#85092d` | putih 10,1 : 1 |
+| garis kaki | `#eef2f7` | `#f0e4e0` | — |
+
+### Artefak build yang masih terlacak
+
+Tiga berkas `public/build` (manifest + satu CSS + satu JS) terlacak git
+padahal `/public/build` sudah ada di `.gitignore`, dan **tidak ada satu pun
+view yang memuatnya** (nol `@vite`, nol rujukan `build/assets`). Ketiganya
+dilepas dari indeks (`git rm --cached`, tetap di disk) dan panduan
+`docs/kl/deployment-hostinger.md` diperbaiki: aset produksi dilayani dari
+`public/css` + `public/js`, mengunggah `public/build` tidak memperbaiki
+tampilan.

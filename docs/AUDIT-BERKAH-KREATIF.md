@@ -71,7 +71,7 @@ Audit ini membandingkan kode yang ada dengan kebutuhan penyewaan yang disepakati
 ## Pemeriksaan build frontend
 
 - `npm ci --no-audit --no-fund` dan `npm run build` berhasil di lingkungan audit dengan Node 22; output memperingatkan data Browserslist berusia sekitar enam bulan. Ini bukan pengujian browser, responsivitas, atau pengujian PHP.
-- Meskipun `/public/build` tercantum di `.gitignore`, sebagian output build sudah telanjur terlacak. Build menghasilkan manifest/CSS berbeda dari versi terlacak; deployment perlu strategi yang konsisten (build di deployment atau sengaja mengelola artefak), agar manifest tidak menunjuk file yang tidak diunggah. Jangan commit artefak build secara tidak sengaja.
+- Meskipun `/public/build` tercantum di `.gitignore`, sebagian output build dulu telanjur terlacak. **Sudah diselesaikan (22 November 2026):** ketiga berkas itu dilepas dari indeks git (`git rm --cached`), tetap ada di disk untuk kebutuhan lokal, dan tidak ada halaman yang memuatnya — seluruh view kini hanya merujuk `public/css` dan `public/js`. Karena tidak ada manifest yang dipakai, tidak ada risiko manifest menunjuk berkas yang tidak terunggah. Panduan Hostinger ikut diperbarui agar tidak menyuruh unggah `public/build`.
 - Lockfile mencantumkan Vite 7.3.3, axios 1.16.0, dan concurrently 9.2.1; ketiganya termasuk paket yang dilaporkan pada audit npm saat pemeriksaan. Tidak otomatis berarti seluruh advisory dapat dieksploitasi pada aplikasi ini.
 
 ## Audit Composer dari preview pengguna (22 November 2026)
