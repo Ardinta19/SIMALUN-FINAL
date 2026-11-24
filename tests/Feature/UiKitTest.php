@@ -1169,4 +1169,36 @@ class UiKitTest extends TestCase
             $this->assertStringNotContainsString('style="width:auto" type="checkbox"', $html, $view);
         }
     }
+
+    /** Pesan validasi bawaan peramban berbahasa Inggris ("Please fill out this
+     *  field."). Seluruh antarmuka berbahasa Indonesia, jadi pesannya diganti
+     *  lewat setCustomValidity() — tanpa mengubah required/type/pattern, supaya
+     *  form tetap tervalidasi dan tetap terkirim tanpa JS. */
+    public function test_pesan_validasi_form_berbahasa_indonesia(): void
+    {
+        $js = File::get(public_path('js/berkah-ui-kit.js'));
+
+        $this->assertStringContainsString("addEventListener('invalid'", $js);
+        $this->assertStringContainsString('setCustomValidity(pesan)', $js);
+        $this->assertStringContainsString("valueMissing: 'Bagian ini wajib diisi.'", $js);
+
+        // Sembilan jenis pelanggaran yang bisa dijelaskan tanpa istilah asing.
+        foreach ([
+            'valueMissing', 'typeMismatch', 'patternMismatch', 'tooShort', 'tooLong',
+            'rangeUnderflow', 'rangeOverflow', 'stepMismatch', 'badInput',
+        ] as $key) {
+            $this->assertStringContainsString($key.':', $js, 'Jenis pelanggaran belum diterjemahkan: '.$key);
+        }
+
+        // Pesan tidak boleh terkunci: penanda dilepas saat pengguna mengetik.
+        $this->assertStringContainsString("addEventListener('input', (event) => lepas(event.target), true)", $js);
+        $this->assertStringContainsString("addEventListener('change', (event) => lepas(event.target), true)", $js);
+
+        // Pesan milik kode lain (mis. aturan bisnis) tidak ditimpa.
+        $this->assertStringContainsString('if (validity.customError && !milikKita) return;', $js);
+
+        // Tidak ada teks Inggris yang tersisa di berkas pendamping ini.
+        $this->assertStringNotContainsString('Please fill out this field', $js);
+        $this->assertStringNotContainsString('Please enter', $js);
+    }
 }

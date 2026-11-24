@@ -565,3 +565,77 @@
         syncQty(wrap);
     }, true);
 })();
+
+/* ---------------------------------------------------------------------------
+   Pesan validasi form dalam bahasa Indonesia
+   ---------------------------------------------------------------------------
+   Peramban menampilkan pesan bawaannya dengan bahasa antarmuka peramban —
+   di banyak perangkat muncul kalimat Inggris semacam "isi bagian ini"
+   (lihat audit gambar 105). Pesan bawaan itu tidak bisa diterjemahkan
+   langsung, jadi diganti lewat setCustomValidity() saat peristiwa invalid.
+
+   Aturan main:
+   · Pesan milik kode lain (customError yang bukan dari kita) tidak disentuh —
+     ditandai lewat atribut data-bk-validity.
+   · Tanda dilepas pada input/change supaya pengguna bisa memperbaiki isian
+     dan memicu validasi baru, bukan terkunci pada pesan lama.
+   · Tidak mengubah atribut required/type/pattern: pengiriman form tetap
+     ditangani peramban seperti sebelumnya (dan tetap berjalan tanpa JS).
+   ------------------------------------------------------------------------- */
+(() => {
+    const PESAN = {
+        valueMissing: 'Bagian ini wajib diisi.',
+        typeMismatch: 'Format isian belum sesuai. Periksa kembali, misalnya alamat surel.',
+        patternMismatch: 'Isian belum sesuai format yang diminta.',
+        tooShort: 'Isian terlalu pendek.',
+        tooLong: 'Isian terlalu panjang.',
+        rangeUnderflow: 'Nilai terlalu kecil.',
+        rangeOverflow: 'Nilai terlalu besar.',
+        stepMismatch: 'Nilai tidak sesuai kelipatan yang diizinkan.',
+        badInput: 'Isian belum bisa dibaca. Periksa lagi angkanya.',
+        fallback: 'Isian belum valid.'
+    };
+
+    const MARK = 'data-bk-validity';
+
+    const alasan = (v) => {
+        if (!v) return '';
+        if (v.valueMissing) return 'valueMissing';
+        if (v.typeMismatch) return 'typeMismatch';
+        if (v.patternMismatch) return 'patternMismatch';
+        if (v.tooShort) return 'tooShort';
+        if (v.tooLong) return 'tooLong';
+        if (v.rangeUnderflow) return 'rangeUnderflow';
+        if (v.rangeOverflow) return 'rangeOverflow';
+        if (v.stepMismatch) return 'stepMismatch';
+        if (v.badInput) return 'badInput';
+        return '';
+    };
+
+    document.addEventListener('invalid', (event) => {
+        const field = event.target;
+        if (!field || typeof field.setCustomValidity !== 'function') return;
+        const validity = field.validity;
+        if (!validity) return;
+
+        // Pesan dari kode lain dibiarkan apa adanya.
+        const milikKita = field.hasAttribute(MARK);
+        if (validity.customError && !milikKita) return;
+
+        const kunci = alasan(validity);
+        if (!kunci) return;
+
+        const pesan = PESAN[kunci] || PESAN.fallback;
+        if (field.getAttribute(MARK) === pesan) return;   // jangan menulis ulang
+        field.setCustomValidity(pesan);
+        field.setAttribute(MARK, pesan);
+    }, true);
+
+    const lepas = (field) => {
+        if (!field || !field.hasAttribute || !field.hasAttribute(MARK)) return;
+        field.setCustomValidity('');
+        field.removeAttribute(MARK);
+    };
+    document.addEventListener('input', (event) => lepas(event.target), true);
+    document.addEventListener('change', (event) => lepas(event.target), true);
+})();

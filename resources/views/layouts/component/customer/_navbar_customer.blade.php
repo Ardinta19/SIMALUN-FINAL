@@ -31,12 +31,13 @@
 <style>
 /* Menu radial hanya tampil di ponsel: di layar lebar tujuan yang sama sudah
    menjadi tautan header, jadi tombol tambahan hanya menambah kebisingan.
-   Seluruh rupa busurnya ada di customer/_radial_customer.blade.php. */
-.bk-header-radial{display:none;position:relative;flex:none}
+   Kapan tombol tampil + titik tumpunya kini diatur di partial busur
+   (customer/_radial_customer.blade.php) agar halaman tamu ikut terkena;
+   partial ini hanya menyimpan penyesuaian khas pelanggan. */
 /* Header ringkas tetap memuat tombol radial: setelah halaman digulir, menu
    sekunder (pesanan, notifikasi, alamat, bantuan) harus tetap terjangkau
    tanpa menggulir balik ke atas. Tingginya disamakan dengan ikon lain. */
 .bk-header.is-compact .bk-header-radial>summary{width:44px;height:44px}
 html[data-theme] .bk-header.is-compact .bk-header-radial>summary .customer-nav__icon.customer-radial__trigger{width:44px;height:44px}
-@media(max-width:700px){.bk-header-radial{display:block}body.bk-customer .bk-desktop-nav,html:not(.bk-enhanced) body.bk-customer .bk-desktop-nav{display:none}html:not(.bk-enhanced) body.bk-customer .bk-header-inner{flex-wrap:nowrap}html:not(.bk-enhanced) body.bk-customer .bk-header-space{height:80px}}
+@media(max-width:700px){body.bk-customer .bk-desktop-nav,html:not(.bk-enhanced) body.bk-customer .bk-desktop-nav{display:none}html:not(.bk-enhanced) body.bk-customer .bk-header-inner{flex-wrap:nowrap}html:not(.bk-enhanced) body.bk-customer .bk-header-space{height:80px}}
 </style>

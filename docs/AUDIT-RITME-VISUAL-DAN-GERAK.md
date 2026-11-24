@@ -1528,3 +1528,89 @@ menyesatkan karena ketiga bingkai selebar 320 px.
 jsdom **284/0** (radial 82, kit 34, modal 26, sheet 16, controls 18, dialog 11,
 interactions 30, preview 18, race 9, resize 6, submit 11, themehost 11,
 previewpage 12).
+
+### 9.37 Halaman tamu: busur yang mengambang, wordmark yang tertimpa, jarak catatan admin
+
+Empat tangkapan layar berikutnya semuanya berpangkal pada satu berkas yang
+salah tempat. Rupa dan aturan tampil tombol busur di dalam header
+(`.bk-header-radial`) hanya hidup di `customer/_navbar_customer.blade.php`,
+padahal partial itu **hanya** di-include untuk pelanggan
+(`catalog/layout.blade.php`, di dalam blok `auth()->user()->role ===
+'customer'`). Halaman tamu memakai `customer/_radial_customer.blade.php`
+tanpa partial tersebut, jadi `<details>`-nya sampai ke peramban tanpa gaya
+apa pun.
+
+**Yang terlihat di tangkapan layar (`image-102`, 447×201 — tamu, ponsel).**
+Logo, lalu **lingkaran pink berisi bunga** menimpa awal wordmark sehingga
+yang terbaca hanya “Kreatif”, tombol cari, lalu tombol X dengan cincin yang
+lebih besar dari ikon lain. Cincin itu `summary::after` yang memang muncul
+saat busur terbuka, jadi busur sedang terbuka. Lingkaran pink itu bukan
+tombol pemicu, melainkan **tujuan Katalog** (`aria-current="page"` → terisi
+penuh). Ia duduk di posisi pemicu karena panelnya tidak punya titik tumpu:
+tanpa `position:relative` pada `<details>`, `right:50%` dihitung dari kotak
+selebar header, lalu `--rx` negatif menggeser tujuan jauh ke kiri — tepat di
+atas wordmark. Busur sisanya (keranjang, daftar, profil, bulan) tumpah ke
+bawah menimpa eyebrow hero “PAPAN BUNGA · BERKAH KREATIF”.
+
+**Yang terlihat di layar lebar (`image-103`, 1577×273).** Tanpa aturan
+`display:none` di atas 700 px, tombol pink dan keempat tujuannya tetap
+tampil di atas hero — menduplikasi “Katalog”, “Masuk”, ikon keranjang, dan
+tombol tema yang sudah ada di kanan header. Tombol X di sana juga
+memperlihatkan cincin yang menembus sudut header karena kotaknya masih
+memakai ukuran dasar (48 px + cincin 5 px) di dalam pil setinggi 70 px.
+
+**Perbaikan.** Aturan tampil pindah ke partial busur itu sendiri, tempat
+satu-satunya elemennya dirender — untuk semua peran:
+
+```css
+.bk-header-radial{display:none;position:relative;flex:0 0 auto}
+.bk-header.is-compact .bk-header-radial>summary{width:44px;height:44px}
+@media(max-width:700px){.bk-header-radial{display:block}}
+```
+
+`position:relative` yang ikut pindah adalah separuh perbaikannya: panel
+kembali bertumpu pada tombolnya, sehingga bentuk U / server / cermin yang
+sudah diuji tetap berlaku. Di layar lebar busur hilang seluruhnya (tujuannya
+sudah menjadi tautan header). Partial pelanggan tetap menyimpan aturan
+`is-compact` yang diuji, dan `body.bk-customer .bk-desktop-nav` tidak
+disentuh. Ikon di dalam tombol kini `width:100%;height:100%` agar mengikuti
+44 px saat header ringkas, bukan melebar keluar pil.
+
+**Dua navigasi untuk tamu.** Di ≤700 px halaman tamu memuat pita bawah
+`.bk-guest-tabs` (katalog, keranjang, masuk) **dan** busur dengan tujuan yang
+sama. Pita itu kini hanya untuk halaman tanpa JS (`html:not(.bk-enhanced)`),
+sejalan dengan `body.bk-guest{padding-bottom}` yang ikut dibatasi. Dengan JS,
+tamu memakai busur; tanpa JS, pita tetap menjadi jalan keluar.
+
+**Wordmark yang terpotong.** `.bk-wordmark` diberi `min-width:0` +
+`overflow:hidden`, dan kedua barisnya `text-overflow:ellipsis`. Di 320 px
+teksnya memendek dengan elipsis alih-alih menabrak tombol di kanannya.
+
+**`image-104` — catatan “Mode pengujian” dan chipbar.** Dua hal terukur:
+catatan berhenti di x≈876 dari 1022 px, sedangkan chipbar memenuhi lebar
+(x≈153–1006); dan jarak vertikal catatan→chipbar hanya ±1 px. Penyebabnya
+bukan angka acak: `.adm-note` ikut terkena batas baca
+`max-width: var(--adm-measure)` (dan `78ch` di ≥1080 px), sementara
+`.adm-chipbar` tidak; margin bawah catatan juga tidak pernah ada, jadi
+chipbar menempel. Perbaikan: `.adm-note` keluar dari daftar elemen berbatas
+baca (ia spanduk, bukan paragraf) dan mendapat `margin: 0 0 16px` — sama
+dengan `margin` bawah `.adm-chipbar`, sehingga ritmenya satu skala.
+
+Aksen kiri catatan juga dirapikan. `border-left: 3px` yang berdampingan
+dengan tiga sisi 1 px membuat peramban menggambar busur sudut kiri-atas
+dengan radius berbeda, dan garisnya terlihat patah. Aksen sekarang lapisan
+`::before` selebar 3 px dengan `border-radius` yang sama dengan kartu.
+
+**`image-105` — “Please fill out this field.”** Pesan validasi bawaan
+peramban memakai bahasa antarmuka peramban, bukan `lang="id"` halaman.
+Sembilan jenis pelanggaran (wajib diisi, format, pola, terlalu pendek,
+terlalu panjang, di bawah/atas rentang, kelipatan, angka tak terbaca)
+diterjemahkan lewat `setCustomValidity()` pada peristiwa `invalid` di
+`berkah-ui-kit.js`; penanda `data-bk-validity` dilepas pada `input`/`change`
+supaya pesan tidak terkunci, dan `customError` milik kode lain tidak
+ditimpa. Atribut `required`/`type`/`pattern` tidak berubah, jadi pengiriman
+form dan perilaku tanpa JS tetap sama.
+
+**Harness setelah perubahan.** phpstub **83/0**/201 (satu tes baru:
+terjemahan pesan validasi), `.tmp-verify` **26/0**, blade-scan **93 view
+0/0**, jsdom **284/0** + suite validasi baru **15/0**.

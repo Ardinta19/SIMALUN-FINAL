@@ -111,6 +111,15 @@ class RadialMenuTest extends TestCase
         $this->assertStringContainsString('body.bk-customer .bk-desktop-nav', $nav);
         $this->assertStringNotContainsString('.customer-radial__links a:nth-of-type', $nav, 'Busur hanya boleh punya satu sumber gaya.');
 
+        // Kapan tombol busur tampil bukan urusan partial pelanggan lagi:
+        // halaman tamu tidak pernah memuat partial ini, dan dulu itulah sebabnya
+        // busur tamu tampil di segala lebar dengan panel yang tidak bertumpu
+        // pada tombolnya (gambar 102 & 103).
+        $this->assertStringNotContainsString('.bk-header-radial{display:none', $nav);
+        $radial = File::get(resource_path('views/layouts/component/customer/_radial_customer.blade.php'));
+        $this->assertStringContainsString('.bk-header-radial{display:none;position:relative;flex:0 0 auto}', $radial);
+        $this->assertStringContainsString('@media(max-width:700px){.bk-header-radial{display:block}}', $radial);
+
         // Menu harus tetap terjangkau setelah header menjadi ringkas.
         $this->assertStringNotContainsString('.bk-header.is-compact .bk-header-radial{display:none', $nav);
         $this->assertStringContainsString('.bk-header.is-compact .bk-header-radial>summary{width:44px;height:44px}', $nav);

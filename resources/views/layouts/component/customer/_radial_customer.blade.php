@@ -91,6 +91,19 @@
    Posisi tiap tujuan datang dari server (--rx/--ry pada style), jadi
    jumlah tujuan boleh berubah tanpa menyentuh CSS. --p (0..1) menggerakkannya
    dari pusat; GSAP menganimasikan --p saja — transform tetap milik CSS. */
+
+/* ── Kapan tombol busur muncul ───────────────────────────────────────────
+   Aturan ini dulu hanya ada di _navbar_customer (khusus pelanggan). Karena
+   halaman tamu memakai partial yang sama tanpa partial itu, tombol tamu
+   tampil di segala lebar: <details> tanpa position:relative membuat
+   panelnya bertumpu pada kotak selebar header, sehingga busur melewati
+   wordmark (sempit) dan mengambang di atas hero (lebar). Sekarang aturannya
+   ikut partial ini supaya berlaku untuk semua peran: di ponsel saja, dan
+   selalu menjadi titik tumpu bagi panelnya. */
+.bk-header-radial{display:none;position:relative;flex:0 0 auto}
+.bk-header.is-compact .bk-header-radial>summary{width:44px;height:44px}
+@media(max-width:700px){.bk-header-radial{display:block}}
+
 html[data-theme] .bk-header-radial .customer-radial__panel{position:absolute;top:50%;right:50%;width:0;height:0;padding:0;margin:0;border:0;border-radius:0;background:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;transform:translate(50%,-50%);overflow:visible;max-height:none;z-index:1200}
 .bk-header-radial .customer-radial__heading{display:none}
 .bk-header-radial .customer-radial__links{position:relative;display:block;width:0;height:0;margin:0;padding:0;overflow:visible}
@@ -176,7 +189,9 @@ html[data-theme="dark"] .bk-header-radial .customer-radial__item--theme .bk-them
 .bk-header-radial>summary{position:relative;display:grid;place-items:center;width:48px;height:48px;padding:0;border:1px solid #ead9d6;border-radius:50%;background:rgba(255,250,248,.94);color:#85092d;box-shadow:0 8px 20px rgba(84,5,31,.14);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:background-color .2s ease,color .2s ease,border-color .2s ease}
 .bk-header-radial>summary::after{content:"";position:absolute;inset:-5px;border:1px solid rgba(133,9,45,.22);border-radius:50%;opacity:0;transform:scale(.86);pointer-events:none;transition:opacity .24s ease,transform .36s cubic-bezier(.34,1.4,.64,1)}
 .bk-header-radial[open]>summary::after{opacity:1;transform:scale(1)}
-html[data-theme] .bk-header-radial>summary .customer-nav__icon.customer-radial__trigger{width:48px;height:48px;background:transparent;border:0}
+/* Ikon mengikuti kotak tombolnya (48 px, 44 px saat header ringkas) supaya
+   tombol tamu tidak melebar keluar pil. */
+html[data-theme] .bk-header-radial>summary .customer-nav__icon.customer-radial__trigger{width:100%;height:100%;background:transparent;border:0}
 .bk-header-radial>summary .customer-nav__label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
 .bk-header-radial .customer-radial__trigger{position:relative;display:grid;place-items:center}
 .bk-header-radial .customer-radial__face{position:absolute;inset:0;display:grid;place-items:center;transition:opacity .18s ease,transform .3s cubic-bezier(.34,1.4,.64,1)}

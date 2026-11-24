@@ -93,6 +93,24 @@ class RentalCustomerNavigationTest extends TestCase
             ->assertSee(route('admin.rental.orders'))->assertDontSee('id="bk-command"', false);
     }
 
+    /** Busur di halaman tamu harus patuh aturan tampil yang sama dengan
+     *  pelanggan: hanya di ponsel, dan panelnya bertumpu pada tombol.
+     *  Sebelumnya aturan itu hanya hidup di partial pelanggan, sehingga tamu
+     *  melihat busur mengambang di atas hero (layar lebar) dan menimpa
+     *  wordmark (layar sempit). */
+    public function test_busur_tamu_memakai_aturan_tampil_yang_sama(): void
+    {
+        $response = $this->get(route('welcome'));
+        $html = $response->assertOk()->getContent();
+
+        $this->assertStringContainsString('.bk-header-radial{display:none;position:relative;flex:0 0 auto}', $html);
+        $this->assertStringContainsString('@media(max-width:700px){.bk-header-radial{display:block}}', $html);
+
+        // Tema bawaan (tanpa data-theme) tetap punya titik tumpu panel: aturan
+        // tampil tidak boleh bergantung pada atribut tema.
+        $this->assertStringNotContainsString('html[data-theme] .bk-header-radial{display:', $html);
+    }
+
     public function test_desktop_navigation_keeps_accessible_shortcuts_and_current_state(): void
     {
         $customer = User::factory()->create(['role' => 'customer']);
