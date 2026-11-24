@@ -278,6 +278,31 @@ class UiAccessibilityTest extends TestCase
         $this->assertSame([], $offenders, 'Label Inggris masih tersisa: '.implode(', ', $offenders));
     }
 
+    /** Label status/pembayaran/pratinjau ditulis sebagai peta di dalam view.
+     *  Peta yang diindeks tanpa cadangan akan melempar "Undefined array key"
+     *  begitu ada nilai baru (halaman 500), jadi setiap indeks wajib punya
+     *  `?? $nilai` agar nilai tak dikenal tampil apa adanya. */
+    public function test_peta_label_selalu_punya_cadangan(): void
+    {
+        $offenders = [];
+
+        foreach ($this->viewFiles() as $file) {
+            $text = $this->read($file);
+
+            if (preg_match_all('/\]\s*\[\s*(\$[A-Za-z_]+->(?:status|progress))\s*\]/', $text, $matches, PREG_OFFSET_CAPTURE)) {
+                foreach ($matches[0] as $match) {
+                    $after = substr($text, $match[1] + strlen($match[0]), 12);
+
+                    if (! str_starts_with(ltrim($after), '??')) {
+                        $offenders[] = $this->relative($file).': '.$match[0];
+                    }
+                }
+            }
+        }
+
+        $this->assertSame([], $offenders, 'Peta label tanpa cadangan: '.implode(', ', $offenders));
+    }
+
     /** Setiap kamus di lang/id harus punya pemakai. Kamus tanpa pemakai
      *  menua diam-diam: isinya bisa memakai istilah dari domain lain tanpa
      *  ada satu pun halaman yang terlihat salah. `validation` dikecualikan

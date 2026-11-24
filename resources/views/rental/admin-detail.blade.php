@@ -366,7 +366,7 @@
                     <div class="adm-card adm-card--flat" style="margin:10px 0">
                         <div class="adm-row" style="justify-content:space-between">
                             <strong>Versi {{ $preview->version }}</strong>
-                            <span class="adm-badge adm-badge--info">{{ ['pending'=>'Menunggu respons','revision'=>'Revisi diminta','approved'=>'Disetujui','superseded'=>'Diganti versi baru'][$preview->status] }}</span>
+                            <span class="adm-badge adm-badge--info">{{ ['pending'=>'Menunggu respons','revision'=>'Revisi diminta','approved'=>'Disetujui','superseded'=>'Diganti versi baru'][$preview->status] ?? $preview->status }}</span>
                         </div>
                         <img src="{{ route('rental.design.image', $preview) }}" alt="Pratinjau desain versi {{ $preview->version }}" loading="lazy" decoding="async" style="max-width:100%;max-height:240px;margin-top:10px;border-radius:var(--adm-r-md);border:1px solid var(--adm-line)">
                         @if($preview->admin_note)<p class="muted" style="margin:8px 0 0">{{ $preview->admin_note }}</p>@endif

@@ -1965,3 +1965,37 @@ Satu hal yang **tidak** perlu ditambal: header ini memang tidak punya slot
 cadangan `.bk-theme-dock` yang menempelkan tombol tema ke `body` bila tidak
 ada slot yang terlihat, jadi admin tetap bisa berganti tema dari halaman
 katalog. Menambahkan slot kedua hanya akan membuat pemilihan host berebut.
+
+---
+
+## 9.46 — Peta label yang meledak saat ada nilai baru
+
+Label status ditulis sebagai peta di dalam view, bukan lewat satu kelas.
+Saat menyisirnya ketemu delapan peta di enam berkas: `progressLabels` (tiga
+salinan, lima nilai), `nextLabels` (dua salinan), `unitStatusLabels`,
+`paymentStatusLabels`, peta pembayaran dan peta pratinjau di `rental/unit`,
+serta peta status di `rental/show`, `rental/receipt`, dan `rental/daily-sheet`.
+
+Semua peta **lengkap hari ini** — saya cocokkan dengan enum di migrasi
+(`rental_orders.status`: pending/confirmed/cancelled; `rental_payments.status`:
+pending/verified/rejected; `rental_design_previews.status`:
+pending/revision/approved/superseded) dan dengan rantai `progress` di
+`RentalProgressController` (waiting → production → ready → handed_over →
+returned). Yang jadi masalah bukan isinya, tapi bentuk indeksnya:
+
+```blade
+{{ ['cancelled'=>'Dibatalkan'][$unit->status] }}
+```
+
+Enam indeks seperti itu tidak punya cadangan. Tambah satu nilai status di
+kemudian hari — mis. unit `expired` — dan halaman **pelanggan** (`rental/show`,
+`rental/unit`) serta **struk** (`rental/receipt`) langsung 500 karena
+`Undefined array key`, bukan sekadar menampilkan teks yang belum diterjemahkan.
+Enam indeks itu kini berakhiran `?? $unit->status` (dan `?? $payment->status`,
+`?? $preview->status`), sejalan dengan yang sudah dipakai di `daily-sheet`
+dan halaman admin.
+
+Dikunci `UiAccessibilityTest::test_peta_label_selalu_punya_cadangan`: setiap
+`][$…->status]`/`][$…->progress]` di seluruh view wajib diikuti `??`. Diuji
+dengan menghapus satu cadangan: tes gagal menunjuk berkas dan potongan
+ekspresinya, lalu hijau setelah dipulihkan.
