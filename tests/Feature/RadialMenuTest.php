@@ -76,6 +76,26 @@ class RadialMenuTest extends TestCase
         $this->assertStringContainsString('html[data-theme="dark"] .customer-radial__badge', $view);
     }
 
+    /** Aturan "kapan tombol busur tampil" hanya boleh hidup di partial busur.
+     *  Dulu salinannya tinggal di partial pelanggan, dan halaman tamu — yang
+     *  tidak memuat partial itu — menampilkan busur di semua lebar. */
+    public function test_aturan_tampil_busur_hanya_ada_di_partial_busur(): void
+    {
+        $offenders = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if ($file->getFilename() === '_radial_customer.blade.php') continue;
+            if (str_contains(File::get($file), '.bk-header-radial{display:')) {
+                $offenders[] = $file->getFilename();
+            }
+        }
+
+        $this->assertSame([], $offenders, 'Aturan tampil busur disalin ke: '.implode(', ', $offenders));
+
+        // Partial pembungkus yang dulu menyalinnya sudah dihapus.
+        $this->assertFileDoesNotExist(resource_path('views/layouts/component/customer/_radial_header.blade.php'));
+    }
+
     public function test_gerak_radial_memakai_gsap_dan_lenis_lokal_tanpa_cdn(): void
     {
         $js = File::get(public_path('js/berkah-radial.js'));

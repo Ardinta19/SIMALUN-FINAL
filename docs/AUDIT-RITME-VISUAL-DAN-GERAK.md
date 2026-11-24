@@ -1223,12 +1223,13 @@ tetap menunjuk busur pertama (dipakai `berkah-experience.js` dan tes), dan
 `window.bkRadials` memuat semuanya. Membuka satu busur menutup yang lain lewat
 daftar `registry`, supaya dua panel tidak pernah terbuka bersamaan.
 
-Catatan: `_radial_header.blade.php` kini tidak di-`@include` di mana pun —
+Catatan: `_radial_header.blade.php` dulu tidak di-`@include` di mana pun —
 halaman katalog memakai `catalog/customer-navigation.blade.php` dan halaman
-pelanggan memakai header biasa. Berkasnya dibiarkan karena hanya membungkus
-partial yang sama, jadi tidak ada rintangan versi bila dipakai lagi. Karena
-busur kedua mungkin ada, panel tetap memakai satu `id="bk-radial-panel"`
-(selektor teruji) — satu halaman praktiknya hanya merender satu busur.
+pelanggan memakai header biasa. Berkas itu kemudian dihapus (§9.41) karena ia
+menyalin aturan tampil `.bk-header-radial` yang kini tinggal di partial busur,
+dan salinan seperti itu persis yang membuat halaman tamu salah: orang
+menyalinnya ke header pelanggan saja. Karena dua busur mungkin ada, id panel
+diturunkan dari peran (§9.39).
 
 **B. Slot tema kosong menyisakan lubang.** Slot tema disembunyikan CSS lewat
 `:empty` ketika tombol tema diparkir di header (layar >700 px atau halaman tanpa
@@ -1737,3 +1738,22 @@ atau `autocomplete="new-password"` tidak dihitung.
 **Harness.** phpstub **86/0**/201, `.tmp-verify` **26/0**, blade-scan **93
 view 0/0**, jsdom **284/0** + validasi **22/0** (15 + 7), dan
 `previewpage`/`preview` tetap 12/0 dan 18/0.
+
+### 9.41 Partial pembungkus yang mati: sumber salinan aturan busur
+
+`customer/_radial_header.blade.php` (29 baris) tidak di-`@include` di mana pun
+sejak halaman katalog memakai `catalog/customer-navigation.blade.php`. Isinya
+dua hal: pembungkus `.bk-top-menu` dan **salinan aturan tampil**
+`.bk-top-menu .bk-header-radial{display:block}`. Salinan seperti itulah yang
+menjadikan `image-103` mungkin: aturan yang sama ditulis ulang di partial
+pelanggan, lalu halaman tamu — yang tidak memuat partial itu — tidak punya
+aturannya sama sekali.
+
+Berkasnya dihapus, `.bk-top-menu` dicabut dari daftar `:is()` di
+`berkah-theme.css` (tidak ada JS yang menyebutnya), dan tes baru menjaga agar
+aturan `.bk-header-radial{display:` tidak muncul lagi di view mana pun selain
+`_radial_customer.blade.php`. Dengan begitu kesalahan yang sama tidak bisa
+kambuh lewat salinan baru.
+
+Harness: phpstub **87/0**/201, blade-scan **92 view 0/0** (berkurang satu
+karena berkas dihapus).

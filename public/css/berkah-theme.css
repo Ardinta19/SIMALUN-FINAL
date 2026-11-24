@@ -219,7 +219,7 @@ html[data-theme="dark"] :is(.notice, .note) {
     color: var(--theme-warning-ink);
 }
 
-html[data-theme="dark"] :is(.bk-dialog, .bk-header-inner, .customer-radial__panel, .bk-top-menu, .bk-guest-tabs) {
+html[data-theme="dark"] :is(.bk-dialog, .bk-header-inner, .customer-radial__panel, .bk-guest-tabs) {
     background: var(--theme-surface);
     border-color: var(--theme-line);
     color: var(--theme-ink);
