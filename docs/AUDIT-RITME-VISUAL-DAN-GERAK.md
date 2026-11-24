@@ -1494,3 +1494,37 @@ kiri-bawah”, tetapi tiga bentuk menurut tempat tombolnya. `PreviewRadialTest`
 menambah pemeriksaan `?embed=1&sisi=kiri`, aturan `body.demo-kiri`, dan
 `is-arc-opposite`, di samping bingkai tamu yang sudah ada. Harness: phpstub
 82/0/200, `.tmp-verify` 26/0, blade-scan 93 view 0/0, jsdom 272/0.
+
+### 9.36 Pratinjau diuji saat berjalan, bukan hanya saat dibaca
+
+`PreviewRadialTest` memeriksa **isi berkas** pratinjau (geometri, sintaks,
+tanpa CDN), tetapi tidak ada yang menjalankannya. Padahal halaman itu memuat
+skrip demo sendiri — pengganti tema, tombol “Buka / tutup busur”, pembacaan
+`?tamu=1`/`?sisi=kiri`, dan penyuntikan CSS dari partial lewat `fetch`. Satu
+`const` ganda atau salah ketik akan mematikan seluruh skrip itu tanpa terdeteksi
+tes mana pun (persis seperti komentar Blade di §9.33 yang hanya terlihat saat
+halaman dibuka).
+
+`previewpage.test.js` (jsdom, 12 pemeriksaan) memuat `docs/preview/radial.html`
+apa adanya, menyiapkan `fetch` tiruan yang mengembalikan isi partial, lalu
+memeriksa:
+
+- tidak ada galat skrip saat halaman dimuat;
+- CSS partial benar-benar tersuntik ke `<head>` (`.customer-radial__item`,
+  `is-gsap`);
+- tombol **Terang** mengganti `data-theme` dan `aria-pressed`;
+- dua tombol tema di dalam busur (pelanggan dan tamu) memakai pengendali demo;
+- tombol “Buka / tutup busur” aman diklik;
+- `?tamu=1&sisi=kiri` memasang `demo-guest` + `demo-kiri`, dan halaman memuat
+  dua busur.
+
+Sekalian dirapikan: judul `<h1>` tidak lagi menyebut “kanan atas” (tombol kini
+bisa di tiga tempat), dan tiga bingkai ponsel diurutkan menurut alur — bentuk U
+(kasus dasar) → tamu (jumlah tujuan berbeda) → sisi kiri (bentuk cermin) —
+dengan judul “Pil di tengah: bentuk U”, bukan “Pada ponsel 320 px” yang
+menyesatkan karena ketiga bingkai selebar 320 px.
+
+**Harness akhir.** phpstub 82/0/200, `.tmp-verify` 26/0, blade-scan 93 view 0/0,
+jsdom **284/0** (radial 82, kit 34, modal 26, sheet 16, controls 18, dialog 11,
+interactions 30, preview 18, race 9, resize 6, submit 11, themehost 11,
+previewpage 12).
