@@ -97,6 +97,18 @@ class PreviewRadialTest extends TestCase
         }
     }
 
+    public function test_pratinjau_menampilkan_tiga_bentuk_busur(): void
+    {
+        $html = $this->preview();
+
+        // Tiga penempatan: kanan (server), tengah (U), kiri (cermin).
+        $this->assertStringContainsString('?embed=1&amp;tamu=1', $html, 'Bingkai tamu.');
+        $this->assertStringContainsString('?embed=1&amp;sisi=kiri', $html, 'Bingkai tombol di sisi kiri.');
+        $this->assertStringContainsString('body.demo-kiri .mock-header { justify-content: flex-start; }', $html);
+        $this->assertStringContainsString('is-arc-opposite', $html);
+        $this->assertStringContainsString('bentuk U', $html);
+    }
+
     public function test_pratinjau_tidak_menghidupkan_lagi_cincin_atau_gumpalan(): void
     {
         $html = $this->preview();

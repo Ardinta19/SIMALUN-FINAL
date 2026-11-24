@@ -818,7 +818,7 @@ tautan di bilah sisi admin versi gelap, dan rupa kotak centang yang berbeda-beda
 
 | Kiriman | Sudah ada di | Catatan |
 |---|---|---|
-| Gooey radial menu (Lucas Bebber) | `customer/_radial_customer.blade.php` + `_navbar_customer.blade.php` | Empat tujuan dalam busur, latar `feGaussianBlur`+`feColorMatrix` (`#bk-menu-goo`), `<details>` sehingga tetap jalan tanpa JS |
+| Gooey radial menu (Lucas Bebber) | `customer/_radial_customer.blade.php` + `_navbar_customer.blade.php` | Empat tujuan dalam busur, latar `feGaussianBlur`+`feColorMatrix` (`#bk-menu-goo`), `<details>` sehingga tetap jalan tanpa JS — **diperbarui §9.26:** gumpalan goo disembunyikan karena terbaca sebagai “latar”, elemen beserta `id="bk-menu-goo"` tetap ada |
 | Pill nav / liquid glass / pill ringkas saat digulir | `berkah-experience.css` `.bk-header`, `.bk-header.is-compact`, `berkah-experience.js` (`scrollY > 180`) | Kaca + blur, pil mengambang, keadaan ringkas menahan tombol tema |
 | Tambah ke keranjang (label + progress) | `.bk-atc`, `.bk-atc__bar`, `berkah-ui-kit.js` (`is-loading`/`is-added`) | Label panjang→pendek, bar progress, status `aria-busy` |
 | Tombol auth beranimasi huruf | `.bk-auth` (+ `__chars--a/b`, `__outline`, `__wrap`) | Dipakai `auth/login` & `auth/register`; palet mengikuti merek, bukan biru |
@@ -1477,3 +1477,20 @@ dipasang (bukan `is-arc-u`), tujuan pertama di kanan tombol, `--ry` cermin
 ≥46 px. `RadialMenuTest` menambah penjaga `layoutSide`, `is-arc-opposite`, dan
 `roomRight > roomLeft + 24`. Harness: phpstub 81/0/200, `.tmp-verify` 26/0,
 blade-scan 93 view 0/0, jsdom 272/0.
+
+### 9.35 Pratinjau: bingkai ketiga untuk penempatan di sisi kiri
+
+§9.34 menambah bentuk busur ketiga (cermin), tetapi pratinjau baru
+memperlihatkan dua: busur server (halaman lebar) dan bentuk U (bingkai 320 px
+dengan pil di tengah). Sekarang ada bingkai ketiga, `?sisi=kiri`, yang menaruh
+pil di tepi kiri (`body.demo-kiri .mock-header { justify-content: flex-start }`).
+Di dalamnya tombol berada di sekitar `x = 86` pada layar 320 px, sehingga ruang
+kanan (234 px) jauh lebih lapang daripada kiri — `layoutArc()` gagal (sisi
+tersempit 86 − 10 = 76 px < 88 px) lalu `layoutSide()` mencerminkan busur ke
+kanan: `(143, 0)` … `(-27, 141)`, semuanya masih di dalam layar.
+
+Teks pengantar pratinjau juga diperbarui: bukan lagi “lima tujuan menyebar ke
+kiri-bawah”, tetapi tiga bentuk menurut tempat tombolnya. `PreviewRadialTest`
+menambah pemeriksaan `?embed=1&sisi=kiri`, aturan `body.demo-kiri`, dan
+`is-arc-opposite`, di samping bingkai tamu yang sudah ada. Harness: phpstub
+82/0/200, `.tmp-verify` 26/0, blade-scan 93 view 0/0, jsdom 272/0.

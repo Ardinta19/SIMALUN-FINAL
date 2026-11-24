@@ -83,6 +83,9 @@
        dan bingkai tamu membukanya lewat ?tamu=1. */
     body.demo-guest [data-demo-role="customer"] { display: none; }
     body:not(.demo-guest) [data-demo-role="guest"] { display: none; }
+    /* ?sisi=kiri: tombol menu ditanam di tepi kiri, untuk membuktikan busur
+       dicerminkan ke kanan (is-arc-opposite). */
+    body.demo-kiri .mock-header { justify-content: flex-start; }
 
     .mock-content { width: min(1100px, 100%); margin: 0 auto; padding: 22px 18px 120px; }
     .mock-content h1 { font-size: clamp(22px, 4vw, 34px); line-height: 1.15; margin: 8px 0 6px; letter-spacing: -.02em; }
@@ -236,7 +239,7 @@
 
     <main class="mock-content">
         <h1>Tekan tombol menu di kanan atas</h1>
-        <p class="lead">Lima tujuan dan satu tombol tema menyebar dalam busur — ke kiri-bawah bila tombol menempel di ujung kanan, atau berbentuk <strong>U</strong> bila tombol berada di tengah. Tidak ada bidang, cincin, atau gumpalan di belakang busur: tujuannya melayang langsung di atas halaman. Saat ditutup busur menyusut kembali ke tombol, ikon menu bertukar menjadi silang, dan lencana angka memantul masuk.</p>
+        <p class="lead">Lima tujuan dan satu tombol tema menyebar dalam busur dengan tiga bentuk menurut tempat tombolnya: ke kiri-bawah bila tombol menempel di ujung kanan, <strong>bentuk U</strong> bila tombol di tengah, dan cermin ke kanan bila tombol di tepi kiri. Tidak ada bidang, cincin, atau gumpalan di belakang busur: tujuannya melayang langsung di atas halaman. Saat ditutup busur menyusut kembali ke tombol, ikon menu bertukar menjadi silang, dan lencana angka memantul masuk.</p>
         <div class="mock-grid">
             <div class="mock-card"><b>Keranjang</b><span>Lencana 2 unit</span></div>
             <div class="mock-card"><b>Pesanan</b><span>Riwayat sewa</span></div>
@@ -245,6 +248,11 @@
             <div class="mock-card"><b>Bantuan / FAQ</b><span>Panduan pemesanan</span></div>
             <div class="mock-card"><b>Mode gelap / terang</b><span>Tombol tema pindah ke dalam busur</span></div>
         </div>
+        <section class="demo-phone-wrap">
+            <h2>Tombol di sisi kiri</h2>
+            <p>Penempatan ketiga: tombol di tepi kiri layar. Busurnya dicerminkan ke kanan (kelas <code>is-arc-opposite</code>, sudut 0° → 101°) supaya tujuannya tidak keluar layar. Bingkai ini memakai <code>?sisi=kiri</code>.</p>
+            <div class="demo-phone"><iframe src="?embed=1&amp;sisi=kiri" title="Pratinjau busur dengan tombol di sisi kiri" width="320" height="620" loading="lazy"></iframe></div>
+        </section>
         <section class="demo-phone-wrap">
             <h2>Tamu: empat tujuan</h2>
             <p>Jumlah tujuan tamu berbeda (katalog, keranjang, daftar, masuk), dan geometrinya ikut menghitung ulang: busur 5 titik dengan radius 114 px, bukan 6 titik 143 px. Bingkai ini memakai <code>?tamu=1</code>.</p>
@@ -298,8 +306,12 @@
         if (window.frameElement) {
             document.body.classList.add('demo-embed');
         }
-        if (new URLSearchParams(location.search).get('tamu') === '1') {
+        const params = new URLSearchParams(location.search);
+        if (params.get('tamu') === '1') {
             document.body.classList.add('demo-guest');
+        }
+        if (params.get('sisi') === 'kiri') {
+            document.body.classList.add('demo-kiri');
         }
     </script>
     <script>
