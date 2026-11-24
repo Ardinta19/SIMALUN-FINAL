@@ -356,6 +356,45 @@ class UiAccessibilityTest extends TestCase
         }
     }
 
+    /** Setiap berkas di public/css dan public/js harus disebut minimal sekali
+     *  oleh berkas lain (view atau skrip lain). Isi berkas itu sendiri tidak
+     *  dihitung, jadi komentar yang menyebut namanya sendiri tidak menyelamatkan
+     *  aset yatim. */
+    public function test_setiap_aset_css_dan_js_punya_pemakai(): void
+    {
+        $sources = [];
+
+        foreach (array_merge(File::allFiles(resource_path('views')), File::allFiles(public_path('js')), File::allFiles(public_path('css'))) as $file) {
+            $sources[$file->getPathname()] = $file->getContents();
+        }
+
+        $offenders = [];
+
+        foreach (['css', 'js'] as $folder) {
+            foreach (File::files(public_path($folder)) as $file) {
+                $name = $file->getFilename();
+                $path = $file->getPathname();
+                $referenced = false;
+
+                foreach ($sources as $otherPath => $content) {
+                    if ($otherPath === $path) {
+                        continue;
+                    }
+                    if (str_contains($content, $name)) {
+                        $referenced = true;
+                        break;
+                    }
+                }
+
+                if (! $referenced) {
+                    $offenders[] = 'public/'.$folder.'/'.$name;
+                }
+            }
+        }
+
+        $this->assertSame([], $offenders, 'Aset tanpa pemakai: '.implode(', ', $offenders));
+    }
+
     /** Judul halaman memakai satu pemisah, ` · `, bukan campuran ` – ` dan
      *  ` | `. Surel dikecualikan: klien surel memakai nama merek saja. */
     public function test_judul_halaman_memakai_pemisah_titik_tengah(): void

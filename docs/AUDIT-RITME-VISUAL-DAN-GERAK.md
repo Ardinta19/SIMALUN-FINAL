@@ -2181,3 +2181,16 @@ Sapuan "Menu" tidak diubah: `aria-label="Menu lainnya"`, "Menu admin", label
 radial "Menu" dan judul panel "Menu pelanggan/tamu" semuanya berbahasa
 Indonesia dan sudah menyebut isinya pada `aria-label`, jadi tidak ada istilah
 asing yang perlu diterjemahkan.
+
+### Aset tanpa pemakai ikut dikunci
+
+`resources/css/splash.css` baru ketahuan yatim saat tema huruf dibongkar:
+berkas itu masih memuat Poppins dari Google Fonts padahal tidak pernah masuk
+daftar input Vite maupun dirujuk halaman. Supaya tidak terulang,
+`UiAccessibilityTest::test_setiap_aset_css_dan_js_punya_pemakai` menelusuri
+setiap berkas di `public/css` dan `public/js` dan menuntut namanya disebut
+minimal sekali oleh berkas lain (isi berkas itu sendiri tidak dihitung, jadi
+komentar yang menyebut nama sendiri tidak menyelamatkan aset yatim).
+Diverifikasi dengan membuat `public/css/zzz-orphan.css`: tes gagal menyebut
+berkas itu, lalu hijau setelah dihapus. Kesebelas CSS dan kesebelas JS yang ada
+sekarang semuanya punya pemakai.
