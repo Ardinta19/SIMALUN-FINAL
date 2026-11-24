@@ -540,8 +540,11 @@ html[data-theme="dark"] .adm-app :is(.adm-btn--ghost, .adm-btn--quiet):hover {
 }
 /* Chip yang berfungsi sebagai tautan filter: cukup besar untuk disentuh,
    menandai pilihan aktif, dan tidak bersaing dengan tombol aksi halaman. */
+/* Kartu kategori antrean: satu ukuran, jarak dalam yang seimbang (9/15 px)
+   dan tinggi 40 px — cukup lega untuk dua kata, tetap di bawah tombol aksi
+   supaya hierarkinya tidak terbalik. */
 .adm-chip--link {
-    min-height: var(--adm-touch-sm); padding: 7px 13px; border-radius: 11px;
+    min-height: 40px; padding: 9px 15px; border-radius: 12px;
     font-size: var(--adm-fs-2xs); font-weight: 700; text-decoration: none;
     color: var(--adm-ink-2); background: var(--adm-surface-2);
     transition: background var(--adm-dur-2) var(--adm-ease), border-color var(--adm-dur-2) var(--adm-ease), color var(--adm-dur-2) var(--adm-ease), transform var(--adm-dur-2) var(--adm-ease);
@@ -550,8 +553,8 @@ html[data-theme="dark"] .adm-app :is(.adm-btn--ghost, .adm-btn--quiet):hover {
 .adm-chip--link:active { transform: translateY(0) scale(.98); }
 .adm-chip--link.is-active { background: var(--adm-solid); border-color: var(--adm-solid); color: #fff; }
 .adm-chip--link.is-active:hover { color: #fff; }
-.adm-chipbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 0 16px; }
-.adm-chipbar__label { font-size: var(--adm-fs-2xs); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--adm-ink-3); margin-right: 2px; }
+.adm-chipbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 16px; }
+.adm-chipbar__label { font-size: var(--adm-fs-2xs); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--adm-ink-3); margin-right: 4px; }
 
 /* --------------------------------------------------------------------------
    8. Tabel
@@ -1178,7 +1181,7 @@ body.adm-layer-open { overflow: hidden; }
     .adm-actions { gap: 8px; }
     .adm-actions > .btn,
     .adm-actions > .adm-btn { flex: 1 1 44%; justify-content: center; min-height: 42px; padding-inline: 10px; }
-    .adm-chipbar { gap: 6px; }
+    .adm-chipbar { gap: 8px; }
     .adm-chipbar__label { flex: 0 0 100%; margin-bottom: 2px; }
 }
 

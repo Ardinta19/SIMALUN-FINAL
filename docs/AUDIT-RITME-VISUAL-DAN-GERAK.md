@@ -1614,3 +1614,28 @@ form dan perilaku tanpa JS tetap sama.
 **Harness setelah perubahan.** phpstub **83/0**/201 (satu tes baru:
 terjemahan pesan validasi), `.tmp-verify` **26/0**, blade-scan **93 view
 0/0**, jsdom **284/0** + suite validasi baru **15/0**.
+
+### 9.38 Jarak kartu kategori: satu skala untuk chip admin dan pill katalog
+
+Sisa dari `image-104`: pemindaian baris chip memberi lima jarak yang **seragam**
+(341→354, 518→531, 620→633, 714→727, 856→869 = 13 px pada gambar), jadi
+masalahnya bukan jarak yang tidak rata, melainkan jarak dalam kartunya yang
+terlalu sempit: tinggi chip 43 px gambar dengan teks 12 px menyisakan ±9 px di
+atas-bawah, sementara sisi kiri-kanan 13 px. Ditambah `gap` 8 px yang lebih
+rapat daripada `padding` 13 px, barisan chip terbaca padat di dalam dan renggang
+di luar.
+
+Yang dirapikan (satu skala, bukan angka baru yang berdiri sendiri):
+
+| Unsur | Sebelum | Sesudah |
+| --- | --- | --- |
+| `.adm-chip--link` | tinggi min 38 px, padding 7/13 px | tinggi min 40 px, padding **9/15 px**, radius 12 px |
+| `.adm-chipbar` | gap 8 px, margin bawah 16 px | gap **10 px**, margin bawah 16 px |
+| `.adm-chipbar` (≤560 px) | gap 6 px | gap **8 px** |
+| `.adm-chipbar__label` | `margin-right: 2px` | **4 px** |
+| `.adm-note` | tanpa margin bawah | **16 px** (sama dengan chipbar) |
+| `.bk-category-strip` | gap 8 px, padding 8/0/12 | gap **10 px**, padding 8/2/12 + `scroll-padding-inline` |
+
+Alasannya sederhana: jarak dalam kartu harus lebih kecil atau sama dengan
+jarak antarkartu, dan jarak antarkartu harus lebih kecil daripada jarak
+antarkelompok (16 px ke blok berikutnya). Sebelumnya urutannya terbalik.
