@@ -228,10 +228,10 @@ body {
                     </div>
 
                     <div class="field-block">
-                        <label class="field-label" for="action-filter">Action</label>
+                        <label class="field-label" for="action-filter">Aksi</label>
                         <input type="text" name="action" id="action-filter" class="field"
                                value="{{ request('action') }}"
-                               placeholder="contoh: voucher, order.">
+                               placeholder="contoh: voucher, pesanan.">
                     </div>
 
                     <div class="field-block">

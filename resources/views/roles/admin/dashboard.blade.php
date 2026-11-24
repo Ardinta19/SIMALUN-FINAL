@@ -312,7 +312,7 @@ body {
 @endphp
 <header class="hero">
     <span class="bk-i" style="position:absolute;right:12%;top:20px;color:#ffffff88;font-size:36px" aria-hidden="true">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span>
-    <div class="hero__inner"><div class="appbar"><div class="brand"><span class="brand__logo"><img src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt="" style="width:100%;height:100%;object-fit:contain;border-radius:12px;background:white"></span><div><span class="brand__name">Berkah Kreatif</span><span class="brand__tag">Admin Panel</span></div></div></div>
+    <div class="hero__inner"><div class="appbar"><div class="brand"><span class="brand__logo"><img src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt="" style="width:100%;height:100%;object-fit:contain;border-radius:12px;background:white"></span><div><span class="brand__name">Berkah Kreatif</span><span class="brand__tag">Panel Admin</span></div></div></div>
         <div class="greet"><div class="greet__avatar" aria-hidden="true">{{ $initial }}</div><div class="greet__text"><div class="greet__hi">{{ $sapaan }},</div><h1 class="greet__name">{{ $adminName }}</h1><span class="greet__date">{{ $tanggal }} · WIB</span></div></div>
         <a href="{{ route('admin.rental.orders', ['status' => 'pending']) }}" class="pulse"><span class="pulse__dot" aria-hidden="true"></span><span class="pulse__txt"><b>{{ $rentalPending }} unit</b> menunggu konfirmasi</span></a>
     </div>
@@ -358,7 +358,7 @@ body {
     </div>
     <p style="color:var(--ink-lt,#806975);font-size:var(--adm-fs-2xs);margin-top:20px">Sistem masih dalam pengujian dan belum untuk transaksi nyata. Ringkasan buku kas dapat mencakup data lama.</p>
     <div class="logout-section"><form action="{{ route('logout') }}" method="POST">@csrf<button type="submit" class="logout-btn">Keluar dari Akun</button></form></div>
-    <div class="version-tag">Berkah Kreatif · Admin Panel</div>
+    <div class="version-tag">Berkah Kreatif · Panel Admin</div>
 </main>
 @include('layouts.component.admin._navbar_admin', ['active' => 'beranda'])
 @include('layouts.component._form_controls')

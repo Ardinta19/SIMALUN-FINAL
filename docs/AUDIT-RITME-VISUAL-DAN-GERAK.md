@@ -1878,3 +1878,61 @@ sekaligus (satu di view, satu di kamus): tes gagal dengan menyebut keduanya,
 lalu hijau setelah dipulihkan. Catatan: `lang_path()` tidak tersedia di
 lingkungan harness, sehingga path kamus dibaca lewat `base_path('lang/id')` —
 kalau memakai `lang_path()` tesnya ter-*skip* dan penjaga tidak pernah jalan.
+
+---
+
+## 9.44 — Yang hanya terlihat di atribut dan di kamus mati
+
+Penjaga §9.42/§9.43 hanya membaca teks di antara tag. Dua permukaan lain
+ternyata menyimpan sisa yang sama:
+
+### 1. Nilai atribut
+
+| Berkas | Atribut | Sebelum | Sesudah |
+|---|---|---|---|
+| `roles/customer/profile/edit` | `placeholder` | “Masukkan password Anda” | “Masukkan kata sandi Anda” |
+| `roles/admin/audit/index` | `placeholder` | “contoh: voucher, order.” | “contoh: voucher, pesanan.” |
+
+`placeholder` dan `aria-label` dibacakan pembaca layar persis seperti teks
+tampil, jadi keduanya sekarang ikut dipindai lewat helper `attributeText()`
+(placeholder, aria-label, alt, title — id dan kelas tidak ikut).
+
+### 2. Label yang lolos karena bukan daftar kata Inggris
+
+Sapuan kata sebelumnya hanya mengenal sepuluh kata. Menambahkan
+`login|logout|action|update|order` menemukan enam lagi — semuanya di halaman
+yang sama-sama berbahasa Indonesia di sekitarnya:
+
+| Berkas | Sebelum | Sesudah |
+|---|---|---|
+| `auth/login` | `<title>Login – Berkah Kreatif</title>` | `Masuk – Berkah Kreatif` |
+| `roles/admin/notifications` | “Belum ada aktivitas order.” | “Belum ada aktivitas pesanan.” |
+| `customer/addresses/index` | tombol “Update” (form PUT) | “Simpan” |
+| `roles/admin/dashboard` (2×) | “Admin Panel” | “Panel Admin” |
+| `roles/admin/profile_edit` | “SIMALUN Admin Panel” | “SIMALUN · Panel Admin” |
+| `roles/admin/audit/index` | label filter “Action” | “Aksi” |
+
+“Panel Admin” bukan sekadar urutan kata: tiga halaman admin lain sudah menulis
+“Panel admin”, jadi halaman ini satu-satunya yang berbeda. Pola pencocokan
+kata di penjaga kini memakai `(?<![A-Za-z$>.-])` supaya variabel seperti
+`$order->` dan `$update` tidak dianggap label.
+
+### 3. Tiga kamus bahasa yang tidak punya pemakai
+
+`lang/id/messages.php`, `orders.php`, dan `finance.php` tidak pernah dirujuk
+(`__('`, `trans('`, `@lang('` dengan prefix itu → nol di app, views, dan
+routes) dan isinya masih domain **laundry**: status “Sedang Dicuci” /
+“Disetrika”, pesan “Minimum order Rp :amount untuk pakai voucher ini.”,
+“Pesanan tidak bisa dibatalkan karena sudah dalam proses pencucian.”
+Ketiganya dihapus; `validation.php` tetap.
+
+Penjaga baru `UiAccessibilityTest::test_setiap_kamus_bahasa_punya_pemakai`
+memastikan setiap berkas baru di `lang/id/` dipakai lewat
+`__('nama.kunci')`/`trans(...)`/`@lang(...)`, dengan pengecualian
+`validation.php` (dimuat Laravel berdasarkan nama berkas). Diuji dengan
+menaruh `lang/id/zzz.php` sementara: tes gagal menyebut berkas itu, lalu hijau
+setelah dihapus.
+
+`docs/kl/i18n.md` ditulis ulang: struktur yang benar (satu kamus), tabel
+istilah baku, alasan kamus mati dihapus, dan panduan “rapikan istilah saat
+menyentuh view” — menggantikan rujukan ke berkas yang sudah tidak ada.

@@ -88,7 +88,7 @@ textarea.input{min-height:72px;resize:vertical}
       <div style="margin-top:10px"><label class="label" for="addr-{{ $address->id }}-notes">Patokan</label><input id="addr-{{ $address->id }}-notes" class="input {{ $errors->getBag($bag)->has('notes') ? 'is-error' : '' }}" name="notes" value="{{ old('notes', $address->notes) }}">@if($errors->getBag($bag)->has('notes'))<div class="err">{{ $errors->getBag($bag)->first('notes') }}</div>@endif</div>
       <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-weight:800"><input type="checkbox" name="is_primary" value="1" {{ old('is_primary', $address->is_primary) ? 'checked' : '' }}> Jadikan alamat utama</label>
       <div class="actions" style="margin-top:10px">
-        <button class="btn btn-primary" type="submit">Update</button>
+        <button class="btn btn-primary" type="submit">Simpan</button>
       </div>
     </form>
     <form method="POST" action="{{ route('customer.addresses.destroy', $address) }}" id="old-delete-addr-{{ $address->id }}" style="margin-top:8px">

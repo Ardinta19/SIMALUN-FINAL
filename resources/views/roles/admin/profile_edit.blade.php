@@ -289,7 +289,7 @@ body {
         </form>
     </div>
 
-    <div class="footer-text reveal d4">SIMALUN Admin Panel</div>
+    <div class="footer-text reveal d4">SIMALUN · Panel Admin</div>
 </div>
 
 @include('layouts.component._form_controls')

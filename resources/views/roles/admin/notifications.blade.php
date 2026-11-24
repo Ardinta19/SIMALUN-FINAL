@@ -175,7 +175,7 @@ body {
                     <div class="empty-state__ico" aria-hidden="true">
                         @include('layouts.component._icon', ['name' => 'orders', 'size' => 24])
                     </div>
-                    <p class="empty-state__text">Belum ada aktivitas order.</p>
+                    <p class="empty-state__text">Belum ada aktivitas pesanan.</p>
                 </div>
             @endforelse
         </div>

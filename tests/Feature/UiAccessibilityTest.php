@@ -236,7 +236,8 @@ class UiAccessibilityTest extends TestCase
         $offenders = [];
 
         foreach ($this->viewFiles() as $file) {
-            $text = $this->visibleText($this->read($file));
+            $source = $this->read($file);
+            $text = $this->visibleText($source)."\n".$this->attributeText($source);
 
             if (preg_match('/(?<![A-Za-z])password(?![A-Za-z])/i', $text)) {
                 $offenders[] = $this->relative($file);
@@ -252,11 +253,13 @@ class UiAccessibilityTest extends TestCase
      *  dengan kuncinya berarti belum diterjemahkan. */
     public function test_tidak_ada_label_inggris_tersisa_di_teks_atau_kamus(): void
     {
-        $pattern = '/(?<![A-Za-z])(?:reset|preview|upload|submit|save|cancel|delete|close|loading|search)(?![A-Za-z])/i';
+        $pattern = '/(?<![A-Za-z\$>.-])(?:reset|preview|upload|submit|save|cancel|delete|close|loading|search|login|logout|action|update|order)(?![A-Za-z])/i';
         $offenders = [];
 
         foreach ($this->viewFiles() as $file) {
-            if (preg_match($pattern, $this->visibleText($this->read($file)))) {
+            $source = $this->read($file);
+
+            if (preg_match($pattern, $this->visibleText($source)."\n".$this->attributeText($source))) {
                 $offenders[] = $this->relative($file);
             }
         }
@@ -273,6 +276,37 @@ class UiAccessibilityTest extends TestCase
         }
 
         $this->assertSame([], $offenders, 'Label Inggris masih tersisa: '.implode(', ', $offenders));
+    }
+
+    /** Setiap kamus di lang/id harus punya pemakai. Kamus tanpa pemakai
+     *  menua diam-diam: isinya bisa memakai istilah dari domain lain tanpa
+     *  ada satu pun halaman yang terlihat salah. `validation` dikecualikan
+     *  karena Laravel memuatnya sendiri berdasarkan nama berkas. */
+    public function test_setiap_kamus_bahasa_punya_pemakai(): void
+    {
+        $sources = '';
+
+        foreach ([app_path(), resource_path('views'), base_path('routes')] as $dir) {
+            foreach (File::allFiles($dir) as $file) {
+                $sources .= $file->getContents();
+            }
+        }
+
+        $offenders = [];
+
+        foreach (File::files(base_path('lang/id')) as $file) {
+            $name = $file->getFilenameWithoutExtension();
+
+            if ($name === 'validation') {
+                continue;
+            }
+
+            if (! preg_match('/(?:__|trans|@lang)\(\s*[\'"]?'.preg_quote($name, '/').'\./', $sources)) {
+                $offenders[] = 'lang/id/'.$file->getFilename();
+            }
+        }
+
+        $this->assertSame([], $offenders, 'Kamus tanpa pemakai: '.implode(', ', $offenders));
     }
 
     /** Teks yang akan dibaca pengunjung: atribut, komentar, dan direktif
@@ -294,6 +328,15 @@ class UiAccessibilityTest extends TestCase
         $text = preg_replace('/<(?:[^>"\']|"[^"]*"|\'[^\']*\')*>/s', "\n", $text) ?? '';
 
         return $text."\n".implode("\n", $strings);
+    }
+
+    /** Nilai atribut yang ikut dibaca atau didengar pengunjung. Id, kelas,
+     *  dan nama field tidak ikut — hanya teks yang benar-benar tampil. */
+    private function attributeText(string $template): string
+    {
+        preg_match_all('/(?<![:\w-])(?:placeholder|aria-label|alt|title)\s*=\s*"([^"]*)"/i', $template, $matches);
+
+        return implode("\n", $matches[1] ?? []);
     }
 
     /** High Contrast memaksa latar, bayangan, dan warna merek menjadi palet
