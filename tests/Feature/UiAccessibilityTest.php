@@ -310,6 +310,29 @@ class UiAccessibilityTest extends TestCase
      *  justru bisa membuat view mati terlihat hidup. Berkas yang dimuat
      *  Laravel sendiri (errors, vendor) dikecualikan; komponen dicek lewat
      *  pemakaian `<x-nama>`. */
+    /** Netral dingin sisa tema biru (navy/slate/biru-kelabu) tidak boleh
+     *  kembali ke view. Palet merek memakai cokelat hangat: tinta #321d24,
+     *  tinta kedua #6f5960, tinta redup #806975, garis #f0e4e0, bayangan
+     *  rgba(84,5,31,…). Nilai di daftar ini tetapan lama yang pernah
+     *  tertinggal di halaman admin, halaman alamat, dan halaman profil. */
+    public function test_tidak_ada_netral_dingin_sisa_tema_biru(): void
+    {
+        $cool = ['#112030', '#1a2332', '#46586c', '#3d5066', '#5f7082', '#e4ecf4', '#f0f5fa', '#d3ecfb', 'rgba(0,47,92'];
+        $offenders = [];
+
+        foreach ($this->viewFiles() as $file) {
+            $text = strtolower($this->read($file));
+
+            foreach ($cool as $value) {
+                if (str_contains($text, $value)) {
+                    $offenders[] = $this->relative($file).': '.$value;
+                }
+            }
+        }
+
+        $this->assertSame([], $offenders, 'Netral dingin masih terpakai: '.implode(', ', $offenders));
+    }
+
     public function test_setiap_view_bisa_dijangkau(): void
     {
         $sources = '';

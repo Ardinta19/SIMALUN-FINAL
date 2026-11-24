@@ -19,9 +19,9 @@
     --green:      #087f5b;
     --surface:    #faf4f3;
     --card:       #ffffff;
-    --ink:        #1a2332;
-    --ink-mid:    #3d5066;
-    --ink-lt:     #5f7082;
+    --ink:        #321d24;
+    --ink-mid:    #6f5960;
+    --ink-lt:     #806975;
     --border:     #f0dfe1;
     --radius:     16px;
     --radius-sm:  10px;
@@ -65,7 +65,7 @@ body {
     border:1.5px solid var(--border);
     margin-bottom:14px;
     overflow:hidden;
-    box-shadow:0 2px 12px rgba(0,47,92,.05);
+    box-shadow:0 2px 12px rgba(84,5,31,.05);
 
 }
 .section-head {

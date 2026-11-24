@@ -2052,3 +2052,49 @@ lalu hijau setelah dihapus. `docs/AUDIT-ALUR-DAN-JALUR.md` baris 10–12
 diperbarui: baris 10 selesai (dengan daftar sebenarnya), baris 11 ditandai
 keliru (halaman alamat sudah bertoken hangat), baris 12 selesai (`roles/driver`
 sudah tidak ada).
+
+---
+
+## 9.48 — Netral dingin yang tertinggal di tiga halaman hidup
+
+Pemindaian rona (hue) pada blok `<style>` semua view menyisakan empat halaman
+yang masih memakai netral dari tema biru lama, padahal latarnya sudah krem
+hangat:
+
+| Variabel | Nilai lama (dingin) | Nilai baru (hangat) | Berkas |
+|---|---|---|---|
+| `--ink` | `#112030` / `#1a2332` (navy) | `#321d24` | dashboard admin, alamat (create/edit), profil pelanggan |
+| `--ink-mid` | `#46586c` / `#3d5066` (slate) | `#6f5960` | idem |
+| `--ink-lt` | `#5f7082` (slate) | `#806975` | idem |
+| `--border` | `#e4ecf4` (biru-kelabu) | `#f0e4e0` | dashboard admin |
+| `--line-soft` | `#f0f5fa` | `#f1e6e3` | dashboard admin |
+| `--shadow(-md)` | `rgba(0,47,92,…)` (navy) | `rgba(84,5,31,…)` | dashboard, alamat, profil |
+| gradien avatar | `#f9e8ec → #d3ecfb` (krem → biru langit) | `#f9e8ec → #f2dfe4` | dashboard admin |
+
+Kontras tidak turun di bawah AA, hanya sedikit bergeser:
+
+| Token | Lama (krem / putih) | Baru (krem / putih) |
+|---|---|---|
+| tinta redup | 4,68 / 5,09 | 4,60 / 5,01 |
+| tinta kedua | 6,72 / 7,31 | 5,90 / 6,41 |
+| tinta utama | 15,16 / 16,49 | 14,44 / 15,71 |
+
+Nama variabelnya tidak diubah — justru itu yang membuat tema gelap bekerja:
+`berkah-theme.css` mendefinisikan ulang `--ink`, `--ink-mid`, `--ink-lt`,
+`--border`, `--line-soft`, `--card`, `--surface` di `html[data-theme="dark"]`,
+sehingga halaman-halaman ini ikut gelap tanpa blok tema sendiri.
+
+### Variabel mati ikut dibuang
+
+Dashboard admin mendeklarasikan delapan variabel yang tidak dipakai di mana pun
+(`--sky`, `--teal`, `--teal-lt`, `--violet`, `--violet-lt`, `--amber`, `--red`,
+`--red-lt`). Dua di antaranya (`#0d9488` teal, `#6366f1` indigo) satu-satunya
+alasan pemindaian rona ini terus menunjuk halaman tersebut.
+
+### Penjaga
+
+`UiAccessibilityTest::test_tidak_ada_netral_dingin_sisa_tema_biru` menolak
+sembilan nilai lama itu muncul kembali di view mana pun, dengan pesan yang
+menyebut berkas dan heksanya. Diverifikasi dengan menyuntikkan
+`.sisa-biru{color:#5f7082}` ke satu view: tes gagal menyebut berkas itu, lalu
+hijau setelah dipulihkan.

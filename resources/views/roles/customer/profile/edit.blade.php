@@ -11,7 +11,7 @@
     :root {
         --blue-dark:#54051f; --blue-mid:#85092d; --blue-light:#b6435e;
         --blue-sky:#f8e9ed; --orange:#c2410c; --green:#087f5b; --red:#c62f2f;
-        --ink:#1a2332; --ink-mid:#3d5066; --ink-lt:#5f7082;
+        --ink:#321d24; --ink-mid:#6f5960; --ink-lt:#806975;
         --surface:#faf4f3; --border:#f0dfe1; --radius:16px; --radius-sm:10px;
     }
     *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -90,7 +90,7 @@
         border:1.5px solid var(--border);
         margin-bottom:14px;
         overflow:hidden;
-        box-shadow:0 2px 12px rgba(0,47,92,.05);
+        box-shadow:0 2px 12px rgba(84,5,31,.05);
     }
     .section-head {
         display:flex;

@@ -19,29 +19,21 @@
     --blue-mid:   #ad3553;
     --blue-dark:  #54051f;
     --blue-lt:    #f9e8ec;
-    --sky:        #cf7488;
-    --teal:       #0d9488;
-    --teal-lt:    #ccfbf1;
     --orange:     #a92143;
-    --amber:      #b45309;
     --orange-lt:  #fff1ea;
     --green:      #047857;
     --green-lt:   #e7faf2;
-    --red:        #c62f2f;
-    --red-lt:     #fff1f1;
-    --violet:     #6366f1;
-    --violet-lt:  #eef0ff;
     --surface:    #faf4f3;
     --card:       #ffffff;
-    --ink:        #112030;
-    --ink-mid:    #46586c;
-    --ink-lt:     #5f7082;
-    --border:     #e4ecf4;
-    --line-soft:  #f0f5fa;
+    --ink:        #321d24;
+    --ink-mid:    #6f5960;
+    --ink-lt:     #806975;
+    --border:     #f0e4e0;
+    --line-soft:  #f1e6e3;
     --radius:     var(--radius-card); /* canonical 16px (reconciled from 20px) */
     --radius-sm:  var(--radius-btn);  /* canonical 12px (reconciled from 14px) */
-    --shadow:     0 2px 14px rgba(0,47,92,0.05);
-    --shadow-md:  0 10px 30px rgba(0,47,92,0.10);
+    --shadow:     0 2px 14px rgba(84,5,31,0.05);
+    --shadow-md:  0 10px 30px rgba(84,5,31,0.10);
     --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -219,7 +211,7 @@ body {
 .order-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, var(--orange), #ff9a6a); }
 .order-card__top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 13px; }
 .order-card__user { display: flex; align-items: center; gap: 11px; }
-.order-card__avatar { width: 44px; height: 44px; border-radius: 13px; background: linear-gradient(145deg, var(--blue-lt), #d3ecfb); color: var(--blue-dark); display: flex; align-items: center; justify-content: center; font-size: 1.05rem; font-weight: 800; flex-shrink: 0; }
+.order-card__avatar { width: 44px; height: 44px; border-radius: 13px; background: linear-gradient(145deg, var(--blue-lt), #f2dfe4); color: var(--blue-dark); display: flex; align-items: center; justify-content: center; font-size: 1.05rem; font-weight: 800; flex-shrink: 0; }
 .order-card__name { font-size: var(--adm-fs-sm); font-weight: 800; color: var(--ink); line-height: 1.1; }
 .order-card__code { font-size: var(--adm-fs-2xs); font-weight: 700; color: var(--blue); margin-top: 3px; }
 .order-card__badge { font-size: var(--adm-fs-2xs); font-weight: 900; background: var(--orange-lt); color: #b8420f; border: 1px solid #ffd9c7; border-radius: 99px; padding: 4px 9px; text-transform: uppercase; letter-spacing: 0.4px; flex-shrink: 0; }
