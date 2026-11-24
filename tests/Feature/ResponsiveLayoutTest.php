@@ -195,6 +195,26 @@ class ResponsiveLayoutTest extends TestCase
         $this->assertStringContainsString("'.bk-how', '.bk-category-strip'", $motion);
     }
 
+    /** Catatan admin adalah spanduk di atas chipbar: jaraknya satu skala
+     *  dengan blok di bawahnya, lebarnya selebar blok itu, dan aksen kirinya
+     *  tidak menonjol keluar lengkung kartu. */
+    public function test_admin_note_shares_the_rhythm_of_the_blocks_below_it(): void
+    {
+        $css = File::get(public_path('css/berkah-admin.css'));
+
+        // Jarak antar-kelompok 16 px, sama dengan margin bawah chipbar.
+        $this->assertStringContainsString('padding: 12px 14px 12px 16px; margin: 0 0 16px;', $css);
+        $this->assertStringContainsString('.adm-chipbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 16px; }', $css);
+
+        // Aksen kiri = lapisan di dalam kartu, dipotong radius kartu.
+        $this->assertStringContainsString('.adm-note::before {', $css);
+        $this->assertStringContainsString('overflow: hidden; overflow-wrap: anywhere;', $css);
+
+        // Catatan bukan paragraf bacaan: tidak ikut batas 68ch/78ch.
+        $this->assertStringNotContainsString('.adm-app :is(.adm-page-sub, .adm-help, .adm-note, .adm-card__body)', $css);
+        $this->assertStringContainsString('.adm-app .adm-note { max-width: none; }', $css);
+    }
+
     public function test_catalog_filter_uses_a_single_clear_title(): void
     {
         $catalog = File::get(resource_path('views/catalog/index.blade.php'));

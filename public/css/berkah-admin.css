@@ -682,6 +682,10 @@ html[data-theme="dark"] .adm-app :is(.adm-btn--ghost, .adm-btn--quiet):hover {
     position: relative; display: block;
     padding: 12px 14px 12px 16px; margin: 0 0 16px;
     border-radius: var(--adm-r-md);
+    /* Aksen kiri digambar ::before, jadi sudut kirinya harus dipotong radius
+       kartu — tanpa ini ujung aksen menonjol keluar lengkung di kiri-atas.
+       Kata yang terlalu panjang tetap dipatahkan, bukan dipotong. */
+    overflow: hidden; overflow-wrap: anywhere;
     background: var(--adm-surface-3);
     border: 1px solid var(--adm-line);
     color: var(--adm-ink); font-size: var(--adm-fs-sm); line-height: 1.62;

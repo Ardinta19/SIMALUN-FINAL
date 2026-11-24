@@ -1757,3 +1757,14 @@ kambuh lewat salinan baru.
 
 Harness: phpstub **87/0**/201, blade-scan **92 view 0/0** (berkurang satu
 karena berkas dihapus).
+
+#### Koreksi §9.37: aksen kiri butuh `overflow: hidden`
+
+Saat aksen dipindah dari `border-left` ke `::before`, lapisan itu diposisikan
+terhadap **kotak padding** — persegi — sementara permukaan kartu berlengkung
+14 px. Tanpa pemotongan, ujung atas aksen menonjol keluar lengkung di kiri-atas
+(gejala “patah” yang sama, hanya berpindah tempat). `.adm-note` dan
+`.adm-app .notice` kini memakai `overflow: hidden` (lengkung kartu yang
+memotong lapisannya) plus `overflow-wrap: anywhere` supaya kata panjang
+dipatahkan, bukan dipotong. Dikunci oleh
+`ResponsiveLayoutTest::test_admin_note_shares_the_rhythm_of_the_blocks_below_it`.
