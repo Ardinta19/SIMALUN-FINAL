@@ -2098,3 +2098,19 @@ sembilan nilai lama itu muncul kembali di view mana pun, dengan pesan yang
 menyebut berkas dan heksanya. Diverifikasi dengan menyuntikkan
 `.sisa-biru{color:#5f7082}` ke satu view: tes gagal menyebut berkas itu, lalu
 hijau setelah dipulihkan.
+
+### Token `-lt` yang tidak pernah dibaca
+
+`berkah-theme.css` mendeklarasikan lima pasang token `-lt` tanpa satu pun
+pembaca: `--accent-lt`, `--teal-lt`, `--red-lt`, `--violet-lt`, `--yellow-lt`
+(sepasang di blok gelap, sepasang di blok terang). Pemindaian `var(--nama)` di
+`public/css`, `public/js`, `resources/views`, `resources/css`, `resources/js`,
+dan `app/` menemukan nol rujukan untuk kelimanya, sementara `--blue-lt` (4),
+`--orange-lt` (2), dan `--green-lt` (2) memang dipakai halaman admin. Sepuluh
+baris itu dibuang; sisanya tetap.
+
+Blok alias "nama lama, nilai baru" (`--bg`, `--text`, `--muted`, `--paper`,
+`--surface-300`, `--danger-tint`, `--success-tint`, `--warning-tint`) sengaja
+**tidak** disentuh: blok itu mendokumentasikan pemetaan tema untuk halaman yang
+memakai nama variabel lama, jadi menghapus per entri akan mengaburkan maksud
+bloknya, bukan merapikannya.

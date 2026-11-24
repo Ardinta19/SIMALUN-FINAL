@@ -85,17 +85,12 @@ html[data-theme="dark"] {
     --brand-500: #c12f57;
     --brand-900: #4a0d1e;
     --accent-tint: #3a2a20;
-    --accent-lt: #3a2a20;
     --success-tint: var(--theme-success-soft);
     --danger-tint: var(--theme-danger-soft);
     --warning-tint: var(--theme-warning-soft);
     --blue-lt: #38262c;
-    --teal-lt: #123a35;
     --orange-lt: #3a2620;
     --green-lt: #12332a;
-    --red-lt: #3a1f24;
-    --violet-lt: #262a4a;
-    --yellow-lt: #3a331a;
 
     /* Token khusus halaman katalog/pelanggan */
     --bk-ink: var(--theme-ink);
@@ -1480,14 +1475,9 @@ html[data-theme="dark"] #bk-theme-switch .bk-theme-svg__knob-ring {
         --brand-500: #85092d;
         --brand-900: #54051f;
         --accent-tint: #fdf0e8;
-        --accent-lt: #fdf0e8;
         --blue-lt: #f8e9ed;
-        --teal-lt: #e7f7f4;
         --orange-lt: #fdf0e9;
         --green-lt: #e9f8f1;
-        --red-lt: #fdecef;
-        --violet-lt: #eeeafc;
-        --yellow-lt: #fcf7e3;
         --shadow: 0 4px 12px rgba(84, 5, 31, 0.08);
         --shadow-md: 0 4px 12px rgba(84, 5, 31, 0.08);
         --shadow-card: none;
