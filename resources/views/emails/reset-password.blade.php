@@ -9,7 +9,7 @@
             <td style="border-radius:10px;background:#FF6B35;">
                 <a href="{{ $url }}" target="_blank" rel="noopener"
                    style="display:inline-block;padding:13px 28px;font-size:15px;font-weight:800;color:#ffffff;text-decoration:none;border-radius:10px;">
-                    Atur Ulang Password
+                    Atur Ulang Kata Sandi
                 </a>
             </td>
         </tr>

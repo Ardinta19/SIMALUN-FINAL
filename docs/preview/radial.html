@@ -77,8 +77,29 @@
     html[data-theme="dark"] .bk-theme-btn .bk-theme-btn__sun { display: none; }
     html[data-theme="dark"] .bk-theme-btn .bk-theme-btn__moon { display: block; }
 
-    /* Busur hanya tampil <=700 px di aplikasi; pratinjau memaksanya tampil. */
-    .demo-page .bk-header-radial { display: block; }
+    /* Busur hanya tampil <=700 px di aplikasi. Header tiruan di halaman ini
+       memaksanya tampil supaya bisa diklik, tetapi di dalam bingkai (iframe)
+       aturan aslinya berlaku — termasuk bingkai 760 px di bawah, yang
+       membuktikan tombolnya memang tidak dirender di layar lebar. */
+    body.demo-page:not(.demo-embed) .bk-header-radial { display: block; }
+
+    /* Tautan yang di aplikasi menggantikan busur di atas 700 px. */
+    .mock-nav { display: flex; align-items: center; gap: 14px; margin-right: 4px; font-size: 13px; font-weight: 700; }
+    .mock-nav a { color: inherit; text-decoration: none; }
+    .mock-nav a[aria-current] { color: #f3a8bb; }
+    html[data-theme="light"] .mock-nav a[aria-current] { color: #85092d; }
+    @media (max-width: 700px) { .mock-nav { display: none; } }
+
+    /* Bingkai lebar: kembalikan bentuk header desktop (merek tampil, pil
+       melebar, label Cari kembali) supaya tidak tampak seperti versi ponsel
+       yang diperbesar. */
+    @media (min-width: 701px) {
+        body.demo-embed .mock-brand { display: flex; }
+        body.demo-embed .mock-header-inner { width: min(720px, calc(100% - 16px)); justify-content: flex-start; min-height: 70px; padding: 8px 12px; border-radius: 28px; }
+        body.demo-embed .mock-filter span { display: inline; }
+        body.demo-embed .mock-filter { width: auto; padding: 0 14px; }
+        body.demo-embed .mock-content { padding: 22px 18px 60px; }
+    }
     /* Peran: pelanggan (5 tujuan) atau tamu (4 tujuan). Hanya satu yang tampil,
        dan bingkai tamu membukanya lewat ?tamu=1. */
     body.demo-guest [data-demo-role="customer"] { display: none; }
@@ -113,6 +134,14 @@
     }
     html[data-theme="light"] .demo-phone { border-color: #3c2a30; }
     .demo-phone iframe { display: block; width: 100%; height: 100%; border: 0; }
+    .demo-wide {
+        width: min(760px, 100%); height: 180px; overflow: hidden;
+        border: 1px solid rgba(119,66,77,.28); border-radius: 20px;
+        box-shadow: 0 16px 40px rgba(0,0,0,.28);
+        background: #0c090b;
+    }
+    html[data-theme="light"] .demo-wide { border-color: #e7d5d1; background: #fbf6ef; }
+    .demo-wide iframe { display: block; width: 100%; height: 100%; border: 0; }
 
     /* Mode embed dipakai di dalam bingkai: tanpa bilah kendali. */
     body.demo-embed .demo-bar,
@@ -137,7 +166,7 @@
 <body class="demo-page">
     <div class="demo-bar">
         <strong>Pratinjau menu radial</strong>
-        <span>CSS diambil langsung dari partial Blade · GSAP + Lenis asli</span>
+        <span>CSS diambil langsung dari partial Blade · GSAP + Lenis asli · busur hanya untuk layar ≤700 px</span>
         <button type="button" data-demo-theme="dark" aria-pressed="true">Gelap</button>
         <button type="button" data-demo-theme="light" aria-pressed="false">Terang</button>
         <button type="button" data-demo-replay>Buka / tutup busur</button>
@@ -146,6 +175,11 @@
     <div class="mock-header">
         <div class="mock-header-inner">
             <span class="mock-brand"><b>Berkah Kreatif</b><small>Papan bunga untuk setiap cerita</small></span>
+            <nav class="mock-nav" aria-label="Navigasi utama (tiruan)">
+                <a href="#" aria-current="page">Katalog</a>
+                <a href="#">Masuk</a>
+                <a href="#">Daftar</a>
+            </nav>
             <a class="mock-filter" href="#">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                 Cari
@@ -262,6 +296,11 @@
             <h2>Tombol di sisi kiri</h2>
             <p>Penempatan ketiga: tombol di tepi kiri layar. Busurnya dicerminkan ke kanan (kelas <code>is-arc-opposite</code>, sudut 0° → 101°) supaya tujuannya tidak keluar layar. Bingkai ini memakai <code>?sisi=kiri</code>.</p>
             <div class="demo-phone"><iframe src="?embed=1&amp;sisi=kiri" title="Pratinjau busur dengan tombol di sisi kiri" width="320" height="620" loading="lazy"></iframe></div>
+        </section>
+        <section class="demo-phone-wrap">
+            <h2>Layar lebar: tombol busur tidak dirender</h2>
+            <p>Di atas 700 px aturan aslinya berlaku: tombol dan busurnya disembunyikan — bukan sekadar dipindah — karena tujuannya sudah menjadi tautan header: <strong>Katalog</strong>, <strong>Masuk</strong>, <strong>Daftar</strong>, ditambah keranjang, Cari, dan tombol tema. Bingkai 760 px ini sengaja tidak memaksa apa pun, jadi yang tampil hanya header tiruan. Dulu busur tamu tetap muncul di sini karena aturan tampilnya hanya dimuat untuk pelanggan.</p>
+            <div class="demo-wide"><iframe src="?embed=1" title="Pratinjau lebar 760 piksel: tombol busur tidak tampil" width="760" height="180" loading="lazy"></iframe></div>
         </section>
     </main>
 

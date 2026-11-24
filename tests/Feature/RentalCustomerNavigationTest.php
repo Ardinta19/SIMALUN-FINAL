@@ -109,6 +109,14 @@ class RentalCustomerNavigationTest extends TestCase
         // Tema bawaan (tanpa data-theme) tetap punya titik tumpu panel: aturan
         // tampil tidak boleh bergantung pada atribut tema.
         $this->assertStringNotContainsString('html[data-theme] .bk-header-radial{display:', $html);
+
+        // Tujuan yang ada di busur (Daftar) harus tetap ada di tautan header
+        // untuk layar lebar: setup sekali, bukan sekali per lebar layar.
+        $this->assertGreaterThanOrEqual(
+            2,
+            substr_count($html, route('register')),
+            'Tujuan “Daftar” harus muncul di busur dan di navigasi header.'
+        );
     }
 
     public function test_desktop_navigation_keeps_accessible_shortcuts_and_current_state(): void

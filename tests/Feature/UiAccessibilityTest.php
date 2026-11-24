@@ -204,6 +204,27 @@ class UiAccessibilityTest extends TestCase
         );
     }
 
+    /** Satu istilah untuk satu hal: pesan validasi larangan memakai "kata
+     *  sandi" (lang/id), jadi label dan tombol juga. "Password" yang berdiri
+     *  sendiri sebagai kata (bukan nama variabel/atribut) dianggap sisa. */
+    public function test_istilah_kata_sandi_konsisten_di_seluruh_view(): void
+    {
+        $offenders = [];
+
+        foreach ($this->viewFiles() as $file) {
+            $lines = preg_split('/\R/', $this->read($file));
+
+            foreach ($lines as $index => $line) {
+                // Nama seperti updatePassword atau new-password tidak dihitung.
+                if (preg_match('/(?<![A-Za-z])Password(?![A-Za-z])/', $line)) {
+                    $offenders[] = $this->relative($file).':'.($index + 1);
+                }
+            }
+        }
+
+        $this->assertSame([], $offenders, 'Istilah “Password” masih tersisa: '.implode(', ', $offenders));
+    }
+
     /** High Contrast memaksa latar, bayangan, dan warna merek menjadi palet
      *  sistem. Tanpa aturan sendiri, busur, kotak centang, dan aksen catatan
      *  admin bisa menyatu dengan halaman. */

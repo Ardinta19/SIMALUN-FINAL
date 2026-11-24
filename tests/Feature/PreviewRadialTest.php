@@ -109,6 +109,24 @@ class PreviewRadialTest extends TestCase
         $this->assertStringContainsString('bentuk U', $html);
     }
 
+    /** Pratinjau harus jujur soal lebar layar: busur hanya ada <=700 px.
+     *  Bingkai ponsel memaksa tombol tampil supaya bisa diklik, tetapi bingkai
+     *  760 px tidak — di situlah aturan aslinya terbukti. */
+    public function test_pratinjau_membuktikan_busur_hilang_di_layar_lebar(): void
+    {
+        $html = $this->preview();
+
+        // Pemaksaan hanya untuk halaman luar, bukan untuk isi bingkai.
+        $this->assertStringContainsString('body.demo-page:not(.demo-embed) .bk-header-radial { display: block; }', $html);
+        $this->assertStringNotContainsString('.demo-page .bk-header-radial { display: block; }', $html);
+
+        // Bingkai lebar + tautan header yang menggantikan busur.
+        $this->assertStringContainsString('width="760"', $html);
+        $this->assertStringContainsString('Layar lebar: tombol busur tidak dirender', $html);
+        $this->assertStringContainsString('class="mock-nav"', $html);
+        $this->assertStringContainsString('@media (max-width: 700px) { .mock-nav { display: none; } }', $html);
+    }
+
     public function test_pratinjau_tidak_menghidupkan_lagi_cincin_atau_gumpalan(): void
     {
         $html = $this->preview();

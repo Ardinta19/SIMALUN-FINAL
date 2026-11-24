@@ -36,7 +36,7 @@ return [
     'can' => ':attribute mengandung nilai yang tidak diizinkan.',
     'confirmed' => 'Konfirmasi :attribute tidak cocok.',
     'contains' => ':attribute tidak memiliki nilai yang diperlukan.',
-    'current_password' => 'Password saat ini salah.',
+    'current_password' => 'Kata sandi saat ini salah.',
     'date' => ':attribute bukan tanggal yang valid.',
     'date_equals' => ':attribute harus berupa tanggal yang sama dengan :date.',
     'date_format' => ':attribute tidak sesuai format :format.',

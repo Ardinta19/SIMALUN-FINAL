@@ -450,7 +450,7 @@ $oldText = function (string $key, $fallback = '') {
         </div>
       </div>
 
-      <!-- ══ STEP 2: Akun & Password ══ -->
+      <!-- ══ STEP 2: Akun & Kata sandi ══ -->
       <div class="form-step" id="step-2">
         <div class="form-group">
           <label class="form-label" for="email">
@@ -471,7 +471,7 @@ $oldText = function (string $key, $fallback = '') {
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="password">Password</label>
+          <label class="form-label" for="password">Kata sandi</label>
           <div class="input-wrap">
             <span class="input-icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'lock', 'size' => 20])</span>
             <input class="form-input" type="password" id="password" name="password" aria-describedby="err-pw"
@@ -485,7 +485,7 @@ $oldText = function (string $key, $fallback = '') {
             <div class="pw-strength-bar">
               <div class="pw-strength-fill" id="pw-strength-fill"></div>
             </div>
-            <div class="pw-strength-lbl" id="pw-strength-lbl">Ketik password...</div>
+            <div class="pw-strength-lbl" id="pw-strength-lbl">Ketik kata sandi...</div>
             <p style="font-size:var(--bk-fs-2xs);color:#fff;margin-top:.4rem">Selain minimal 8 karakter, kombinasi berikut disarankan, bukan wajib.</p><ul class="pw-hints">
               <li class="pw-hint" id="hint-len">Min. 8 karakter</li>
               <li class="pw-hint" id="hint-upper">Huruf besar</li>
@@ -496,11 +496,11 @@ $oldText = function (string $key, $fallback = '') {
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="password_confirmation">Konfirmasi Password</label>
+          <label class="form-label" for="password_confirmation">Konfirmasi kata sandi</label>
           <div class="input-wrap">
             <span class="input-icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'lock-keyhole', 'size' => 20])</span>
             <input class="form-input" type="password" id="password_confirmation" name="password_confirmation" aria-describedby="err-pwc"
-              placeholder="Ulangi password" autocomplete="new-password">
+              placeholder="Ulangi kata sandi" autocomplete="new-password">
             <button type="button" class="pw-toggle" id="pw-toggle-2" aria-label="Tampilkan konfirmasi kata sandi" aria-pressed="false"><span data-glyph="eye">@include('layouts.component._icon', ['name' => 'eye', 'size' => 20])</span><span data-glyph="eye-off" hidden>@include('layouts.component._icon', ['name' => 'eye-off', 'size' => 20])</span></button>
           </div>
           <div class="form-error" aria-live="polite" id="err-pwc"></div>
@@ -681,7 +681,7 @@ document.addEventListener('DOMContentLoaded', function () {
         showErr('err-email','Format email tidak valid'); document.getElementById('email').classList.add('error'); ok=false;
       }
       if (!pw || pw.length < 8) {
-        showErr('err-pw','Password minimal 8 karakter'); document.getElementById('password').classList.add('error'); ok=false;
+        showErr('err-pw','Kata sandi minimal 8 karakter'); document.getElementById('password').classList.add('error'); ok=false;
       }
       if (pw !== pwc) {
         showErr('err-pwc','Konfirmasi password tidak cocok'); document.getElementById('password_confirmation').classList.add('error'); ok=false;

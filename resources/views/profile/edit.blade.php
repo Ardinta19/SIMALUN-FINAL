@@ -74,20 +74,20 @@
         @csrf
         @method('put')
         <div class="card">
-            <h2 style="font-size:1rem; margin-bottom:12px; color:var(--theme-ink, #301722);">Ganti Password</h2>
+            <h2 style="font-size:1rem; margin-bottom:12px; color:var(--theme-ink, #301722);">Ganti Kata Sandi</h2>
             <div class="field">
-                <label for="profile-current-password">Password Saat Ini</label>
+                <label for="profile-current-password">Kata Sandi Saat Ini</label>
                 <input id="profile-current-password" type="password" name="current_password" autocomplete="current-password">
             </div>
             <div class="field">
-                <label for="profile-new-password">Password Baru</label>
+                <label for="profile-new-password">Kata Sandi Baru</label>
                 <input id="profile-new-password" type="password" name="password" autocomplete="new-password">
             </div>
             <div class="field">
-                <label for="profile-confirm-password">Konfirmasi Password Baru</label>
+                <label for="profile-confirm-password">Konfirmasi Kata Sandi Baru</label>
                 <input id="profile-confirm-password" type="password" name="password_confirmation" autocomplete="new-password">
             </div>
-            <button type="submit">Perbarui Password</button>
+            <button type="submit">Perbarui Kata Sandi</button>
         </div>
     </form>
 

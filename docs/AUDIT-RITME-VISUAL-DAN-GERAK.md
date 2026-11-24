@@ -1695,3 +1695,45 @@ elipsis di halaman mana pun, bukan hanya di beranda.
 
 **Harness.** phpstub **84/0**/201, `.tmp-verify` **26/0**, blade-scan **93
 view 0/0**, jsdom **284/0** + validasi **15/0** + validasi-submit **7/0**.
+
+### 9.40 Tujuan yang hilang saat busur disembunyikan, pratinjau yang jujur, dan istilah “Password”
+
+**1. “Daftar” hilang di layar lebar.** Setelah busur tamu dibatasi ke ≤700 px
+(§9.37), satu tujuan yang tadinya ikut busur — Daftar akun — tidak punya
+padanan di navigasi header. Tamu di layar lebar hanya melihat “Katalog” dan
+“Masuk”, dan baru menemukan pendaftaran setelah membuka halaman masuk. Itu
+harga yang tidak perlu dibayar: tujuan busur dan tujuan header harus satu
+daftar. `.bk-desktop-nav` untuk tamu kini berisi **Masuk** dan **Daftar**
+(keduanya dengan `aria-current` saat sedang dibuka), jadi tidak ada tujuan
+yang lahir atau mati karena lebar layar. Tes menjaganya dari dua sisi:
+sumber view (adanya dua tautan) dan hasil render (pendaftaran muncul dua kali
+— header dan busur).
+
+**2. Pratinjau akhirnya membuktikan aturan ≤700 px.** `docs/preview/radial.html`
+memaksa `.bk-header-radial` tampil supaya tombolnya bisa diklik. Karena
+bingkai ponsel di halaman itu **iframe 320 px**, pemaksaan tersebut tidak
+diperlukan di dalamnya — dan justru menyembunyikan fakta bahwa busur hilang
+di layar lebar. Sekarang pemaksaan dibatasi ke halaman luar
+(`body.demo-page:not(.demo-embed)`), dan bingkai keempat selebar 760 px tidak
+memaksa apa pun: di sanalah aturan aslinya terlihat — tombol busur tidak
+dirender, dan yang tampil hanya tautan header. Header tiruan juga diberi
+`.mock-nav` (Katalog/Masuk/Daftar) yang disembunyikan di bawah 700 px, persis
+seperti di aplikasi, plus penyesuaian agar bingkai lebar tidak tampak seperti
+ponsel yang diperbesar (merek tampil, pil melebar, label “Cari” kembali).
+
+**3. Satu istilah: “kata sandi”.** Pesan validasi di `lang/id/validation.php`
+memakai “kata sandi” (atribut `password` → “kata sandi”, `current_password` →
+“kata sandi saat ini”), tetapi label di halaman masuk, daftar, dan tiga
+halaman profil memakai “Password”. Akibatnya galat “Kata sandi minimal 8
+karakter” bisa muncul di bawah kolom berlabel “Password”. Semua label, judul,
+tombol, placeholder, pesan galat sisi klien, dan judul surel atur ulang kini
+memakai bentuk yang sama (“Kata Sandi” pada label/judul, “kata sandi” pada
+kalimat). Satu entri `current_password` di `validation.php` ikut diperbaiki.
+
+Penjaganya bukan ingatan: `UiAccessibilityTest` memindai seluruh view dan
+menolak kata “Password” yang berdiri sendiri — nama seperti `updatePassword`
+atau `autocomplete="new-password"` tidak dihitung.
+
+**Harness.** phpstub **86/0**/201, `.tmp-verify` **26/0**, blade-scan **93
+view 0/0**, jsdom **284/0** + validasi **22/0** (15 + 7), dan
+`previewpage`/`preview` tetap 12/0 dan 18/0.

@@ -254,7 +254,7 @@ $oldText = function (string $key, $fallback = '') {
     @elseif(session('status') === 'address-saved')
         <div class="alert alert-success">Alamat utama berhasil disimpan.</div>
     @elseif(session('status') === 'password-updated')
-        <div class="alert alert-success">Password berhasil diubah.</div>
+        <div class="alert alert-success">Kata sandi berhasil diubah.</div>
     @endif
 
     @if($errors->any())
@@ -387,27 +387,27 @@ $oldText = function (string $key, $fallback = '') {
         <div class="section-card">
             <div class="section-head">
                 <div class="section-num">3</div>
-                <div class="section-title">Ganti Password</div>
+                <div class="section-title">Ganti Kata Sandi</div>
             </div>
             <div class="section-body">
                 <div>
-                    <label class="field-label" for="profile-current-password">Password Saat Ini</label>
+                    <label class="field-label" for="profile-current-password">Kata Sandi Saat Ini</label>
                     <input type="password" id="profile-current-password" name="current_password" class="field-input" autocomplete="current-password" placeholder="••••••••">
                     @error('current_password', 'updatePassword') <div class="field-error">{{ $message }}</div> @enderror
                 </div>
 
                 <div>
-                    <label class="field-label" for="profile-new-password">Password Baru</label>
+                    <label class="field-label" for="profile-new-password">Kata Sandi Baru</label>
                     <input type="password" id="profile-new-password" name="password" class="field-input" autocomplete="new-password" placeholder="Minimal 8 karakter">
                     @error('password', 'updatePassword') <div class="field-error">{{ $message }}</div> @enderror
                 </div>
 
                 <div>
-                    <label class="field-label" for="profile-confirm-password">Konfirmasi Password Baru</label>
-                    <input type="password" id="profile-confirm-password" name="password_confirmation" class="field-input" autocomplete="new-password" placeholder="Ulangi password baru">
+                    <label class="field-label" for="profile-confirm-password">Konfirmasi Kata Sandi Baru</label>
+                    <input type="password" id="profile-confirm-password" name="password_confirmation" class="field-input" autocomplete="new-password" placeholder="Ulangi kata sandi baru">
                 </div>
 
-                <button type="submit" class="btn-submit secondary">Perbarui Password</button>
+                <button type="submit" class="btn-submit secondary">Perbarui Kata Sandi</button>
             </div>
         </div>
     </form>
@@ -426,7 +426,7 @@ $oldText = function (string $key, $fallback = '') {
                     @csrf
                     @method('delete')
                     <div>
-                        <label class="field-label" for="profile-delete-password">Konfirmasi Password <span class="req">*</span></label>
+                        <label class="field-label" for="profile-delete-password">Konfirmasi Kata Sandi <span class="req">*</span></label>
                         <input autocomplete="current-password" type="password" id="profile-delete-password" name="password" class="field-input" required placeholder="Masukkan password Anda">
                         @error('password') <div class="field-error">{{ $message }}</div> @enderror
                     </div>

@@ -207,9 +207,9 @@ $oldText = function (string $key, $fallback = '') {
         <div class="form-error" id="err-identifier" aria-live="polite"></div>
       </div>
 
-      {{-- Password Field --}}
+      {{-- Kolom kata sandi --}}
       <div class="form-group">
-        <label class="form-label" for="password">Password</label>
+        <label class="form-label" for="password">Kata sandi</label>
         <div class="input-wrap">
           <span class="input-icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'lock', 'size' => 20])</span>
           <input
@@ -219,10 +219,10 @@ $oldText = function (string $key, $fallback = '') {
             name="password"
             aria-describedby="err-password @error('password') server-password-error @enderror"
             @error('password') aria-invalid="true" @enderror
-            placeholder="Masukkan password"
+            placeholder="Masukkan kata sandi"
             autocomplete="current-password"
           >
-          <button type="button" class="pw-toggle" id="pw-toggle" hidden title="Tampilkan password" aria-label="Tampilkan password" aria-pressed="false"><span data-glyph="eye">@include('layouts.component._icon', ['name' => 'eye', 'size' => 20])</span><span data-glyph="eye-off" hidden>@include('layouts.component._icon', ['name' => 'eye-off', 'size' => 20])</span></button>
+          <button type="button" class="pw-toggle" id="pw-toggle" hidden title="Tampilkan kata sandi" aria-label="Tampilkan kata sandi" aria-pressed="false"><span data-glyph="eye">@include('layouts.component._icon', ['name' => 'eye', 'size' => 20])</span><span data-glyph="eye-off" hidden>@include('layouts.component._icon', ['name' => 'eye-off', 'size' => 20])</span></button>
         </div>
         @error('password')
           <div class="error-msg" id="server-password-error" role="alert">{{ $message }}</div>
@@ -236,7 +236,7 @@ $oldText = function (string $key, $fallback = '') {
           <input type="checkbox" name="remember" {{ $oldText('remember') ? 'checked' : '' }}>
           Ingat saya
         </label>
-        <a href="{{ route('password.request') }}" class="forgot-link">Lupa password?</a>
+        <a href="{{ route('password.request') }}" class="forgot-link">Lupa kata sandi?</a>
       </div>
 
       {{-- Submit Button --}}
@@ -296,8 +296,8 @@ document.addEventListener('DOMContentLoaded', function () {
     this.querySelector('[data-glyph="eye"]').hidden = show;
     this.querySelector('[data-glyph="eye-off"]').hidden = !show;
     this.setAttribute('aria-pressed', String(show));
-    this.setAttribute('aria-label', show ? 'Sembunyikan password' : 'Tampilkan password');
-    this.title = show ? 'Sembunyikan password' : 'Tampilkan password';
+    this.setAttribute('aria-label', show ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi');
+    this.title = show ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi';
   });
 
   pwToggle.hidden = false;
@@ -325,7 +325,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if(!pw){
-      showErr(errPw, 'Password wajib diisi'); pwInput.classList.add('error'); pwInput.setAttribute('aria-invalid', 'true'); valid=false;
+      showErr(errPw, 'Kata sandi wajib diisi'); pwInput.classList.add('error'); pwInput.setAttribute('aria-invalid', 'true'); valid=false;
     }
 
     if(!valid){ e.preventDefault(); (!ident ? identEl : pwInput).focus(); return; }

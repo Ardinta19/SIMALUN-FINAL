@@ -40,6 +40,13 @@ class RadialMenuTest extends TestCase
 
         // Tamu memakai busur yang sama, bukan dialog "Jelajahi".
         $this->assertStringContainsString("route('register')", $view);
+
+        // Busur tamu hanya tampil di ponsel, jadi tujuan "Daftar" harus tetap
+        // ada di tautan header untuk layar lebar — kalau tidak, satu tujuan
+        // hilang hanya karena layarnya lebar.
+        $nav = File::get(resource_path('views/catalog/customer-navigation.blade.php'));
+        $this->assertStringContainsString("<a href=\"{{ route('register') }}\"", $nav);
+        $this->assertStringContainsString("<a href=\"{{ route('login') }}\"", $nav);
         $this->assertStringContainsString("route('login')", $view);
         $this->assertStringContainsString("Menu: katalog, keranjang, daftar, dan masuk", $view);
 

@@ -253,7 +253,7 @@ body {
     <div class="card reveal d3">
         <div class="card-title">
             @include('layouts.component._icon', ['name' => 'settings', 'size' => 20])
-            Ganti Password
+            Ganti Kata Sandi
         </div>
         <div class="card-sub">Amankan akses panel administrator</div>
 
@@ -262,7 +262,7 @@ body {
             @method('put')
 
             <div class="form-group">
-                <label class="form-label" for="current_password">Password Saat Ini</label>
+                <label class="form-label" for="current_password">Kata Sandi Saat Ini</label>
                 <div class="input-wrap">
                     <span class="input-icon">@include('layouts.component._icon', ['name' => 'eye', 'size' => 16])</span>
                     <input autocomplete="current-password" type="password" id="current_password" name="current_password" class="form-input" placeholder="••••••••">
@@ -270,7 +270,7 @@ body {
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="password">Password Baru</label>
+                <label class="form-label" for="password">Kata Sandi Baru</label>
                 <div class="input-wrap">
                     <span class="input-icon">@include('layouts.component._icon', ['name' => 'settings', 'size' => 16])</span>
                     <input autocomplete="new-password" type="password" id="password" name="password" class="form-input" placeholder="Min. 8 karakter">
@@ -278,10 +278,10 @@ body {
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="password_confirmation">Konfirmasi Password Baru</label>
+                <label class="form-label" for="password_confirmation">Konfirmasi Kata Sandi Baru</label>
                 <div class="input-wrap">
                     <span class="input-icon">@include('layouts.component._icon', ['name' => 'check-circle', 'size' => 16])</span>
-                    <input autocomplete="new-password" type="password" id="password_confirmation" name="password_confirmation" class="form-input" placeholder="Ulangi password">
+                    <input autocomplete="new-password" type="password" id="password_confirmation" name="password_confirmation" class="form-input" placeholder="Ulangi kata sandi">
                 </div>
             </div>
 
