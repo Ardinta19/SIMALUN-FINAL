@@ -373,6 +373,21 @@
         window.addEventListener('resize', queueArc);
         window.addEventListener('orientationchange', queueArc);
 
+        /* Kembali lewat tombol Back (bfcache): keadaan DOM dan Lenis ikut
+           dipulihkan, termasuk <details open> dan gulir yang masih berhenti.
+           Tanpa reset, halaman kembali dengan busur terbuka dan tidak bisa
+           digulir. Login/checkout sudah memakai pola `pageshow` yang sama
+           untuk tombol kirim. */
+        window.addEventListener('pageshow', event => {
+            if (!event.persisted) return;
+            if (timeline) timeline.kill();
+            closing = false;
+            if (menu.open) menu.open = false;
+            setProgress(0);
+            syncAria();
+            freezeScroll(false);
+        });
+
         /* Halaman tanpa Lenis tetap harus menutup menu saat digulir: busur
            menggantung di atas konten, jadi membiarkannya terbuka saat halaman
            bergerak membuat sasarannya berpindah dari bawah jari. */

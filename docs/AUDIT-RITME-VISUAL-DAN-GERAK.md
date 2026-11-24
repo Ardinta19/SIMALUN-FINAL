@@ -1416,3 +1416,33 @@ dinetralkan → setelah dialog ditutup fokus mendarat di `[data-bk-expand]`.
 `UiKitTest` menambah penjaga untuk baris `const back = trigger && …`,
 `document.activeElement !== back`, dan `focusWithoutScroll(expand);`. Harness:
 phpstub 81/0/200, `.tmp-verify` 26/0, blade-scan 93 view 0/0, jsdom 261/0.
+
+### 9.33 Kembali lewat Back, dan komentar Blade yang tercetak di pratinjau
+
+**A. bfcache memulihkan busur yang terbuka dan gulir yang berhenti.** Busur
+mengunci gulir lewat `Lenis.stop()`. Kalau pengguna membuka busur, menekan
+tujuan, lalu menekan **Back**, peramban memulihkan halaman dari bfcache:
+`<details open>`, kelas `is-gsap`, nilai `--p` terakhir, dan status Lenis yang
+masih berhenti semuanya ikut kembali. Hasilnya halaman tampil dengan busur
+terbuka dan **tidak bisa digulir** sampai busur ditutup.
+
+Login, register, dan checkout sudah memakai `pageshow` untuk melepas status
+tombol kirim; busur kini mengikuti pola yang sama: pada `pageshow` dengan
+`event.persisted`, tween dihentikan, `closing` direset, `menu.open` dilepas,
+`--p` dikembalikan ke 0, `aria-expanded` disinkronkan, dan `Lenis.start()`
+dipanggil. Muat normal (`persisted === false`) tidak menyentuh apa pun.
+
+**B. Komentar Blade tercetak sebagai teks.** Saat menambahkan busur tamu di
+§9.31, saya menyertakan komentar bergaya Blade `{{-- … --}}` ke dalam
+`docs/preview/radial.html`. Itu berkas HTML statis, bukan view Blade, jadi
+komentarnya tidak dibuang — kalimatnya tampil sebagai paragraf di bawah header
+tiruan. Sekarang diganti komentar HTML, dan `PreviewRadialTest` menolak `{{`,
+`@include`, `@php`, serta `@endforeach` di pratinjau, supaya sintaks Blade tidak
+bisa masuk lagi tanpa ketahuan.
+
+**C. Verifikasi.** `radial.test.js` 77 pemeriksaan (+6): gulir terkunci saat
+terbuka, `pageshow` persisten menutup busur, mengembalikan semua `--p` ke 0,
+menurunkan `aria-expanded`, melepas `Lenis.start()`, dan muat normal tidak
+menutup busur. `RadialMenuTest` menambah penjaga `pageshow`/`event.persisted`.
+Harness: phpstub 81/0/200, `.tmp-verify` 26/0, blade-scan 93 view 0/0, jsdom
+267/0.

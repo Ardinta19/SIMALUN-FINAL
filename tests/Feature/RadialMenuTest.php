@@ -181,6 +181,11 @@ class RadialMenuTest extends TestCase
         $this->assertStringContainsString('html[data-theme="dark"] .bk-header-radial>summary:focus-visible{outline-color:#f3a8bb}', $view);
         $this->assertStringContainsString('@media (prefers-contrast: more){', $view);
 
+        // Kembali lewat Back (bfcache): busur tertutup dan gulir dilepas,
+        // kalau tidak halaman pulih dengan busur terbuka dan tak bisa digulir.
+        $this->assertStringContainsString("addEventListener('pageshow'", $js);
+        $this->assertStringContainsString('event.persisted', $js);
+
         // Navigasi panah di dalam busur (Tab tetap bekerja).
         $this->assertStringContainsString("'ArrowRight'", $js);
         $this->assertStringContainsString("event.key === 'Home'", $js);

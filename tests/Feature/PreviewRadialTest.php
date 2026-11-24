@@ -46,6 +46,13 @@ class PreviewRadialTest extends TestCase
         $this->assertStringContainsString('<script src="../../public/vendor/gsap/gsap.min.js"></script>', $html);
         $this->assertStringContainsString('<script src="../../public/vendor/lenis/lenis.min.js"></script>', $html);
 
+        // Pratinjau adalah HTML statis: sintaks Blade akan tercetak apa adanya
+        // sebagai teks di halaman (pernah terjadi pada komentar {{-- --}}).
+        $this->assertStringNotContainsString('{{', $html);
+        $this->assertStringNotContainsString('@include', $html);
+        $this->assertStringNotContainsString('@php', $html);
+        $this->assertStringNotContainsString('@endforeach', $html);
+
         // Tanpa CDN.
         $this->assertStringNotContainsString('cdn.', $html);
         $this->assertStringNotContainsString('unpkg.com', $html);
