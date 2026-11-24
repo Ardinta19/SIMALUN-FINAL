@@ -181,6 +181,12 @@ class RadialMenuTest extends TestCase
         $this->assertStringContainsString('html[data-theme="dark"] .bk-header-radial>summary:focus-visible{outline-color:#f3a8bb}', $view);
         $this->assertStringContainsString('@media (prefers-contrast: more){', $view);
 
+        // Tombol di kiri layar: busur dicerminkan ke kanan, bukan dibiarkan
+        // menyapu ke kiri dan keluar layar.
+        $this->assertStringContainsString('const layoutSide = ', $js);
+        $this->assertStringContainsString("'is-arc-opposite'", $js);
+        $this->assertStringContainsString('roomRight > roomLeft + 24', $js);
+
         // Kembali lewat Back (bfcache): busur tertutup dan gulir dilepas,
         // kalau tidak halaman pulih dengan busur terbuka dan tak bisa digulir.
         $this->assertStringContainsString("addEventListener('pageshow'", $js);

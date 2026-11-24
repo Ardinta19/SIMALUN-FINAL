@@ -1446,3 +1446,34 @@ menurunkan `aria-expanded`, melepas `Lenis.start()`, dan muat normal tidak
 menutup busur. `RadialMenuTest` menambah penjaga `pageshow`/`event.persisted`.
 Harness: phpstub 81/0/200, `.tmp-verify` 26/0, blade-scan 93 view 0/0, jsdom
 267/0.
+
+### 9.34 Tombol di sisi kiri: busur dicerminkan, bukan tetap menyapu ke kiri
+
+Aturan awal (“busur disesuaikan dengan penempatan”) baru punya dua bentuk:
+busur server 180° → 79° (tombol di kanan) dan bentuk U (tombol di tengah).
+Penempatan ketiga belum punya jawaban: tombol di **sisi kiri**. Di sana busur
+server tetap membuka ke kiri, sehingga tujuannya keluar layar, sedangkan ruang
+di kanan justru lapang.
+
+Sekarang `applyArc()` memilih di antara tiga bentuk:
+
+| Ruang kiri vs kanan | Bentuk | Sudut |
+| --- | --- | --- |
+| Kanan sempit, kiri lapang | busur server | 180° → 79° |
+| Keduanya lapang (≥88 px sisi tersempit) | **U** | 180° → 0° |
+| Kiri sempit, kanan lebih lapang >24 px | **cermin** (kelas `is-arc-opposite`) | 0° → 101° |
+
+Cermin memakai rumus yang sama dengan server: radius dari jarak antarpusat
+50 px (6 slot → 143 px), sudut dibagi rata 101°, hanya arahnya dibalik. Untuk
+tombol di `x = 60` pada layar 320 px, tujuannya jatuh di `(143, 0)`, `(134, 49)`,
+… `(-27, 141)` — kebalikan dari busur server `(-143, 0)` … `(27, 140)`, dan
+seluruhnya tetap di dalam layar (`60 + 143 + 23 = 226 < 320`). Radius
+diperkecil 2 px sekaligus bila ruangnya kurang, tetapi tidak di bawah 88 px;
+kalau tetap tidak muat, nilai server dipulihkan seperti sebelumnya.
+
+**Verifikasi.** `radial.test.js` 82 pemeriksaan (+5): kelas `is-arc-opposite`
+dipasang (bukan `is-arc-u`), tujuan pertama di kanan tombol, `--ry` cermin
+(0 → 141, tidak turun), tidak keluar layar 320 px, dan jarak antarpusat tetap
+≥46 px. `RadialMenuTest` menambah penjaga `layoutSide`, `is-arc-opposite`, dan
+`roomRight > roomLeft + 24`. Harness: phpstub 81/0/200, `.tmp-verify` 26/0,
+blade-scan 93 view 0/0, jsdom 272/0.

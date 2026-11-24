@@ -84,12 +84,37 @@
             return null;
         };
 
+        /* Busur satu sisi ke arah yang punya ruang. Dipakai saat tombol
+           menempel di KIRI layar: busur bawaan server selalu membuka ke kiri,
+           jadi di sana ia akan keluar layar. Bentuknya cermin dari busur
+           server — radius sama, sudut 0° → 101°. */
+        const ARC_SPAN = 101;
+        const layoutSide = (count, room) => {
+            if (count < 2) return null;
+            const avail = room - 10;
+            const ideal = ARC_SPAN / (count - 1);
+            let radius = Math.max(ARC_RADIUS_MIN, Math.round(25 / Math.sin((ideal / 2) * Math.PI / 180)));
+            while (radius >= ARC_RADIUS_MIN && radius + ARC_EDGE > avail) radius -= 2;
+            if (radius < ARC_RADIUS_MIN) return null;
+            const step = 2 * Math.asin(Math.min((ARC_GAP / 2) / radius, 1));
+            const points = [];
+            for (let index = 0; index < count; index++) {
+                const angle = index * step; // 0° = ke kanan
+                points.push([
+                    Math.round(radius * Math.cos(angle)),
+                    Math.round(radius * Math.sin(angle))
+                ]);
+            }
+            return { radius: radius, points: points };
+        };
+
         const useServerArc = () => {
             items.forEach((item, index) => {
                 item.style.setProperty('--rx', defaults[index][0]);
                 item.style.setProperty('--ry', defaults[index][1]);
             });
             menu.classList.remove('is-arc-u');
+            menu.classList.remove('is-arc-opposite');
         };
 
         const applyArc = () => {
@@ -102,17 +127,33 @@
             // Tanpa tata letak (mis. jsdom) ukuran 0: pertahankan nilai server.
             if (!rect.width || !width) return;
             const center = rect.left + (rect.width / 2);
+            const roomLeft = center;
+            const roomRight = width - center;
             const slots = filledItems();
-            const arc = layoutArc(slots.length, center, width - center);
-            if (!arc) {
-                useServerArc();
+            const arc = layoutArc(slots.length, center, roomRight);
+            if (arc) {
+                slots.forEach((item, index) => {
+                    item.style.setProperty('--rx', arc.points[index][0] + 'px');
+                    item.style.setProperty('--ry', arc.points[index][1] + 'px');
+                });
+                menu.classList.add('is-arc-u');
+                menu.classList.remove('is-arc-opposite');
                 return;
             }
-            slots.forEach((item, index) => {
-                item.style.setProperty('--rx', arc.points[index][0] + 'px');
-                item.style.setProperty('--ry', arc.points[index][1] + 'px');
-            });
-            menu.classList.add('is-arc-u');
+            // Ruang kiri jelas lebih sempit: cermin busur server ke kanan.
+            if (roomRight > roomLeft + 24) {
+                const mirror = layoutSide(slots.length, roomRight);
+                if (mirror) {
+                    slots.forEach((item, index) => {
+                        item.style.setProperty('--rx', mirror.points[index][0] + 'px');
+                        item.style.setProperty('--ry', mirror.points[index][1] + 'px');
+                    });
+                    menu.classList.add('is-arc-opposite');
+                    menu.classList.remove('is-arc-u');
+                    return;
+                }
+            }
+            useServerArc();
         };
 
         let timeline = null;
