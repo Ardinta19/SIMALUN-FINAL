@@ -1639,3 +1639,46 @@ Yang dirapikan (satu skala, bukan angka baru yang berdiri sendiri):
 Alasannya sederhana: jarak dalam kartu harus lebih kecil atau sama dengan
 jarak antarkartu, dan jarak antarkartu harus lebih kecil daripada jarak
 antarkelompok (16 px ke blok berikutnya). Sebelumnya urutannya terbalik.
+
+### 9.39 Tiga sisa yang tidak terlihat di tangkapan layar
+
+Ketiganya tidak muncul di `image-102`–`105`, tetapi berdekatan dengan
+perubahan di atas dan akan menggigit cepat atau lambat.
+
+**1. Id panel busur yang statis.** `aria-controls` dan `id` panel sama-sama
+dipaku ke `bk-radial-panel`. Skrip sudah mendukung beberapa busur dalam satu
+halaman (lihat §9.27), dan `docs/preview/radial.html` bahkan sudah memakai
+`bk-radial-panel-tamu` untuk busur kedua — partialnya ketinggalan. Selama
+id-nya kembar, `aria-controls` bisa menunjuk panel yang salah. Sekarang id
+diturunkan dari peran: `bk-radial-panel` (pelanggan) dan
+`bk-radial-panel-tamu` (tamu), sama dengan pratinjau. Skrip memilih panel
+lewat kelas, bukan id, jadi tidak ada yang perlu diubah di sana — dan tes
+menolak kalau `id="bk-radial-panel"` kembali dipaku.
+
+**2. Kontras paksa (Windows High Contrast) sama sekali belum punya jalur.**
+Di mode ini peramban membuang bayangan, latar kaca, dan warna merek, jadi
+tiga komponen kami bisa menyatu dengan halaman:
+
+| Komponen | Sebelum | Sekarang |
+| --- | --- | --- |
+| Tombol + tujuan busur | kaca putih transparan, tanpa bayangan → menghilang | `ButtonFace`/`ButtonText`, garis `ButtonBorder`, tujuan aktif `Highlight` |
+| Lencana jumlah | `#85092d` di atas `#fffaf8` | `Highlight`/`HighlightText`, garis `Canvas` |
+| Kotak centang | `appearance:none` + centang SVG putih | kembali ke kontrol bawaan (`appearance:auto`) |
+| Tombol tema (header/busur/mengambang) | pastel tanpa garis tegas | warna sistem + `Highlight` saat aktif |
+| Aksen kiri catatan admin | `::before` berwarna merek | garis `ButtonText` |
+
+Semuanya memakai `forced-color-adjust: none` **hanya** pada elemen yang sudah
+digambar dengan warna sistem, sehingga pemetaan ganda tidak terjadi.
+
+**3. Pesan validasi bisa menahan pengiriman.** Setelah `image-105`,
+`setCustomValidity()` dipasang pada `invalid` dan dilepas pada `input`/
+`change`. Kalau isian diperbaiki tanpa peristiwa itu — autofill, skrip,
+atau `form.reset()` dari kode lain — `customError` masih menempel dan form
+menolak dikirim tanpa penjelasan. Sekarang penanda dilepas juga pada
+`submit` dan `reset` (fase capture, sebelum peramban memvalidasi ulang),
+sehingga validasi selalu berbicara tentang keadaan terbaru. Diuji di jsdom:
+isian diubah lewat skrip → pesan masih menempel → `submit` melepasnya →
+form bisa dikirim.
+
+**Harness.** phpstub **84/0**/201, `.tmp-verify` **26/0**, blade-scan **93
+view 0/0**, jsdom **284/0** + validasi **15/0** + validasi-submit **7/0**.

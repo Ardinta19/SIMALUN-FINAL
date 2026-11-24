@@ -556,6 +556,17 @@ html[data-theme="dark"] .adm-app :is(.adm-btn--ghost, .adm-btn--quiet):hover {
 .adm-chipbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 16px; }
 .adm-chipbar__label { font-size: var(--adm-fs-2xs); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--adm-ink-3); margin-right: 4px; }
 
+/* Kontras paksa: latar kartu dan aksen kiri dipaksa sistem. Garis aksen
+   dikembalikan sebagai ButtonText supaya tanda “perhatikan ini” tidak hilang,
+   dan chip aktif dibalik supaya pilihannya tetap terlihat. */
+@media (forced-colors: active) {
+    .adm-note::before,
+    .adm-app .notice::before { background: ButtonText; }
+    .adm-chip--link,
+    .adm-chip { border-color: ButtonBorder; }
+    .adm-chip--link.is-active { background: Highlight; border-color: Highlight; color: HighlightText; }
+}
+
 /* --------------------------------------------------------------------------
    8. Tabel
    -------------------------------------------------------------------------- */

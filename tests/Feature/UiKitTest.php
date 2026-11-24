@@ -1197,6 +1197,11 @@ class UiKitTest extends TestCase
         // Pesan milik kode lain (mis. aturan bisnis) tidak ditimpa.
         $this->assertStringContainsString('if (validity.customError && !milikKita) return;', $js);
 
+        // Pesan yang tertinggal (autofill/skrip, tanpa peristiwa input) tidak
+        // boleh menahan pengiriman: penanda dilepas sebelum validasi ulang.
+        $this->assertStringContainsString("addEventListener('submit', (event) => bersihkan(event.target), true)", $js);
+        $this->assertStringContainsString("addEventListener('reset', (event) => bersihkan(event.target), true)", $js);
+
         // Tidak ada teks Inggris yang tersisa di berkas pendamping ini.
         $this->assertStringNotContainsString('Please fill out this field', $js);
         $this->assertStringNotContainsString('Please enter', $js);

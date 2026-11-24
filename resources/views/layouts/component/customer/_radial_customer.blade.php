@@ -57,9 +57,16 @@
         $angle = deg2rad(180 - ($slot * $step));
         $offsets[$slot] = [(int) round($radius * cos($angle)), (int) round($radius * sin($angle))];
     }
+
+    /* `aria-controls` menunjuk id panel. Id itu tidak boleh tetap: satu halaman
+       bisa memuat lebih dari satu busur (mis. header + menu atas), dan id ganda
+       membuat pembaca layar melompat ke panel yang salah. Nama mengikuti peran
+       supaya tetap dapat diprediksi — sama dengan pratinjau di
+       docs/preview/radial.html (bk-radial-panel + bk-radial-panel-tamu). */
+    $panelId = $isCustomer ? 'bk-radial-panel' : 'bk-radial-panel-tamu';
 @endphp
 <details class="customer-radial {{ !empty($inHeader) ? 'bk-header-radial' : '' }}" data-customer-radial>
-    <summary class="customer-nav__item {{ in_array($navActive, ['keranjang', 'pesanan', 'notif'], true) || request()->routeIs('customer.help', 'customer.addresses.*') ? 'is-active' : '' }}" aria-controls="bk-radial-panel" aria-label="{{ $summaryLabel }}">
+    <summary class="customer-nav__item {{ in_array($navActive, ['keranjang', 'pesanan', 'notif'], true) || request()->routeIs('customer.help', 'customer.addresses.*') ? 'is-active' : '' }}" aria-controls="{{ $panelId }}" aria-label="{{ $summaryLabel }}">
         <span class="customer-nav__icon customer-radial__trigger">
             <span class="customer-radial__face customer-radial__face--menu">@include('layouts.component._icon', ['name' => 'menu', 'size' => 24])</span>
             <span class="customer-radial__face customer-radial__face--close">@include('layouts.component._icon', ['name' => 'close', 'size' => 24])</span>
@@ -67,7 +74,7 @@
         </span>
         <span class="customer-nav__label">Menu</span>
     </summary>
-    <div class="customer-radial__panel" id="bk-radial-panel" role="group" aria-label="Menu {{ $isCustomer ? 'pelanggan' : 'pengunjung' }}">
+    <div class="customer-radial__panel" id="{{ $panelId }}" role="group" aria-label="Menu {{ $isCustomer ? 'pelanggan' : 'pengunjung' }}">
         <div class="customer-radial__heading"><strong>Menu {{ $isCustomer ? 'pelanggan' : 'pengunjung' }}</strong><span>Pilih tujuan</span></div>
         <div class="customer-radial__links">
             {{-- Jejak halus di belakang tombol: memberi kedalaman tanpa kartu. --}}
@@ -182,6 +189,32 @@ html[data-theme="dark"] .bk-header-radial .customer-radial__item--theme .bk-them
     .bk-header-radial .customer-radial__item--theme .bk-theme-btn{border-width:2px}
     .bk-header-radial>summary:focus-visible,
     .bk-header-radial .customer-radial__item:focus-visible{outline-width:4px}
+}
+
+/* Kontras paksa (Windows High Contrast): latar kaca, bayangan, dan border
+   berwarna merek dihapus peramban, sehingga tombol dan tujuan bisa menyatu
+   dengan halaman. Di sini semuanya digambar dengan warna sistem, dan tujuan
+   yang aktif/terfokus dibalik memakai Highlight. */
+@media (forced-colors: active){
+    .bk-header-radial>summary,
+    .bk-header-radial .customer-radial__item,
+    .bk-header-radial .customer-radial__item--theme .bk-theme-btn{
+        forced-color-adjust: none;
+        background: ButtonFace; color: ButtonText;
+        border: 1px solid ButtonBorder; box-shadow: none;
+    }
+    .bk-header-radial[open]>summary,
+    .bk-header-radial .customer-radial__item:hover,
+    .bk-header-radial .customer-radial__item:focus-visible,
+    .bk-header-radial .customer-radial__item[aria-current],
+    .bk-header-radial .customer-radial__item--theme .bk-theme-btn:hover{
+        background: Highlight; color: HighlightText; border-color: Highlight;
+    }
+    .bk-header-radial>summary::after{border-color: Highlight}
+    .customer-radial__badge{
+        forced-color-adjust: none;
+        background: Highlight; color: HighlightText; border-color: Canvas;
+    }
 }
 
 /* Tombol pusat: dua ikon bertukar (menu ⇄ tutup) dan cincin tipis 58 px —

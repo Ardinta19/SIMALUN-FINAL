@@ -47,9 +47,17 @@ class RadialMenuTest extends TestCase
         $this->assertStringContainsString('data-bk-theme-host="radial"', $view);
         $this->assertStringContainsString('.customer-radial__item', $view);
 
-        // Hubungan tombol–panel harus eksplisit untuk pembaca layar.
-        $this->assertStringContainsString('aria-controls="bk-radial-panel"', $view);
-        $this->assertStringContainsString('id="bk-radial-panel"', $view);
+        // Hubungan tombol–panel harus eksplisit untuk pembaca layar, dan id-nya
+        // tidak boleh dipakai dua busur di halaman yang sama (id ganda membuat
+        // aria-controls menunjuk panel yang salah).
+        $this->assertStringContainsString('aria-controls="{{ $panelId }}"', $view);
+        $this->assertStringContainsString('id="{{ $panelId }}"', $view);
+        $this->assertStringContainsString("\$panelId = \$isCustomer ? 'bk-radial-panel' : 'bk-radial-panel-tamu';", $view);
+        $this->assertStringNotContainsString('id="bk-radial-panel"', $view, 'Id panel tidak boleh dipaku: dua busur akan bertabrakan.');
+
+        // Busur boleh dipakai tanpa panel yang sama-sama ber-id: skrip memilih
+        // panel lewat kelas, bukan lewat id.
+        $this->assertStringContainsString(".querySelector('.customer-radial__panel')", File::get(public_path('js/berkah-radial.js')));
 
         // Satu variabel menggerakkan busur; transform tetap milik CSS.
         $this->assertStringContainsString('--p:0', $view);

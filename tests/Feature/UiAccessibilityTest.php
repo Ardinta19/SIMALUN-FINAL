@@ -16,7 +16,8 @@ use Tests\TestCase;
  *   4. setiap gambar punya atribut alt,
  *   5. setiap halaman peran punya landmark main,
  *   6. CSS UI kit menyediakan cincin fokus keyboard,
- *   7. setiap halaman HTML punya atribut lang.
+ *   7. setiap halaman HTML punya atribut lang,
+ *   8. mode kontras paksa (Windows High Contrast) tetap punya jalur gambar.
  */
 class UiAccessibilityTest extends TestCase
 {
@@ -201,6 +202,38 @@ class UiAccessibilityTest extends TestCase
             $css,
             'Aturan fokus global harus memberi outline pada input.'
         );
+    }
+
+    /** High Contrast memaksa latar, bayangan, dan warna merek menjadi palet
+     *  sistem. Tanpa aturan sendiri, busur, kotak centang, dan aksen catatan
+     *  admin bisa menyatu dengan halaman. */
+    public function test_mode_kontras_paksa_punya_jalur_gambar(): void
+    {
+        $radial = $this->read(resource_path('views/layouts/component/customer/_radial_customer.blade.php'));
+
+        $this->assertStringContainsString('@media (forced-colors: active){', $radial);
+        $this->assertStringContainsString('forced-color-adjust: none', $radial);
+        $this->assertStringContainsString('background: ButtonFace; color: ButtonText;', $radial);
+        $this->assertStringContainsString('border: 1px solid ButtonBorder; box-shadow: none;', $radial);
+        $this->assertStringContainsString('background: Highlight; color: HighlightText; border-color: Highlight;', $radial);
+
+        // Kotak centang kustom memakai SVG putih; di mode ini kontrolnya
+        // dikembalikan ke rupa bawaan supaya tanda centang digambar sistem.
+        $kit = $this->read(public_path('css/berkah-ui-kit.css'));
+        $this->assertMatchesRegularExpression(
+            '/@media \(forced-colors: active\)\s*\{[^@]*input\[type="checkbox"\][^{]*\{[^}]*appearance: auto;/s',
+            $kit,
+            'Kotak centang harus kembali ke rupa bawaan di mode kontras paksa.'
+        );
+
+        // Aksen kiri catatan admin tidak boleh hilang bersama latarnya.
+        $admin = $this->read(public_path('css/berkah-admin.css'));
+        $this->assertMatchesRegularExpression(
+            '/@media \(forced-colors: active\)\s*\{.*?\.adm-note::before.*?background: ButtonText;/s',
+            $admin,
+            'Aksen catatan admin butuh warna sistem di mode kontras paksa.'
+        );
+        $this->assertStringContainsString('.adm-chip--link.is-active { background: Highlight;', $admin);
     }
 
     public function test_setiap_halaman_html_punya_atribut_bahasa(): void

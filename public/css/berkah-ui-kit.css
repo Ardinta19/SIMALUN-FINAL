@@ -820,6 +820,27 @@ button.bk-auth:focus-visible {
     outline-offset: 3px;
 }
 
+/* Kontras paksa: tombol tema memakai latar pastel dan tanpa bayangan, jadi
+   batasnya bisa lenyap. Warna sistem menjaga tombol tetap terlihat di header,
+   di busur, dan saat mengambang. */
+@media (forced-colors: active) {
+    .bk-theme-btn,
+    .bk-theme-choice {
+        forced-color-adjust: none;
+        background: ButtonFace;
+        color: ButtonText;
+        border: 1px solid ButtonBorder;
+        box-shadow: none;
+    }
+    .bk-theme-btn:hover,
+    .bk-theme-btn[aria-pressed="true"],
+    .bk-theme-choice[aria-pressed="true"] {
+        background: Highlight;
+        color: HighlightText;
+        border-color: Highlight;
+    }
+}
+
 .bk-theme-btn svg {
     width: 20px;
     height: 20px;
@@ -1177,6 +1198,18 @@ input[type="checkbox"]:not([hidden]):disabled {
 @media (prefers-reduced-motion: reduce) {
     input[type="checkbox"]:not([hidden]) {
         transition: none;
+    }
+}
+
+/* Kontras paksa: centang SVG putih di atas latar yang dipaksa sistem bisa
+   hilang sama sekali. Di mode ini kontrolnya dikembalikan ke rupa bawaan
+   peramban — selalu terbaca, dan tanda centangnya digambar sistem. */
+@media (forced-colors: active) {
+    input[type="checkbox"]:not([hidden]) {
+        -webkit-appearance: auto;
+        appearance: auto;
+        border: 0;
+        background-image: none;
     }
 }
 

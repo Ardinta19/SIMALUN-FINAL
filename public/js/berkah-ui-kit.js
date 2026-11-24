@@ -638,4 +638,15 @@
     };
     document.addEventListener('input', (event) => lepas(event.target), true);
     document.addEventListener('change', (event) => lepas(event.target), true);
+
+    /* Pengaman terakhir: pesan yang tertinggal (mis. isian diperbaiki lewat
+       autofill atau skrip, tanpa peristiwa input) tidak boleh menahan
+       pengiriman. Semua penanda dilepas tepat sebelum peramban memvalidasi
+       ulang form, lalu pesan baru dipasang oleh handler `invalid` di atas. */
+    const bersihkan = (form) => {
+        if (!form || !form.querySelectorAll) return;
+        form.querySelectorAll('[' + MARK + ']').forEach(lepas);
+    };
+    document.addEventListener('submit', (event) => bersihkan(event.target), true);
+    document.addEventListener('reset', (event) => bersihkan(event.target), true);
 })();
