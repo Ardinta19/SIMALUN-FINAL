@@ -121,7 +121,7 @@ class RentalReminderTest extends TestCase
             // 30 jam: pelanggan diingatkan; admin belum dieskalasi.
             $preview->forceFill(['created_at' => now()->subHours(30)])->save();
             $this->artisan('rental:remind')->assertExitCode(0);
-            Notification::assertSentTo($customer, RentalUpdate::class, fn (RentalUpdate $notification) => $notification->toArray($customer)['title'] === 'Preview desain menunggu');
+            Notification::assertSentTo($customer, RentalUpdate::class, fn (RentalUpdate $notification) => $notification->toArray($customer)['title'] === 'Pratinjau desain menunggu');
             Notification::assertNotSentTo($admin, RentalUpdate::class);
 
             // 50 jam: admin dieskalasi pada hari yang sama (jenis berbeda).

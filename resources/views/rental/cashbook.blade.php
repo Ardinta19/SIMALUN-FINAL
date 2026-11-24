@@ -43,7 +43,7 @@
     </div>
     <div class="adm-row">
         <button class="btn" type="submit">Tampilkan</button>
-        <a class="btn secondary" href="{{ route('admin.rental.cashbook.index') }}">Reset</a>
+        <a class="btn secondary" href="{{ route('admin.rental.cashbook.index') }}">Atur ulang filter</a>
     </div>
 </form>
 

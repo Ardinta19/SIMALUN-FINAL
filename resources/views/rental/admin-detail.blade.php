@@ -335,9 +335,9 @@
         </details>
 
         <details class="adm-card adm-card--flat" data-adm-reveal="details" style="margin-top:12px" @if($errors->any() || in_array($filters['status'] ?? '', ['design_pending', 'design_initial', 'design_revision'])) open @endif>
-            <summary>Preview desain · {{ $unit->previews->count() }} versi</summary>
+            <summary>Pratinjau desain · {{ $unit->previews->count() }} versi</summary>
             <div style="padding-top:12px">
-                <h3>Preview desain</h3>
+                <h3>Pratinjau desain</h3>
                 @if($designDeadline && $latestDesignPreview && $latestDesignPreview->status === 'pending')
                     <p class="adm-help">Batas respons desain versi {{ $latestDesignPreview->version }}: {{ $designDeadline->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB {{ $unitDesignPolicy->reached($unit) ? '· sudah terlewati' : '· belum terlewati' }}</p>
                 @endif
@@ -368,7 +368,7 @@
                             <strong>Versi {{ $preview->version }}</strong>
                             <span class="adm-badge adm-badge--info">{{ ['pending'=>'Menunggu respons','revision'=>'Revisi diminta','approved'=>'Disetujui','superseded'=>'Diganti versi baru'][$preview->status] }}</span>
                         </div>
-                        <img src="{{ route('rental.design.image', $preview) }}" alt="Preview desain versi {{ $preview->version }}" loading="lazy" decoding="async" style="max-width:100%;max-height:240px;margin-top:10px;border-radius:var(--adm-r-md);border:1px solid var(--adm-line)">
+                        <img src="{{ route('rental.design.image', $preview) }}" alt="Pratinjau desain versi {{ $preview->version }}" loading="lazy" decoding="async" style="max-width:100%;max-height:240px;margin-top:10px;border-radius:var(--adm-r-md);border:1px solid var(--adm-line)">
                         @if($preview->admin_note)<p class="muted" style="margin:8px 0 0">{{ $preview->admin_note }}</p>@endif
                         @if($preview->customer_note)<p class="muted" style="margin:4px 0 0">Catatan pelanggan: {{ $preview->customer_note }}</p>@endif
                     </div>
@@ -379,7 +379,7 @@
                         @csrf
                         <div class="adm-field-grid">
                             <div class="adm-field">
-                                <label for="design-image-{{ $unit->id }}">Gambar preview (JPG, PNG, WebP; maksimal 5 MB)</label>
+                                <label for="design-image-{{ $unit->id }}">Gambar pratinjau (JPG, PNG, WebP; maksimal 5 MB)</label>
                                 <input id="design-image-{{ $unit->id }}" type="file" name="image" accept="image/jpeg,image/png,image/webp" required>
                             </div>
                             <div class="adm-field">
@@ -387,7 +387,7 @@
                                 <textarea id="design-note-{{ $unit->id }}" name="admin_note" maxlength="2000"></textarea>
                             </div>
                         </div>
-                        <div><button class="btn secondary" type="submit">Unggah preview</button></div>
+                        <div><button class="btn secondary" type="submit">Unggah pratinjau</button></div>
                     </form>
                 @endif
             </div>

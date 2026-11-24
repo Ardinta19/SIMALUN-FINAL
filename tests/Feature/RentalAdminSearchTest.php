@@ -46,7 +46,7 @@ class RentalAdminSearchTest extends TestCase
         $this->actingAs($admin)->get(route('admin.rental.orders', ['status' => 'transport_quote']))->assertOk()->assertSee($orders[0]->reference)->assertDontSee($orders[1]->reference)->assertDontSee($orders[2]->reference);
         $this->get(route('admin.rental.orders', ['status' => 'transport_approval']))->assertOk()->assertSee($orders[1]->reference)->assertDontSee($orders[0]->reference)->assertDontSee($orders[2]->reference);
         $this->get(route('admin.rental.orders', ['status' => 'design_initial']))->assertOk()->assertSee($orders[0]->reference)->assertDontSee($orders[1]->reference)->assertSee(route('admin.rental.orders.show', $orders[0]));
-        $this->get(route('admin.rental.orders.show', $orders[0]))->assertOk()->assertSee('Preview desain · 0 versi')->assertSee('Ongkos dan tagihan')->assertSee('Riwayat dan perkembangan');
+        $this->get(route('admin.rental.orders.show', $orders[0]))->assertOk()->assertSee('Pratinjau desain · 0 versi')->assertSee('Ongkos dan tagihan')->assertSee('Riwayat dan perkembangan');
         $this->get(route('admin.rental.orders', ['status' => 'design_revision']))->assertOk()->assertSee($orders[1]->reference)->assertDontSee($orders[2]->reference)->assertDontSee($orders[0]->reference);
     }
     public function test_pending_orders_are_prioritised_by_confirmation_deadline_and_seller_cancellations_are_filterable(): void

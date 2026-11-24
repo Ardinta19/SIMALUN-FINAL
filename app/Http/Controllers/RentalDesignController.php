@@ -25,19 +25,19 @@ class RentalDesignController extends Controller
         try {
             DB::transaction(function () use ($request, $unit, $data, $path) {
                 $unit = RentalOrderUnit::lockForUpdate()->findOrFail($unit->id);
-                if ($unit->status !== 'confirmed' || $unit->progress !== 'waiting') throw ValidationException::withMessages(['design' => 'Preview hanya dapat diunggah sebelum pengerjaan dimulai pada unit yang dikonfirmasi.']);
+                if ($unit->status !== 'confirmed' || $unit->progress !== 'waiting') throw ValidationException::withMessages(['design' => 'Pratinjau hanya dapat diunggah sebelum pengerjaan dimulai pada unit yang dikonfirmasi.']);
                 $unit->previews()->where('status', 'pending')->update(['status' => 'superseded']);
                 $version = (int) $unit->previews()->max('version') + 1;
                 $unit->previews()->create(['version' => $version, 'image_path' => $path, 'admin_note' => $data['admin_note'] ?? null, 'created_by' => $request->user()->id]);
                 // Versi baru selalu memerlukan persetujuan sendiri.
                 if ($unit->design_override_at !== null) $unit->update(['design_override_at' => null, 'design_override_by' => null, 'design_override_version' => null, 'design_override_note' => null]);
-                app(RentalNotifications::class)->customer($unit->order, 'Preview desain tersedia', 'Preview desain unit '.$unit->product_name.' menunggu respons Anda.');
+                app(RentalNotifications::class)->customer($unit->order, 'Pratinjau desain tersedia', 'Pratinjau desain unit '.$unit->product_name.' menunggu respons Anda.');
             });
         } catch (\Throwable $e) {
             Storage::disk('local')->delete($path);
             throw $e;
         }
-        return back()->with('success', 'Preview desain diunggah.');
+        return back()->with('success', 'Pratinjau desain diunggah.');
     }
 
     public function image(Request $request, RentalDesignPreview $preview)
@@ -56,7 +56,7 @@ class RentalDesignController extends Controller
         DB::transaction(function () use ($preview, $data) {
             $unit = RentalOrderUnit::lockForUpdate()->findOrFail($preview->rental_order_unit_id);
             $preview = RentalDesignPreview::lockForUpdate()->findOrFail($preview->id);
-            if ($unit->status !== 'confirmed' || $preview->status !== 'pending') throw ValidationException::withMessages(['design' => 'Preview ini tidak lagi menunggu respons.']);
+            if ($unit->status !== 'confirmed' || $preview->status !== 'pending') throw ValidationException::withMessages(['design' => 'Pratinjau ini tidak lagi menunggu respons.']);
             $preview->update(['status' => $data['decision'], 'customer_note' => $data['note'] ?? null, 'responded_at' => now()]);
             // Pelanggan sudah merespons: keputusan admin tanpa persetujuan tidak berlaku lagi.
             if ($unit->design_override_at !== null) $unit->update(['design_override_at' => null, 'design_override_by' => null, 'design_override_version' => null, 'design_override_note' => null]);
@@ -81,11 +81,11 @@ class RentalDesignController extends Controller
             $unit = RentalOrderUnit::lockForUpdate()->findOrFail($unit->id);
             if ($unit->status !== 'confirmed' || $unit->progress !== 'waiting') throw ValidationException::withMessages(['design' => 'Keputusan desain hanya berlaku untuk unit yang belum dikerjakan.']);
             $latest = $unit->previews()->first();
-            if (! $latest || $latest->status !== 'pending') throw ValidationException::withMessages(['design' => 'Tidak ada preview yang menunggu respons pelanggan.']);
+            if (! $latest || $latest->status !== 'pending') throw ValidationException::withMessages(['design' => 'Tidak ada pratinjau yang menunggu respons pelanggan.']);
             if (! $deadlines->reached($unit)) throw ValidationException::withMessages(['design' => 'Tenggat respons desain belum tercapai. Tunggu sampai batas atau hubungi pelanggan.']);
             $unit->update(['design_override_at' => now(), 'design_override_by' => $request->user()->id, 'design_override_version' => $latest->version, 'design_override_note' => $data['note']]);
             $unit->progressEvents()->create(['progress' => $unit->progress, 'recorded_by' => $request->user()->id, 'note' => 'Desain versi '.$latest->version.' dilanjutkan tanpa persetujuan pelanggan. Alasan: '.$data['note']]);
-            app(RentalNotifications::class)->customer($unit->order, 'Pengerjaan dimulai', 'Admin memulai pengerjaan unit '.$unit->product_name.' dengan preview versi '.$latest->version.' karena batas respons terlewati. Hubungi admin bila perlu perubahan.');
+            app(RentalNotifications::class)->customer($unit->order, 'Pengerjaan dimulai', 'Admin memulai pengerjaan unit '.$unit->product_name.' dengan pratinjau versi '.$latest->version.' karena batas respons terlewati. Hubungi admin bila perlu perubahan.');
         }, 3);
         return back()->with('success', 'Pengerjaan dilanjutkan tanpa persetujuan pelanggan. Keputusan tercatat di riwayat unit.');
     }

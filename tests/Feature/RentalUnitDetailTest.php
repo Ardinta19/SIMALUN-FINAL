@@ -38,16 +38,16 @@ class RentalUnitDetailTest extends TestCase
         $url = route('rental.orders.unit', [$order, $unit]);
         $this->actingAs($customer)->get($url)->assertOk()->assertSee('Menunggu konfirmasi admin. Tanggal sudah ditahan')->assertDontSee('Bayar melalui QRIS');
         $unit->update(['status' => 'confirmed', 'transport_quote' => 20]);
-        $this->get($url)->assertOk()->assertSee('Penawaran ongkos siap diperiksa dan disetujui.')->assertSee('Menunggu preview desain dari admin.')->assertDontSee('Bayar melalui QRIS');
+        $this->get($url)->assertOk()->assertSee('Penawaran ongkos siap diperiksa dan disetujui.')->assertSee('Menunggu pratinjau desain dari admin.')->assertDontSee('Bayar melalui QRIS');
         $unit->update(['transport_approved_at' => now()]);
         $preview = $unit->previews()->create(['version' => 1, 'image_path' => 'preview.png', 'created_by' => $admin->id, 'status' => 'pending']);
-        $this->get($url)->assertOk()->assertSee('Preview desain siap diperiksa')->assertSee('Bayar melalui QRIS')->assertSee('Lihat pembayaran')
+        $this->get($url)->assertOk()->assertSee('Pratinjau desain siap diperiksa')->assertSee('Bayar melalui QRIS')->assertSee('Lihat pembayaran')
             ->assertSee('Sisa tagihan unit ini')->assertSee('data-fill-remaining="120"', false);
         $preview->update(['status' => 'revision']);
         $unit->payments()->create(['amount' => 120, 'proof_path' => 'proof.jpg', 'submitted_at' => now()]);
         $this->get($url)->assertOk()->assertSee('Permintaan revisi sudah dikirim')->assertSee('Ada bukti pembayaran menunggu pemeriksaan admin.')->assertDontSee('Bayar melalui QRIS');
         $unit->update(['status' => 'cancelled', 'cancel_reason' => 'Dibatalkan admin']);
-        $this->get($url)->assertOk()->assertSee('Unit ini dibatalkan.')->assertDontSee('Preview desain siap diperiksa');
+        $this->get($url)->assertOk()->assertSee('Unit ini dibatalkan.')->assertDontSee('Pratinjau desain siap diperiksa');
     }
     public function test_failed_payment_and_design_responses_preserve_safe_inputs(): void
     {

@@ -33,7 +33,7 @@
     <div class="adm-side-card">
         <span class="adm-side-card__label">Mode uji coba</span>
         <span class="adm-side-card__value">Belum untuk transaksi nyata</span>
-        <span class="adm-side-card__hint">Setiap tindakan admin tercatat di audit trail. Gunakan data uji sampai pemilik menyatakan siap.</span>
+        <span class="adm-side-card__hint">Setiap tindakan admin tercatat di jejak audit. Gunakan data uji sampai pemilik menyatakan siap.</span>
         <a class="adm-btn adm-btn--ghost adm-btn--sm" href="{{ route('admin.help') }}">
             @include('layouts.component._icon', ['name' => 'help', 'size' => 16])
             Buka panduan

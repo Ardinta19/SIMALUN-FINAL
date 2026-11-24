@@ -35,7 +35,7 @@
 @endif
 
 @if($admin && $unit->status === 'confirmed' && isset($nextLabels[$unit->progress]))
-    <p class="adm-help" style="margin-top:12px">Pengerjaan memerlukan persetujuan preview terbaru, atau keputusan "lanjutkan dengan catatan" setelah tenggat respons desain lewat; serah terima memerlukan pembayaran lunas terverifikasi.</p>
+    <p class="adm-help" style="margin-top:12px">Pengerjaan memerlukan persetujuan pratinjau terbaru, atau keputusan "lanjutkan dengan catatan" setelah tenggat respons desain lewat; serah terima memerlukan pembayaran lunas terverifikasi.</p>
     <form class="adm-stack" method="post" action="{{ route('admin.rental.progress.advance', $unit) }}">
         @csrf
         <input type="hidden" name="expected_progress" value="{{ $unit->progress }}">

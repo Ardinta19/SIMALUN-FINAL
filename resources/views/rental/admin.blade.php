@@ -57,7 +57,7 @@
     </div>
     <div class="adm-row">
         <button class="btn" type="submit">Terapkan filter</button>
-        <a class="btn secondary" href="{{ route('admin.rental.orders') }}">Reset</a>
+        <a class="btn secondary" href="{{ route('admin.rental.orders') }}">Atur ulang filter</a>
         <span class="adm-help" style="margin-left:auto">{{ $orders->total() }} pesanan ditemukan</span>
     </div>
     <p class="adm-help">Hasil memuat seluruh unit dalam pesanan yang memiliki setidaknya satu unit sesuai filter. Filter menunggu diurutkan berdasarkan batas konfirmasi terdekat.</p>

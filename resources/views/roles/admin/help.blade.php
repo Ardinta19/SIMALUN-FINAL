@@ -51,7 +51,7 @@
             <span class="adm-steps__num" aria-hidden="true">3</span>
             <div class="adm-steps__body">
                 <h3>Ongkos dan desain</h3>
-                <p>Jika ada pengantaran atau penjemputan, periksa ongkos dan tunggu persetujuan pelanggan. Upload preview untuk setiap unit dan tunggu persetujuan sebelum memulai pengerjaan.</p>
+                <p>Jika ada pengantaran atau penjemputan, periksa ongkos dan tunggu persetujuan pelanggan. Unggah pratinjau untuk setiap unit dan tunggu persetujuan sebelum memulai pengerjaan.</p>
             </div>
         </li>
         <li>
@@ -101,6 +101,6 @@
     <div class="adm-card__head">
         <h2 id="panduan-pengingat">Pengingat operasional</h2>
     </div>
-    <p class="adm-copy">Penjadwal harus berjalan untuk pembatalan otomatis, pengingat (<code>rental:remind</code>), dan tindak lanjut tenggat. Bukti yang masuk setelah tenggat pelunasan masih dapat diverifikasi sampai H+1 pukul 12.00 WIB; setelah itu DP hangus. Bila pelanggan tidak merespons desain sampai batasnya, gunakan "Lanjutkan dengan catatan" pada bagian preview. Periksa pembatalan akibat kesalahan penjual dan pengembalian dana secara manual. Hasil cetak dan jadwal hanya mencerminkan keadaan saat dibuka.</p>
+    <p class="adm-copy">Penjadwal harus berjalan untuk pembatalan otomatis, pengingat (<code>rental:remind</code>), dan tindak lanjut tenggat. Bukti yang masuk setelah tenggat pelunasan masih dapat diverifikasi sampai H+1 pukul 12.00 WIB; setelah itu DP hangus. Bila pelanggan tidak merespons desain sampai batasnya, gunakan "Lanjutkan dengan catatan" pada bagian pratinjau. Periksa pembatalan akibat kesalahan penjual dan pengembalian dana secara manual. Hasil cetak dan jadwal hanya mencerminkan keadaan saat dibuka.</p>
 </section>
 @endsection

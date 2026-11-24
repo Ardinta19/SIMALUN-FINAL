@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
 /**
@@ -243,6 +244,35 @@ class UiAccessibilityTest extends TestCase
         }
 
         $this->assertSame([], $offenders, 'Kata “password” masih tampil di teks: '.implode(', ', $offenders));
+    }
+
+    /** Kata Inggris yang paling sering lolos dari templat lama (Reset,
+     *  Preview, Upload, …). Tidak boleh muncul sebagai teks tampil, dan tidak
+     *  boleh menjadi nilai kamus bahasa Indonesia — kamus yang isinya sama
+     *  dengan kuncinya berarti belum diterjemahkan. */
+    public function test_tidak_ada_label_inggris_tersisa_di_teks_atau_kamus(): void
+    {
+        $pattern = '/(?<![A-Za-z])(?:reset|preview|upload|submit|save|cancel|delete|close|loading|search)(?![A-Za-z])/i';
+        $offenders = [];
+
+        foreach ($this->viewFiles() as $file) {
+            if (preg_match($pattern, $this->visibleText($this->read($file)))) {
+                $offenders[] = $this->relative($file);
+            }
+        }
+
+        // base_path, bukan lang_path: aplikasi ini menyimpan kamus di lang/.
+        foreach (File::files(base_path('lang/id')) as $file) {
+            preg_match_all("/=>\\s*'([^']*)'/", $file->getContents(), $matches);
+
+            foreach ($matches[1] as $value) {
+                if (preg_match($pattern, $value)) {
+                    $offenders[] = 'lang/id/'.$file->getFilename().': '.$value;
+                }
+            }
+        }
+
+        $this->assertSame([], $offenders, 'Label Inggris masih tersisa: '.implode(', ', $offenders));
     }
 
     /** Teks yang akan dibaca pengunjung: atribut, komentar, dan direktif

@@ -274,8 +274,8 @@ class RentalReminders
                     if ($this->customerReachable($unit) && $this->claim($unit, 'design_response', 'customer')) {
                         app(RentalNotifications::class)->customer(
                             $unit->order,
-                            'Preview desain menunggu',
-                            'Preview desain unit '.$unit->product_name.' masih menunggu persetujuanmu. '
+                            'Pratinjau desain menunggu',
+                            'Pratinjau desain unit '.$unit->product_name.' masih menunggu persetujuanmu. '
                                 .'Pengerjaan belum bisa dimulai sebelum desain disetujui.'
                         );
                         $counts['design']++;
@@ -285,7 +285,7 @@ class RentalReminders
                         app(RentalNotifications::class)->admins(
                             $unit->order,
                             'Pelanggan belum merespons desain',
-                            'Preview unit '.$unit->product_name.' belum direspons pelanggan. Hubungi pelanggan atau putuskan langkah berikutnya.'
+                            'Pratinjau unit '.$unit->product_name.' belum direspons pelanggan. Hubungi pelanggan atau putuskan langkah berikutnya.'
                         );
                         $counts['design_escalation']++;
                     }

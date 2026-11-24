@@ -1818,3 +1818,63 @@ dilepas dari indeks (`git rm --cached`, tetap di disk) dan panduan
 `docs/kl/deployment-hostinger.md` diperbaiki: aset produksi dilayani dari
 `public/css` + `public/js`, mengunggah `public/build` tidak memperbaiki
 tampilan.
+
+---
+
+## 9.43 — Sisa istilah Inggris di teks yang dibaca pengguna
+
+Setelah §9.40/§9.42 menyisir kata “password”, sapuan yang sama diperluas ke
+kata Inggris lain yang muncul di teks tampil. Tiga kelompok ditemukan; semuanya
+kata yang **sudah punya padanan Indonesia di halaman yang sama**, jadi
+inkonsistensinya terlihat langsung oleh pengguna.
+
+### 1. “Preview” → “pratinjau” (21 teks di 8 view + 3 pesan sistem)
+
+| Berkas | Sebelum | Sesudah |
+|---|---|---|
+| `rental/unit` (9) | “Preview desain”, “Periksa preview”, “Menunggu preview desain dari admin.”, “Gambar preview”, “Unggah preview”, “preview berikutnya”, “preview ini” | “Pratinjau …” |
+| `rental/admin-detail` (5) | “Preview desain · versi”, “Unggah preview” | “Pratinjau …” |
+| `rental/show`, `rental/progress`, `rental/admin-progress` | “Preview desain menunggu respons Anda.”, “persetujuan preview terbaru” | “Pratinjau …” |
+| `roles/admin/dashboard`, `roles/admin/help`, `roles/customer/help` | “unit memerlukan preview awal”, “Upload preview”, “Setelah admin mengirim preview” | “pratinjau awal”, “Unggah pratinjau”, “mengirim pratinjau” |
+| `RentalDesignController`, `RentalProgressController`, `RentalReminders` | pesan validasi, flash “Preview desain diunggah.”, judul notifikasi “Preview desain menunggu” | “Pratinjau …” |
+
+Penggantian dilakukan hanya pada **teks tampil**: tag, atribut, ekspresi
+`{{ }}`, blok `@php`, dan direktif dilewati lebih dulu, sehingga nama relasi
+`previews`, kolom `preview_path`, rute `rental.design.image`, kelas CSS, dan
+variabel `$latestPreview` tidak tersentuh. Tiga asersi tes yang memaku teks
+lama (`RentalAdminSearchTest`, `RentalUnitDetailTest` ×2, `RentalReminderTest`)
+ikut diperbarui agar tetap menguji perilaku yang sama.
+
+### 2. “Audit Trail” → “Jejak Audit”
+
+Halaman `roles/admin/audit/index` sudah lama memakai legenda filter
+**“Filter Jejak Audit”** di atas tabel yang judulnya masih **“Audit Trail”** —
+dua istilah untuk halaman yang sama, berjarak beberapa piksel. Judul `<title>`,
+`<h1>`, komentar kepala berkas, catatan kaki sidebar (“tercatat di jejak
+audit”), dan label menu profil admin kini seragam “Jejak Audit”.
+
+### 3. “Reset” → “Atur ulang filter” (6 label)
+
+Halaman audit menulis “Coba ubah atau **atur ulang filter** di atas” pada
+keadaan kosong, tetapi tombol di atasnya tertulis “Reset” dan “Reset Filter”.
+Label yang sama juga dipakai `rental/index`, `rental/admin`,
+`rental/cashbook`, dan `rental/schedule`. Semuanya kini “Atur ulang filter” —
+satu istilah, sama dengan “atur ulang kata sandi”.
+
+### 4. `lang/id/ui.php` dihapus
+
+Kamus kecil itu tidak pernah dirujuk (`grep __('ui.`, `trans('ui`, `@lang('ui`
+→ nol) dan dua nilainya justru belum diterjemahkan (`'edit' => 'Edit'`,
+`'reset' => 'Reset'`). Berkas mati yang isinya bertentangan dengan label yang
+benar-benar tampil lebih berbahaya daripada tidak ada, jadi dihapus.
+
+### Penjaga baru
+
+`UiAccessibilityTest::test_tidak_ada_label_inggris_tersisa_di_teks_atau_kamus`
+memeriksa **teks tampil semua view** dan **semua nilai `lang/id/*.php`**
+terhadap daftar kata `reset, preview, upload, submit, save, cancel, delete,
+close, loading, search`. Diverifikasi dengan menyuntikkan dua pelanggaran
+sekaligus (satu di view, satu di kamus): tes gagal dengan menyebut keduanya,
+lalu hijau setelah dipulihkan. Catatan: `lang_path()` tidak tersedia di
+lingkungan harness, sehingga path kamus dibaca lewat `base_path('lang/id')` —
+kalau memakai `lang_path()` tesnya ter-*skip* dan penjaga tidak pernah jalan.

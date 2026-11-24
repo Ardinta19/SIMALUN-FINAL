@@ -52,7 +52,7 @@
     </div>
     <div class="adm-row">
         <button class="btn" type="submit">Tampilkan</button>
-        <a class="btn secondary" href="{{ route('admin.rental.schedule') }}">Reset</a>
+        <a class="btn secondary" href="{{ route('admin.rental.schedule') }}">Atur ulang filter</a>
         <span class="adm-row" style="margin-left:auto;gap:8px">
             <a class="btn secondary adm-btn--sm" href="{{ route('admin.rental.schedule', array_merge($input, ['month' => $prevMonth])) }}">← Bulan sebelumnya</a>
             <a class="btn secondary adm-btn--sm" href="{{ route('admin.rental.schedule', array_merge($input, ['month' => $nextMonth])) }}">Bulan berikutnya →</a>

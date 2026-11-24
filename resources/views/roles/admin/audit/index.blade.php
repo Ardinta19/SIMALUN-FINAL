@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Audit Trail – {{ \App\Support\Laundry::name() }}</title>
+<title>Jejak Audit – {{ \App\Support\Laundry::name() }}</title>
 @include('layouts.component.customer._head_meta')
 @include('layouts.component._tokens')
 <style>
 /* ═══════════════════════════════════════════════════════════
-   BERKAH KREATIF · ADMIN · AUDIT TRAIL
+   BERKAH KREATIF · ADMIN · JEJAK AUDIT
    Design System — token-only styling, Lucide icons, pure-CSS motion.
    All colors/radii/shadows/spacing reference canonical tokens emitted
    by layouts.component._tokens (mirrors tailwind.config.js). No page-
@@ -177,7 +177,7 @@ body {
 {{-- ══════════════ HEADER ══════════════ --}}
 <header class="appbar">
     <x-back-button fallback="admin.dashboard" style="hero" />
-    <h1 class="appbar__title">Audit Trail</h1>
+    <h1 class="appbar__title">Jejak Audit</h1>
 </header>
 
 <main class="wrap">
@@ -261,7 +261,7 @@ body {
                     </button>
                     <a href="{{ route('admin.audit.index') }}" class="btn btn--ghost">
                         @include('layouts.component._icon', ['name' => 'refresh', 'size' => 16])
-                        Reset
+                        Atur ulang filter
                     </a>
                 </div>
             </form>
@@ -333,7 +333,7 @@ body {
             @if(request()->hasAny(['actor_id','action','date_from','date_to']))
                 <a href="{{ route('admin.audit.index') }}" class="btn btn--ghost" style="margin-top:var(--space-4);">
                     @include('layouts.component._icon', ['name' => 'refresh', 'size' => 16])
-                    Reset Filter
+                    Atur ulang filter
                 </a>
             @endif
         </div>
