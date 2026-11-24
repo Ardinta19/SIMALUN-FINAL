@@ -293,9 +293,12 @@ Tidak perlu restart apa pun karena queue jalan via cron `--stop-when-empty`
 - `chmod -R 775 storage` dan pastikan owner benar.
 
 **CSS/JS tidak ter-load**
-- Aset produksi dilayani langsung dari `public/css` dan `public/js` (sudah ada
-  di repo, tanpa langkah build). Pastikan kedua folder itu ikut terunggah utuh
-  dan permission file 644.
+- Aset produksi dilayani langsung dari `public/css`, `public/js`,
+  `public/fonts`, dan `public/vendor` (sudah ada di repo, tanpa langkah build).
+  Pastikan keempat folder itu ikut terunggah utuh dan permission file 644.
+- `public/fonts` berisi dua berkas woff2 Plus Jakarta Sans (~49 KB) yang
+  dipasang `public/css/berkah-fonts.css`. Tidak ada permintaan ke Google Fonts,
+  jadi huruf tetap tampil walau perangkat luring atau CDN diblokir.
 - `public/build` (keluaran Vite) **tidak** dimuat halaman mana pun saat ini dan
   tidak lagi terlacak git; mengunggahnya tidak memperbaiki tampilan.
 

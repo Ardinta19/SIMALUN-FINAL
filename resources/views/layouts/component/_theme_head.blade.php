@@ -17,6 +17,15 @@
         return asset($path) . (file_exists($full) ? '?v=' . filemtime($full) : '');
     };
 @endphp
+{{-- Huruf merek dihosting sendiri (public/fonts + public/css/berkah-fonts.css):
+     tidak ada permintaan ke fonts.googleapis.com, jadi halaman tetap benar saat
+     luring maupun saat CDN pihak ketiga diblokir. Preload hanya berkas latin
+     karena itu yang dipakai seluruh teks Indonesia. --}}
+@once
+<link rel="preload" as="font" type="font/woff2" crossorigin
+      href="{{ $themeAsset('fonts/plus-jakarta-sans-latin-wght-normal.woff2') }}">
+<link rel="stylesheet" href="{{ $themeAsset('css/berkah-fonts.css') }}">
+@endonce
 {{-- Warna bilah peramban: satu nilai merek untuk seluruh aplikasi. Skrip di
      bawah menukarnya ke #140f12 saat tema gelap dan memulihkannya kembali. --}}
 <meta name="theme-color" content="#54051f">

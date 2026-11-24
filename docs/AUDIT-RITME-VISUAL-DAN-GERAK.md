@@ -456,7 +456,7 @@ sandi, konfirmasi kata sandi — memakai `layouts/guest` bawaan Breeze:
 | Temuan | Sebelum | Sesudah |
 |---|---|---|
 | Identitas | Logo **Laravel** di tautan beranda tanpa nama aksesibel. | Logo Berkah Kreatif + wordmark; tautan punya nama dari teks di dalamnya. |
-| Font | `fonts.bunny.net` (CDN pihak ketiga), Figtree. | Plus Jakarta Sans dari Google Fonts, sama dengan halaman auth lain. |
+| Font | `fonts.bunny.net` (CDN pihak ketiga), Figtree. | Plus Jakarta Sans dihosting sendiri (`public/fonts` + `berkah-fonts.css`), lihat §9.50. |
 | Warna | `bg-gray-100`, `text-gray-900`, kartu putih ber-shadow abu. | Token `--bk-page-bg`, `--bk-page-ink`, `--bk-modal-*`, `--bk-field-bg`, `--bk-link-ink`; tema gelap ikut tanpa tambalan per selektor. |
 | Kontrol | Komponen Breeze bergantung pada Tailwind (`border-gray-300`, `bg-gray-800`). | Input, label, daftar galat, dan tombol ditata dari token: 44 px, radius `--bk-r-control`, fokus `--bk-focus-ring`. |
 | Judul | `config('app.name')` — satu judul untuk semua halaman. | `<x-guest-layout :title="…">` → `<title>` per halaman; `GuestLayout` menerima properti `$title`. |
@@ -2114,3 +2114,41 @@ Blok alias "nama lama, nilai baru" (`--bg`, `--text`, `--muted`, `--paper`,
 **tidak** disentuh: blok itu mendokumentasikan pemetaan tema untuk halaman yang
 memakai nama variabel lama, jadi menghapus per entri akan mengaburkan maksud
 bloknya, bukan merapikannya.
+
+---
+
+## 9.50 — Huruf merek lepas dari CDN
+
+Tujuh halaman masih meminta Plus Jakarta Sans ke `fonts.googleapis.com`
+(25 tautan, termasuk `preconnect` yang di `auth/login` terpasang dua kali),
+padahal catatan di `layouts/guest.blade.php` sendiri sudah menyatakan "tidak
+ada CDN pihak ketiga". Akibatnya huruf hilang saat perangkat luring, saat CDN
+diblokir jaringan kantor/sekolah, dan `PreviewRadialTest` sudah lebih dulu
+mengunci "tidak ada `fonts.googleapis`" pada pratinjau — kunci itu tidak
+berlaku untuk halaman lain.
+
+Sekarang:
+
+| Berkas | Isi |
+|---|---|
+| `public/fonts/plus-jakarta-sans-latin-wght-normal.woff2` | 27 KB, variabel 200–800 |
+| `public/fonts/plus-jakarta-sans-latin-ext-wght-normal.woff2` | 22 KB |
+| `public/css/berkah-fonts.css` | dua `@font-face`, `font-display: swap`, `unicode-range` per subset |
+
+Dipasang dari `layouts/component/_theme_head.blade.php` — satu tempat, dan
+semua dokumen (tamu, pelanggan, admin, katalog, masuk/daftar/lupa sandi)
+memang meng-`@include` berkas itu; hanya `emails/layout` yang tidak, dan surel
+memang tidak boleh memuat huruf eksternal. `preload` hanya untuk berkas latin
+karena seluruh teks Indonesia ada di subset itu.
+
+Dua tautan mati ikut dibuang: `resources/css/splash.css` (memuat Poppins dari
+Google Fonts, tidak pernah ikut build Vite maupun dirujuk halaman) dan
+`_head_meta` yang tersisa hanya tautan favicon.
+
+Penjaga: `UiAccessibilityTest::test_tidak_ada_aset_pihak_ketiga_di_view`
+(komentar blade dibuang lebih dulu, jadi catatan yang menyebut nama domain
+tidak dihitung) dan `test_huruf_merek_dihosting_sendiri` (dua `@font-face`,
+`swap`, dan setiap `url()` harus menunjuk woff2 yang benar-benar ada — dicek
+lewat empat bita pertama `wOF2`). Keduanya diuji dengan menyuntikkan ulang
+tautan Google Fonts ke satu view: tes gagal menyebut berkasnya, lalu hijau
+setelah dipulihkan.

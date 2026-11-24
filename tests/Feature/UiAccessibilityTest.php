@@ -310,6 +310,52 @@ class UiAccessibilityTest extends TestCase
      *  justru bisa membuat view mati terlihat hidup. Berkas yang dimuat
      *  Laravel sendiri (errors, vendor) dikecualikan; komponen dicek lewat
      *  pemakaian `<x-nama>`. */
+    /** Tidak boleh ada aset pihak ketiga (CDN) di kepala halaman. Huruf merek
+     *  dihosting sendiri: public/fonts + public/css/berkah-fonts.css, dipasang
+     *  oleh _theme_head. Komentar blade dibuang dulu supaya catatan yang
+     *  menyebut nama domain tidak dianggap tautan. */
+    public function test_tidak_ada_aset_pihak_ketiga_di_view(): void
+    {
+        $hosts = ['fonts.googleapis.com', 'fonts.gstatic.com', 'fonts.bunny.net',
+                  'cdn.jsdelivr.net', 'unpkg.com', 'cdnjs.cloudflare.com'];
+        $offenders = [];
+
+        foreach ($this->viewFiles() as $file) {
+            $text = preg_replace('/\{\{--.*?--\}\}/s', '', $this->read($file));
+
+            foreach ($hosts as $host) {
+                if (str_contains(strtolower($text), $host)) {
+                    $offenders[] = $this->relative($file).': '.$host;
+                }
+            }
+        }
+
+        $this->assertSame([], $offenders, 'Aset pihak ketiga masih dimuat: '.implode(', ', $offenders));
+    }
+
+    /** Huruf merek: dua berkas woff2 variabel, satu stylesheet, dan setiap
+     *  `url()` di dalamnya harus menunjuk berkas yang benar-benar ada. */
+    public function test_huruf_merek_dihosting_sendiri(): void
+    {
+        $css = public_path('css/berkah-fonts.css');
+        $this->assertFileExists($css);
+
+        $text = File::get($css);
+        $this->assertSame(2, substr_count($text, '@font-face'), 'Harus ada dua @font-face (latin, latin-ext).');
+        $this->assertStringContainsString('font-display: swap', $text);
+        $this->assertStringContainsString('font-weight: 200 800', $text);
+
+        preg_match_all("/url\('([^']+)'\)/", $text, $m);
+        $this->assertCount(2, $m[1], 'Setiap @font-face harus punya tepat satu url().');
+
+        foreach ($m[1] as $relative) {
+            // url('../fonts/x.woff2') dihitung dari public/css/, jadi '..' dibuang.
+            $path = public_path(preg_replace('#^\.\./#', '', $relative));
+            $this->assertFileExists($path, 'Berkas huruf hilang: '.$relative);
+            $this->assertSame('wOF2', substr(File::get($path), 0, 4), 'Berkas bukan woff2: '.$relative);
+        }
+    }
+
     /** Netral dingin sisa tema biru (navy/slate/biru-kelabu) tidak boleh
      *  kembali ke view. Palet merek memakai cokelat hangat: tinta #321d24,
      *  tinta kedua #6f5960, tinta redup #806975, garis #f0e4e0, bayangan
