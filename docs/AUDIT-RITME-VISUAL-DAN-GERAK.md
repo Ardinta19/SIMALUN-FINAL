@@ -1321,3 +1321,43 @@ sekitar tombol, dan komentarnya menyebut itu.
 `prefers-reduced-motion` semua `--p` dan `--bp` bernilai 1 dan tidak ada
 timeline yang dibuat. Harness akhir: phpstub 75/0/200, `.tmp-verify` 26/0,
 blade-scan 93 view 0/0, jsdom 256/0.
+
+### 9.30 Penanda fokus tombol busur, kontras tinggi, dan fokus dialog tema
+
+**A. Tombol pusat tanpa penanda fokus.** Tata letak katalog memasang aturan
+global `summary:focus-visible`, tetapi tata letak pelanggan tidak — dan busur
+memakai `<summary>`, bukan `<a>`, sehingga `a:focus-visible` milik pita bawah
+tidak menolongnya. Akibatnya pengguna papan ketik di dasbor tidak melihat di
+mana fokus berada saat mencapai tombol menu. Sekarang partial radial memasang
+sendiri: `outline: 3px solid #bc5b75` dengan `outline-offset: 3px` (dan
+`border-radius: 50%` supaya cincinnya bulat), ditambah varian tema gelap
+`#f3a8bb` untuk tombol, tujuan, dan tombol tema di dalam slot — di atas latar
+`#201820` warna rose tua tadi terlalu redup.
+
+**B. Kontras lebih tinggi.** `berkah-ui-kit.css` dan `berkah-admin.css` sudah
+punya blok `@media (prefers-contrast: more)` (garis kartu 2 px). Busur ikut:
+garis lingkaran tombol, tujuan, dan tombol tema menjadi 2 px, dan cincin fokus
+melebar ke 4 px.
+
+**C. Fokus dialog tema jatuh ke `<body>`.** Sejak tombol tema pindah ke dalam
+busur (§9.24), urutannya: tombol ditekan → busur menutup (240 ms) → dialog tema
+tampil. Saat dialog ditutup, `berkah-ui-kit.js` mengembalikan fokus ke
+`lastFocus`, yaitu tombol tema yang kini berada di dalam `<details>` tertutup.
+Peramban menolak memfokuskan elemen tersembunyi, jadi fokus hilang ke `<body>`
+dan pengguna papan ketik harus menekan Tab dari awal halaman.
+
+Perbaikannya memilih sasaran yang benar-benar bisa difokuskan:
+`hiddenByClosedDetails()` menelusuri induk dan berhenti pada `<details>` yang
+tertutup — kecuali elemen itu sendiri adalah `<summary>`-nya, karena summary
+tetap terlihat. Urutan sasaran: `lastFocus` → `<summary>` busur → tombol tema.
+Di layar lebar (tombol di header) urutannya berhenti di langkah pertama, jadi
+tidak ada perubahan perilaku.
+
+**D. Verifikasi.** `themehost.test.js` 11 pemeriksaan (+3): tombol tema ada di
+slot busur, dialog terbuka, dan setelah ditutup fokus kembali ke `<summary>`
+busur (bukan ke `BUTTON.bk-theme-btn` yang tersembunyi). `RadialMenuTest`
+menambah penjaga cincin fokus, varian tema gelap, dan blok
+`prefers-contrast: more`; `UiKitTest` menambah penjaga
+`hiddenByClosedDetails`, `node.tagName === 'DETAILS' && !node.open`,
+`node.querySelector('summary') !== el`, dan urutan cadangan fokus. Harness:
+phpstub 76/0/200, `.tmp-verify` 26/0, blade-scan 93 view 0/0, jsdom 259/0.

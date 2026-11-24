@@ -239,9 +239,28 @@
                tombol (mis. lewat papan ketik pintas atau skrip), `lastFocus`
                jatuh ke <body>; memfokuskan body membuat fokus hilang dari
                urutan tab, jadi tombol pembuka dipakai sebagai cadangan. */
-            const back = lastFocus && lastFocus !== document.body && document.contains(lastFocus)
+            /* Di ponsel tombol tema tinggal di dalam busur, dan busur itu
+               ditutup lebih dulu saat tombolnya ditekan. Mengembalikan fokus ke
+               tombol yang kini tersembunyi di dalam <details> tertutup membuat
+               fokus jatuh ke <body>; naikkan ke <summary> busur sebagai gantinya. */
+            // `<summary>` tetap terlihat walau <details>-nya tertutup, jadi
+            // pemeriksaannya berhenti di elemen itu sendiri, bukan di induknya.
+            const hiddenByClosedDetails = el => {
+                let node = el && el.parentElement;
+                while (node) {
+                    if (node.tagName === 'DETAILS' && !node.open && node.querySelector('summary') !== el) return true;
+                    node = node.parentElement;
+                }
+                return false;
+            };
+            const radial = toggleButton && toggleButton.closest
+                ? toggleButton.closest('details[data-customer-radial]')
+                : null;
+            const radialSummary = radial ? radial.querySelector('summary') : null;
+            const usable = el => !!(el && el !== document.body && document.contains(el) && !hiddenByClosedDetails(el));
+            const back = usable(lastFocus)
                 ? lastFocus
-                : toggleButton;
+                : (usable(radialSummary) ? radialSummary : toggleButton);
             if (back && typeof back.focus === 'function') {
                 try { back.focus({ preventScroll: true }); } catch { back.focus(); }
             }

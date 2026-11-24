@@ -153,6 +153,24 @@ html[data-theme] .bk-header-radial .customer-radial__glyph svg{display:block;wid
 .customer-radial__badge{position:absolute;top:-5px;right:-6px;display:grid;place-items:center;min-width:20px;height:20px;padding:0 4px;border:2px solid #fffaf8;border-radius:99px;background:#85092d;color:#fff;font-size:var(--bk-fs-2xs);font-weight:800;line-height:1;opacity:calc(var(--p) * var(--bp,1));transform:scale(calc((.4 + .6 * var(--p)) * (.3 + .7 * var(--bp,1))));pointer-events:none;transition:none}
 html[data-theme="dark"] .customer-radial__badge{border-color:#201820;background:#f3a8bb;color:#2a1219}
 
+/* Cincin fokus tombol pusat. Tata letak katalog sudah punya aturan global
+   `summary:focus-visible`, tetapi halaman pelanggan tidak — tanpa ini tombol
+   menu tidak punya penanda fokus sama sekali di sana. */
+.bk-header-radial>summary:focus-visible{outline:3px solid #bc5b75;outline-offset:3px;border-radius:50%}
+html[data-theme="dark"] .bk-header-radial>summary:focus-visible{outline-color:#f3a8bb}
+html[data-theme="dark"] .bk-header-radial .customer-radial__item:focus-visible{outline-color:#f3a8bb}
+html[data-theme="dark"] .bk-header-radial .customer-radial__item--theme .bk-theme-btn:focus-visible{outline-color:#f3a8bb}
+
+/* Kontras lebih tinggi: garis lingkaran ditebalkan, cincin fokus diperlebar —
+   sejalan dengan aturan `prefers-contrast: more` di berkah-ui-kit.css. */
+@media (prefers-contrast: more){
+    .bk-header-radial>summary,
+    .bk-header-radial .customer-radial__item,
+    .bk-header-radial .customer-radial__item--theme .bk-theme-btn{border-width:2px}
+    .bk-header-radial>summary:focus-visible,
+    .bk-header-radial .customer-radial__item:focus-visible{outline-width:4px}
+}
+
 /* Tombol pusat: dua ikon bertukar (menu ⇄ tutup) dan cincin tipis 58 px —
    satu-satunya hiasan yang tersisa setelah cincin orbit 244 px dilepas. */
 .bk-header-radial>summary{position:relative;display:grid;place-items:center;width:48px;height:48px;padding:0;border:1px solid #ead9d6;border-radius:50%;background:rgba(255,250,248,.94);color:#85092d;box-shadow:0 8px 20px rgba(84,5,31,.14);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:background-color .2s ease,color .2s ease,border-color .2s ease}

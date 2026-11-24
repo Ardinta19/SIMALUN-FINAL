@@ -1121,6 +1121,21 @@ class UiKitTest extends TestCase
         );
     }
 
+    public function test_dialog_tema_mengembalikan_fokus_ke_tombol_busur(): void
+    {
+        $kit = File::get(public_path('js/berkah-ui-kit.js'));
+
+        // Di ponsel tombol tema tinggal di dalam busur, dan busur ditutup saat
+        // tombolnya ditekan. Memfokuskan tombol yang kini tersembunyi di
+        // <details> tertutup membuat fokus jatuh ke <body>, jadi fokus naik ke
+        // <summary> busur.
+        $this->assertStringContainsString('hiddenByClosedDetails', $kit);
+        $this->assertStringContainsString("node.tagName === 'DETAILS' && !node.open", $kit);
+        $this->assertStringContainsString("node.querySelector('summary') !== el", $kit);
+        $this->assertStringContainsString("closest('details[data-customer-radial]')", $kit);
+        $this->assertStringContainsString('usable(radialSummary) ? radialSummary : toggleButton', $kit);
+    }
+
     public function test_checkboxes_share_one_brand_style(): void
     {
         $kit = File::get(public_path('css/berkah-ui-kit.css'));

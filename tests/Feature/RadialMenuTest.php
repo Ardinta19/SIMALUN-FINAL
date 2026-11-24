@@ -174,6 +174,13 @@ class RadialMenuTest extends TestCase
         // tujuan kembali ke pusat, dan aria-expanded ikut turun.
         $this->assertStringContainsString('Ditutup dari luar skrip ini', $js);
 
+        // Penanda fokus untuk tombol pusat (halaman pelanggan tidak punya
+        // aturan global `summary:focus-visible` seperti tata letak katalog),
+        // plus kontras lebih tinggi.
+        $this->assertStringContainsString('.bk-header-radial>summary:focus-visible{outline:3px solid #bc5b75', $view);
+        $this->assertStringContainsString('html[data-theme="dark"] .bk-header-radial>summary:focus-visible{outline-color:#f3a8bb}', $view);
+        $this->assertStringContainsString('@media (prefers-contrast: more){', $view);
+
         // Navigasi panah di dalam busur (Tab tetap bekerja).
         $this->assertStringContainsString("'ArrowRight'", $js);
         $this->assertStringContainsString("event.key === 'Home'", $js);
