@@ -14,7 +14,6 @@ class UiDefaultsTest extends TestCase
 {
     private const LAYOUTS_WITH_CONTROLS = [
         'catalog.layout',
-        'rental.help-layout',
         'layouts.guest',
         'errors.layout',
     ];

@@ -1999,3 +1999,56 @@ Dikunci `UiAccessibilityTest::test_peta_label_selalu_punya_cadangan`: setiap
 `][$…->status]`/`][$…->progress]` di seluruh view wajib diikuti `??`. Diuji
 dengan menghapus satu cadangan: tes gagal menunjuk berkas dan potongan
 ekspresinya, lalu hijau setelah dipulihkan.
+
+---
+
+## 9.47 — Tujuh belas berkas yang tidak pernah tampil
+
+Sapuan ini berangkat dari warna, bukan dari halaman. Saat memeriksa heksa
+terang di dalam blok `<style>` tiap view, muncul warna yang tidak pernah ada
+di palet aplikasi: `#f4f8fc`, `#ddeeff` (biru), `#ecfeff`, `#bae6fd`,
+`#0e7490` (cyan/sky) — sisa era Tailwind/Breeze. Penelusuran pemakainya
+menunjukkan sebabnya: halaman-halaman itu **tidak pernah dirender**.
+
+Dihapus (13 berkas view + 4 komponen):
+
+| Berkas | Kenapa mati |
+|---|---|
+| `auth/reset-password.blade.php` | `ResetPasswordController::showForm` justru mengembalikan `auth.forgot-password` (yang punya cabang `@elseif(isset($token))`) |
+| `profile/edit.blade.php` + `profile/partials/{delete-user-form,update-password-form,update-profile-information-form}` | `ProfileController::edit` memetakan peran ke `roles.admin.profile_edit` / `roles.customer.profile.edit` |
+| `customer/addresses/index.blade.php` | `CustomerAddressController` merender `roles.customer.addresses.index` |
+| `rental/help-layout.blade.php` | halaman bantuan memakai `layouts.admin` dan `catalog.layout` |
+| `layouts/component/_form_loading.blade.php` | hanya disebut di komentar pemakaiannya sendiri |
+| `components/{auth-session-status,wa-button,danger-button,modal,secondary-button}` | nol `<x-…>` setelah berkas di atas hilang |
+
+Dua tes ikut disesuaikan karena menyebut layout yang sudah tidak ada
+(`UiDefaultsTest::LAYOUTS_WITH_CONTROLS`, `UiKitTest` daftar `bk-back` dan
+pola `@extends`). Komentar di alias `layouts/component/customer/_confirm_modal`
+diperbarui: aliasnya tetap dipakai `roles/customer/profile/edit.blade.php`,
+tetapi tidak lagi oleh halaman daftar alamat yang sudah dihapus.
+
+### Penjaga: setiap view harus bisa dijangkau
+
+`UiAccessibilityTest::test_setiap_view_bisa_dijangkau` mengumpulkan seluruh
+teks `app/`, `routes/`, dan `resources/views/` — **komentar dibuang lebih
+dulu** — lalu menuntut setiap `*.blade.php` disebut sebagai string literal
+(`'nama.view'`) atau, untuk komponen, sebagai `<x-nama>`. `errors.*` dan
+`vendor.*` dikecualikan karena dimuat Laravel sendiri; `.php` non-Blade di
+dalam `views/` (peta ikon bangkitan) dilewati.
+
+Dua pelajaran yang mengubah penjaga itu saat diuji:
+
+1. **Komentar menipu.** Versi pertama menghitung semua teks, sehingga alias
+   `customer/_confirm_modal` dan `_form_loading` dianggap hidup karena
+   namanya muncul di komentar dokumentasi. Setelah komentar dibuang,
+   `_form_loading` langsung terungkap sebagai yatim.
+2. **Tes bukan pemakai.** `rental/help-layout` disebut dua berkas tes, jadi
+   pemindaian yang menyertakan `tests/` akan menganggapnya hidup. Tes justru
+   bisa membuat view mati tampak wajar; karena itu `tests/` tidak dihitung.
+
+Diuji dengan menaruh `resources/views/zzz/orphan.blade.php` dan
+`resources/views/components/zzz.blade.php` sementara: keduanya dilaporkan,
+lalu hijau setelah dihapus. `docs/AUDIT-ALUR-DAN-JALUR.md` baris 10–12
+diperbarui: baris 10 selesai (dengan daftar sebenarnya), baris 11 ditandai
+keliru (halaman alamat sudah bertoken hangat), baris 12 selesai (`roles/driver`
+sudah tidak ada).

@@ -168,9 +168,9 @@ pembayaran, audit trail, bantuan (kini tertaut dari dasbor dan menu profil).
 | 7 | Rendah | `customer.notifications.read` (tandai satu dibaca) tidak dipakai; UI memakai tandai-semua + buka | tidak ada rujukan | Hapus rute+metode, atau pakai di daftar notifikasi |
 | 8 | Rendah | `GET /confirm-password` tidak dilindungi middleware `password.confirm` di mana pun; `POST /confirm-password` tidak bernama sehingga form memakai nama rute GET | `routes/web.php:91–92`; `auth/confirm-password.blade.php:6` | Beri nama `password.confirm.store` (dan pakai `action` yang benar), atau hapus alur ini |
 | 9 | Rendah | Alur verifikasi email dorman (lihat 4-N) | `app/Models/User.php` tanpa `MustVerifyEmail`; `routes/web.php:82–89` | Nyalakan (interface + listener + middleware `verified` pada rute pemesanan) atau hapus rute & view-nya |
-| 10 | Rendah | View yatim: `auth/reset-password.blade.php` (malah berisi `route('token')` yang tidak ada), `profile/edit.blade.php` + `profile/partials/*` (3 berkas), `roles/admin/_analytics_section.blade.php`, `welcome.blade.php` | tidak dirujuk rute/controller mana pun | Hapus (aman, tidak dipakai) |
-| 11 | Rendah | Halaman tambah/edit alamat masih bertema laundry (`<!DOCTYPE html>` sendiri) sementara daftar alamat sudah bertema katalog | `roles/customer/addresses/create|edit.blade.php` vs `index.blade.php` | Samakan tema saat modul laundry dibongkar |
-| 12 | Rendah | `roles/driver/help.blade.php` masih berjudul “Bantuan Kurir – AZKA LAUNDRY” | berkas tersebut | Ikut terhapus bersama modul kurir |
+| 10 | **Selesai** | View yatim — dihapus 22 Nov 2026: `auth/reset-password.blade.php`, `profile/edit.blade.php` + `profile/partials/*` (3 berkas), `customer/addresses/index.blade.php`, `rental/help-layout.blade.php`, `layouts/component/_form_loading.blade.php`, plus lima komponen `<x-…>` yang hanya dipakai berkas-berkas itu | tidak dirujuk rute/controller mana pun (`roles/admin/_analytics_section.blade.php` dan `welcome.blade.php` ternyata sudah tidak ada) | Dijaga `UiAccessibilityTest::test_setiap_view_bisa_dijangkau` |
+| 11 | **Selesai/keliru** | Halaman tambah/edit alamat memang dokumen sendiri (`<!DOCTYPE html>`), tetapi sudah memuat `_theme_head` + `_ui_kit` + `_form_controls` dan memakai token hangat `#faf4f3`/`#f8e9ed`/`#f0dfe1` — bukan tema laundry lagi | `roles/customer/addresses/create|edit.blade.php` | — |
+| 12 | **Selesai** | `roles/driver/` sudah tidak ada (ikut terhapus bersama modul kurir) | — | — |
 
 ### Yang sudah benar dan sebaiknya tidak diubah
 

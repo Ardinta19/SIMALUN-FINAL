@@ -575,7 +575,7 @@ class UiKitTest extends TestCase
 
             // Halaman bertema: memuat sendiri kepala tema, atau mewarisi
             // layout yang memuatnya.
-            $inherits = preg_match('/@extends\(\s*[\'"](?:catalog\.layout|layouts\.guest|errors\.layout|rental\.help-layout)/', $html) === 1;
+            $inherits = preg_match('/@extends\(\s*[\'"](?:catalog\.layout|layouts\.guest|errors\.layout)/', $html) === 1;
 
             if (! str_contains($html, '_theme_head') && ! $inherits) {
                 continue;
@@ -1037,7 +1037,6 @@ class UiKitTest extends TestCase
             'rental/payment-settings.blade.php' => ['class="bk-back"'],
             'rental/universities.blade.php' => ['class="bk-back"'],
             'rental/admin-detail.blade.php' => ['class="bk-back"', 'class="btn secondary"'],
-            'rental/help-layout.blade.php' => ['class="bk-back"'],
         ];
 
         foreach ($expectations as $file => $needles) {

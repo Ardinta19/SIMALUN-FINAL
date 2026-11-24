@@ -303,6 +303,60 @@ class UiAccessibilityTest extends TestCase
         $this->assertSame([], $offenders, 'Peta label tanpa cadangan: '.implode(', ', $offenders));
     }
 
+    /** View yang tidak pernah dirujuk menua tanpa ketahuan: warnanya,
+     *  istilahnya, dan strukturnya tidak ikut berubah saat halaman lain
+     *  dirapikan. Rujukan dihitung dari string literal di app/, routes/, dan
+     *  view lain — tes tidak dihitung, karena tes yang menyebut sebuah view
+     *  justru bisa membuat view mati terlihat hidup. Berkas yang dimuat
+     *  Laravel sendiri (errors, vendor) dikecualikan; komponen dicek lewat
+     *  pemakaian `<x-nama>`. */
+    public function test_setiap_view_bisa_dijangkau(): void
+    {
+        $sources = '';
+
+        foreach ([app_path(), resource_path('views'), base_path('routes')] as $dir) {
+            foreach (File::allFiles($dir) as $file) {
+                // Komentar tidak menjangkau view: menyebut nama view di dalam
+                // komentar hanya membuat view mati terlihat hidup.
+                $code = preg_replace('/\{\{--.*?--\}\}|\/\*.*?\*\//s', ' ', $file->getContents()) ?? '';
+                $sources .= $code."\n";
+            }
+        }
+
+        $offenders = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            // Hanya view Blade; folder ini juga menyimpan peta ikon hasil
+            // bangkitan (_icon_glyphs.php) yang dimuat lewat require.
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            $name = str_replace(['/', '.blade.php'], ['.', ''], $file->getRelativePathname());
+            $path = 'resources/views/'.$file->getRelativePathname();
+
+            if (str_starts_with($name, 'errors.') || str_starts_with($name, 'vendor.')) {
+                continue;
+            }
+
+            if (str_starts_with($name, 'components.')) {
+                $tag = '<x-'.str_replace('.', '-', substr($name, strlen('components.')));
+
+                if (! preg_match('/'.preg_quote($tag, '/').'\b/', $sources)) {
+                    $offenders[] = $path;
+                }
+
+                continue;
+            }
+
+            if (! str_contains($sources, "'".$name."'") && ! str_contains($sources, '"'.$name.'"')) {
+                $offenders[] = $path;
+            }
+        }
+
+        $this->assertSame([], $offenders, 'View tanpa perujuk: '.implode(', ', $offenders));
+    }
+
     /** Setiap kamus di lang/id harus punya pemakai. Kamus tanpa pemakai
      *  menua diam-diam: isinya bisa memakai istilah dari domain lain tanpa
      *  ada satu pun halaman yang terlihat salah. `validation` dikecualikan
