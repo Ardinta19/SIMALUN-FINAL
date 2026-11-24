@@ -1300,3 +1300,24 @@ tetap penuh, dan klik tombol setelahnya kembali menutup (bukan meneruskan
 `opacity:calc(var(--p) * var(--bp,1))`, `setProperty('--bp', '0')`, `'--bp': 1`,
 tidak adanya `scale:` di skrip, dan penanda penutupan dari luar. Harness:
 phpstub 75/0/200, `.tmp-verify` 26/0, blade-scan 93 view 0/0, jsdom 253/0.
+
+### 9.29 Lencana saat gerak dilewati, dan sisa CSS yang menyesatkan
+
+**A. `--bp` tertinggal di 0.** `settle()` hanya menulis `--p`, sedangkan
+`--bp` diset 0 di dalam cabang GSAP. Bila animasi dilewati — `prefers-reduced-
+motion: reduce`, GSAP tidak termuat, atau tween dipotong sebelum lencana
+mendapat giliran — lencana tetap pada `--bp: 0`, dan karena opacity-nya
+`calc(var(--p) * var(--bp,1))`, angkanya tidak pernah terlihat meski busurnya
+terbuka penuh. Sekarang `settle()` juga menulis `--bp: 1` untuk semua lencana,
+dan cabang tanpa animasi memanggil `settle()` (bukan hanya `setProgress(1)`).
+
+**B. Sisa CSS setelah §9.26.** Aturan `html[data-theme="dark"]
+.customer-radial__goo g{...}` tidak berguna lagi karena gumpalannya
+`display:none`, dan komentar `/* … cincin orbit */` masih menyebut hiasan yang
+sudah dilepas. Keduanya dibersihkan; yang tersisa hanya cincin tipis 58 px di
+sekitar tombol, dan komentarnya menyebut itu.
+
+**C. Verifikasi.** `radial.test.js` 71 pemeriksaan (+3): dengan
+`prefers-reduced-motion` semua `--p` dan `--bp` bernilai 1 dan tidak ada
+timeline yang dibuat. Harness akhir: phpstub 75/0/200, `.tmp-verify` 26/0,
+blade-scan 93 view 0/0, jsdom 256/0.

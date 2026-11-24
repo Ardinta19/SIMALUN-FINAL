@@ -155,7 +155,12 @@
         /* Busur terbuka penuh, tanpa sisa animasi yang terpotong: dipanggil di
            akhir tween masuk maupun saat penutupan dibatalkan. */
         const settle = () => {
-            if (menu.open) setProgress(1);
+            if (!menu.open) return;
+            setProgress(1);
+            // Lencana juga harus penuh: bila animasi dilewati (reduced-motion,
+            // GSAP tidak termuat, atau tween dipotong), `--bp` bisa tertinggal
+            // di 0 dan lencananya tak pernah terlihat.
+            badges.forEach(badge => badge.style.setProperty('--bp', '1'));
         };
 
         const open = () => {
@@ -175,7 +180,7 @@
 
             const gsap = gsapCore();
             if (!gsap || reduceMotion.matches) {
-                setProgress(1);
+                settle();
                 return;
             }
 

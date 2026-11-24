@@ -151,9 +151,10 @@ html[data-theme] .bk-header-radial .customer-radial__glyph svg{display:block;wid
    --p mengikuti busur. Dua-duanya custom property, jadi GSAP tidak pernah
    menulis transform inline yang menempel dan mengunci keadaan. */
 .customer-radial__badge{position:absolute;top:-5px;right:-6px;display:grid;place-items:center;min-width:20px;height:20px;padding:0 4px;border:2px solid #fffaf8;border-radius:99px;background:#85092d;color:#fff;font-size:var(--bk-fs-2xs);font-weight:800;line-height:1;opacity:calc(var(--p) * var(--bp,1));transform:scale(calc((.4 + .6 * var(--p)) * (.3 + .7 * var(--bp,1))));pointer-events:none;transition:none}
-html[data-theme="dark"] .customer-radial__badge{border-color:#201820;background:#f3a8bb;color:#2a1219}html[data-theme="dark"] .customer-radial__goo g{fill:#f3a8bb;opacity:.55}
+html[data-theme="dark"] .customer-radial__badge{border-color:#201820;background:#f3a8bb;color:#2a1219}
 
-/* Tombol pusat: dua ikon bertukar (menu ⇄ tutup) dan cincin orbit. */
+/* Tombol pusat: dua ikon bertukar (menu ⇄ tutup) dan cincin tipis 58 px —
+   satu-satunya hiasan yang tersisa setelah cincin orbit 244 px dilepas. */
 .bk-header-radial>summary{position:relative;display:grid;place-items:center;width:48px;height:48px;padding:0;border:1px solid #ead9d6;border-radius:50%;background:rgba(255,250,248,.94);color:#85092d;box-shadow:0 8px 20px rgba(84,5,31,.14);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:background-color .2s ease,color .2s ease,border-color .2s ease}
 .bk-header-radial>summary::after{content:"";position:absolute;inset:-5px;border:1px solid rgba(133,9,45,.22);border-radius:50%;opacity:0;transform:scale(.86);pointer-events:none;transition:opacity .24s ease,transform .36s cubic-bezier(.34,1.4,.64,1)}
 .bk-header-radial[open]>summary::after{opacity:1;transform:scale(1)}
