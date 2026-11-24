@@ -2152,3 +2152,32 @@ tidak dihitung) dan `test_huruf_merek_dihosting_sendiri` (dua `@font-face`,
 lewat empat bita pertama `wOF2`). Keduanya diuji dengan menyuntikkan ulang
 tautan Google Fonts ke satu view: tes gagal menyebut berkasnya, lalu hijau
 setelah dipulihkan.
+
+---
+
+## 9.51 — "Dashboard" jadi "Dasbor", judul seragam
+
+`app/Support/AdminNav.php` sudah lama memakai **Dasbor** untuk butir pertama
+panel admin, tetapi teks lain belum ikut:
+
+| Letak | Sebelum | Sesudah |
+|---|---|---|
+| `errors/403`, `errors/404` | tombol "Ke Dashboard" | "Ke Dasbor" |
+| `catalog/layout` (nav hero, 2 tautan) | "Dashboard" | "Dasbor" |
+| `<title>` dashboard admin | "Dashboard Admin – Berkah Kreatif" | "Dasbor Admin · Berkah Kreatif" |
+
+Pemisah judul juga bercampur tiga gaya: ` – ` (admin, login, daftar, alamat,
+jejak audit), ` · ` (tamu, katalog, pelanggan, ringkasan pesanan, lembar
+harian, apresiasi), dan ` | ` (halaman galat). Sekarang semuanya ` · `,
+termasuk `{{ $code }} · {{ $title }} · Berkah Kreatif` di `errors/layout`.
+
+Dua penjaga: kata `dashboard` masuk daftar label Inggris yang ditolak
+(`test_tidak_ada_label_inggris_tersisa_di_teks_atau_kamus`), dan
+`test_judul_halaman_memakai_pemisah_titik_tengah` menolak `<title>` yang
+memakai ` – `/` | ` atau tidak berpemisah sama sekali (surel dikecualikan —
+klien surel memakai nama merek saja).
+
+Sapuan "Menu" tidak diubah: `aria-label="Menu lainnya"`, "Menu admin", label
+radial "Menu" dan judul panel "Menu pelanggan/tamu" semuanya berbahasa
+Indonesia dan sudah menyebut isinya pada `aria-label`, jadi tidak ada istilah
+asing yang perlu diterjemahkan.

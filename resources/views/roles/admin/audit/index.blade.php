@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Jejak Audit – {{ \App\Support\Laundry::name() }}</title>
+<title>Jejak Audit · {{ \App\Support\Laundry::name() }}</title>
 @include('layouts.component.customer._head_meta')
 @include('layouts.component._tokens')
 <style>

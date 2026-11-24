@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Dashboard Admin – Berkah Kreatif</title>
+<title>Dasbor Admin · Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 {{-- Canonical Design System tokens (single source of truth). Standalone page:
      not compiled through Vite, so include tokens directly in <head>. --}}

@@ -253,7 +253,7 @@ class UiAccessibilityTest extends TestCase
      *  dengan kuncinya berarti belum diterjemahkan. */
     public function test_tidak_ada_label_inggris_tersisa_di_teks_atau_kamus(): void
     {
-        $pattern = '/(?<![A-Za-z\$>.-])(?:reset|preview|upload|submit|save|cancel|delete|close|loading|search|login|logout|action|update|order)(?![A-Za-z])/i';
+        $pattern = '/(?<![A-Za-z\$>.-])(?:reset|preview|upload|submit|save|cancel|delete|close|loading|search|login|logout|action|update|order|dashboard)(?![A-Za-z])/i';
         $offenders = [];
 
         foreach ($this->viewFiles() as $file) {
@@ -354,6 +354,32 @@ class UiAccessibilityTest extends TestCase
             $this->assertFileExists($path, 'Berkas huruf hilang: '.$relative);
             $this->assertSame('wOF2', substr(File::get($path), 0, 4), 'Berkas bukan woff2: '.$relative);
         }
+    }
+
+    /** Judul halaman memakai satu pemisah, ` · `, bukan campuran ` – ` dan
+     *  ` | `. Surel dikecualikan: klien surel memakai nama merek saja. */
+    public function test_judul_halaman_memakai_pemisah_titik_tengah(): void
+    {
+        $offenders = [];
+
+        foreach ($this->viewFiles() as $file) {
+            $relative = $this->relative($file);
+            if (str_contains($relative, 'emails/')) {
+                continue;
+            }
+
+            preg_match_all('#<title>(.*?)</title>#s', $this->read($file), $m);
+
+            foreach ($m[1] as $title) {
+                if (str_contains($title, ' – ') || str_contains($title, ' | ')) {
+                    $offenders[] = $relative.': '.$title;
+                } elseif (! str_contains($title, ' · ') && ! str_contains($title, '@if')) {
+                    $offenders[] = $relative.' (tanpa pemisah): '.$title;
+                }
+            }
+        }
+
+        $this->assertSame([], $offenders, 'Judul belum seragam: '.implode(', ', $offenders));
     }
 
     /** Netral dingin sisa tema biru (navy/slate/biru-kelabu) tidak boleh

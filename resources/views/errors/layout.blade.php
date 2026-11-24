@@ -8,7 +8,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>{{ $code }} – {{ $title }} | Berkah Kreatif</title>
+<title>{{ $code }} · {{ $title }} · Berkah Kreatif</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;color:#301722;background:linear-gradient(168deg,#54051f 0%,#85092d 55%,#b6435e 100%);min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px;overflow:hidden}
