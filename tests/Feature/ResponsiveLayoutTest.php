@@ -256,6 +256,48 @@ class ResponsiveLayoutTest extends TestCase
         );
     }
 
+    /** Tidak ada satu pun elemen yang boleh melebarkan dokumen.
+     *
+     *  Laporan lapangan 2026-11-25: halaman `sewa/{id}/unit/{id}` pada 437–440 px
+     *  masih bisa digeser ke samping walau `body` sudah `overflow-x: clip`.
+     *  Penyebabnya dua lapis: `overflow` milik <body> diwariskan ke viewport
+     *  (jadi <body> berhenti menjadi kotak pemotong), dan anak grid/flex
+     *  memakai `min-width: auto` = min-content sehingga deretan pil
+     *  "Lihat bagian" mendorong kolomnya melewati layar.
+     */
+    public function test_elemen_lebar_tidak_bisa_mendorong_halaman_ke_samping(): void
+    {
+        $css = preg_replace('/\s+/', ' ', File::get(public_path('css/berkah-experience.css')));
+
+        $this->assertStringContainsString(
+            'html.bk-enhanced:has(> body.bk-experience) { overflow-x: clip; }',
+            $css,
+            'Aturan clip harus dipasang juga di <html>; clip pada <body> saja diwariskan ke viewport.'
+        );
+        $this->assertStringContainsString(
+            '.bk-experience :is(.wrap, .items, .grid, .stack) > * { min-width: 0; }',
+            $css,
+            'Anak grid/flex wajib boleh menyusut (min-width: 0) agar min-content tidak melebarkan halaman.'
+        );
+        $this->assertStringContainsString('.bk-experience .bk-jump > div { flex: 1 1 auto; min-width: 0;', $css,
+            'Deretan pil "Lihat bagian" harus menjadi scroller yang menyusut, bukan mendorong induknya.');
+        $this->assertStringContainsString('.bk-experience .wrap { max-width: 100%; overflow-x: clip; }', $css,
+            'Isi halaman dipotong di tepi .wrap supaya satu baris panjang tidak melebarkan dokumen.');
+        $this->assertStringContainsString('.bk-experience .bk-unit-jump { max-width: 100%; }', $css,
+            'Baris pil versi halaman unit harus dibatasi lebar induknya.');
+    }
+
+    public function test_kolom_formulir_admin_sejajar_dari_label(): void
+    {
+        $css = preg_replace('/\s+/', ' ', File::get(public_path('css/berkah-admin.css')));
+
+        $this->assertMatchesRegularExpression(
+            '/\.adm-field-grid \{[^}]*align-items: start;/',
+            $css,
+            'Dengan `align-items: end` kolom yang punya teks bantuan naik dan labelnya tidak sejajar.'
+        );
+    }
+
     /** Satu ritme tipografi untuk judul halaman, paragraf, dan kartu.
      *
      *  Sebelumnya jarak di dalam kartu mengikuti margin bawaan peramban (`p`

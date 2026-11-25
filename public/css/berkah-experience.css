@@ -592,3 +592,69 @@ body.bk-experience {
 .bk-experience :is(.card, .unit-section, .bk-row-card, .notice) :is(p, li, dd, dt, h2, h3, h4, summary) {
     overflow-wrap: break-word;
 }
+
+/* ==========================================================================
+   9.59 Pengaman luapan mendatar
+   --------------------------------------------------------------------------
+   Bukti lapangan (440 px): dokumen bisa digeser ke samping walau
+   `body{overflow-x:clip}` sudah dipasang, dan satu kartu/pil terlihat lebih
+   lebar dari layar. Dua sebab yang mungkin dan dua-duanya ditutup di sini:
+
+   a. `overflow` milik <body> diwariskan ke viewport, sehingga <body> sendiri
+      tidak lagi menjadi kotak pemotong di sebagian mesin. Karena itu aturan
+      `clip` dipasang juga di <html> (lewat `:has()` supaya hanya halaman
+      pelanggan). `clip` dipilih, bukan `hidden`, agar `position: sticky`
+      (header) dan `position: fixed` (busur radial, navigasi bawah) tetap
+      bekerja — `clip` tidak membuat kotak gulir.
+
+   b. Anak grid/flex punya `min-width: auto` = min-content. Satu baris panjang
+      (deretan pil "Lihat bagian", nomor referensi, tombol berjajar) dapat
+      memaksa kolom grid melebar melewati layar. `min-width: 0` membuat
+      kolom boleh menyusut; isi yang tetap panjang dipotong kartu
+      (`overflow:hidden`) atau digulir sendiri oleh scroller-nya.
+   ========================================================================== */
+
+@supports (overflow: clip) {
+    html.bk-enhanced:has(> body.bk-experience) {
+        overflow-x: clip;
+    }
+}
+
+.bk-experience :is(.wrap, .items, .grid, .stack) > * {
+    min-width: 0;
+}
+
+/* Jaring terakhir untuk isi halaman: apa pun yang tetap lebih lebar dari
+   kolomnya dipotong di tepi `.wrap`, bukan mendorong seluruh dokumen. Scroller
+   di dalam (mis. deretan pil) tetap menggulir sendiri karena pemotongan hanya
+   terjadi pada sumbu X kotak ini. */
+.bk-experience .wrap {
+    max-width: 100%;
+    overflow-x: clip;
+}
+
+/* Deretan pil "Lihat bagian": jadi scroller sendiri dan tidak lagi mendorong
+   induknya. `flex: 1 1 auto` + `min-width: 0` menggantikan `max-width: 100%`
+   yang tidak selalu cukup di dalam flex container yang boleh wrap. */
+.bk-experience .bk-jump {
+    max-width: min(820px, 100%);
+}
+
+.bk-experience .bk-unit-jump {
+    max-width: 100%;
+}
+
+.bk-experience .bk-jump > div {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 100%;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Kartu yang memuat scroller mendatar tidak boleh ikut melebar. */
+.bk-experience .card,
+.bk-experience .unit-section,
+.bk-experience .notice {
+    max-width: 100%;
+}

@@ -619,7 +619,11 @@ html[data-theme="dark"] .adm-app :is(.adm-btn--ghost, .adm-btn--quiet):hover {
     border-radius: var(--adm-r-lg); box-shadow: var(--adm-shadow-1);
     margin-bottom: var(--adm-gap);
 }
-.adm-field-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); align-items: end; }
+/* `align-items: start`: dulu `end` membuat kolom yang punya teks bantuan
+   ("Angka kecil tampil lebih dulu.") naik lebih tinggi dari kolom lain,
+   sehingga label sebaris tidak sejajar (lihat audit §9.59). Dengan `start`,
+   label selalu rata atas dan input tetap sejajar karena tingginya sama. */
+.adm-field-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); align-items: start; }
 .adm-field { display: grid; gap: 6px; min-width: 0; }
 .adm-field > label,
 .adm-app label { font-size: var(--adm-fs-2xs); font-weight: 800; letter-spacing: .01em; color: var(--adm-ink-2); margin: 0; }

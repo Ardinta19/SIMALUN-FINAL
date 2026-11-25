@@ -2500,3 +2500,124 @@ bisa digeser mendatar.
 Dijaga `RadialMenuTest::test_busur_tidak_keluar_layar_dan_mengikuti_titik_tumpu`,
 `FormPlaceholderTest` (dua tes), dan
 `ResponsiveLayoutTest::test_ritme_tipografi_kartu_sama_di_semua_halaman`.
+
+---
+
+### 9.59 Luapan mendatar yang masih tersisa, dan cara membuktikannya
+
+**Temuan dari laporan 2026-11-25 (halaman `sewa/{unit}/unit/{unit}`, 437–440 px).**
+
+Dua lapis penyebab, keduanya ditutup di commit ini.
+
+**a. `clip` pada `<body>` ikut diwariskan ke viewport, jadi `<body>` berhenti
+menjadi kotak pemotong.** Menurut spesifikasi, bila `overflow` milik `<html>`
+masih `visible`, nilai `overflow` milik `<body>` **dipindahkan ke viewport** dan
+`<body>` sendiri memakai `visible`. Akibatnya `body.bk-experience{overflow-x:
+clip}` (§9.57) tidak selalu memotong apa pun selain membuat viewport berhenti
+menggulir — dan di sebagian mesin pemindahan itu tidak berlaku untuk `clip`,
+sehingga scrollbar tetap muncul.
+
+Perbaikan:
+
+```css
+@supports (overflow: clip) {
+    html.bk-enhanced:has(> body.bk-experience) { overflow-x: clip; }
+}
+```
+
+`clip` (bukan `hidden`) dipilih supaya `position: sticky` pada header dan
+`position: fixed` pada busur radial serta navigasi bawah tetap bekerja: `clip`
+tidak membuat kotak gulir dan tidak menjadi containing block untuk `fixed`.
+`:has()` menjaga aturan ini hanya untuk halaman pelanggan; tabel lebar di admin
+tetap bisa digulir di dalam pembungkusnya sendiri.
+
+**b. Anak grid/flex memakai `min-width: auto` = min-content.** Satu baris
+panjang (deretan pil "Lihat bagian", nomor referensi, sederet tombol) dapat
+memaksa kolom grid melebar melewati layar — kolom tidak boleh menyusut di bawah
+min-content anaknya. Ini yang membuat satu kartu terlihat lebih lebar dari
+layar pada 437–440 px sementara 465 px tampak normal (selisihnya kecil).
+
+Perbaikan:
+
+```css
+.bk-experience :is(.wrap, .items, .grid, .stack) > * { min-width: 0; }
+
+.bk-experience .wrap { max-width: 100%; overflow-x: clip; }
+
+.bk-experience .bk-jump { max-width: min(820px, 100%); }
+.bk-experience .bk-unit-jump { max-width: 100%; }
+.bk-experience .bk-jump > div {
+    flex: 1 1 auto; min-width: 0; max-width: 100%;
+    scrollbar-width: thin; -webkit-overflow-scrolling: touch;
+}
+```
+
+- `min-width: 0` di anak grid/flex: kolom boleh menyusut; isi yang tetap
+  panjang dipotong kartu (`overflow: hidden`) atau digulir scroller-nya.
+- `.wrap{overflow-x: clip}`: jaring terakhir untuk isi halaman. Apa pun yang
+  lebih lebar dipotong di tepi `.wrap`, bukan mendorong seluruh dokumen.
+  Scroller di dalam tetap menggulir karena pemotongan hanya pada sumbu X kotak
+  itu.
+- `.bk-jump > div` dulu hanya `max-width: 100%`; `max-width` tidak selalu cukup
+  pada flex item yang boleh wrap, jadi ditambah `flex: 1 1 auto` +
+  `min-width: 0`. Deretan pil kini benar-benar scroller sendiri.
+
+**c. Grid formulir admin rata dari label.** `.adm-field-grid` memakai
+`align-items: end`, sehingga kolom yang punya teks bantuan ("Angka kecil tampil
+lebih dulu.") naik lebih tinggi dan label sebaris tidak sejajar (laporan
+`image-112`). Sekarang `align-items: start`: label rata atas, input tetap
+sejajar karena tingginya seragam (44 px).
+
+**d. Bukti build yang diuji belum memuat perbaikan sebelumnya.** Dua kolom pada
+`image-113` ("Tarif antar (Rp)", "Tarif jemput kembali (Rp)") tampil kosong,
+padahal di `HEAD` keduanya sudah membawa `placeholder="Contoh: 15000"` dan
+`placeholder="Contoh: 20000"` (`rental/universities.blade.php`). Artinya
+tangkapan layar dibuat dari kode/cache lama (view terkompilasi atau CSS di
+cache peramban), bukan dari commit terbaru.
+
+Urutan verifikasi yang benar:
+
+```powershell
+cd D:\download\berkah-preview
+git pull
+php artisan view:clear
+php artisan config:clear
+php artisan test
+```
+
+Lalu **hard reload** (Ctrl+Shift+R) agar CSS `?v=filemtime` baru terpakai.
+
+**Cara menunjuk elemen penyebab bila luapan masih ada.** Tempel di Console saat
+halaman terbuka pada lebar bermasalah:
+
+```js
+const vw = document.documentElement.clientWidth;
+console.log('dokumen/ layar:', document.documentElement.scrollWidth, '/', vw,
+            '| body overflow-x:', getComputedStyle(document.body).overflowX,
+            '| html clip:', getComputedStyle(document.documentElement).overflowX);
+[...document.querySelectorAll('body *')]
+  .filter(el => el.getBoundingClientRect().right > vw + 1)
+  .slice(0, 10)
+  .forEach(el => console.log(el.tagName, el.className,
+                             Math.round(el.getBoundingClientRect().right)));
+```
+
+`dokumen/layar` harus sama (mis. `440 / 440`) dan `html clip` harus `clip`.
+Bila masih ada selisih, baris `TAG kelas kanan` menunjuk elemen tepatnya —
+kirimkan 3–5 baris teratas.
+
+**Hasil yang diharapkan di setiap ukuran.** Lebar `scrollWidth` = lebar layar,
+tanpa scrollbar mendatar, judul tidak terpotong, kartu tidak melewati tepi:
+
+| Lebar | Yang diperiksa |
+| --- | --- |
+| 320 px | header pil penuh, pil "Lihat bagian" menggulir sendiri, tombol 44 px |
+| 360/390/414/430 px | tanpa geser mendatar; paragraf tidak menempel tepi |
+| 437–480 px | kasus laporan; dokumen = layar |
+| 600–700 px | dua kartu per baris di katalog, busur radial muncul |
+| 701–880 px | nav tablet + busur radial (slot tema kosong di busur) |
+| 881–1024 px | nav tablet tanpa busur, kolom formulir 3–4 sejajar rata atas |
+| 1280 px | `.wrap` 1200 px di tengah, tidak ada elemen melewati tepi |
+
+Dijaga `ResponsiveLayoutTest::test_elemen_lebar_tidak_bisa_mendorong_halaman_ke_samping`
+dan `ResponsiveLayoutTest::test_kolom_formulir_admin_sejajar_dari_label`.
