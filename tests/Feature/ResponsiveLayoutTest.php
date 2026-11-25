@@ -117,6 +117,45 @@ class ResponsiveLayoutTest extends TestCase
         $this->assertStringContainsString("header.classList.remove('is-compact', 'is-pinned')", $script);
     }
 
+    /** Perpindahan navbar penuh ⇄ pil ringkas dianimasikan, bukan melompat.
+     *
+     *  Kelas `is-compact` tetap dipasang seperti biasa (dijaga tes lain);
+     *  animasinya membungkus perubahan itu: ukuran kotak header dianimasikan
+     *  per frame, isi lebar memudar, dan logo pil tumbuh dari tengah. */
+    public function test_header_morphs_between_full_navbar_and_compact_pill(): void
+    {
+        $script = File::get(public_path('js/berkah-experience.js'));
+        $motion = File::get(public_path('css/berkah-motion.css'));
+        $css = File::get(public_path('css/berkah-experience.css'));
+
+        // Pembungkus morph ada, dan kelas tetap dipasang lewat jalur lama.
+        $this->assertStringContainsString('morphHeader', $script);
+        $this->assertStringContainsString("header.classList.add('is-compact'", $script);
+        $this->assertStringContainsString("header.classList.remove('is-compact', 'is-pinned')", $script);
+        $this->assertStringContainsString('getBoundingClientRect', $script);
+        $this->assertStringContainsString("clearProps: 'width,height'", $script);
+
+        // Tanpa GSAP / saat gerak dimatikan, kelas dipasang langsung.
+        $this->assertStringContainsString('prefers-reduced-motion: reduce', $script);
+        $this->assertMatchesRegularExpression('/motionAllowed[\s\S]{0,200}mutate\(\);\s*return;/', $script);
+
+        // Transisi `width` dilepas: dengan tween per frame, transisi CSS akan
+        // membuat header tertinggal satu langkah di belakang posisinya.
+        $this->assertStringNotContainsString('transition:width .3s ease,top .3s ease', $css);
+        $this->assertStringContainsString('transition:top .3s ease', $css);
+
+        // Isi menyusul: padding/sudut membulat ikut menyusut, isi lebar memudar,
+        // logo pil tumbuh. Semuanya bisa dimatikan lewat prefers-reduced-motion.
+        $this->assertStringContainsString('.bk-header--morphing .bk-header-inner', $motion);
+        $this->assertStringContainsString('bk-header-pill-in', $motion);
+        $this->assertStringContainsString('bk-header-nav-in', $motion);
+        $this->assertMatchesRegularExpression(
+            '/@media \(prefers-reduced-motion: reduce\)[\s\S]{0,400}bk-header--morphing/',
+            $motion,
+            'Morph header harus berhenti saat gerak diminimalkan.'
+        );
+    }
+
     public function test_customer_bottom_navigation_does_not_cover_content(): void
     {
         $css = File::get(public_path('css/berkah-experience.css'));

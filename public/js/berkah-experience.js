@@ -91,12 +91,63 @@
         return keyboardMode && !!active && active !== expand && header.contains(active) && active.offsetParent !== null;
     };
     let pinned = false;
+
+    /* Morph ringkas ⇄ penuh.
+       Selama ini perubahan navbar menjadi pil hanya "melompat": kelas
+       is-compact memasang display:none pada isi lebar, jadi tidak ada yang
+       bisa dianimasikan CSS. Di sini ukuran kotak header diambil sebelum dan
+       sesudah kelas berubah, lalu dianimasikan per frame (pola FLIP
+       sederhana). Isi yang muncul/menghilang diberi animasi halus lewat
+       `.bk-header--morphing` di berkah-motion.css.
+       Tanpa GSAP, saat gerak dimatikan, atau bila ukurannya tidak berubah,
+       kelas dipasang seperti sebelumnya — jadi perilaku dasarnya tetap. */
+    const motionAllowed = () => {
+        try { return !window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return true; }
+    };
+    /* Tween yang tertinggal (tab disembunyikan tepat saat mulai) tidak boleh
+       meninggalkan ukuran inline dan kelas penanda. Setiap morph memakai
+       nomor urut; hanya morph terbaru yang boleh membersihkan. */
+    let morphTicket = 0;
+    const morphSettle = (gsap, ticket) => {
+        if (ticket !== morphTicket) return;
+        gsap.set(header, { clearProps: 'width,height' });
+        header.classList.remove('bk-header--morphing');
+    };
+    const morphHeader = mutate => {
+        const gsap = window.gsap;
+        if (!gsap || !motionAllowed() || typeof gsap.fromTo !== 'function') {
+            mutate();
+            return;
+        }
+        const classBefore = header.className;
+        const boxBefore = header.getBoundingClientRect();
+        mutate();
+        if (header.className === classBefore) return;
+        const boxAfter = header.getBoundingClientRect();
+        if (!boxBefore.width || !boxAfter.width) return;
+        if (Math.abs(boxBefore.width - boxAfter.width) < 6 && Math.abs(boxBefore.height - boxAfter.height) < 4) return;
+        const ticket = ++morphTicket;
+        header.classList.add('bk-header--morphing');
+        gsap.killTweensOf(header);
+        gsap.fromTo(header,
+            { width: boxBefore.width, height: boxBefore.height },
+            {
+                width: boxAfter.width,
+                height: boxAfter.height,
+                duration: 0.34,
+                ease: 'power2.inOut',
+                overwrite: true,
+                onComplete: () => morphSettle(gsap, ticket)
+            });
+        window.setTimeout(() => morphSettle(gsap, ticket), 700);
+    };
+
     const syncHeader = () => {
         if (clock() < headerHold) return;
         const scrolled = window.scrollY > 180;
         if (!scrolled) {
             pinned = false;
-            header.classList.remove('is-compact', 'is-pinned');
+            morphHeader(() => header.classList.remove('is-compact', 'is-pinned'));
             return;
         }
         if (menuOpen() || keyboardFocusInsideHeader()) {
@@ -110,13 +161,17 @@
             if (radialMenu && radialMenu.open && header.classList.contains('is-compact')) {
                 return;
             }
-            header.classList.remove('is-compact');
-            header.classList.add('is-pinned');
+            morphHeader(() => {
+                header.classList.remove('is-compact');
+                header.classList.add('is-pinned');
+            });
             return;
         }
         pinned = false;
-        header.classList.remove('is-pinned');
-        header.classList.add('is-compact');
+        morphHeader(() => {
+            header.classList.remove('is-pinned');
+            header.classList.add('is-compact');
+        });
     };
     const updateHeader = syncHeader;
     window.addEventListener('scroll', syncHeader, { passive: true });

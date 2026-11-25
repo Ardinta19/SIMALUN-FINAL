@@ -2324,3 +2324,38 @@ Cara memeriksa di ponsel (Chrome/Safari):
    muat ulang.
 5. Gulir sampai header berubah menjadi pil ringkas, lanjutkan cepat — pil
    tetap menempel tanpa membuat gulir tersendat.
+
+### 9.56 Morph navbar penuh ⇄ pil ringkas
+
+Dulu perpindahan navbar ke pil hanya terlihat sebagai potongan: kelas
+`is-compact` memasang `display: none !important` pada isi lebar, dan yang bisa
+dianimasikan CSS hanya `top`. Tidak ada yang bisa ditransisikan karena ukuran
+header ditentukan isinya.
+
+Sekarang berkas `berkah-experience.js` membungkus perubahan kelas dengan pola
+FLIP sederhana (`morphHeader`): ukuran kotak diukur sebelum kelas berubah,
+diukur lagi sesudahnya, lalu GSAP menganimasikan `width`/`height` selama
+0,34 detik. Isi menyusul di lapisan gerak:
+
+- `.bk-header--morphing .bk-header-inner` — `padding`, `border-radius`, dan
+  `gap` ikut menyusut/menebar.
+- `.bk-header--morphing.is-compact :is(.bk-expand, .bk-header-filter)` —
+  logo pil (dan tombol filter katalog) tumbuh dari 80%.
+- `.bk-header--morphing:not(.is-compact) :is(.bk-wordmark, .bk-desktop-nav,
+  .bk-desktop-actions, .bk-command-trigger, .bk-menu-trigger)` — isi lebar
+  turun 4 px ke tempatnya.
+
+Pengaman:
+
+1. Tanpa GSAP, saat `prefers-reduced-motion: reduce`, atau bila ukurannya tidak
+   berubah, kelas dipasang langsung seperti sebelumnya — kelas `is-compact`
+   tetap jalur yang sama, jadi selektor teruji tidak berubah.
+2. `transition: width` dilepas dari `.bk-header` (kini hanya `top`); transisi
+   CSS per frame justru membuat header tertinggal satu langkah.
+3. Kunci tetap dipegang tiket (`morphTicket`) + jaring waktu 700 ms, sehingga
+   tween yang terputus tidak meninggalkan ukuran inline atau kelas penanda.
+4. Tidak ada `opacity: 0` baru: seluruh efek memakai transform/transisi,
+   sehingga penjaga "konten tidak boleh tersembunyi tanpa JavaScript" tetap
+   apa adanya.
+
+Dijaga `ResponsiveLayoutTest::test_header_morphs_between_full_navbar_and_compact_pill`.

@@ -67,6 +67,54 @@ html.bk-lenis .table-scroll {
     overscroll-behavior-y: auto;
 }
 
+/* ── 1b. Morph header: navbar penuh ⇄ pil ringkas ───────────────────────────
+   Ukuran kotak header dianimasikan per frame oleh berkah-experience.js
+   (kelas .bk-header--morphing dipasang hanya selama tween). Di sini isinya
+   yang menyusul: padding dan sudut membulat ikut menyusut, logo pil tumbuh
+   dari 80%, dan isi lebar turun sedikit ke tempatnya.
+
+   Hanya transform dan transisi yang dipakai — tanpa `opacity: 0` — supaya
+   penjaga "tidak ada konten tersembunyi tanpa JavaScript" tetap utuh.
+
+   `width` sudah dilepas dari transisi CSS milik .bk-header (berkah-experience.css):
+   dengan tween per frame, transisi CSS membuat header tertinggal satu langkah. */
+.bk-header--morphing {
+    will-change: width, height;
+}
+
+.bk-header--morphing .bk-header-inner {
+    transition: padding .34s ease, border-radius .34s ease, gap .34s ease;
+}
+
+.bk-header--morphing.is-compact :is(.bk-expand, .bk-header-filter) {
+    animation: bk-header-pill-in .34s cubic-bezier(.22, .7, .25, 1) both;
+}
+
+.bk-header--morphing:not(.is-compact) :is(.bk-wordmark, .bk-desktop-nav, .bk-desktop-actions, .bk-command-trigger, .bk-menu-trigger) {
+    animation: bk-header-nav-in .34s cubic-bezier(.22, .7, .25, 1) both;
+}
+
+@keyframes bk-header-pill-in {
+    from { transform: scale(.8) }
+    to { transform: scale(1) }
+}
+
+@keyframes bk-header-nav-in {
+    from { transform: translateY(-4px) }
+    to { transform: none }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bk-header--morphing .bk-header-inner {
+        transition: none;
+    }
+
+    .bk-header--morphing.is-compact :is(.bk-expand, .bk-header-filter),
+    .bk-header--morphing:not(.is-compact) :is(.bk-wordmark, .bk-desktop-nav, .bk-desktop-actions, .bk-command-trigger, .bk-menu-trigger) {
+        animation: none;
+    }
+}
+
 /* ── 2. Lapisan animasi GSAP ────────────────────────────────────────────── */
 [data-bk-reveal],
 [data-bk-reveal-group] > * {
