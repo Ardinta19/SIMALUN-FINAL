@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+@include('layouts.component._page_shell')
 <title>Notifikasi Admin · Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 @include('layouts.component._tokens')
@@ -32,7 +33,7 @@ body {
     min-height: 100vh;
     min-height: 100dvh;
     padding-bottom: calc(var(--space-20) + env(safe-area-inset-bottom, 0px));
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 .wrap { max-width: 520px; margin: 0 auto; padding: 0 var(--space-4); }
 

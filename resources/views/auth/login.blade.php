@@ -3,13 +3,14 @@
 <head>
 <meta charset="UTF-8"><meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+@include('layouts.component._page_shell')
 <title>Masuk · Berkah Kreatif</title>
 <style>
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html, body {
   width:100%; min-height:100%; font-family:'Plus Jakarta Sans',sans-serif;
   background:linear-gradient(168deg, #54051f 0%, #85092d 45%, #ad3553 78%, #cf7488 100%);
-  overflow-x:hidden;
+  overflow-x:clip;
 }
 #ambient { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
 #wave-band { position:fixed; bottom:0; left:-5%; right:-5%; height:40%; pointer-events:none; z-index:0; }
@@ -191,7 +192,7 @@ $oldText = function (string $key, $fallback = '') {
             name="identifier"
             aria-describedby="err-identifier @error('identifier') server-identifier-error @enderror"
             @error('identifier') aria-invalid="true" @enderror
-            placeholder="email@contoh.com atau 08xxxxxxxxxx"
+            placeholder="Contoh: nama@email.com atau 081234567890"
             value="{{ $oldText('identifier') }}"
             autocomplete="username"
             inputmode="text"

@@ -170,7 +170,7 @@
                             </div>
                             <div class="adm-field">
                                 <label for="transport-note-{{ $unit->id }}">Rincian ongkos</label>
-                                <textarea id="transport-note-{{ $unit->id }}" name="note" maxlength="1000">{{ $unit->transport_quote_note }}</textarea>
+                                <textarea id="transport-note-{{ $unit->id }}" placeholder="Contoh: Antar 15.000 dan jemput kembali 20.000, sudah termasuk tol." name="note" maxlength="1000">{{ $unit->transport_quote_note }}</textarea>
                             </div>
                             <p class="adm-help">Mengirim versi baru membatalkan persetujuan lama; pelanggan wajib menyetujui versi terbaru.</p>
                             <div><button class="btn secondary" type="submit">Kirim penawaran</button></div>
@@ -233,7 +233,7 @@
                     <p class="adm-help">{{ $unit->status_before_cancel === 'pending' ? 'Unit kembali menunggu konfirmasi; tenggat konfirmasi tetap berlaku.' : 'Unit kembali dikonfirmasi setelah pembayaran lunas terverifikasi dan stok tersedia.' }}</p>
                     <div class="adm-field">
                         <label for="resume-reason-{{ $unit->id }}">Alasan melanjutkan (tercatat di riwayat)</label>
-                        <textarea id="resume-reason-{{ $unit->id }}" name="reason" maxlength="500" required>{{ is_scalar(old('reason')) ? old('reason') : '' }}</textarea>
+                        <textarea id="resume-reason-{{ $unit->id }}" placeholder="Contoh: Pelanggan melunasi pembayaran dan stok unit tersedia kembali." name="reason" maxlength="500" required>{{ is_scalar(old('reason')) ? old('reason') : '' }}</textarea>
                     </div>
                     <div><button class="btn" type="submit">Lanjutkan unit</button></div>
                 </form>
@@ -291,7 +291,7 @@
                                         </div>
                                         <div class="adm-field">
                                             <label for="correct-reason-{{ $payment->id }}">Alasan koreksi</label>
-                                            <input id="correct-reason-{{ $payment->id }}" name="reason" maxlength="500" required>
+                                            <input id="correct-reason-{{ $payment->id }}" placeholder="Contoh: Bukti terbaca 500.000, seharusnya 550.000." name="reason" maxlength="500" required>
                                         </div>
                                     </div>
                                     <div><button class="btn secondary adm-btn--sm" type="submit">Simpan koreksi</button></div>
@@ -309,11 +309,11 @@
                                     <div class="adm-field-grid">
                                         <div class="adm-field">
                                             <label for="refund-amount-{{ $payment->id }}">Nominal (Rp)</label>
-                                            <input id="refund-amount-{{ $payment->id }}" type="number" name="amount" min="1" max="{{ $payment->amount - $payment->refunds->sum('amount') }}" required>
+                                            <input id="refund-amount-{{ $payment->id }}" placeholder="Contoh: 150000" type="number" name="amount" min="1" max="{{ $payment->amount - $payment->refunds->sum('amount') }}" required>
                                         </div>
                                         <div class="adm-field">
                                             <label for="refund-reason-{{ $payment->id }}">Alasan dan keterangan</label>
-                                            <input id="refund-reason-{{ $payment->id }}" name="reason" maxlength="500" required>
+                                            <input id="refund-reason-{{ $payment->id }}" placeholder="Contoh: Kelebihan bayar dikembalikan lewat transfer BCA." name="reason" maxlength="500" required>
                                         </div>
                                     </div>
                                     <label class="adm-switch">
@@ -340,7 +340,7 @@
                                     @csrf
                                     <div class="adm-field">
                                         <label for="reject-reason-{{ $payment->id }}">Alasan penolakan</label>
-                                        <input id="reject-reason-{{ $payment->id }}" name="reason" maxlength="500" required>
+                                        <input id="reject-reason-{{ $payment->id }}" placeholder="Contoh: Bukti bukan untuk pesanan ini." name="reason" maxlength="500" required>
                                     </div>
                                     <div><button class="btn secondary" type="submit">Tolak bukti</button></div>
                                 </form>
@@ -370,7 +370,7 @@
                         <p class="adm-note adm-note--warn" style="margin:0">Pelanggan belum merespons sampai batas. Pengerjaan dapat dimulai tanpa persetujuan; keputusan ini tercatat dan pelanggan tetap dapat menyetujui atau meminta revisi.</p>
                         <div class="adm-field">
                             <label for="override-note-{{ $unit->id }}">Alasan melanjutkan tanpa persetujuan (wajib, minimal 10 karakter)</label>
-                            <textarea id="override-note-{{ $unit->id }}" name="note" minlength="10" maxlength="2000" required>{{ is_scalar(old('note')) ? old('note') : '' }}</textarea>
+                            <textarea id="override-note-{{ $unit->id }}" placeholder="Contoh: Pelanggan belum membalas sejak kemarin, pengerjaan dimulai sesuai tenggat." name="note" minlength="10" maxlength="2000" required>{{ is_scalar(old('note')) ? old('note') : '' }}</textarea>
                         </div>
                         <label class="adm-switch">
                             <input type="checkbox" name="confirmed" value="1" required>
@@ -403,7 +403,7 @@
                             </div>
                             <div class="adm-field">
                                 <label for="design-note-{{ $unit->id }}">Catatan admin</label>
-                                <textarea id="design-note-{{ $unit->id }}" name="admin_note" maxlength="2000"></textarea>
+                                <textarea id="design-note-{{ $unit->id }}" placeholder="Contoh: Versi 1 - bunga putih, pita hitam, tulisan &quot;Turut berduka cita&quot;." name="admin_note" maxlength="2000"></textarea>
                             </div>
                         </div>
                         <div><button class="btn secondary" type="submit">Unggah pratinjau</button></div>
@@ -430,7 +430,7 @@
                         </div>
                         <div class="adm-field">
                             <label for="cancel-reason-{{ $unit->id }}">Alasan pembatalan</label>
-                            <input id="cancel-reason-{{ $unit->id }}" name="reason" required maxlength="500">
+                            <input id="cancel-reason-{{ $unit->id }}" placeholder="Contoh: Pelanggan membatalkan lewat WhatsApp pada 25 Nov." name="reason" required maxlength="500">
                         </div>
                     </div>
                     <div><button class="btn secondary" type="submit">Batalkan unit</button></div>
@@ -444,7 +444,7 @@
                     <p class="adm-help">Unit terkonfirmasi harus dicek stoknya kembali. Pada hari penerimaan, pembayaran harus lunas terverifikasi; mulai hari berikutnya tidak dapat dilanjutkan. Kelanjutan dapat berisiko terlambat. Catatan terlihat oleh pelanggan.</p>
                     <div class="adm-field">
                         <label for="resume2-reason-{{ $unit->id }}">Alasan melanjutkan</label>
-                        <input id="resume2-reason-{{ $unit->id }}" name="reason" maxlength="500" required>
+                        <input id="resume2-reason-{{ $unit->id }}" placeholder="Contoh: Pembayaran lunas dan unit tersedia kembali." name="reason" maxlength="500" required>
                     </div>
                     <div><button class="btn secondary" type="submit">Lanjutkan unit</button></div>
                 </form>

@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+@include('layouts.component._page_shell')
 <title>Edit Profil Admin · Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 @include('layouts.component._tokens')
@@ -31,7 +32,7 @@ body {
     min-height: 100vh;
     min-height: 100dvh;
     padding-bottom: calc(var(--space-12) + env(safe-area-inset-bottom, 0px));
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 
 /* ── Entrance animation (pure CSS — transform/opacity only) ── */

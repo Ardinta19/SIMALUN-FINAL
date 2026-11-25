@@ -158,15 +158,15 @@
                 <div class="adm-field-grid">
                     <div class="adm-field">
                         <label for="package-new-name-{{ $product->id }}">Nama paket baru</label>
-                        <input id="package-new-name-{{ $product->id }}" name="name" maxlength="120" required>
+                        <input id="package-new-name-{{ $product->id }}" placeholder="Contoh: Paket 3 hari" name="name" maxlength="120" required>
                     </div>
                     <div class="adm-field">
                         <label for="package-new-days-{{ $product->id }}">Durasi (hari)</label>
-                        <input id="package-new-days-{{ $product->id }}" type="number" name="days" min="1" max="366" required>
+                        <input id="package-new-days-{{ $product->id }}" placeholder="Contoh: 3" type="number" name="days" min="1" max="366" required>
                     </div>
                     <div class="adm-field">
                         <label for="package-new-price-{{ $product->id }}">Harga paket (Rp)</label>
-                        <input id="package-new-price-{{ $product->id }}" type="number" name="price" min="0" max="100000000" required>
+                        <input id="package-new-price-{{ $product->id }}" placeholder="Contoh: 450000" type="number" name="price" min="0" max="100000000" required>
                     </div>
                 </div>
                 <div><button class="btn secondary adm-btn--sm" type="submit">Tambah paket</button></div>

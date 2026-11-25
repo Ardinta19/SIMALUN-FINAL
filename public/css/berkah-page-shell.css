@@ -1,0 +1,63 @@
+/* ==========================================================================
+   Pengaman halaman mandiri
+   --------------------------------------------------------------------------
+   Beberapa halaman tidak memakai `catalog.layout` (pelanggan) atau
+   `layouts.admin` (admin): halaman auth, dasbor admin mandiri, alamat/profil
+   pelanggan, lembar cetak, dan halaman galat. Semuanya punya <style> sendiri,
+   jadi otomatis tidak ikut pengaman luapan di `berkah-experience.css` atau
+   `berkah-admin.css` — akibatnya hanya halaman-halaman itu yang masih bisa
+   digeser ke samping.
+
+   Berkas ini sengaja hanya berisi aturan keselamatan. Tidak ada warna, radius,
+   atau ukuran huruf yang diubah, sehingga desain tiap halaman tetap sama.
+   ========================================================================== */
+
+/* a. Tidak ada geser mendatar.
+      `clip` dipilih, bukan `hidden`, karena `hidden` membuat <body> menjadi
+      kotak gulir sehingga `position: sticky` pada header formulir dan
+      `position: fixed` pada laci/panel bisa ikut bergeser. `@media screen`
+      menjaga hasil cetak (lembar harian, ringkasan pesanan) tetap utuh. */
+@supports (overflow: clip) {
+    @media screen {
+        html {
+            overflow-x: clip;
+        }
+    }
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+html,
+body {
+    max-width: 100%;
+}
+
+/* b. Kata panjang (email, nomor referensi, nama berkas) tidak melebarkan
+      layar; hanya kata yang memang tidak muat yang dipatahkan. */
+body {
+    overflow-wrap: break-word;
+}
+
+/* c. Media tidak pernah lebih lebar dari kolomnya. */
+img,
+video,
+canvas,
+iframe {
+    max-width: 100%;
+}
+
+/* d. Anak grid/flex boleh menyusut di bawah min-content. Tanpa ini satu baris
+      panjang — deretan tombol, label + nilai, kolom formulir berdampingan —
+      memaksa kolom melebar melewati layar. `:where()` membuat specificity
+      nol, jadi aturan tiap halaman (dan tema) tetap menang. */
+:where(main, .page-body, .page-main, .page-shell, .wrap, .container, form, .card, .grid, .row, .adm-field-grid) > * {
+    min-width: 0;
+}
+
+/* e. Tabel lebar menggulir di dalam pembungkusnya, bukan mendorong halaman. */
+:where(.table-wrap, .table-scroll, .adm-scroll-x) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}

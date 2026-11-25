@@ -12,16 +12,16 @@
     </div>
     <div class="adm-field">
         <label for="cash-cat-{{ $entry?->id ?? 'new' }}">Kategori bebas</label>
-        <input id="cash-cat-{{ $entry?->id ?? 'new' }}" name="category" maxlength="50" value="{{ $entry?->category }}" required>
+        <input id="cash-cat-{{ $entry?->id ?? 'new' }}" placeholder="Contoh: Bensin dan tol" name="category" maxlength="50" value="{{ $entry?->category }}" required>
     </div>
     <div class="adm-field">
         <label for="cash-amount-{{ $entry?->id ?? 'new' }}">Nominal (Rp)</label>
-        <input id="cash-amount-{{ $entry?->id ?? 'new' }}" type="number" name="amount" min="1" max="1000000000" value="{{ $entry?->amount }}" required>
+        <input id="cash-amount-{{ $entry?->id ?? 'new' }}" placeholder="Contoh: 150000" type="number" name="amount" min="1" max="1000000000" value="{{ $entry?->amount }}" required>
     </div>
 </div>
 <div class="adm-field">
     <label for="cash-notes-{{ $entry?->id ?? 'new' }}">Catatan</label>
-    <textarea id="cash-notes-{{ $entry?->id ?? 'new' }}" name="notes" maxlength="1000" required>{{ $entry?->notes }}</textarea>
+    <textarea id="cash-notes-{{ $entry?->id ?? 'new' }}" placeholder="Contoh: Bensin 100.000 dan tol 50.000 untuk antar unit." name="notes" maxlength="1000" required>{{ $entry?->notes }}</textarea>
 </div>
 <label class="adm-switch">
     <input type="checkbox" name="not_rental_payment" value="1">

@@ -4,6 +4,7 @@
 @php $asset = fn (string $path) => asset($path).(file_exists(public_path($path)) ? '?v='.filemtime(public_path($path)) : ''); @endphp
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+@include('layouts.component._page_shell')
 <title>Edit Alamat · Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 <link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.css') }}?v={{ filemtime(public_path('vendor/leaflet/leaflet.css')) }}">
@@ -16,7 +17,7 @@
     --ink-lt:#806975; --border:#f0dfe1; --radius:16px; --radius-sm:10px;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--surface);color:var(--ink);min-height:100vh;min-height:100dvh;padding-bottom:calc(96px + env(safe-area-inset-bottom,0px));overflow-x:hidden;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--surface);color:var(--ink);min-height:100vh;min-height:100dvh;padding-bottom:calc(96px + env(safe-area-inset-bottom,0px));overflow-x:clip;}
 
 .page-header{background:linear-gradient(135deg,var(--blue-dark) 0%,var(--blue-mid) 100%);padding:max(env(safe-area-inset-top,0px),16px) 20px 24px;position:sticky;top:0;z-index:100;}
 .header-row{display:flex;align-items:center;gap:12px;max-width:520px;margin:0 auto;}

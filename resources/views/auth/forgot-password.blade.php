@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="utf-8"><meta name="robots" content="noindex"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+@include('layouts.component._page_shell')
 <title>@if(isset($token)) Buat kata sandi baru @else Pemulihan kata sandi @endif · Berkah Kreatif</title>
 <link rel="icon" href="{{ asset('images/berkah-kreatif-logo.jpeg') }}">
 <link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}?v={{ filemtime(public_path('css/page-transitions.css')) }}"><script src="{{ asset('js/page-transitions.js') }}?v={{ filemtime(public_path('js/page-transitions.js')) }}" defer></script><link rel="stylesheet" href="{{ asset('css/berkah-auth.css') }}?v={{ filemtime(public_path('css/berkah-auth.css')) }}">

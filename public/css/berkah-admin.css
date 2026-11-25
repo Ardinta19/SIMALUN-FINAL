@@ -1466,3 +1466,34 @@ html[data-theme="dark"] .adm-app {
         padding-bottom: calc(88px + var(--adm-safe-b));
     }
 }
+
+/* --------------------------------------------------------------------------
+   Pengaman luapan mendatar untuk area admin
+   --------------------------------------------------------------------------
+   `layouts/admin` memuat berkas ini saja (bukan `berkah-experience.css`), jadi
+   tanpa aturan di bawah halaman admin masih bisa digeser ke samping bila ada
+   satu baris panjang — mis. kolom formulir berdampingan atau tombol berjajar.
+
+   `clip` dipilih, bukan `hidden`, karena `hidden` menjadikan <html> kotak gulir
+   dan menggeser acuan `position: fixed` (sidebar, topbar, laci mobile).
+   Tabel lebar tetap punya scroller sendiri lewat `.adm-scroll-x`.
+   -------------------------------------------------------------------------- */
+@supports (overflow: clip) {
+    @media screen {
+        html:has(> body.adm-app) {
+            overflow-x: clip;
+        }
+    }
+}
+
+/* Anak grid/flex admin boleh menyusut di bawah min-content. `:where()` menjaga
+   specificity nol, jadi aturan komponen yang lebih rinci tetap menang. */
+.adm-app :where(.adm-content, .adm-toolbar, .adm-field-grid, .adm-card, .adm-stack) > * {
+    min-width: 0;
+}
+
+.adm-app .adm-card,
+.adm-app .adm-toolbar,
+.adm-app .adm-note {
+    max-width: 100%;
+}

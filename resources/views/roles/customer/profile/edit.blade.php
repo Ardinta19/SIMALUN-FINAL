@@ -4,6 +4,7 @@
 @php $asset = fn (string $path) => asset($path).(file_exists(public_path($path)) ? '?v='.filemtime(public_path($path)) : ''); @endphp
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+@include('layouts.component._page_shell')
 <title>Edit Profil · Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -21,7 +22,7 @@
         color:var(--ink);
         min-height:100vh;min-height:100dvh;
         padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));
-        overflow-x:hidden;
+        overflow-x:clip;
     }
 
     .page-header {

@@ -7,6 +7,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+@include('layouts.component._page_shell')
 <meta name="robots" content="noindex">
 <title>{{ $code }} · {{ $title }} · Berkah Kreatif</title>
 <style>

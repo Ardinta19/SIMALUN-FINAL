@@ -3,13 +3,14 @@
 <head>
 <meta charset="UTF-8"><meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+@include('layouts.component._page_shell')
 <title>Daftar · Berkah Kreatif</title>
 <style>
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html, body {
   width:100%; min-height:100%; font-family:'Plus Jakarta Sans',sans-serif;
   background:linear-gradient(168deg, #54051f 0%, #85092d 45%, #ad3553 78%, #cf7488 100%);
-  overflow-x:hidden;
+  overflow-x:clip;
 }
 
 /* ── AMBIENT ── */
@@ -401,7 +402,7 @@ $oldText = function (string $key, $fallback = '') {
             <span class="input-icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'user', 'size' => 20])</span>
             <input class="form-input @error('name') error @enderror"
               type="text" id="name" name="name" aria-describedby="err-name"
-              placeholder="Nama sesuai identitas"
+              placeholder="Contoh: Sari Wulandari"
               value="{{ $oldText('name') }}" autocomplete="name">
           </div>
           @error('name')<div class="form-error show">{{ $message }}</div>@enderror
@@ -431,7 +432,7 @@ $oldText = function (string $key, $fallback = '') {
             <div class="phone-input-wrap">
               <input class="form-input @error('phone') error @enderror"
                 type="tel" id="phone" name="phone" aria-describedby="err-phone"
-                placeholder="8xxxxxxxxxx"
+                placeholder="Contoh: 81234567890"
                 value="{{ $oldText('phone') }}" inputmode="tel" autocomplete="tel">
             </div>
           </div>
@@ -456,7 +457,7 @@ $oldText = function (string $key, $fallback = '') {
             <span class="input-icon">@</span>
             <input class="form-input @error('email') error @enderror"
               type="email" id="email" name="email" aria-describedby="err-email"
-              placeholder="Boleh dikosongkan"
+              placeholder="Contoh: sari@email.com (opsional)"
               value="{{ $oldText('email') }}" autocomplete="email" inputmode="email">
           </div>
           @error('email')<div class="form-error show">{{ $message }}</div>@enderror
@@ -515,7 +516,7 @@ $oldText = function (string $key, $fallback = '') {
           <div class="input-wrap">
             <span class="input-icon" style="top:14px;transform:none;" aria-hidden="true">@include('layouts.component._icon', ['name' => 'home', 'size' => 20])</span>
             <textarea class="form-input" id="address" name="address" aria-describedby="err-address"
-              placeholder="Nama jalan, nomor rumah, RT/RW, kelurahan..."
+              placeholder="Contoh: Jl. Merdeka No. 12, RT 03/RW 05, Kel. Talang"
               rows="3" style="padding-left:2.65rem;resize:none;">{{ $oldText('address') }}</textarea>
           </div>
           @error('address')<div class="form-error show">{{ $message }}</div>@enderror
@@ -527,7 +528,7 @@ $oldText = function (string $key, $fallback = '') {
           <div class="input-wrap">
             <span class="input-icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'file-text', 'size' => 20])</span>
             <input class="form-input" type="text" id="address_note" name="address_note"
-              placeholder="Warna pagar, patokan, dll."
+              placeholder="Contoh: Pagar hijau, sebelah warung Bu Ani"
               value="{{ $oldText('address_note') }}">
           </div>
         </div>

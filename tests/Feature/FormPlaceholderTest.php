@@ -10,58 +10,91 @@ use Tests\TestCase;
  *
  * Keluhan "jangan ada yang kosong" muncul dari formulir yang hanya berisi
  * kotak kosong: pelanggan dan admin tidak tahu format yang diharapkan
- * (tarif antar, alamat, ucapan). Setiap kolom teks kini membawa placeholder
- * berisi contoh nyata, bukan sekadar nama kolom.
+ * (tarif antar, alamat, ucapan). Setiap kolom teks yang tampil kosong kini
+ * membawa placeholder berisi contoh nyata, bukan sekadar nama kolom.
  *
- * Kolom yang memang tidak perlu contoh: `hidden`, `submit`, pilihan
- * (checkbox/radio/select), pemilih berkas, pemilih tanggal, dan kolom jumlah
- * yang sudah bernilai tetap.
+ * Cakupannya seluruh view (guest, auth, pelanggan, admin) — bukan daftar
+ * halaman pilihan, supaya halaman baru ikut terjaga.
+ *
+ * Kolom yang memang tidak perlu contoh: jenis yang tidak diisi teks bebas
+ * (`hidden`, `submit`, pilihan, berkas, tanggal/bulan, kata sandi), kolom
+ * `readonly`, dan kolom yang sudah terisi nilai (`value="..."` atau isi
+ * `<textarea>` dari data, bukan `old()`).
  */
 class FormPlaceholderTest extends TestCase
 {
-    /** Formulir pelanggan + admin yang berisi isian teks bebas. */
-    private const FORMS = [
-        'auth/forgot-password.blade.php',
-        'catalog/product-fields.blade.php',
-        'rental/addons.blade.php',
-        'rental/checkout.blade.php',
-        'rental/index.blade.php',
-        'rental/payment-settings.blade.php',
-        'rental/progress.blade.php',
-        'rental/unit.blade.php',
-        'rental/universities.blade.php',
-        'rental/vouchers.blade.php',
-        'roles/admin/profile_edit.blade.php',
-        'roles/customer/addresses/create.blade.php',
-        'roles/customer/addresses/edit.blade.php',
-        'roles/customer/profile/edit.blade.php',
-    ];
+    private const TIPE_DILEWATI = 'hidden|submit|button|reset|checkbox|radio|file|date|datetime-local|time|month|week|color|range|password|image';
+
+    /** @return array<string, string> nama relatif => isi blade */
+    private function semuaView(): array
+    {
+        $views = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+            $views[str_replace('\\', '/', $file->getRelativePathname())] = (string) File::get($file->getPathname());
+        }
+
+        ksort($views);
+
+        return $views;
+    }
+
+    /** Siapkan teks supaya tag bisa dipotong dengan aman.
+     *
+     *  `{{ $unit->id }}` mengandung tanda `>` (operator `->`), sehingga regex
+     *  tag sederhana memotong tag di tengah dan lolos dari pemeriksaan.
+     *  Ekspresi Blade dan direktif diganti penanda lebih dulu.
+     */
+    private function tanpaEkspresiBlade(string $html): string
+    {
+        $html = preg_replace('/\{\{.*?\}\}/s', 'PHPX', $html);
+
+        return preg_replace(
+            '/@(?:if|elseif|unless|error|checked|selected|disabled|required|readonly|php|class|style)\s*\([^)]*\)/i',
+            'DIRX',
+            $html
+        );
+    }
+
+    /** Kolom yang tampil kosong saat halaman pertama dibuka. */
+    private function butuhContoh(string $tag): bool
+    {
+        if (preg_match('/type\s*=\s*[\'"](?:'.self::TIPE_DILEWATI.')[\'"]/i', $tag)) {
+            return false;
+        }
+
+        if (preg_match('/\breadonly\b/i', $tag)) {
+            return false;
+        }
+
+        if (! preg_match('/name\s*=\s*[\'"]([^\'"]+)/i', $tag)) {
+            return false;
+        }
+
+        // Formulir ubah sudah terisi data lewat `value="..."`.
+        if (stripos($tag, '<textarea') !== 0 && preg_match('/\bvalue\s*=\s*[\'"]/i', $tag)) {
+            return false;
+        }
+
+        return true;
+    }
 
     public function test_kolom_teks_selalu_memberi_contoh_isian(): void
     {
         $tanpaContoh = [];
 
-        foreach (self::FORMS as $relative) {
-            $path = resource_path('views/'.$relative);
-            $this->assertFileExists($path);
-
-            $html = (string) File::get($path);
-            preg_match_all('/<(?:input|textarea)\b[^>]*>/i', $html, $found);
+        foreach ($this->semuaView() as $relative => $html) {
+            preg_match_all('/<(?:input|textarea)\b[^>]*>/i', $this->tanpaEkspresiBlade($html), $found);
 
             foreach ($found[0] as $tag) {
-                // Jenis kolom yang tidak diisi teks bebas.
-                if (preg_match('/type\s*=\s*["\'](?:hidden|submit|button|checkbox|radio|file|date|datetime-local|time|month|week|color|range|password)["\']/i', $tag)) {
+                if (stripos($tag, 'placeholder') !== false || ! $this->butuhContoh($tag)) {
                     continue;
                 }
 
-                if (stripos($tag, 'placeholder') !== false) {
-                    continue;
-                }
-
-                if (! preg_match('/name\s*=\s*["\']([^"\']+)/i', $tag, $name)) {
-                    continue;
-                }
-
+                preg_match('/name\s*=\s*[\'"]([^\'"]+)/i', $tag, $name);
                 $tanpaContoh[] = $relative.' → '.$name[1];
             }
         }
@@ -74,14 +107,13 @@ class FormPlaceholderTest extends TestCase
     {
         $kurangJelas = [];
 
-        foreach (self::FORMS as $relative) {
-            $html = (string) File::get(resource_path('views/'.$relative));
+        foreach ($this->semuaView() as $relative => $html) {
             preg_match_all('/<(?:input|textarea)\b[^>]*>/i', $html, $found);
 
             foreach ($found[0] as $tag) {
                 // Kata sandi memang tidak punya contoh isi; panduan singkat
                 // seperti "Masukkan kata sandi Anda" adalah bentuk yang benar.
-                if (preg_match('/type\s*=\s*["\']password["\']/i', $tag)) {
+                if (preg_match('/type\s*=\s*[\'"]password[\'"]/i', $tag)) {
                     continue;
                 }
 

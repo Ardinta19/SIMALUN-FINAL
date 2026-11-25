@@ -2621,3 +2621,121 @@ tanpa scrollbar mendatar, judul tidak terpotong, kartu tidak melewati tepi:
 
 Dijaga `ResponsiveLayoutTest::test_elemen_lebar_tidak_bisa_mendorong_halaman_ke_samping`
 dan `ResponsiveLayoutTest::test_kolom_formulir_admin_sejajar_dari_label`.
+
+---
+
+### 9.60 Sapuan semua peran: tamu, auth, pelanggan, admin
+
+**Cakupan.** Seluruh 82 berkas blade diperiksa, bukan hanya halaman yang
+dilaporkan. Peta layout dan pengaman yang berlaku sekarang:
+
+| Kelompok halaman | Contoh route | Layout / `<head>` | Pengaman luapan |
+| --- | --- | --- | --- |
+| Tamu & pelanggan | `/`, `/katalog/{produk}`, `/keranjang`, `/checkout`, `/sewa…` | `catalog.layout` | `berkah-experience.css` §9.57–9.59 |
+| Pelanggan (mandiri) | `/customer/addresses/create`, `/profile/edit` | `<head>` sendiri + header/nav pelanggan | `berkah-page-shell.css` (baru) |
+| Auth & verifikasi | `/login`, `/register`, `/forgot-password`, `/confirm-password` | `<head>` sendiri atau `layouts/guest` | `berkah-page-shell.css` (baru) |
+| Admin (ber-layout) | `/admin/pesanan`, `/admin/buku-kas`, `/admin/paket`, … | `layouts.admin` | `berkah-admin.css` (§9.60b) |
+| Admin (mandiri) | `/dashboard`, `/admin/notifikasi`, `/admin/profil`, `/admin/audit` | `<head>` sendiri | `berkah-page-shell.css` (baru) |
+| Lembar cetak | `/ringkasan-sewa/{order}`, `/admin/lembar-harian` | `<head>` sendiri | `berkah-page-shell.css`, khusus `@media screen` |
+| Halaman galat | 403/404/413/419/500/503 | `errors.layout` | `berkah-page-shell.css` (baru) |
+
+**a. Kolom tanpa contoh di admin dan pelanggan (16 kolom).**
+Sapuan ulang menemukan isian yang masih benar-benar kosong saat halaman dibuka
+— semuanya di alur kerja admin dan satu di halaman unit pelanggan:
+
+- `rental/admin-detail`: rincian ongkos, alasan melanjutkan (dua tempat), alasan
+  koreksi, nominal + alasan pengembalian dana, alasan penolakan bukti, alasan
+  lanjut tanpa persetujuan, catatan admin pada pratinjau desain, alasan
+  pembatalan.
+- `rental/admin-progress`: catatan perkembangan.
+- `rental/cashbook-fields`: kategori bebas, nominal, catatan.
+- `catalog/admin`: tiga kolom "paket baru" (nama, durasi, harga).
+- `rental/unit`: catatan revisi desain milik pelanggan.
+
+Semua kini berisi contoh konkret, mis. `Contoh: 150000`,
+`Contoh: Pelanggan belum membalas sejak kemarin, pengerjaan dimulai sesuai
+tenggat.`, `Contoh: Tolong ganti pita jadi hitam dan tambahkan nama "Bapak
+Ahmad".`
+
+Contoh isian di halaman auth juga diperjelas (sebelumnya berupa perintah):
+`Nama sesuai identitas` → `Contoh: Sari Wulandari`, `8xxxxxxxxxx` →
+`Contoh: 81234567890`, `Boleh dikosongkan` →
+`Contoh: sari@email.com (opsional)`, `Nama jalan, nomor rumah, RT/RW…` →
+`Contoh: Jl. Merdeka No. 12, RT 03/RW 05, Kel. Talang`, `Warna pagar…` →
+`Contoh: Pagar hijau, sebelah warung Bu Ani`, dan email login menjadi
+`Contoh: nama@email.com atau 081234567890`.
+
+**b. Halaman mandiri punya pengaman sendiri.**
+Enam belas halaman punya `<head>` sendiri sehingga tidak ikut
+`berkah-experience.css`/`berkah-admin.css`. Selama ini satu-satunya penahan
+luapan adalah `overflow-x: hidden` pada `<body>` — yang justru (i)
+menjadikan `<body>` kotak gulir sehingga acuan `position: sticky` (header
+formulir) dan `fixed` (laci admin, navigasi bawah) bergeser, dan (ii) ikut
+diwariskan ke viewport sehingga tidak memotong apa pun.
+
+Berkas baru `public/css/berkah-page-shell.css` (dimuat lewat partial
+`layouts/component/_page_shell.blade.php`) hanya berisi aturan keselamatan,
+tanpa mengubah warna/radius/tipografi:
+
+```css
+@supports (overflow: clip) {
+    @media screen { html { overflow-x: clip; } }
+}
+html, body { max-width: 100%; }
+body { overflow-wrap: break-word; }
+img, video, canvas, iframe { max-width: 100%; }
+:where(main, .page-body, .page-main, .page-shell, .wrap, .container,
+       form, .card, .grid, .row, .adm-field-grid) > * { min-width: 0; }
+:where(.table-wrap, .table-scroll, .adm-scroll-x) { overflow-x: auto; }
+```
+
+Sepuluh halaman yang tadinya `overflow-x: hidden` kini memakai `clip`
+(login, register, dasbor admin, notifikasi, profil, ubah profil, audit, alamat
+buat/ubah, ubah profil pelanggan). `@media screen` menjaga lembar cetak
+(ringkasan pesanan, lembar harian) tidak terpotong saat dicetak.
+
+**c. Area admin ber-layout juga punya pengaman.** `layouts/admin` tidak memuat
+`berkah-experience.css`, jadi `berkah-admin.css` mendapat:
+
+```css
+@supports (overflow: clip) {
+    @media screen { html:has(> body.adm-app) { overflow-x: clip; } }
+}
+.adm-app :where(.adm-content, .adm-toolbar, .adm-field-grid, .adm-card, .adm-stack) > * { min-width: 0; }
+```
+
+**d. Tes penjaga.** `FormPlaceholderTest` kini memindai **seluruh** view (82
+berkas), bukan 14 halaman pilihan: setiap `input`/`textarea` yang tampil
+kosong wajib punya contoh, sedangkan kolom `readonly`, bertipe non-teks, dan
+yang sudah berisi nilai dikecualikan. Tes memotong dulu ekspresi `{{ … }}`
+karena operator `->` membuat regex tag sederhana terpotong di tengah
+(inilah sebabnya versi lama lolos padahal kolomnya kosong).
+`StandalonePageShellTest` (4 tes) menjaga: setiap halaman yang punya
+`<!DOCTYPE` memuat `_page_shell`, tidak ada lagi `overflow-x: hidden`, berkas
+pengaman memuat aturan kuncinya, dan admin ber-layout punya pengaman sendiri.
+
+**e. Temuan yang dilaporkan, belum diubah (butuh keputusan).**
+Lima halaman admin — dasbor, notifikasi, profil, ubah profil, audit — memakai
+`<head>` dan header sendiri (gaya "hero" dengan tombol kembali), sedangkan
+halaman admin lain memakai `layouts.admin` dengan sidebar + topbar. Keduanya
+sudah punya jalan kembali dan sudah dijaga tes; yang berbeda hanya chrome-nya.
+Menyatukannya ke `layouts.admin` berarti menulis ulang ±1.800 baris CSS/JS
+per halaman dan tidak bisa diverifikasi tanpa peramban, jadi menunggu
+persetujuan arah desain.
+`rental/daily-sheet` sengaja tidak memuat `_theme_head` karena hanya dipakai
+untuk dicetak.
+
+**f. Periksa manual per peran** (lebar 320 → 1280, satu halaman per kelompok):
+
+1. Tamu: `/`, `/katalog/{produk}`, `/keranjang`, `/login`, `/register`,
+   `/forgot-password`, 404.
+2. Pelanggan: `/customer/dashboard`, `/sewa`, `/sewa/{order}`,
+   `/checkout`, `/customer/addresses/create`, `/customer/profile`,
+   `/profile/edit`, `/customer/notifications`, `/ringkasan-sewa/{order}`.
+3. Admin: `/dashboard`, `/admin/pesanan`, `/admin/pesanan/{unit}`,
+   `/admin/jadwal`, `/admin/buku-kas`, `/admin/paket`, `/admin/universitas`,
+   `/admin/voucher`, `/admin/pengaturan-pembayaran`, `/admin/audit`,
+   `/admin/profil`, `/admin/notifikasi`, `/admin/lembar-harian`.
+4. Untuk tiap halaman: `scrollWidth == clientWidth` (skrip di §9.59d),
+   judul tidak terpotong, tombol ≥44 px, dan setiap kolom isi memperlihatkan
+   contoh saat kosong.

@@ -4,6 +4,7 @@
 @php $asset = fn (string $path) => asset($path).(file_exists(public_path($path)) ? '?v='.filemtime(public_path($path)) : ''); @endphp
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+@include('layouts.component._page_shell')
 <title>Tambah Alamat · Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 <link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.css') }}?v={{ filemtime(public_path('vendor/leaflet/leaflet.css')) }}">
@@ -35,7 +36,7 @@ body {
     min-height: 100vh;
     min-height: 100dvh;
     padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 
 /* ── HEADER ──────────────────────────── */
