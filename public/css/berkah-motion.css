@@ -51,6 +51,22 @@ html.bk-lenis [data-lenis-prevent] {
     overscroll-behavior: contain;
 }
 
+/* Strip mendatar BUKAN wadah gulir dua sumbu. Vendor lenis.css memasang
+   `overscroll-behavior: contain` pada semua [data-lenis-prevent]; pada strip
+   mendatar (langkah pemesanan, deret kategori, tautan lompat, tabel lebar)
+   aturan itu juga menahan sumbu Y sehingga geser jari yang miring sedikit —
+   atau yang dimulai tepat di atas strip — membuat halaman terasa tidak bisa
+   digulir. Kunci hanya sumbu X-nya; sumbu Y tetap menyambung ke halaman. */
+html.bk-lenis .bk-how,
+html.bk-lenis .bk-category-strip,
+html.bk-lenis .bk-jump div,
+html.bk-lenis .adm-scroll-x,
+html.bk-lenis .bk-table-wrap,
+html.bk-lenis .table-scroll {
+    overscroll-behavior-x: contain;
+    overscroll-behavior-y: auto;
+}
+
 /* ── 2. Lapisan animasi GSAP ────────────────────────────────────────────── */
 [data-bk-reveal],
 [data-bk-reveal-group] > * {
@@ -62,11 +78,20 @@ html.bk-lenis [data-lenis-prevent] {
     will-change: auto;
 }
 
-/* Kartu yang mengikuti kursor butuh konteks 3D sendiri. */
+/* Kartu yang mengikuti kursor butuh konteks 3D sendiri. `will-change`
+   sengaja tidak dipasang di sini: setiap kartu katalog akan menjadi lapisan
+   compositor permanen lengkap dengan fotonya, dan di ponsel itu memakan
+   memori GPU sampai gulir tersendat. Kemiringan hanya hidup pada penunjuk
+   presisi, jadi lapisannya juga hanya di sana. */
 [data-bk-tilt] {
     transform-style: preserve-3d;
-    will-change: transform;
     transition: box-shadow var(--bk-dur-3) var(--bk-ease);
+}
+
+@media (pointer: fine) {
+    [data-bk-tilt]:hover {
+        will-change: transform;
+    }
 }
 
 [data-bk-tilt]:hover {

@@ -7,10 +7,13 @@
 
    Pembagian tugas — masing-masing dipakai sesuai fungsinya:
 
-   · Lenis   → gulir halus berbobot untuk roda mouse, trackpad, dan layar
-               sentuh (syncTouch dengan lerp lebih ringan agar tidak terasa
-               "berat" di ponsel). Otomatis berhenti saat sheet/dialog
-               mengunci gulir (kelas .fc-scroll-lock). Halaman yang ingin
+   · Lenis   → gulir halus berbobot untuk roda mouse dan trackpad. Gulir
+               sentuh sengaja TIDAK diambil alih (syncTouch: false): gestur
+               jari cepat atau miring paling halus bila ditangani peramban
+               sendiri, dan Lenis yang memegang sentuh pernah membuat halaman
+               terasa patah sampai membeku saat mesinnya berhenti sesaat.
+               Otomatis berhenti saat sheet/dialog mengunci gulir (kelas
+               .fc-scroll-lock atau .bk-scroll-frozen). Halaman yang ingin
                gulir asli cukup menandai <html data-bk-no-smooth>.
    · GSAP + ScrollTrigger
              → kemunculan bertahap elemen ([data-bk-reveal],
@@ -69,15 +72,18 @@
     }
 
     /* ── 1. Lenis: gulir halus ────────────────────────────────────────────────
-       Semua perangkat, termasuk layar sentuh. Di sentuh, Lenis memakai
-       syncTouch dengan lerp ringan supaya gulir jari tetap mengikuti jari.
-       Elemen bertanda [data-lenis-prevent] (sheet, tabel bergulir, sidebar)
-       tetap memakai gulir asli. */
+       Hanya roda mouse dan trackpad. Sentuhan dibiarkan sepenuhnya pada
+       peramban (lihat alasan di konfigurasi di bawah). Elemen bertanda
+       [data-lenis-prevent] (sheet, tabel bergulir, sidebar, strip mendatar)
+       tetap memakai gulir aslinya sendiri. */
 
     function scrollLocked() {
         return document.documentElement.classList.contains('fc-scroll-lock')
             || document.body.classList.contains('fc-scroll-lock')
-            || document.documentElement.classList.contains('lenis-stopped-lock');
+            /* Busur menu radial mengunci gulir lewat lenis.stop(); penanda
+               kelas ini dipakai bersama agar pengamat kelas di bawah tidak
+               menyalakan Lenis kembali selagi busur masih terbuka. */
+            || document.documentElement.classList.contains('bk-scroll-frozen');
     }
 
     /* Wadah bergulir sendiri (sidebar admin, tabel lebar, badan dialog) harus
@@ -89,7 +95,7 @@
         '.bk-table-wrap', '.table-scroll',
         /* Strip langkah dan deret chip kategori bergulir mendatar. Tanpa
            penanda ini, roda/trackpad Lenis menahan gulir mendatarnya. */
-        '.bk-how', '.bk-category-strip'
+        '.bk-how', '.bk-category-strip', '.bk-jump div'
     ].join(',');
 
     function markScrollRegions() {
@@ -110,12 +116,16 @@
                 },
                 smoothWheel: true,
                 wheelMultiplier: 1,
-                touchMultiplier: 1.2,
-                /* Sentuh: ikuti jari lebih rapat (lerp kecil) daripada roda
-                   mouse, supaya tidak terasa "melayang" saat menggulir cepat. */
-                syncTouch: true,
-                syncTouchLerp: 0.09,
-                touchInertiaMultiplier: 28,
+                /* Sentuh: biarkan peramban. Bila Lenis ikut memegang gestur
+                   jari (opsi syncTouch), ia mem-preventDefault touchmove lalu
+                   menggulir sendiri memakai selisih jari; saat frame tersendat
+                   (foto besar, animasi masuk) atau saat Lenis dihentikan
+                   sesaat, gestur cepat dan miring jadi terasa patah — dan
+                   karena vendor lenis.css memberi `.lenis-stopped {
+                   overflow: clip }` pada <html>, gulir bisa berhenti sama
+                   sekali. Gulir asli juga menjaga momentum, pantulan, dan
+                   cubit-zoom tetap milik peramban. */
+                syncTouch: false,
                 autoRaf: false
             });
             state.lenis = lenis;
@@ -132,7 +142,10 @@
                     lenis.raf(time * 1000);
                 };
                 window.gsap.ticker.add(state.ticker);
-                window.gsap.ticker.lagSmoothing(0);
+                /* Biarkan GSAP membatasi delta setelah frame tersendat
+                   (500 ms → 33 ms). Tanpa batas, satu frame panjang membuat
+                   Lenis menerima delta besar dan posisi gulir melompat. */
+                window.gsap.ticker.lagSmoothing(500, 33);
             } else {
                 var raf = function (time) {
                     if (state.lenis !== lenis) return;
@@ -150,6 +163,24 @@
             var watcher = new MutationObserver(syncLock);
             watcher.observe(root, { attributes: true, attributeFilter: ['class'] });
             watcher.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+            /* Jaring pengaman. Bila Lenis pernah dihentikan (sheet, busur
+               menu, dialog) lalu tidak pernah dinyalakan kembali, semua gulir
+               ikut mati karena `.lenis-stopped` memasang `overflow: clip` di
+               <html>. Alih-alih membiarkan halaman membeku sampai muat ulang,
+               sentuhan atau klik berikutnya memeriksa keadaan itu sekali. */
+            var reviveIfStuck = function () {
+                if (state.lenis !== lenis) return;
+                if (scrollLocked()) return;
+                try {
+                    if (lenis.isStopped) lenis.start();
+                } catch (error) {
+                    /* Versi Lenis lain: biarkan apa adanya. */
+                }
+            };
+            document.addEventListener('pointerdown', reviveIfStuck, { passive: true });
+            document.addEventListener('touchstart', reviveIfStuck, { passive: true });
+            document.addEventListener('visibilitychange', reviveIfStuck);
 
             /* Tautan jangkar di dalam halaman memakai gulir halus yang sama.
                Tautan "lompat ke isi" tidak disentuh: fokus keyboard harus

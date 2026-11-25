@@ -93,6 +93,40 @@ class MotionAssetsTest extends TestCase
         }
     }
 
+    /** Gulir sentuh adalah milik peramban; Lenis hanya untuk roda/trackpad.
+     *
+     *  `syncTouch: true` membuat Lenis mem-preventDefault touchmove dan
+     *  menggulir sendiri. Akibatnya gestur cepat/miring terasa patah, dan saat
+     *  Lenis dihentikan sesaat vendor lenis.css memasang `overflow: clip` pada
+     *  <html> sehingga halaman tidak bisa digulir sama sekali. */
+    public function test_gulir_sentuh_tetap_milik_peramban(): void
+    {
+        $js = $this->source('js/berkah-motion.js');
+
+        $this->assertStringContainsString('syncTouch: false', $js, 'Gulir sentuh tidak boleh diambil alih Lenis.');
+        $this->assertStringNotContainsString('syncTouch: true', $js);
+
+        // Satu frame panjang tidak boleh menggeser posisi gulir sekaligus.
+        $this->assertStringNotContainsString('lagSmoothing(0)', $js, 'Delta frame harus dibatasi, bukan dibiarkan apa adanya.');
+        $this->assertStringContainsString('lagSmoothing(500, 33)', $js);
+
+        // Kunci gulir busur radial memakai penanda yang sama dengan mesin gerak,
+        // supaya pengamat kelas tidak menyalakan Lenis di tengah animasi.
+        $radial = $this->source('js/berkah-radial.js');
+        $this->assertStringContainsString('bk-scroll-frozen', $radial);
+        $this->assertStringContainsString('bk-scroll-frozen', $js);
+
+        // Strip mendatar tidak boleh menahan sumbu Y: geser miring harus tetap
+        // menggulir halaman.
+        $css = $this->source('css/berkah-motion.css');
+        $this->assertMatchesRegularExpression(
+            '/\.bk-how\b[\s\S]{0,400}overscroll-behavior-y:\s*auto/',
+            $css,
+            'Strip mendatar harus membiarkan sumbu Y menyambung ke halaman.'
+        );
+        $this->assertStringContainsString('overscroll-behavior-x: contain', $css);
+    }
+
     public function test_motion_styles_never_hide_content_without_javascript(): void
     {
         $css = $this->source('css/berkah-motion.css');

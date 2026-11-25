@@ -90,7 +90,7 @@ antara Lenis, GSAP, dan ScrollTrigger, plus **area sentuh 44 px**.
 
 | Pustaka | Berkas | Tugas | Alasan |
 |---|---|---|---|
-| **Lenis 1.3.11** | `public/vendor/lenis/lenis.min.js` + `lenis.css` | Gulir halus berbobot di mouse, trackpad, **dan layar sentuh** (`syncTouch` dengan lerp .09); disinkronkan ke ScrollTrigger; berhenti otomatis saat sheet mengunci gulir. | Gulir adalah interaksi paling sering di semua perangkat. Di sentuh, lerp dibuat lebih rapat supaya gulir jari tidak terasa melayang. |
+| **Lenis 1.3.11** | `public/vendor/lenis/lenis.min.js` + `lenis.css` | Gulir halus berbobot di mouse dan trackpad; disinkronkan ke ScrollTrigger; berhenti otomatis saat sheet mengunci gulir. **Gulir sentuh sengaja tidak diambil alih** (`syncTouch: false`). | Gulir adalah interaksi paling sering di semua perangkat, tetapi gestur jari paling halus bila ditangani peramban: momentum, pantulan, dan cubit-zoom tetap asli, dan halaman tidak bisa membeku ketika mesin gerak berhenti sesaat. Lihat §9.55. |
 | **GSAP 3.15.0** | `public/vendor/gsap/gsap.min.js` | Tween, timeline splash, hitung angka, tekanan tombol berpegas, kemiringan kartu. | Sudah dipakai; tetap mesin utama. |
 | **ScrollTrigger 3.15.0** | `public/vendor/gsap/ScrollTrigger.min.js` | Kemunculan berbasis posisi gulir (`once`), parallax `scrub`, pemicu hitungan. | Satu-satunya cara hemat: hanya elemen yang terlihat yang beranimasi. |
 | **Micro-interaction** | `public/js/berkah-motion.js` | `data-bk-press` (tekanan berpegas), `data-bk-tilt` (kartu katalog), `data-bk-count` (angka), `data-bk-reveal`/`-group` (kemunculan), `data-bk-parallax`. | Perlu, tapi harus punya fungsi: mengarahkan mata, bukan menghibur. |
@@ -185,7 +185,8 @@ pemicu setelah ditutup.
 Berkas yang disentuh pada putaran ini: `public/css/berkah-experience.css`,
 `resources/views/rental/checkout.blade.php`,
 `resources/views/rental/unit.blade.php`, `public/js/berkah-motion.js`
-(syncTouch), `public/css/berkah-motion.css` (token sentuh pindah ke ui-kit),
+(pembagian tugas roda vs sentuh), `public/css/berkah-motion.css` (token sentuh
+pindah ke ui-kit),
 `public/css/berkah-ui-kit.css`.
 
 
@@ -2259,3 +2260,67 @@ pelanggan tidak menabrak batas PHP tanpa penjelasan, checkout membaca
 `upload_max_filesize`/`post_max_size` lewat `App\Support\UploadLimit` dan
 menampilkan peringatan bila server masih lebih ketat; `public/.user.ini` dan
 panduan deploy ikut disamakan.
+
+### 9.55 Gulir terasa "patah" saat digeser cepat atau miring
+
+Laporan: digulir cepat di ponsel, terutama dengan arah miring, halaman kadang
+terasa patah — kadang sama sekali tidak mau bergulir.
+
+Empat sebab yang ditemukan, semuanya di lapisan gulir:
+
+1. **Lenis memegang gestur jari.** `syncTouch: true` membuat Lenis
+   mem-`preventDefault` `touchmove` lalu menggulir sendiri dari selisih jari.
+   Bila peramban sudah memulai gulir aslinya sendiri (umum pada gestur cepat,
+   karena `touchmove` berikutnya menjadi tak-bisa-dibatalkan), dua mesin
+   menggulir bersamaan → posisi saling tarik. Arah miring memperburuknya:
+   peramban memilih satu sumbu, Lenis menghitung sumbu lain.
+2. **Halaman membeku setelah Lenis berhenti.** `lenis.css` bawaan memuat
+   `.lenis-stopped { overflow: clip }` pada `<html>`, dan selama berhenti
+   Lenis juga mem-`preventDefault` sentuhan. Kalau `stop()` pernah terjadi
+   (sheet, dialog, busur menu radial) dan `start()` tidak menyusul, tidak ada
+   satu pun jalur gulir yang tersisa selain muat ulang.
+3. **Strip mendatar menahan sumbu Y.** `lenis.css` memasang
+   `overscroll-behavior: contain` pada semua `[data-lenis-prevent]`, sedangkan
+   `berkah-motion.css` mengulanginya. Strip mendatar (`.bk-how`,
+   `.bk-category-strip`, `.bk-jump div`, tabel lebar) ikut mendapatkannya,
+   sehingga geser jari yang dimulai di atas strip tidak bisa menyambung ke
+   halaman — persis di bagian yang paling sering digulir di katalog.
+4. **Delta frame tidak dibatasi.** `gsap.ticker.lagSmoothing(0)` meneruskan
+   jeda nyata ke Lenis; satu frame panjang membuat posisi gulir melompat ke
+   target alih-alih meluncur.
+
+Perbaikan:
+
+- `berkah-motion.js`: `syncTouch: false` (gulir sentuh milik peramban),
+  `lagSmoothing(500, 33)`, dan jaring pengaman `reviveIfStuck` yang
+  menyalakan kembali Lenis pada sentuhan/klik berikutnya bila ia tertinggal
+  dalam keadaan berhenti sementara tidak ada kunci gulir.
+- Kunci gulir busur radial kini memakai penanda bersama `bk-scroll-frozen`;
+  `berkah-motion.js` menghitungnya di `scrollLocked()` sehingga pengamat kelas
+  tidak menyalakan Lenis di tengah busur terbuka. Penanda mati
+  `lenis-stopped-lock` dibuang.
+- `berkah-motion.css`: strip mendatar hanya mengunci sumbu X
+  (`overscroll-behavior-x: contain` + `overscroll-behavior-y: auto`) sehingga
+  geser miring tetap menggulir halaman; `.bk-jump div` ikut masuk
+  `SCROLL_REGIONS` agar roda mendatar tidak direbut Lenis.
+- `[data-bk-tilt]` tidak lagi memakai `will-change` permanen; lapisan
+  compositor hanya dibuat saat kursor presisi berada di kartu, supaya kartu
+  katalog tidak memakan memori GPU di ponsel.
+
+Yang tetap sama: pengunci gulir sheet (`body.fc-scroll-lock`), gulir halus roda
+di desktop, reveal/parallax berbasis ScrollTrigger, dan seluruh jalur
+`prefers-reduced-motion` serta `saveData`.
+
+Dijaga `MotionAssetsTest::test_gulir_sentuh_tetap_milik_peramban`.
+
+Cara memeriksa di ponsel (Chrome/Safari):
+
+1. Katalog: geser cepat naik-turun berulang kali — tidak boleh ada jeda patah
+   atau posisi yang melompat.
+2. Mulai geser miring ±45° tepat di atas deret chip kategori atau strip
+   "Cara pesan" — halaman harus ikut bergulir, bukan diam.
+3. Buka sheet filter lalu tutup, langsung geser lagi — halaman langsung hidup.
+4. Buka busur menu lalu tutup, lalu geser — gulir kembali normal tanpa perlu
+   muat ulang.
+5. Gulir sampai header berubah menjadi pil ringkas, lanjutkan cepat — pil
+   tetap menempel tanpa membuat gulir tersendat.

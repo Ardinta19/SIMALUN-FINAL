@@ -166,7 +166,12 @@
             items.forEach(item => item.style.setProperty('--p', value));
         };
 
+        /* Penanda kelas dipakai bersama dengan berkah-motion.js: pengamat
+           kelas di sana menyalakan kembali Lenis setiap kali kelas <html>
+           berubah, dan tanpa penanda ini busur yang sedang terbuka bisa
+           kehilangan kunci gulirnya. */
         const freezeScroll = frozen => {
+            document.documentElement.classList.toggle('bk-scroll-frozen', !!frozen);
             const lenis = lenisCore();
             if (!lenis || typeof lenis.stop !== 'function') return;
             try {
