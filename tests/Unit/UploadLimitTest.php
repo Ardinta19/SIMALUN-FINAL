@@ -19,7 +19,7 @@ class UploadLimitTest extends TestCase
         $this->assertSame(1024, UploadLimit::toMegabytes('1G'));
         $this->assertSame(80, UploadLimit::toMegabytes('80M'));
         $this->assertSame(1, UploadLimit::toMegabytes('512K'));
-        $this->assertSame(1, UploadLimit::toMegabytes('2M '), 'Spasi di ujung tidak mengubah nilai.');
+        $this->assertSame(2, UploadLimit::toMegabytes('2M '), 'Spasi di ujung tidak mengubah nilai.');
         $this->assertSame(1, UploadLimit::toMegabytes('1MB'), 'Akhiran B boleh ditulis.');
     }
 
