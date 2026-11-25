@@ -77,6 +77,32 @@ class RentalAddonsTest extends TestCase
         return $units;
     }
 
+    public function test_halaman_panel_item_tambahan_tampil_dan_menjelaskan_aturan(): void
+    {
+        $this->actingAs($this->admin())->get(route('admin.rental.addons.index'))->assertOk()
+            ->assertSee('Item tambahan')
+            ->assertSee('Belum ada item tambahan')
+            ->assertSee('Berlaku untuk semua papan');
+
+        $addon = RentalAddon::create(['name' => 'Lilin', 'price' => 12000]);
+
+        $this->get(route('admin.rental.addons.index'))->assertOk()
+            ->assertSee('Lilin')
+            ->assertSee('Rp 12.000');
+
+        // Item yang sudah dipakai pesanan tidak menampilkan tombol Hapus.
+        $product = $this->product(100000);
+        $this->actingAs($this->customer())->post(route('cart.store', $product), ['quantity' => 1]);
+        $this->post(route('rental.checkout.store'), [
+            'terms' => '1',
+            'units' => $this->unitPayload($product, ['addons' => [$addon->id => 1]]),
+        ])->assertSessionHasNoErrors();
+
+        $this->actingAs($this->admin())->get(route('admin.rental.addons.index'))->assertOk()
+            ->assertSee('Dipakai pesanan')
+            ->assertDontSee('action="'.route('admin.rental.addons.destroy', $addon).'"', false);
+    }
+
     public function test_admin_menambah_item_tambahan_dan_tercatat_di_audit(): void
     {
         Storage::fake('public');
@@ -126,6 +152,36 @@ class RentalAddonsTest extends TestCase
         $unit->refresh();
         $this->assertSame('Lilin', $unit->addons()->firstOrFail()->name);
         $this->assertSame(24000, (int) $unit->addon_amount);
+    }
+
+    public function test_baris_item_tambahan_tampil_di_halaman_unit_tanpa_voucher(): void
+    {
+        $product = $this->product(100000);
+        $addon = RentalAddon::create(['name' => 'Lilin', 'price' => 12000]);
+        $this->actingAs($this->customer())->post(route('cart.store', $product), ['quantity' => 1]);
+        $this->post(route('rental.checkout.store'), [
+            'terms' => '1',
+            'units' => $this->unitPayload($product, ['addons' => [$addon->id => 2]]),
+        ])->assertSessionHasNoErrors();
+
+        $unit = RentalOrderUnit::firstOrFail();
+        $order = $unit->order;
+
+        // Tanpa voucher: baris tetap tampil (dulu tidak sengaja terkunci oleh
+        // blok potongan), dan tulisan jumlahnya baku "Nama × 2".
+        $this->assertSame(0, $unit->totalDiscount());
+        $this->assertSame('Lilin × 2', $unit->addons->first()->label());
+
+        $this->actingAs($order->customer)
+            ->get(route('rental.orders.unit', [$order, $unit]))
+            ->assertOk()
+            ->assertSee('Item tambahan')
+            ->assertSee('Lilin × 2')
+            ->assertSee('Rp 24.000');
+
+        // Jumlah 1 ditulis tanpa pengali.
+        $unit->addons()->first()->update(['quantity' => 1]);
+        $this->assertSame('Lilin', $unit->addons()->first()->label());
     }
 
     public function test_item_tambahan_nonaktif_dan_jumlah_berlebih_ditolak(): void

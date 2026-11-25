@@ -42,7 +42,7 @@
     <p><strong>{{ ['pending'=>'Menunggu konfirmasi', 'confirmed'=>'Dikonfirmasi', 'cancelled'=>'Dibatalkan'][$unit->status] ?? $unit->status }}</strong></p>
     <p>@if($unit->starts_on->isSameDay($unit->event_on)) Acara dan penerimaan: {{ $unit->event_on->format('d/m/Y') }} @else Penerimaan: {{ $unit->starts_on->format('d/m/Y') }} · Acara: {{ $unit->event_on->format('d/m/Y') }} @endif · Pengembalian: {{ $unit->ends_on->format('d/m/Y') }}</p>
     <p class="muted">Penerima: {{ $unit->recipient_name }}</p>
-    @if($unit->addons->isNotEmpty())<p class="muted">Item tambahan: {{ $unit->addons->map(fn ($addon) => $addon->quantity.'× '.$addon->name)->implode(', ') }} · Rp {{ number_format((int) $unit->addon_amount, 0, ',', '.') }}</p>@endif
+    @if($unit->addons->isNotEmpty())<p class="muted">Item tambahan: {{ $unit->addons->map(fn ($addon) => $addon->label())->implode(', ') }} · Rp {{ number_format((int) $unit->addon_amount, 0, ',', '.') }}</p>@endif
     @if($unit->status === 'pending')<p class="muted">Menunggu konfirmasi admin. Tanggal sudah ditahan sampai tenggat konfirmasi.</p>
     @elseif($unit->status === 'cancelled')<p class="muted">Unit dibatalkan; buka detail untuk melihat tindak lanjut.</p>
     @else

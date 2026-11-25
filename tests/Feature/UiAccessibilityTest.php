@@ -397,6 +397,48 @@ class UiAccessibilityTest extends TestCase
         $this->assertSame([], $offenders, 'Aset tanpa pemakai: '.implode(', ', $offenders));
     }
 
+    /** Setiap ekspresi Blade harus bisa diurai PHP.
+     *
+     *  `php -l` tidak memeriksa isi `{{ }}`: template baru dikompilasi saat
+     *  halaman diminta, jadi kurung yang kurang baru muncul sebagai 500 di
+     *  tes halaman — bukan saat berkas disimpan. Tokenizer dengan flag
+     *  TOKEN_PARSE memberi pemeriksaan sintaks tanpa menjalankan kode. */
+    public function test_semua_ekspresi_blade_bisa_diurai(): void
+    {
+        $offenders = [];
+
+        foreach ($this->viewFiles() as $file) {
+            // Komentar tidak pernah dikompilasi menjadi PHP.
+            $source = preg_replace('/\{\{--.*?--\}\}/s', '', $this->read($file)) ?? '';
+
+            preg_match_all('/\{\{(.*?)\}\}/s', $source, $echoed);
+            preg_match_all('/\{!!(.*?)!!\}/s', $source, $raw);
+            preg_match_all('/@php(.*?)@endphp/s', $source, $blocks);
+
+            $snippets = [];
+
+            // `{{ }}` dikompilasi menjadi echo yang sudah di-escape.
+            foreach (array_merge($echoed[1], $raw[1]) as $expression) {
+                $snippets[] = 'echo ('.$expression.');';
+            }
+
+            foreach ($blocks[1] as $block) {
+                $snippets[] = $block;
+            }
+
+            foreach ($snippets as $snippet) {
+                try {
+                    token_get_all('<?php '.$snippet, TOKEN_PARSE);
+                } catch (\ParseError $error) {
+                    $offenders[] = $this->relative($file).': '.$error->getMessage();
+                    break;
+                }
+            }
+        }
+
+        $this->assertSame([], $offenders, 'Ekspresi Blade tidak bisa diurai: '.implode(' | ', $offenders));
+    }
+
     /** Form checkout mengirim berkas: tanpa enctype, foto referensi tidak
      *  pernah sampai ke server walau inputnya ada. */
     public function test_form_checkout_siap_mengunggah_foto_referensi(): void

@@ -2227,3 +2227,23 @@ Rincian alur, tabel, dan batas perilaku ada di
 **Istilah ikut dirapikan:** menu admin "Audit trail" → **Jejak audit** (di
 `AdminNav` dan kartu menu profil admin), sesuai tabel istilah `docs/kl/i18n.md`
 yang sudah lebih dulu menetapkan "jejak audit".
+
+### 9.54 Penjaga sintaks ekspresi Blade
+
+Satu ekspresi di `rental/unit.blade.php` kehilangan satu kurung tutup pada
+`map(...)->implode(...)`. Karena Blade baru mengompilasi view saat halaman
+diminta, `php -l` pada sumbernya tetap bersih dan pemeriksaan statis tidak
+menangkapnya — yang muncul justru `ParseError` pada view terkompilasi dan
+halaman 500.
+
+Penjaga baru `UiAccessibilityTest::test_semua_ekspresi_blade_bisa_diurai`
+memindai semua view dan mengumpankan isi `{{ }}`, `{!! !!}`, serta blok `@php`
+ke `token_get_all(..., TOKEN_PARSE)`; galat menyebut nama berkas (pemisah path
+dinormalkan agar sama di Windows dan Linux). Penjaga ini terbukti menangkap
+kesalahan tersebut saat diuji dengan menyuntikkan ulang bug yang sama, lalu
+dikembalikan.
+
+Ikut dirapikan: tulisan item tambahan kini seragam di semua halaman
+(`Lilin × 2`, jumlah 1 tanpa pengali) lewat `RentalOrderUnitAddon::label()`, dan
+baris item di halaman unit dipindahkan keluar dari blok potongan voucher agar
+tetap tampil pada pesanan tanpa voucher.

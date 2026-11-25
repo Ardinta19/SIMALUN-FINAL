@@ -77,10 +77,29 @@ hangat, jadi tema gelap tidak perlu tambalan tambahan, dan sasaran ketuk tetap
 
 ## Pengujian
 
-`tests/Feature/RentalAddonsTest.php` (7 tes): pembuatan item oleh admin + jejak
+`tests/Feature/RentalAddonsTest.php` (8 tes): pembuatan item oleh admin + jejak
 audit, harga masuk tagihan & tersalin, penolakan item nonaktif dan jumlah >5,
 larangan hapus item terpakai, penyimpanan foto (batas 5), hak akses foto, serta
-tampilan di halaman pelanggan dan admin.
+tampilan di halaman pelanggan dan admin — termasuk render halaman panel admin
+(kosong, terisi, dan chip "Dipakai pesanan" yang menyembunyikan tombol Hapus).
 
 `UiAccessibilityTest::test_form_checkout_siap_mengunggah_foto_referensi` menjaga
 `enctype`, atribut `multiple`, dan tinggi sasaran ketuk kontrol jumlah.
+
+### Tulisan baku item tambahan
+
+Semua halaman memakai satu bentuk: **nama**, lalu ` × jumlah` hanya bila jumlah
+lebih dari satu — `Lilin`, `Lilin × 2`. Sumber tunggalnya
+`RentalOrderUnitAddon::label()`; halaman unit, ringkasan cetak, detail pesanan
+pelanggan, dan detail pesanan admin memanggil fungsi itu, sehingga tidak ada lagi
+tiga variasi (`2× Lilin`, `Lilin × 2`, `Lilin × 1`). Baris item di halaman unit
+sengaja berada **di luar** blok potongan voucher: harga item tetap terlihat
+walau pesanan tanpa voucher.
+
+`UiAccessibilityTest::test_semua_ekspresi_blade_bisa_diurai` menyapu seluruh
+`resources/views`: setiap `{{ }}`, `{!! !!}`, dan blok `@php` diumpankan ke
+`token_get_all(..., TOKEN_PARSE)`. Ini menutup celah yang tidak terlihat oleh
+`php -l` — template hanya dikompilasi saat halaman diminta, sehingga kurung yang
+kurang baru muncul sebagai galat 500 di tes halaman. Pesannya menyebut nama
+berkas view, contoh: `resources/views/rental/unit.blade.php: syntax error,
+unexpected token ";"`.

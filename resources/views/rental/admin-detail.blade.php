@@ -195,7 +195,7 @@
                 @if($unit->addons->isNotEmpty())
                     <ul style="margin:12px 0 0 18px">
                         @foreach($unit->addons as $addon)
-                            <li>{{ $addon->quantity }}× {{ $addon->name }} · Rp {{ number_format($addon->total, 0, ',', '.') }}</li>
+                            <li>{{ $addon->label() }} · Rp {{ number_format($addon->total, 0, ',', '.') }}</li>
                         @endforeach
                     </ul>
                 @endif
