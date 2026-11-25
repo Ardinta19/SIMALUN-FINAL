@@ -86,9 +86,11 @@ class RentalAddonsTest extends TestCase
 
         $addon = RentalAddon::create(['name' => 'Lilin', 'price' => 12000]);
 
+        // Selama belum dipakai, tombol Hapus tersedia (form _method DELETE).
         $this->get(route('admin.rental.addons.index'))->assertOk()
             ->assertSee('Lilin')
-            ->assertSee('Rp 12.000');
+            ->assertSee('Rp 12.000')
+            ->assertSee('value="DELETE"', false);
 
         // Item yang sudah dipakai pesanan tidak menampilkan tombol Hapus.
         $product = $this->product(100000);
@@ -98,9 +100,12 @@ class RentalAddonsTest extends TestCase
             'units' => $this->unitPayload($product, ['addons' => [$addon->id => 1]]),
         ])->assertSessionHasNoErrors();
 
+        // URL ubah dan hapus sama (/item-tambahan/{id}); pembeda form hapus
+        // adalah _method DELETE. Saat item sudah dipakai, itu harus hilang.
         $this->actingAs($this->admin())->get(route('admin.rental.addons.index'))->assertOk()
             ->assertSee('Dipakai pesanan')
-            ->assertDontSee('action="'.route('admin.rental.addons.destroy', $addon).'"', false);
+            ->assertSee('Ubah item')
+            ->assertDontSee('value="DELETE"', false);
     }
 
     public function test_admin_menambah_item_tambahan_dan_tercatat_di_audit(): void
@@ -306,6 +311,6 @@ class RentalAddonsTest extends TestCase
 
         $this->actingAs($this->admin())->get(route('admin.rental.orders.show', $order))->assertOk()
             ->assertSee('Foto referensi desain')
-            ->assertSee('3× Pita emas');
+            ->assertSee('Pita emas × 3');
     }
 }
