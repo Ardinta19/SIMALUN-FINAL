@@ -306,7 +306,7 @@ return [
             'image' => 'Berkas harus berupa gambar.',
             'mimes' => 'Format foto harus JPG, PNG, atau WebP.',
             'uploaded' => 'Foto gagal diunggah. Coba unggah ulang dengan ukuran lebih kecil.',
-            'max' => 'Ukuran tiap foto maksimal 5 MB.',
+            'max' => 'Ukuran tiap foto maksimal 25 MB.',
         ],
     ],
 ];

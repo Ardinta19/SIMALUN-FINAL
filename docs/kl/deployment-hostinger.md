@@ -229,6 +229,22 @@ hPanel → **Cron Jobs** → tambah (sekali, tiap menit):
 
 ---
 
+### 13b. Batas unggah foto referensi
+
+Foto referensi desain di checkout boleh sampai **25 MB per foto (60 MB total,
+maksimal 5 foto)**. Hostinger memakai PHP-FPM/LiteSpeed, jadi `public/.user.ini`
+di repo sudah cukup:
+
+```ini
+upload_max_filesize = 30M
+post_max_size = 80M
+max_file_uploads = 10
+```
+
+Bila panel Hostinger punya menu *PHP Configuration*, samakan nilainya di sana
+dan pastikan `post_max_size` lebih besar dari total unggahan. Halaman checkout
+akan memberi tahu pelanggan bila batas server masih lebih kecil.
+
 ## Bagian B — Shared Premium (tanpa SSH)
 
 Tanpa SSH, Composer tidak bisa jalan di server. Workflow-nya:

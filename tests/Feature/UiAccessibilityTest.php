@@ -449,6 +449,7 @@ class UiAccessibilityTest extends TestCase
         $this->assertStringContainsString('name="reference_images[]"', $view);
         $this->assertStringContainsString('accept="image/jpeg,image/png,image/webp"', $view);
         $this->assertMatchesRegularExpression('/name="reference_images\[\]"[^>]*multiple/', $view, 'Foto referensi harus bisa lebih dari satu.');
+        $this->assertStringContainsString('25 MB per foto', $view, 'Petunjuk batas ukuran harus sama dengan aturan validasi (max:25600).');
 
         // Kontrol jumlah item tambahan tetap setinggi sasaran ketuk.
         $css = $this->read(public_path('css/berkah-experience.css'));

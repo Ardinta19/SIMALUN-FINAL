@@ -162,6 +162,25 @@ atau provider lain. Reload Nginx setelah edit:
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
+## 2b. Batas unggah PHP (foto referensi desain)
+
+Checkout menerima sampai **5 foto referensi, 25 MB per foto, 60 MB total**.
+PHP punya batasnya sendiri; bila lebih kecil, berkas besar dibuang sebelum
+sampai ke validasi Laravel sehingga pelanggan hanya melihat galat 413/500.
+Samakan `php.ini` dengan kebutuhan aplikasi:
+
+```ini
+upload_max_filesize = 30M
+post_max_size = 80M
+max_file_uploads = 10
+```
+
+Di PHP-FPM/CGI, berkas `public/.user.ini` (sudah disertakan di repo) memuat
+nilai yang sama, jadi biasanya tidak perlu menyentuh `php.ini`. Dengan Apache
+`mod_php` `.user.ini` diabaikan — atur langsung di `php.ini` lalu mulai ulang
+web server. Halaman checkout membaca batas server ini dan menampilkan
+peringatan bila masih di bawah 25 MB.
+
 ## 3. OPcache
 
 Edit `/etc/php/8.4/fpm/conf.d/10-opcache.ini` (path bisa beda di distro

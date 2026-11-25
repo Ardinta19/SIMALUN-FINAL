@@ -79,7 +79,8 @@ class RentalOrderController extends Controller
             'units.*.addons.*' => ['nullable', 'integer', 'min:0', 'max:5'],
             // Foto referensi desain: per pesanan, bukan per unit.
             'reference_images' => ['nullable', 'array', 'max:5'],
-            'reference_images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            // 25 MB per foto: cukup untuk JPEG kamera DSLR/ponsel kelas atas.
+            'reference_images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:25600'],
             'voucher_code' => ['nullable', 'string', 'max:40'],
         ]);
         if (count($cart) !== count($data['units']) || array_diff(array_keys($cart), array_keys($data['units']))) {
@@ -128,6 +129,10 @@ class RentalOrderController extends Controller
         // menghasilkan duplikat. Bila pesanan sudah ada (kirim ulang), berkas
         // baru dibuang lagi di bawah.
         $referenceFiles = array_values(array_filter((array) $request->file('reference_images', [])));
+        // Batas total menjaga satu permintaan checkout tetap wajar untuk
+        // php.ini dan kuota disk, walau tiap foto boleh sampai 25 MB.
+        $totalReferenceBytes = array_sum(array_map(fn ($file) => $file->getSize(), $referenceFiles));
+        if ($totalReferenceBytes > 60 * 1024 * 1024) throw ValidationException::withMessages(['reference_images' => 'Total ukuran foto referensi maksimal 60 MB. Perkecil foto atau unggah lebih sedikit.']);
         $storedReferences = [];
         foreach ($referenceFiles as $file) {
             $path = $file->store('rental-references', 'local');

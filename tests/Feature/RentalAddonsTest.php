@@ -220,11 +220,60 @@ class RentalAddonsTest extends TestCase
         ]))->assertSessionHasErrors();
         $this->assertStringContainsString('Berkas harus berupa gambar.', $this->errorText());
 
+        // 25 MB per foto: 6 MB sudah boleh, 26 MB ditolak.
         $this->post(route('rental.checkout.store'), $payload([
-            UploadedFile::fake()->create('besar.jpg', 6000, 'image/jpeg'),
+            UploadedFile::fake()->create('besar.jpg', 26000, 'image/jpeg'),
         ]))->assertSessionHasErrors();
-        $this->assertStringContainsString('Ukuran tiap foto maksimal 5 MB.', $this->errorText());
+        $this->assertStringContainsString('Ukuran tiap foto maksimal 25 MB.', $this->errorText());
         $this->assertStringNotContainsString('reference_images', $this->errorText());
+    }
+
+    public function test_total_ukuran_foto_referensi_dibatasi_60_mb(): void
+    {
+        $product = $this->product(100000);
+        $this->actingAs($this->customer())->post(route('cart.store', $product), ['quantity' => 1]);
+
+        // Tiap foto lolos batas 25 MB, tetapi jumlahnya melewati batas total.
+        $tiga = [];
+        for ($i = 1; $i <= 3; $i++) {
+            $tiga[] = UploadedFile::fake()->create('foto-'.$i.'.jpg', 24000, 'image/jpeg');
+        }
+
+        $this->post(route('rental.checkout.store'), [
+            'terms' => '1',
+            'units' => $this->unitPayload($product),
+            'reference_images' => $tiga,
+        ])->assertSessionHasErrors();
+
+        $this->assertStringContainsString('Total ukuran foto referensi maksimal 60 MB.', $this->errorText());
+        $this->assertSame(0, RentalOrder::count(), 'Pesanan tidak boleh dibuat saat unggahan ditolak.');
+        $this->assertSame(0, RentalOrderReference::count());
+    }
+
+    public function test_foto_referensi_berukuran_besar_diterima_di_bawah_batas(): void
+    {
+        Storage::fake('local');
+        $product = $this->product(100000);
+        $this->actingAs($this->customer())->post(route('cart.store', $product), ['quantity' => 1]);
+
+        $this->post(route('rental.checkout.store'), [
+            'terms' => '1',
+            'units' => $this->unitPayload($product),
+            'reference_images' => [UploadedFile::fake()->create('foto.jpg', 20000, 'image/jpeg')],
+        ])->assertSessionHasNoErrors()->assertRedirect();
+
+        $reference = RentalOrderReference::firstOrFail();
+        Storage::disk('local')->assertExists($reference->image_path);
+    }
+
+    public function test_halaman_galat_413_memakai_bahasa_indonesia(): void
+    {
+        // Dipakai ketika PHP membuang unggahan karena post_max_size. Tanpa
+        // halaman ini pelanggan melihat galat bawaan tanpa petunjuk apa pun.
+        $this->view('errors.413')
+            ->assertSee('Unggahan Terlalu Besar')
+            ->assertSee('Perkecil foto')
+            ->assertSee('Kembali ke Keranjang');
     }
 
     public function test_baris_item_tambahan_tampil_di_halaman_unit_tanpa_voucher(): void

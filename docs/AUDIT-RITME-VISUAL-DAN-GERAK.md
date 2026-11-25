@@ -2252,3 +2252,10 @@ Pesan galat item tambahan dan foto referensi kini berbahasa Indonesia penuh
 (`lang/id/validation.php`), dan batas "5 jenis item per unit" yang sebelumnya
 hanya tertulis di dokumentasi kini benar-benar ditolak server dengan pesan
 per unit.
+
+Batas foto referensi dinaikkan dari 5 MB menjadi **25 MB per foto** (total 60 MB
+per pesanan) karena foto kamera ponsel/DSLR modern sering 8–20 MB. Agar
+pelanggan tidak menabrak batas PHP tanpa penjelasan, checkout membaca
+`upload_max_filesize`/`post_max_size` lewat `App\Support\UploadLimit` dan
+menampilkan peringatan bila server masih lebih ketat; `public/.user.ini` dan
+panduan deploy ikut disamakan.

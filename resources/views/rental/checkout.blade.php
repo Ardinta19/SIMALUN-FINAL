@@ -72,8 +72,17 @@
 <section class="card body" id="checkout-references">
 <h2>Foto referensi desain</h2>
 <p class="muted">Punya contoh desain? Unggah sampai lima foto — satu contoh gambar sering lebih jelas daripada deskripsi. Foto berlaku untuk seluruh pesanan, bukan per unit.</p>
-<label for="reference-images">Foto contoh <span class="bk-muted-mark">(opsional)</span><input id="reference-images" type="file" name="reference_images[]" accept="image/jpeg,image/png,image/webp" multiple aria-describedby="reference-images-hint"></label>
-<p class="muted" id="reference-images-hint">JPG, PNG, atau WebP. Maksimal 5 foto, 5 MB per foto. Foto hanya dikirim ke admin, tidak ditampilkan publik.</p>
+@php
+    // Batas server bisa lebih kecil dari batas aplikasi (25 MB); beri tahu
+    // pelanggan sebelum mereka memilih berkas yang akan ditolak PHP.
+    $serverUploadMb = \App\Support\UploadLimit::effectiveMegabytes();
+    $serverUploadTight = $serverUploadMb > 0 && $serverUploadMb < 25;
+@endphp
+<label for="reference-images">Foto contoh <span class="bk-muted-mark">(opsional)</span><input id="reference-images" type="file" name="reference_images[]" accept="image/jpeg,image/png,image/webp" multiple aria-describedby="reference-images-hint{{ $serverUploadTight ? ' reference-images-server-hint' : '' }}"></label>
+<p class="muted" id="reference-images-hint">JPG, PNG, atau WebP. Maksimal 5 foto, 25 MB per foto, dan 60 MB untuk seluruh foto. Foto hanya dikirim ke admin, tidak ditampilkan publik.</p>
+@if($serverUploadTight)
+<p class="muted" id="reference-images-server-hint">Server ini masih membatasi unggahan sekitar {{ $serverUploadMb }} MB per berkas. Bila fotomu lebih besar, perkecil dulu di galeri ponsel atau aplikasi penyunting foto.</p>
+@endif
 @error('reference_images')<p class="bk-field-error" id="reference-images-error">{{ $message }}</p>@enderror
 @error('reference_images.*')<p class="bk-field-error" id="reference-images-item-error">{{ $message }}</p>@enderror
 </section>

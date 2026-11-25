@@ -38,7 +38,8 @@ lama. Item yang sudah dipakai pesanan tidak bisa dihapus — panel menyarankan
    keterangan, foto (opsional), dan urutan tampil.
 2. Pelanggan membuka checkout: setiap unit punya bagian **Item tambahan** berisi
    kotak jumlah 0–5 per item; bagian **Foto referensi desain** (satu untuk seluruh
-   pesanan) menerima sampai 5 berkas JPG/PNG/WebP maksimal 5 MB per berkas.
+   pesanan) menerima sampai 5 berkas JPG/PNG/WebP maksimal **25 MB per berkas**
+   dan **60 MB untuk seluruhnya**.
 3. Saat dikirim, server memeriksa ulang: item harus masih aktif, jumlah 0–5,
    harga dihitung ulang dari katalog yang dikunci (`lockForUpdate`), lalu
    `addon_amount` dan baris salinan dibuat dalam transaksi yang sama dengan unit.
@@ -94,13 +95,22 @@ tampilan di halaman pelanggan dan admin — termasuk render halaman panel admin
 | Jumlah tiap item 0–5 | aturan `integer\|min:0\|max:5` | `Jumlah tiap item tambahan maksimal 5.` |
 | Maksimal 5 foto per pesanan | aturan `array\|max:5` | `Maksimal 5 foto referensi.` |
 | Format foto JPG/PNG/WebP | `image` + `mimes` | `Berkas harus berupa gambar.` / `Format foto harus JPG, PNG, atau WebP.` |
-| Ukuran foto ≤5 MB | `max:5120` | `Ukuran tiap foto maksimal 5 MB.` |
+| Ukuran tiap foto ≤25 MB | `max:25600` | `Ukuran tiap foto maksimal 25 MB.` |
+| Total foto ≤60 MB | `RentalOrderController::store` (jumlah ukuran berkas) | `Total ukuran foto referensi maksimal 60 MB. Perkecil foto atau unggah lebih sedikit.` |
 
 Batas jenis diperiksa secara manual (bukan `max` pada array) supaya pesannya
 menyebut unit yang salah, bukan nama field teknis `units.1.addons`. Semua pesan
 berada di `lang/id/validation.php` (`custom` + `attributes`), sehingga tidak ada
 lagi teks bawaan berbahasa Inggris atau nama kunci mentah di layar pelanggan.
 Petunjuk batas juga ditulis di halaman checkout.
+
+**Batas PHP.** Laravel hanya bisa menilai berkas yang berhasil masuk; bila
+`upload_max_filesize`/`post_max_size` di `php.ini` lebih kecil, PHP membuang
+berkasnya lebih dulu. Karena itu `App\Support\UploadLimit` membaca kedua nilai
+itu (termasuk singkatan `2M`/`512K`/`1G`), dan checkout menampilkan peringatan
+bila batas server masih di bawah 25 MB. `public/.user.ini` menyetel 30 MB per
+berkas dan 80 MB per permintaan; pada Apache `mod_php` berkas itu diabaikan,
+jadi nilai yang sama perlu diatur di `php.ini` (lihat `docs/kl/deployment.md`).
 
 ### Tulisan baku item tambahan
 
