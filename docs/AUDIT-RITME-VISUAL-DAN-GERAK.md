@@ -820,7 +820,7 @@ tautan di bilah sisi admin versi gelap, dan rupa kotak centang yang berbeda-beda
 | Kiriman | Sudah ada di | Catatan |
 |---|---|---|
 | Gooey radial menu (Lucas Bebber) | `customer/_radial_customer.blade.php` + `_navbar_customer.blade.php` | Empat tujuan dalam busur, latar `feGaussianBlur`+`feColorMatrix` (`#bk-menu-goo`), `<details>` sehingga tetap jalan tanpa JS — **diperbarui §9.26:** gumpalan goo disembunyikan karena terbaca sebagai “latar”, elemen beserta `id="bk-menu-goo"` tetap ada |
-| Pill nav / liquid glass / pill ringkas saat digulir | `berkah-experience.css` `.bk-header`, `.bk-header.is-compact`, `berkah-experience.js` (`scrollY > 180`) | Kaca + blur, pil mengambang, keadaan ringkas menahan tombol tema |
+| Pill nav / liquid glass / pill ringkas saat digulir | `berkah-experience.css` `.bk-header`, `.bk-header.is-compact`, `berkah-experience.js` (`headerExitPoint`, §9.57) | Kaca + blur, pil mengambang, keadaan ringkas menahan tombol tema |
 | Tambah ke keranjang (label + progress) | `.bk-atc`, `.bk-atc__bar`, `berkah-ui-kit.js` (`is-loading`/`is-added`) | Label panjang→pendek, bar progress, status `aria-busy` |
 | Tombol auth beranimasi huruf | `.bk-auth` (+ `__chars--a/b`, `__outline`, `__wrap`) | Dipakai `auth/login` & `auth/register`; palet mengikuti merek, bukan biru |
 | Tombol hapus melebar | `.bk-del` (ikon → teks saat hover/fokus) | Dipakai `catalog/cart.blade.php` |
@@ -2359,3 +2359,81 @@ Pengaman:
    apa adanya.
 
 Dijaga `ResponsiveLayoutTest::test_header_morphs_between_full_navbar_and_compact_pill`.
+
+### 9.57 Zona mati header, morph saat gulir cepat, dan ikon menu
+
+Empat keluhan setelah morph 9.56, satu akar per keluhan.
+
+**a. Selama ±94 px gulir tidak ada header sama sekali.**
+`syncHeader` memakai ambang tetap `window.scrollY > 180`, padahal tepi bawah
+navbar penuh (`.bk-header-space` 96 px, header 70 px di `top:16px`) sudah lewat
+dari atas layar pada ±86 px. Di antara 86 px dan 180 px navbar sudah pergi dan
+pil belum lahir — persis jeda "navbar tidak terlihat" yang dilaporkan.
+
+Ambang sekarang diturunkan dari kotak header itu sendiri:
+
+- `headerExitPoint()` mengukur `rect.bottom + window.scrollY` **hanya saat
+  header masih penuh**. Setelah ringkas/pinned header `fixed`, dan `rect`-nya
+  tidak lagi mencerminkan posisi dokumen; nilai itu di-cache.
+- `compactAt()` = titik keluar − 2 px (pil muncul begitu tepi bawah navbar
+  lewat), `expandAt()` = titik keluar − 10 px (histeresis 8 px supaya pil tidak
+  berkedip ketika gulir berhenti tepat di ambang). Saat resize cache dibuang.
+- Handler scroll dijadwalkan satu kali per frame (`queueHeaderSync` +
+  `requestAnimationFrame`), jadi bacaan `getBoundingClientRect` tidak memaksa
+  tata letak ulang puluhan kali per frame.
+
+**b. Gulir cepat bolak-balik terasa patah / menunggu.**
+Dua sumber:
+
+1. Lenis memakai `duration: 1.05` dengan easing eksponensial. Setiap putaran
+   roda memulai tween baru yang panjang, sehingga halaman selalu tertinggal di
+   belakang jari dan gulir cepat berulang terasa menunggu tween selesai.
+   Sekarang `lerp: 0.1`: target dikejar proporsional — respons pertama langsung
+   terasa, sisa jarak menyusul makin cepat, tanpa antrean tween.
+2. Morph beruntun. Gulir cepat memicu `is-compact` ⇄ penuh dalam hitungan
+   milidetik; tween yang saling menyusul membuat header tertinggal dan bisa
+   menahan ukuran inline lama. `morphStamp` mencatat morph terakhir: bila morph
+   berikutnya datang dalam 320 ms, tween dibatalkan, ukuran inline dibersihkan,
+   dan kelas dipasang langsung. Selama `--morphing`, `backdrop-filter` dilepas
+   (kaca 18 px harus digambar ulang setiap frame dan itu mahal di ponsel;
+   latarnya sudah 94% pekat) dan `transition: top` dimatikan karena posisi
+   dipegang tween.
+
+FLIP kini juga menutup **posisi**, bukan hanya ukuran: `x/y` dari selisih
+`getBoundingClientRect()` sebelum/sesudah kelas berubah, dengan
+`xPercent: -50` untuk mengembalikan `translateX(-50%)` milik CSS yang ditimpa
+GSAP. Tanpa itu header melawan 70 px saat berganti `absolute` ⇄ `fixed` tepat
+di tepi atas layar. `clearProps` membersihkan `width,height,transform`.
+
+**c. Ikon garis-3 tampak tidak simetris.**
+Geometri Lucide `menu` simetris (`M4 5h16`, `M4 12h16`, `M4 19h16`). Pemindaian
+piksel pil ringkas menunjukkan tiga garis berjarak sama (7 px pada 22 px) dan
+berpusat vertikal, tetapi **berpusat 11 px di kanan pusat lingkaran** — ikon
+menempel ke tepi kanan tombol. Penyebabnya tata letak wadah: kotak ikon adalah
+grid kecil di dalam `<summary>`, dan ikon 22 px diskalakan 0,917 sehingga
+goresan 2 px jatuh di piksel pecahan (garis tengah terbaca 1 px lebih panjang).
+
+Perbaikan di `_radial_customer.blade.php`:
+
+- `.customer-radial__trigger` menjadi kotak tombol itu sendiri: `position:
+  absolute` dengan empat sisi `0`, `width/height: auto`, `display: flex` +
+  `align-items/justify-content: center`. Tidak ada jalur tata letak yang bisa
+  menggesernya lagi.
+- `.customer-radial__face` memakai empat sisi eksplisit + flex center (bukan
+  `inset: 0` + grid).
+- Ikon digambar pada **24 px** (kelipatan bulat viewBox 24) sehingga garis
+  2 px jatuh di piksel bulat: tiga garis sama panjang, sama jarak, sama tebal.
+- Override `width: 44px/100%` pada trigger dihapus — ukuran itu membuat kotak
+  ikon melewati padding `<summary>` dan menggeser ikon 1 px.
+
+**d. Scrollbar mendatar di halaman pelanggan.**
+Dekorasi (bunga besar, pita, strip) bisa lebih lebar dari kolomnya; tanpa batas
+peramban menampilkan scrollbar mendatar dan seluruh halaman bisa digeser
+sedikit ke kiri — pil header ikut bergeser. `body.bk-experience{overflow-x:
+clip}` memotong luapan itu tanpa menjadikan `<body>` kotak gulir (berbeda dari
+`hidden`), jadi `position: sticky` dan Lenis tetap bekerja.
+
+Dijaga `ResponsiveLayoutTest::test_header_never_disappears_between_full_navbar_and_pill`,
+`::test_radial_menu_icon_sits_in_the_middle_of_its_button`,
+`::test_customer_pages_cannot_scroll_sideways`, dan
+`MotionAssetsTest::test_gulir_roda_memakai_lerp_bukan_durasi_tetap`.

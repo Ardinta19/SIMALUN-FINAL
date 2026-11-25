@@ -127,6 +127,21 @@ class MotionAssetsTest extends TestCase
         $this->assertStringContainsString('overscroll-behavior-x: contain', $css);
     }
 
+    /** Gulir roda mengikuti jari, bukan menunggu satu tween selesai.
+     *
+     *  Dengan `duration: 1.05` setiap putaran roda memulai tween baru yang
+     *  panjang, jadi halaman selalu tertinggal dan gulir cepat berulang
+     *  terasa seperti menunggu loading. `lerp` mengejar target secara
+     *  proporsional: respons pertama langsung terasa, sisa jarak menyusul.
+     */
+    public function test_gulir_roda_memakai_lerp_bukan_durasi_tetap(): void
+    {
+        $js = $this->source('js/berkah-motion.js');
+
+        $this->assertStringContainsString('lerp: 0.1', $js);
+        $this->assertStringNotContainsString('duration: 1.05', $js, 'Durasi tetap membuat halaman tertinggal dari roda gigi.');
+    }
+
     public function test_motion_styles_never_hide_content_without_javascript(): void
     {
         $css = $this->source('css/berkah-motion.css');

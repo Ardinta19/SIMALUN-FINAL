@@ -535,3 +535,19 @@ html:not(.bk-enhanced) .bk-header-space{height:auto!important;min-height:0;paddi
         min-height: var(--bk-touch);
     }
 }
+
+/* ==========================================================================
+   Tidak ada gulir mendatar di halaman pelanggan
+   --------------------------------------------------------------------------
+   Dekorasi dan kartu (bunga besar, pita, strip mendatar, tabel lebar) bisa
+   lebih lebar dari kolomnya. Tanpa batas, peramban menampilkan scrollbar
+   mendatar dan seluruh halaman bisa tergeser sedikit ke kiri — pil header
+   ikut bergeser, jadi tombolnya tampak tidak di tengah.
+
+   `overflow-x: clip` memotong luapan itu tanpa menjadikan <body> kotak gulir
+   (berbeda dari `hidden`), sehingga `position: sticky` di halaman produk dan
+   gulir halus Lenis tetap bekerja seperti biasa.
+   ========================================================================== */
+body.bk-experience {
+    overflow-x: clip;
+}

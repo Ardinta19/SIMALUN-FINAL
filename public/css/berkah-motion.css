@@ -78,12 +78,22 @@ html.bk-lenis .table-scroll {
 
    `width` sudah dilepas dari transisi CSS milik .bk-header (berkah-experience.css):
    dengan tween per frame, transisi CSS membuat header tertinggal satu langkah. */
-.bk-header--morphing {
-    will-change: width, height;
+.bk-header.bk-header--morphing {
+    /* Selama morph, GSAP memegang ukuran DAN posisi (FLIP absolut ⇄ fixed).
+       Transisi `top` milik .bk-header akan bertabrakan dengan tween posisi
+       itu, jadi dimatikan hanya selama tween berjalan. */
+    transition: none;
+    will-change: width, height, transform;
 }
 
 .bk-header--morphing .bk-header-inner {
     transition: padding .34s ease, border-radius .34s ease, gap .34s ease;
+    /* Kaca yang di-blur harus digambar ulang setiap frame selama kotak header
+       berubah ukuran; pada ponsel itu yang membuat gulir cepat tersendat.
+       Latarnya sudah 94% pekat, jadi melepas blur selama 340 ms tidak
+       mengubah tampilan berarti. */
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
 }
 
 .bk-header--morphing.is-compact :is(.bk-expand, .bk-header-filter) {

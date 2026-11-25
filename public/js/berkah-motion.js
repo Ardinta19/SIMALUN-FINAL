@@ -110,10 +110,14 @@
 
         try {
             var lenis = new window.Lenis({
-                duration: 1.05,
-                easing: function (t) {
-                    return Math.min(1, 1.001 - Math.pow(2, -10 * t));
-                },
+                /* `lerp` (bukan `duration`) adalah kunci rasa "halus" di sini.
+                   Dengan durasi tetap 1,05 dtk, setiap roda gigi memulai tween
+                   baru yang panjang: halaman selalu tertinggal dari jari, dan
+                   saat digulir cepat berulang terasa seperti menunggu tween
+                   selesai. Lerp mengikuti target secara proporsional — respons
+                   pertama langsung terasa, sisa jarak dikejar makin cepat
+                   seiring besarnya selisih, jadi tidak ada antrean tween. */
+                lerp: 0.1,
                 smoothWheel: true,
                 wheelMultiplier: 1,
                 /* Sentuh: biarkan peramban. Bila Lenis ikut memegang gestur

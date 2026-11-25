@@ -108,14 +108,31 @@
        meninggalkan ukuran inline dan kelas penanda. Setiap morph memakai
        nomor urut; hanya morph terbaru yang boleh membersihkan. */
     let morphTicket = 0;
+    let morphStamp = 0;
     const morphSettle = (gsap, ticket) => {
         if (ticket !== morphTicket) return;
-        gsap.set(header, { clearProps: 'width,height' });
+        gsap.set(header, { clearProps: 'width,height,transform' });
         header.classList.remove('bk-header--morphing');
     };
     const morphHeader = mutate => {
         const gsap = window.gsap;
         if (!gsap || !motionAllowed() || typeof gsap.fromTo !== 'function') {
+            mutate();
+            return;
+        }
+        /* Gulir sangat cepat memicu morph dua arah dalam hitungan
+           milidetik. Tween yang saling menyusul membuat header tertinggal di
+           belakang jari (terasa "patah" dan seperti menunggu), dan tween
+           lama bisa menahan ukuran inline yang sudah tidak berlaku. Selama
+           masih di dalam 320 ms dari morph sebelumnya, ukuran dipasang
+           langsung tanpa animasi — gerak cepat memang tidak butuh tween. */
+        const stampNow = clock();
+        if (stampNow - morphStamp < 320) {
+            morphStamp = stampNow;
+            morphTicket += 1;
+            gsap.killTweensOf(header);
+            gsap.set(header, { clearProps: 'width,height,transform' });
+            header.classList.remove('bk-header--morphing');
             mutate();
             return;
         }
@@ -125,13 +142,25 @@
         if (header.className === classBefore) return;
         const boxAfter = header.getBoundingClientRect();
         if (!boxBefore.width || !boxAfter.width) return;
-        if (Math.abs(boxBefore.width - boxAfter.width) < 6 && Math.abs(boxBefore.height - boxAfter.height) < 4) return;
+        const shiftX = boxBefore.left - boxAfter.left;
+        const shiftY = boxBefore.top - boxAfter.top;
+        if (Math.abs(boxBefore.width - boxAfter.width) < 6
+            && Math.abs(boxBefore.height - boxAfter.height) < 4
+            && Math.abs(shiftX) < 6 && Math.abs(shiftY) < 6) return;
         const ticket = ++morphTicket;
+        morphStamp = clock();
         header.classList.add('bk-header--morphing');
         gsap.killTweensOf(header);
+        /* xPercent: -50 mengembalikan perataan tengah milik CSS
+           (`transform: translateX(-50%)`) yang akan ditimpa GSAP begitu ia
+           menulis transform. x/y menutup selisih posisi absolut ⇄ fixed,
+           sehingga pil tidak "melompat" saat berganti mode di tepi atas
+           layar: ia tumbuh dari tempat navbar penuh terakhir terlihat. */
         gsap.fromTo(header,
-            { width: boxBefore.width, height: boxBefore.height },
+            { xPercent: -50, x: shiftX, y: shiftY, width: boxBefore.width, height: boxBefore.height },
             {
+                x: 0,
+                y: 0,
                 width: boxAfter.width,
                 height: boxAfter.height,
                 duration: 0.34,
@@ -142,11 +171,34 @@
         window.setTimeout(() => morphSettle(gsap, ticket), 700);
     };
 
+    /* Ambang pil ringkas diturunkan dari kotak header itu sendiri, bukan dari
+       angka mati. Ambang lama (180 px) menyisakan celah: tepi bawah navbar
+       penuh sudah lewat layar pada ±86 px, tetapi pil baru muncul di 180 px,
+       jadi selama ±94 px gulir tidak ada header sama sekali. Titik keluar
+       diukur saat header masih penuh dan di-cache, sebab setelah ringkas
+       header sudah `fixed` dan tidak lagi mencerminkan posisinya di dokumen.
+       Histeresis 8 px mencegah pil berkedip ketika gulir berhenti tepat di
+       ambang. */
+    let headerExit = 0;
+    const headerExitPoint = () => {
+        /* Diukur hanya saat header benar-benar berada di alirannya sendiri:
+           mode ringkas/pinned membuatnya `fixed`, dan tween morph menulis
+           ukuran inline — keduanya tidak mencerminkan posisi di dokumen. */
+        if (header.classList.contains('is-compact') || header.classList.contains('is-pinned') || header.classList.contains('bk-header--morphing')) return headerExit;
+        const rect = header.getBoundingClientRect();
+        if (rect.height > 0) headerExit = Math.max(0, rect.bottom + window.scrollY);
+        return headerExit;
+    };
+    const compactAt = () => Math.max(32, headerExitPoint() - 2);
+    const expandAt = () => Math.max(16, headerExitPoint() - 10);
+
     const syncHeader = () => {
         if (clock() < headerHold) return;
-        const scrolled = window.scrollY > 180;
+        const scrolled = window.scrollY >= (header.classList.contains('is-compact') ? expandAt() : compactAt());
         if (!scrolled) {
             pinned = false;
+            // Sudah penuh: jangan ukur ulang kotak header di setiap event.
+            if (!header.classList.contains('is-compact') && !header.classList.contains('is-pinned')) return;
             morphHeader(() => header.classList.remove('is-compact', 'is-pinned'));
             return;
         }
@@ -161,6 +213,7 @@
             if (radialMenu && radialMenu.open && header.classList.contains('is-compact')) {
                 return;
             }
+            if (header.classList.contains('is-pinned') && !header.classList.contains('is-compact')) return;
             morphHeader(() => {
                 header.classList.remove('is-compact');
                 header.classList.add('is-pinned');
@@ -168,13 +221,28 @@
             return;
         }
         pinned = false;
+        if (header.classList.contains('is-compact') && !header.classList.contains('is-pinned')) return;
         morphHeader(() => {
             header.classList.remove('is-pinned');
             header.classList.add('is-compact');
         });
     };
     const updateHeader = syncHeader;
-    window.addEventListener('scroll', syncHeader, { passive: true });
+    /* Satu sinkronisasi per frame: pembacaan getBoundingClientRect di dalam
+       handler scroll tanpa penjadwalan bisa berjalan puluhan kali per frame
+       saat gulir cepat dan memaksa tata letak ulang. */
+    let headerFrame = 0;
+    const queueHeaderSync = () => {
+        if (headerFrame) return;
+        headerFrame = window.requestAnimationFrame(() => { headerFrame = 0; syncHeader(); });
+    };
+    window.addEventListener('scroll', queueHeaderSync, { passive: true });
+    window.addEventListener('resize', () => {
+        // Hanya buang ukuran cache bila header sedang bisa diukur; kalau tidak,
+        // nilai lama jauh lebih baik daripada 0 (pil akan muncul terlalu dini).
+        if (!header.classList.contains('is-compact') && !header.classList.contains('is-pinned')) headerExit = 0;
+        queueHeaderSync();
+    }, { passive: true });
     if (radialMenu) {
         // Sinkronkan dua arah: membuka menu harus langsung memin header, dan
         // menutupnya harus mengembalikan mode ringkas.

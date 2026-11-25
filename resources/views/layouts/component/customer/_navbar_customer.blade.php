@@ -38,6 +38,5 @@
    sekunder (pesanan, notifikasi, alamat, bantuan) harus tetap terjangkau
    tanpa menggulir balik ke atas. Tingginya disamakan dengan ikon lain. */
 .bk-header.is-compact .bk-header-radial>summary{width:44px;height:44px}
-html[data-theme] .bk-header.is-compact .bk-header-radial>summary .customer-nav__icon.customer-radial__trigger{width:44px;height:44px}
 @media(max-width:700px){body.bk-customer .bk-desktop-nav,html:not(.bk-enhanced) body.bk-customer .bk-desktop-nav{display:none}html:not(.bk-enhanced) body.bk-customer .bk-header-inner{flex-wrap:nowrap}html:not(.bk-enhanced) body.bk-customer .bk-header-space{height:80px}}
 </style>

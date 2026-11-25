@@ -133,7 +133,20 @@ class ResponsiveLayoutTest extends TestCase
         $this->assertStringContainsString("header.classList.add('is-compact'", $script);
         $this->assertStringContainsString("header.classList.remove('is-compact', 'is-pinned')", $script);
         $this->assertStringContainsString('getBoundingClientRect', $script);
-        $this->assertStringContainsString("clearProps: 'width,height'", $script);
+        $this->assertStringContainsString("clearProps: 'width,height,transform'", $script);
+
+        // FLIP juga menutup selisih POSISI absolut ⇄ fixed. Tanpa itu header
+        // melompat 70 px saat berganti mode tepat di tepi atas layar.
+        $this->assertStringContainsString('xPercent: -50', $script);
+        $this->assertStringContainsString('shiftY', $script);
+
+        // Morph beruntun saat gulir cepat dipasang langsung, bukan ditumpuk.
+        $this->assertStringContainsString('morphStamp', $script);
+        $this->assertMatchesRegularExpression(
+            '/stampNow - morphStamp < 320[\s\S]{0,500}mutate\(\);/',
+            $script,
+            'Morph kedua dalam 320 ms harus dipasang langsung agar header tidak tertinggal.'
+        );
 
         // Tanpa GSAP / saat gerak dimatikan, kelas dipasang langsung.
         $this->assertStringContainsString('prefers-reduced-motion: reduce', $script);
@@ -153,6 +166,93 @@ class ResponsiveLayoutTest extends TestCase
             '/@media \(prefers-reduced-motion: reduce\)[\s\S]{0,400}bk-header--morphing/',
             $motion,
             'Morph header harus berhenti saat gerak diminimalkan.'
+        );
+    }
+
+    /** Tidak boleh ada zona mati antara navbar penuh dan pil ringkas.
+     *
+     *  Ambang lama (180 px) jauh di bawah tepi bawah navbar penuh (±86 px),
+     *  jadi selama ±94 px gulir tidak ada header sama sekali — persis keluhan
+     *  "navbar tidak terlihat ketika gulir berhenti di dekat atas". Ambangnya
+     *  sekarang diukur dari kotak header sendiri, dengan histeresis 8 px
+     *  supaya pil tidak berkedip tepat di ambang.
+     */
+    public function test_header_never_disappears_between_full_navbar_and_pill(): void
+    {
+        $script = File::get(public_path('js/berkah-experience.js'));
+
+        $this->assertStringNotContainsString('window.scrollY > 180', $script, 'Ambang tetap 180 px menyisakan celah tanpa header.');
+        $this->assertStringContainsString('headerExitPoint', $script);
+
+        // Pil muncul tepat saat tepi bawah navbar penuh lewat dari atas layar…
+        $this->assertMatchesRegularExpression('/compactAt[^\n]*headerExitPoint\(\) - 2/', $script);
+        // …dan baru pergi lagi 8 px lebih ke atas, jadi tidak berkedip.
+        $this->assertMatchesRegularExpression('/expandAt[^\n]*headerExitPoint\(\) - 10/', $script);
+
+        // Titik keluar hanya diukur saat header masih penuh: setelah ringkas
+        // header `fixed` dan tidak lagi mencerminkan posisinya di dokumen.
+        $this->assertMatchesRegularExpression(
+            "/is-compact'\) \|\| header\.classList\.contains\('is-pinned'\)/",
+            $script
+        );
+        $this->assertStringContainsString("header.classList.contains('bk-header--morphing')", $script);
+
+        // Satu sinkronisasi per frame, bukan satu per event scroll.
+        $this->assertStringContainsString('queueHeaderSync', $script);
+        $this->assertStringContainsString('requestAnimationFrame', $script);
+    }
+
+    /** Ikon garis-3 duduk di tengah tombolnya.
+     *
+     *  Dulu kotak ikon adalah grid kecil di dalam <summary>; pada sebagian
+     *  peramban isinya terdorong ke tepi kanan lingkaran sehingga tiga garis
+     *  tampak tidak simetris. Sekarang kotak tombol itu sendiri (empat sisi,
+     *  ukuran otomatis) yang memusatkan ikon, dan ikon digambar pada 24 px —
+     *  kelipatan bulat viewBox 24 — supaya garis 2 px jatuh di piksel bulat.
+     */
+    public function test_radial_menu_icon_sits_in_the_middle_of_its_button(): void
+    {
+        $radial = File::get(resource_path('views/layouts/component/customer/_radial_customer.blade.php'));
+        $nav = File::get(resource_path('views/layouts/component/customer/_navbar_customer.blade.php'));
+
+        $this->assertMatchesRegularExpression(
+            '/\.bk-header-radial \.customer-radial__trigger\{position:absolute;top:0;right:0;bottom:0;left:0;[^}]*display:flex;[^}]*justify-content:center/',
+            $radial,
+            'Kotak tombol harus menjadi kotak ikon (empat sisi + flex tengah).'
+        );
+        $this->assertMatchesRegularExpression(
+            '/\.bk-header-radial \.customer-radial__face\{position:absolute;top:0;right:0;bottom:0;left:0;[^}]*justify-content:center/',
+            $radial,
+            'Kedua wajah ikon (garis-3 dan silang) harus memusatkan isinya.'
+        );
+        $this->assertStringContainsString(
+            '.bk-header-radial>summary svg{display:block;flex:none;margin:0;width:24px;height:24px}',
+            $radial,
+            'Ikon tombol harus 24 px agar goresan 2 px tidak jatuh di piksel pecahan.'
+        );
+
+        // Ukuran lama yang menimpa kotak tombol dihapus: 44/100% membuat ikon
+        // melewati padding <summary> dan bergeser ke kanan.
+        $this->assertStringNotContainsString('customer-radial__trigger{width:44px;height:44px}', $nav);
+        $this->assertStringNotContainsString('customer-radial__trigger{width:100%;height:100%', $radial);
+    }
+
+    /** Halaman pelanggan tidak boleh bisa digeser mendatar.
+     *
+     *  Dekorasi yang lebih lebar dari kolomnya membuat peramban menampilkan
+     *  scrollbar mendatar; seluruh halaman ikut bisa tergeser sehingga pil
+     *  header tampak tidak di tengah. `overflow-x: clip` memotongnya tanpa
+     *  menjadikan <body> kotak gulir (beda dengan `hidden`), jadi sticky dan
+     *  gulir halus tetap bekerja.
+     */
+    public function test_customer_pages_cannot_scroll_sideways(): void
+    {
+        $css = File::get(public_path('css/berkah-experience.css'));
+
+        $this->assertMatchesRegularExpression(
+            '/body\.bk-experience\s*\{\s*overflow-x:\s*clip/',
+            $css,
+            'Luapan mendatar halaman pelanggan harus dipotong, bukan dibiarkan membuat scrollbar.'
         );
     }
 

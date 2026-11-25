@@ -226,12 +226,25 @@ html[data-theme="dark"] .bk-header-radial .customer-radial__item--theme .bk-them
    tepi pil (terlihat seperti tombol yang menembus header). Di mode ringkas
    cincinnya dirapatkan 2 px supaya tetap berada di dalam pil. */
 .bk-header.is-compact .bk-header-radial>summary::after{inset:-3px}
-/* Ikon mengikuti kotak tombolnya (48 px, 44 px saat header ringkas) supaya
-   tombol tamu tidak melebar keluar pil. */
-html[data-theme] .bk-header-radial>summary .customer-nav__icon.customer-radial__trigger{width:100%;height:100%;background:transparent;border:0}
+/* Tombol busur tidak lagi membawa ukuran sendiri: kotaknya mengikuti
+   <summary> (48 px, 44 px saat header ringkas) lewat empat sisi di bawah,
+   jadi tombol tamu tidak melebar keluar pil. Yang tersisa di sini hanya
+   pelepasan latar dan garis milik .customer-nav__icon. */
+html[data-theme] .bk-header-radial>summary .customer-nav__icon.customer-radial__trigger{background:transparent;border:0}
 .bk-header-radial>summary .customer-nav__label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
-.bk-header-radial .customer-radial__trigger{position:relative;display:grid;place-items:center}
-.bk-header-radial .customer-radial__face{position:absolute;inset:0;display:grid;place-items:center;transition:opacity .18s ease,transform .3s cubic-bezier(.34,1.4,.64,1)}
+/* Titik tumpu ikon. Dulu panahnya `inset:0` di dalam grid kecil, dan pada
+   peramban tertentu ikon garis-3 terdorong ke tepi kanan lingkaran sehingga
+   terlihat tidak simetris. Sekarang kotak tombol itu sendiri yang menjadi
+   kotak isi: selebar/ setinggi <summary>, dipasang absolut dari empat sisi,
+   lalu ikon di tengah dengan flex. Tidak ada lagi jalur tata letak yang bisa
+   menggesernya. */
+.bk-header-radial .customer-radial__trigger{position:absolute;top:0;right:0;bottom:0;left:0;display:flex;align-items:center;justify-content:center;width:auto;height:auto;margin:0;padding:0}
+.bk-header-radial .customer-radial__face{position:absolute;top:0;right:0;bottom:0;left:0;display:flex;align-items:center;justify-content:center;margin:0;padding:0;transition:opacity .18s ease,transform .3s cubic-bezier(.34,1.4,.64,1)}
+/* Ikon digambar pada ukuran aslinya (24 px, kelipatan bulat dari viewBox 24)
+   supaya garis 2 px jatuh di piksel bulat: tiga garis jadi sama panjang,
+   sama jarak, dan sama tebal. Pada 22 px skalanya 0,917 sehingga garis
+   tengah terlihat 1 px lebih panjang — itulah "tidak simetris" yang tampak. */
+.bk-header-radial>summary svg{display:block;flex:none;margin:0;width:24px;height:24px}
 .bk-header-radial .customer-radial__face--close{opacity:0;transform:rotate(-90deg) scale(.55)}
 .bk-header-radial[open] .customer-radial__face--menu{opacity:0;transform:rotate(90deg) scale(.55)}
 .bk-header-radial[open] .customer-radial__face--close{opacity:1;transform:rotate(0) scale(1)}
