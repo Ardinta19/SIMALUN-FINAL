@@ -59,7 +59,9 @@ class UiAccessibilityTest extends TestCase
 
     private function relative(string $path): string
     {
-        return str_replace(base_path().DIRECTORY_SEPARATOR, '', $path);
+        // Windows memakai backslash: pesan galat dan pengecualian folder
+        // (mis. `emails/`) harus tetap terbaca sama di kedua sistem.
+        return str_replace('\\', '/', str_replace(base_path().DIRECTORY_SEPARATOR, '', $path));
     }
 
     /**
@@ -466,8 +468,12 @@ class UiAccessibilityTest extends TestCase
                 continue;
             }
 
-            $name = str_replace(['/', '.blade.php'], ['.', ''], $file->getRelativePathname());
-            $path = 'resources/views/'.$file->getRelativePathname();
+            // getRelativePathname() memakai backslash di Windows; tanpa
+            // normalisasi, nama view menjadi `auth\login` dan tidak pernah
+            // cocok dengan `'auth.login'` — semua view dilaporkan yatim.
+            $relative = str_replace('\\', '/', $file->getRelativePathname());
+            $name = str_replace(['/', '.blade.php'], ['.', ''], $relative);
+            $path = 'resources/views/'.$relative;
 
             if (str_starts_with($name, 'errors.') || str_starts_with($name, 'vendor.')) {
                 continue;
