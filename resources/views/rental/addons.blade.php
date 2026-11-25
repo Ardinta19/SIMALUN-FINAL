@@ -77,6 +77,7 @@
 </div>
 
 @forelse($addons as $addon)
+    @php $addonUsed = in_array((int) $addon->id, array_map('intval', $usedIds), true); @endphp
     <article class="adm-card adm-card--hover" data-adm-reveal="addons">
         <div class="adm-row" style="justify-content:space-between;align-items:flex-start;gap:12px">
             <div class="adm-row" style="gap:12px;align-items:flex-start">
@@ -92,6 +93,7 @@
                         </span>
                         <span class="adm-chip">Rp {{ number_format($addon->price, 0, ',', '.') }}</span>
                         <span class="adm-chip">Urutan {{ $addon->sort_order }}</span>
+                        @if($addonUsed)<span class="adm-chip">Dipakai pesanan</span>@endif
                     </div>
                     @if($addon->description)
                         <p class="muted" style="margin:8px 0 0">{{ $addon->description }}</p>
@@ -104,7 +106,7 @@
                     @method('PATCH')
                     <button type="submit" class="btn secondary adm-btn--sm">{{ $addon->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button>
                 </form>
-                @unless(in_array((int) $addon->id, array_map('intval', $usedIds), true))
+                @unless($addonUsed)
                     <form method="post" action="{{ route('admin.rental.addons.destroy', $addon) }}">
                         @csrf
                         @method('DELETE')
