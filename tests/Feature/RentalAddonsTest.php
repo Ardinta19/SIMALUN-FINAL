@@ -1,0 +1,255 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\RentalAddon;
+use App\Models\RentalCategory;
+use App\Models\RentalOrder;
+use App\Models\RentalOrderReference;
+use App\Models\RentalOrderUnit;
+use App\Models\RentalProduct;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
+
+/**
+ * Item tambahan (dipilih per unit) dan foto referensi desain (per pesanan).
+ *
+ * Aturan yang dijaga:
+ *  - admin mengelola satu katalog item tambahan untuk semua papan;
+ *  - harga item disalin ke pesanan saat checkout sehingga ikut tagihan unit;
+ *  - item nonaktif tidak bisa dipesan lewat permintaan yang disusun manual;
+ *  - foto referensi disimpan di disk privat dan hanya bisa dibuka pemilik
+ *    pesanan atau admin.
+ */
+class RentalAddonsTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private function product(int $price = 100000): RentalProduct
+    {
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+
+        return RentalProduct::create([
+            'rental_category_id' => $category->id,
+            'name' => 'Papan',
+            'base_price' => $price,
+            'price_unit' => 'day',
+            'stock' => 2,
+        ]);
+    }
+
+    private function customer(): User
+    {
+        $user = User::factory()->create();
+        $user->forceFill(['role' => 'customer'])->save();
+
+        return $user;
+    }
+
+    private function admin(): User
+    {
+        $user = User::factory()->create();
+        $user->forceFill(['role' => 'admin'])->save();
+
+        return $user;
+    }
+
+    /** @return array<string, array<string, mixed>> */
+    private function unitPayload(RentalProduct $product, array $extra = []): array
+    {
+        $date = now('Asia/Jakarta')->addDays(3)->toDateString();
+        $units = [];
+
+        foreach (array_keys(session('rental_cart')) as $key) {
+            $units[$key] = array_merge([
+                'event_on' => $date,
+                'ends_on' => $date,
+                'recipient_name' => 'Penerima',
+                'greeting' => 'Selamat',
+                'delivery_method' => 'pickup',
+                'return_method' => 'dropoff',
+            ], $extra);
+        }
+
+        return $units;
+    }
+
+    public function test_admin_menambah_item_tambahan_dan_tercatat_di_audit(): void
+    {
+        Storage::fake('public');
+
+        $this->actingAs($this->admin())->post(route('admin.rental.addons.store'), [
+            'name' => 'Kartu ucapan',
+            'description' => 'Kartu A5 dengan nama penerima.',
+            'price' => 15000,
+            'sort_order' => 2,
+            'image' => UploadedFile::fake()->image('kartu.jpg', 600, 600),
+        ])->assertSessionHasNoErrors();
+
+        $addon = RentalAddon::firstOrFail();
+        $this->assertSame('Kartu ucapan', $addon->name);
+        $this->assertSame(15000, $addon->price);
+        $this->assertTrue($addon->is_active);
+        $this->assertNotNull($addon->image_path);
+        Storage::disk('public')->assertExists($addon->image_path);
+        $this->assertDatabaseHas('audit_logs', ['action' => 'rental.addon.create']);
+    }
+
+    public function test_harga_item_tambahan_masuk_tagihan_unit_dan_disalin_ke_pesanan(): void
+    {
+        $product = $this->product(100000);
+        $addon = RentalAddon::create(['name' => 'Lilin', 'price' => 12000]);
+        $customer = $this->customer();
+
+        $this->actingAs($customer)->post(route('cart.store', $product), ['quantity' => 1]);
+        $this->post(route('rental.checkout.store'), [
+            'terms' => '1',
+            'units' => $this->unitPayload($product, ['addons' => [$addon->id => 2]]),
+        ])->assertRedirect()->assertSessionHasNoErrors();
+
+        $unit = RentalOrderUnit::firstOrFail();
+        $this->assertSame(24000, (int) $unit->addon_amount);
+        $this->assertSame(124000, $unit->payableAmount(), 'Tagihan unit harus mencakup item tambahan.');
+
+        $line = $unit->addons()->firstOrFail();
+        $this->assertSame('Lilin', $line->name);
+        $this->assertSame(12000, $line->price);
+        $this->assertSame(2, $line->quantity);
+        $this->assertSame(24000, $line->total);
+        $this->assertSame($addon->id, $line->rental_addon_id);
+
+        // Katalog berubah setelah pesanan dibuat: salinan lama tidak ikut berubah.
+        $addon->update(['name' => 'Lilin besar', 'price' => 20000]);
+        $unit->refresh();
+        $this->assertSame('Lilin', $unit->addons()->firstOrFail()->name);
+        $this->assertSame(24000, (int) $unit->addon_amount);
+    }
+
+    public function test_item_tambahan_nonaktif_dan_jumlah_berlebih_ditolak(): void
+    {
+        $product = $this->product(100000);
+        $addon = RentalAddon::create(['name' => 'Lilin', 'price' => 12000, 'is_active' => false]);
+        $customer = $this->customer();
+        $this->actingAs($customer)->post(route('cart.store', $product), ['quantity' => 1]);
+
+        $this->post(route('rental.checkout.store'), [
+            'terms' => '1',
+            'units' => $this->unitPayload($product, ['addons' => [$addon->id => 1]]),
+        ])->assertSessionHasErrors('units');
+
+        $this->assertSame(0, RentalOrder::count());
+        $this->assertSame(0, RentalOrderUnit::count());
+
+        // Jumlah di atas batas 5 ditolak oleh validasi, bukan disimpan diam-diam.
+        $aktif = RentalAddon::create(['name' => 'Kartu', 'price' => 5000]);
+        $this->post(route('rental.checkout.store'), [
+            'terms' => '1',
+            'units' => $this->unitPayload($product, ['addons' => [$aktif->id => 6]]),
+        ])->assertSessionHasErrors();
+        $this->assertSame(0, RentalOrder::count());
+    }
+
+    public function test_item_tambahan_yang_sudah_dipakai_tidak_bisa_dihapus(): void
+    {
+        $product = $this->product(100000);
+        $addon = RentalAddon::create(['name' => 'Lilin', 'price' => 12000]);
+        $customer = $this->customer();
+        $this->actingAs($customer)->post(route('cart.store', $product), ['quantity' => 1]);
+        $this->post(route('rental.checkout.store'), [
+            'terms' => '1',
+            'units' => $this->unitPayload($product, ['addons' => [$addon->id => 1]]),
+        ])->assertSessionHasNoErrors();
+
+        $this->actingAs($this->admin())->delete(route('admin.rental.addons.destroy', $addon))
+            ->assertSessionHasErrors('addon');
+        $this->assertDatabaseHas('rental_addons', ['id' => $addon->id]);
+
+        // Menonaktifkan tetap boleh: item hilang dari checkout baru, salinan pesanan utuh.
+        $this->patch(route('admin.rental.addons.toggle', $addon))->assertSessionHasNoErrors();
+        $this->assertFalse($addon->fresh()->is_active);
+        $this->assertSame(1, RentalOrderUnit::firstOrFail()->addons()->count());
+    }
+
+    public function test_foto_referensi_disimpan_privat_dan_dibatasi_lima(): void
+    {
+        Storage::fake('local');
+
+        $product = $this->product(100000);
+        $customer = $this->customer();
+        $this->actingAs($customer)->post(route('cart.store', $product), ['quantity' => 1]);
+
+        // Enam foto melebihi batas.
+        $this->post(route('rental.checkout.store'), [
+            'terms' => '1',
+            'units' => $this->unitPayload($product),
+            'reference_images' => array_map(fn ($i) => UploadedFile::fake()->image("contoh-{$i}.jpg", 800, 600), range(1, 6)),
+        ])->assertSessionHasErrors('reference_images');
+        $this->assertSame(0, RentalOrder::count());
+
+        // Dua foto lolos dan tersimpan di disk privat.
+        $this->post(route('rental.checkout.store'), [
+            'terms' => '1',
+            'units' => $this->unitPayload($product),
+            'reference_images' => [
+                UploadedFile::fake()->image('contoh-1.jpg', 800, 600),
+                UploadedFile::fake()->image('contoh-2.png', 640, 480),
+            ],
+        ])->assertRedirect()->assertSessionHasNoErrors();
+
+        $order = RentalOrder::firstOrFail();
+        $this->assertSame(2, $order->references()->count());
+        foreach ($order->references as $reference) {
+            Storage::disk('local')->assertExists($reference->image_path);
+            $this->assertStringStartsWith('rental-references/', $reference->image_path);
+            $this->assertSame($customer->id, $reference->uploaded_by);
+        }
+    }
+
+    public function test_foto_referensi_hanya_bisa_dibuka_pemilik_dan_admin(): void
+    {
+        Storage::fake('local');
+
+        $product = $this->product(100000);
+        $customer = $this->customer();
+        $this->actingAs($customer)->post(route('cart.store', $product), ['quantity' => 1]);
+        $this->post(route('rental.checkout.store'), [
+            'terms' => '1',
+            'units' => $this->unitPayload($product),
+            'reference_images' => [UploadedFile::fake()->image('contoh.jpg', 800, 600)],
+        ])->assertSessionHasNoErrors();
+
+        $reference = RentalOrderReference::firstOrFail();
+
+        $this->actingAs($customer)->get(route('rental.reference.image', $reference))->assertOk();
+        $this->actingAs($this->admin())->get(route('rental.reference.image', $reference))->assertOk();
+        $this->actingAs($this->customer())->get(route('rental.reference.image', $reference))->assertForbidden();
+    }
+
+    public function test_halaman_detail_menampilkan_item_tambahan_dan_foto_referensi(): void
+    {
+        Storage::fake('local');
+
+        $product = $this->product(100000);
+        $addon = RentalAddon::create(['name' => 'Pita emas', 'price' => 7000]);
+        $customer = $this->customer();
+        $this->actingAs($customer)->post(route('cart.store', $product), ['quantity' => 1]);
+        $this->post(route('rental.checkout.store'), [
+            'terms' => '1',
+            'units' => $this->unitPayload($product, ['addons' => [$addon->id => 3]]),
+            'reference_images' => [UploadedFile::fake()->image('contoh.jpg', 800, 600)],
+        ])->assertSessionHasNoErrors();
+
+        $order = RentalOrder::firstOrFail();
+        $this->get(route('rental.orders.show', $order))->assertOk()
+            ->assertSee('Foto referensi desain')
+            ->assertSee('Pita emas')
+            ->assertSee('Rp 21.000');
+
+        $this->actingAs($this->admin())->get(route('admin.rental.orders.show', $order))->assertOk()
+            ->assertSee('Foto referensi desain')
+            ->assertSee('3× Pita emas');
+    }
+}

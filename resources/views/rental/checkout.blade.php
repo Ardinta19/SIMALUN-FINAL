@@ -5,12 +5,12 @@
 @if(count($cart) > 1)
 <nav class="bk-jump" aria-label="Lompat ke unit checkout"><strong>Langsung ke</strong><div>@foreach($cart as $key => $entry)<a href="#checkout-unit-{{ $loop->iteration }}">Unit {{ $loop->iteration }}</a>@endforeach <a href="#checkout-terms">Ketentuan</a></div></nav>
 @endif
-<form class="stack checkout-form" data-checkout-form method="post" action="{{ route('rental.checkout.store') }}">@csrf
+<form class="stack checkout-form" data-checkout-form method="post" action="{{ route('rental.checkout.store') }}" enctype="multipart/form-data">@csrf
 @foreach($cart as $key => $entry)
 @php
     $product = $products->get($entry['product_id']);
     $unitNumber = $loop->iteration;
-    $fieldLabels = ['event_on' => 'Tanggal acara dan penerimaan', 'ends_on' => 'Tanggal pengembalian', 'recipient_name' => 'Nama penerima', 'greeting' => 'Ucapan', 'design_notes' => 'Permintaan desain', 'delivery_method' => 'Penerimaan', 'delivery_address' => 'Alamat pengantaran', 'delivery_university_id' => 'Universitas pengantaran', 'return_method' => 'Pengembalian', 'return_address' => 'Alamat pengambilan kembali', 'return_university_id' => 'Universitas pengambilan kembali'];
+    $fieldLabels = ['event_on' => 'Tanggal acara dan penerimaan', 'ends_on' => 'Tanggal pengembalian', 'recipient_name' => 'Nama penerima', 'greeting' => 'Ucapan', 'design_notes' => 'Permintaan desain', 'delivery_method' => 'Penerimaan', 'delivery_address' => 'Alamat pengantaran', 'delivery_university_id' => 'Universitas pengantaran', 'return_method' => 'Pengembalian', 'return_address' => 'Alamat pengambilan kembali', 'return_university_id' => 'Universitas pengambilan kembali', 'addons' => 'Item tambahan'];
     if ($product->packages->isNotEmpty()) $fieldLabels['package_id'] = 'Pilihan harga';
     $oldUnit = fn (string $field, $fallback = '') => is_scalar($value = old('units.'.$key.'.'.$field, $fallback)) ? (string) $value : (string) $fallback;
     $today = now('Asia/Jakarta')->toDateString();
@@ -32,6 +32,34 @@
 <p class="bk-date-shortcut"><button type="button" class="btn secondary" data-same-day hidden>Pakai tanggal yang sama (sewa satu hari)</button><span class="muted" data-same-day-status role="status" aria-live="polite"></span></p>
 @if($product && $product->packages->isNotEmpty())<label>Pilihan harga <span class="bk-muted-mark">(opsional)</span><select id="checkout-{{ $unitNumber }}-package_id" name="units[{{ $key }}][package_id]" @error('units.'.$key.'.package_id') aria-invalid="true" aria-describedby="checkout-errors-{{ $unitNumber }}" @enderror><option value="">Harga dasar (per hari/acara)</option>@foreach($product->packages as $package)<option value="{{ $package->id }}" data-price="{{ (int) $package->price }}" @selected((string) old('units.'.$key.'.package_id') === (string) $package->id)>{{ $package->name }} · {{ $package->days }} hari · Rp {{ number_format($package->price, 0, ',', '.') }}</option>@endforeach</select></label><p class="muted">Jumlah hari dihitung termasuk tanggal penerimaan dan pengembalian; durasi harus sama dengan paket.</p>@endif
 <h3>Ucapan dan desain</h3><label for="checkout-{{ $unitNumber }}-recipient_name">Nama penerima <span class="bk-req">(wajib)</span><input autocomplete="off" id="checkout-{{ $unitNumber }}-recipient_name" name="units[{{ $key }}][recipient_name]" @error('units.'.$key.'.recipient_name') aria-invalid="true" aria-describedby="checkout-errors-{{ $unitNumber }}" @enderror value="{{ $oldUnit('recipient_name', $entry['recipient_name'] ?? '') }}" maxlength="160" placeholder="Contoh: Ibu Sari" required></label><label for="checkout-{{ $unitNumber }}-greeting">Ucapan <span class="bk-req">(wajib)</span><textarea id="checkout-{{ $unitNumber }}-greeting" name="units[{{ $key }}][greeting]" @error('units.'.$key.'.greeting') aria-invalid="true" aria-describedby="checkout-errors-{{ $unitNumber }}" @enderror maxlength="1000" placeholder="Contoh: Selamat atas wisudamu, semoga sukses selalu." required>{{ $oldUnit('greeting', $entry['greeting'] ?? '') }}</textarea></label><label for="checkout-{{ $unitNumber }}-design_notes">Permintaan desain <span class="bk-muted-mark">(opsional)</span><textarea id="checkout-{{ $unitNumber }}-design_notes" name="units[{{ $key }}][design_notes]" @error('units.'.$key.'.design_notes') aria-invalid="true" aria-describedby="checkout-errors-{{ $unitNumber }}" @enderror maxlength="2000" placeholder="Contoh: Nuansa putih dan merah muda, tambahkan nama penerima.">{{ $oldUnit('design_notes', $entry['design_notes'] ?? '') }}</textarea></label>
+@if($addons->isNotEmpty())
+<h3>Item tambahan <span class="bk-muted-mark">(opsional)</span></h3>
+<p class="muted">Pelengkap untuk unit ini. Harga item ditambahkan ke tagihan unit dan ikut dihitung pada DP serta pelunasan.</p>
+<ul class="bk-addon-list">
+@foreach($addons as $addon)
+    @php
+        $addonQty = (int) $oldUnit('addons.'.$addon->id, 0);
+        $addonField = 'units.'.$key.'.addons.'.$addon->id;
+    @endphp
+    <li class="bk-addon">
+        @if($addon->image_path)<img class="bk-addon__img" src="{{ asset('storage/'.$addon->image_path) }}" alt="" width="56" height="56" loading="lazy" decoding="async">@endif
+        <div class="bk-addon__text">
+            <strong>{{ $addon->name }}</strong>
+            <span class="bk-addon__price">Rp {{ number_format($addon->price, 0, ',', '.') }}</span>
+            @if($addon->description)<small>{{ $addon->description }}</small>@endif
+        </div>
+        <label class="bk-addon__qty" for="checkout-{{ $unitNumber }}-addon-{{ $addon->id }}">
+            <span>Jumlah</span>
+            <input type="number" inputmode="numeric" min="0" max="5" step="1" value="{{ $addonQty }}"
+                   id="checkout-{{ $unitNumber }}-addon-{{ $addon->id }}"
+                   name="units[{{ $key }}][addons][{{ $addon->id }}]"
+                   @error($addonField) aria-invalid="true" aria-describedby="checkout-errors-{{ $unitNumber }}" @enderror>
+        </label>
+    </li>
+@endforeach
+</ul>
+<p class="muted">Isi 0 bila tidak dipakai.</p>
+@endif
 <h3>Serah terima</h3><label for="checkout-{{ $unitNumber }}-delivery_method">Penerimaan <span class="bk-req">(wajib)</span><select id="checkout-{{ $unitNumber }}-delivery_method" name="units[{{ $key }}][delivery_method]" aria-describedby="{{ $errors->has('units.'.$key.'.delivery_method') ? 'checkout-errors-'.$unitNumber.' checkout-'.$unitNumber.'-delivery-hint' : 'checkout-'.$unitNumber.'-delivery-hint' }}" @error('units.'.$key.'.delivery_method') aria-invalid="true" @enderror required><option value="pickup" @selected($oldUnit('delivery_method', $entry['delivery_method'] ?? '') === 'pickup')>Diambil di outlet</option><option value="delivery" @selected($oldUnit('delivery_method', $entry['delivery_method'] ?? '') === 'delivery')>Diantar penjual</option></select></label><div data-delivery-fields>
 @if($savedAddresses->isNotEmpty())<div data-saved-address hidden><label>Pakai alamat tersimpan untuk pengantaran<select data-address-choice><option value="">Pilih alamat tersimpan</option>@foreach($savedAddresses as $address)<option value="{{ $address->id }}" data-address="{{ $address->full_address }}">{{ $address->label }}{{ $address->is_primary ? ' · utama' : '' }}</option>@endforeach</select></label><p class="muted">Pilihan akan menyalin alamat ke kolom di bawah; periksa dan lengkapi jika perlu.</p></div>@endif
 <label for="checkout-{{ $unitNumber }}-delivery_address">Alamat pengantaran <span class="bk-muted-mark">(wajib jika diantar)</span><textarea autocomplete="street-address" id="checkout-{{ $unitNumber }}-delivery_address" name="units[{{ $key }}][delivery_address]" @error('units.'.$key.'.delivery_address') aria-invalid="true" aria-describedby="checkout-errors-{{ $unitNumber }}" @enderror maxlength="1000">{{ $oldUnit('delivery_address', $entry['delivery_address'] ?? '') }}</textarea></label>
@@ -41,6 +69,14 @@
 <label for="checkout-{{ $unitNumber }}-return_address">Alamat pengambilan kembali <span class="bk-muted-mark">(wajib jika dijemput)</span><textarea autocomplete="street-address" id="checkout-{{ $unitNumber }}-return_address" name="units[{{ $key }}][return_address]" @error('units.'.$key.'.return_address') aria-invalid="true" aria-describedby="checkout-errors-{{ $unitNumber }}" @enderror maxlength="1000">{{ $oldUnit('return_address', $entry['return_address'] ?? '') }}</textarea></label>
 <label>Universitas lokasi pengambilan kembali (opsional)<select id="checkout-{{ $unitNumber }}-return_university_id" name="units[{{ $key }}][return_university_id]" @error('units.'.$key.'.return_university_id') aria-invalid="true" aria-describedby="checkout-errors-{{ $unitNumber }}" @enderror><option value="">Lokasi lain / tidak dijemput</option>@foreach($universities as $university)<option value="{{ $university->id }}" @selected((string) old('units.'.$key.'.return_university_id') === (string) $university->id)>{{ $university->name }} · jemput Rp {{ number_format($university->collection_fee, 0, ',', '.') }}</option>@endforeach</select></label></div><p class="muted" id="checkout-{{ $unitNumber }}-delivery-hint">Diantar penjual: lengkapi alamat tujuan. Diambil di outlet: alamat tidak perlu diisi.</p><p class="muted" id="checkout-{{ $unitNumber }}-return-hint">Dikembalikan ke outlet: alamat tidak perlu diisi. Diambil penjual: lengkapi alamat penjemputan.</p><p class="muted">Pilihan universitas hanya digunakan jika metode terkait adalah diantar atau dijemput. Isi alamat lengkap agar lokasi dapat ditemukan. Tarif akan ditampilkan kembali untuk disetujui.</p>
 </section>@endforeach
+<section class="card body" id="checkout-references">
+<h2>Foto referensi desain</h2>
+<p class="muted">Punya contoh desain? Unggah sampai lima foto — satu contoh gambar sering lebih jelas daripada deskripsi. Foto berlaku untuk seluruh pesanan, bukan per unit.</p>
+<label for="reference-images">Foto contoh <span class="bk-muted-mark">(opsional)</span><input id="reference-images" type="file" name="reference_images[]" accept="image/jpeg,image/png,image/webp" multiple aria-describedby="reference-images-hint"></label>
+<p class="muted" id="reference-images-hint">JPG, PNG, atau WebP. Maksimal 5 foto, 5 MB per foto. Foto hanya dikirim ke admin, tidak ditampilkan publik.</p>
+@error('reference_images')<p class="bk-field-error" id="reference-images-error">{{ $message }}</p>@enderror
+@error('reference_images.*')<p class="bk-field-error" id="reference-images-item-error">{{ $message }}</p>@enderror
+</section>
 <section class="card body" id="checkout-voucher">
 <h2>Kode voucher</h2>
 <p class="muted">Punya kode voucher? Masukkan di sini. Potongan dihitung dari harga sewa unit dan diperiksa kembali saat pesanan dikirim.</p>

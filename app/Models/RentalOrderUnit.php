@@ -24,8 +24,8 @@ class RentalOrderUnit extends Model
     /** Status yang sudah pasti memakai unit; dipakai saat admin mengonfirmasi. */
     public const COMMITTED_STATUSES = [self::STATUS_CONFIRMED];
 
-    protected $fillable = ['rental_order_id', 'rental_product_id', 'product_name', 'unit_price', 'price_unit', 'rental_amount', 'starts_on', 'event_on', 'ends_on', 'recipient_name', 'greeting', 'design_notes', 'delivery_method', 'delivery_address', 'return_method', 'return_address', 'status', 'status_before_cancel', 'cancel_code', 'payment_review_hold', 'payment_review_resolved', 'deposit_forfeited_at', 'payment_late_resumed_at', 'progress', 'cancel_reason', 'cancel_responsibility', 'cancelled_at', 'cancelled_by', 'confirmed_at', 'special_confirmation', 'rental_duration_package_id', 'package_name', 'package_days', 'delivery_university', 'delivery_university_fee', 'return_university', 'return_university_fee', 'transport_quote', 'transport_quote_version', 'transport_quote_note', 'transport_approved_at', 'design_override_at', 'design_override_by', 'design_override_version', 'design_override_note', 'discount_amount', 'transport_discount_amount'];
-    protected $casts = ['discount_amount' => 'integer', 'transport_discount_amount' => 'integer', 'starts_on' => 'date', 'event_on' => 'date', 'ends_on' => 'date', 'payment_review_hold' => 'boolean', 'payment_review_resolved' => 'boolean', 'payment_late_resumed_at' => 'datetime', 'deposit_forfeited_at' => 'datetime', 'cancelled_at' => 'datetime', 'special_confirmation' => 'boolean', 'confirmed_at' => 'datetime', 'transport_approved_at' => 'datetime', 'design_override_at' => 'datetime'];
+    protected $fillable = ['rental_order_id', 'rental_product_id', 'product_name', 'unit_price', 'price_unit', 'rental_amount', 'addon_amount', 'starts_on', 'event_on', 'ends_on', 'recipient_name', 'greeting', 'design_notes', 'delivery_method', 'delivery_address', 'return_method', 'return_address', 'status', 'status_before_cancel', 'cancel_code', 'payment_review_hold', 'payment_review_resolved', 'deposit_forfeited_at', 'payment_late_resumed_at', 'progress', 'cancel_reason', 'cancel_responsibility', 'cancelled_at', 'cancelled_by', 'confirmed_at', 'special_confirmation', 'rental_duration_package_id', 'package_name', 'package_days', 'delivery_university', 'delivery_university_fee', 'return_university', 'return_university_fee', 'transport_quote', 'transport_quote_version', 'transport_quote_note', 'transport_approved_at', 'design_override_at', 'design_override_by', 'design_override_version', 'design_override_note', 'discount_amount', 'transport_discount_amount'];
+    protected $casts = ['addon_amount' => 'integer', 'discount_amount' => 'integer', 'transport_discount_amount' => 'integer', 'starts_on' => 'date', 'event_on' => 'date', 'ends_on' => 'date', 'payment_review_hold' => 'boolean', 'payment_review_resolved' => 'boolean', 'payment_late_resumed_at' => 'datetime', 'deposit_forfeited_at' => 'datetime', 'cancelled_at' => 'datetime', 'special_confirmation' => 'boolean', 'confirmed_at' => 'datetime', 'transport_approved_at' => 'datetime', 'design_override_at' => 'datetime'];
     public function needsSpecialConfirmation(): bool
     {
         // Waktu serah-terima belum dipilih: perlakukan seluruh hari sebagai dekat jadwal.
@@ -45,6 +45,7 @@ class RentalOrderUnit extends Model
     {
         if ($this->transportRequired() && ($this->transport_quote === null || ! $this->transport_approved_at)) return null;
         return $this->rentalAfterDiscount()
+            + (int) $this->addon_amount
             + ($this->transportRequired() ? $this->transportAfterDiscount() : 0);
     }
 
@@ -88,6 +89,8 @@ class RentalOrderUnit extends Model
             ->where('progress', '!=', 'returned');
     }
     public function previews(): HasMany { return $this->hasMany(RentalDesignPreview::class)->orderByDesc('version'); }
+    /** Item tambahan yang dipilih pelanggan untuk unit ini. */
+    public function addons(): HasMany { return $this->hasMany(RentalOrderUnitAddon::class)->orderBy('id'); }
 
     public function transportQuoteEvents(): HasMany { return $this->hasMany(RentalTransportQuoteEvent::class)->orderBy('id'); }
 

@@ -37,6 +37,17 @@
     @if($order->voucher_code)
         <p class="muted" style="margin:10px 0 0">Voucher dipakai: <strong>{{ $order->voucher_code }}</strong> · total potongan Rp {{ number_format((int) $order->discount_amount, 0, ',', '.') }}. Potongan dibagi ke setiap unit dan tidak mengubah tarif dasar.</p>
     @endif
+
+    @if($order->references->isNotEmpty())
+        <div style="margin-top:14px">
+            <h3 style="margin:0 0 8px;font-size:var(--adm-fs-md)">Foto referensi desain ({{ $order->references->count() }})</h3>
+            <ul class="bk-reference-list">
+                @foreach($order->references as $reference)
+                    <li><a href="{{ route('rental.reference.image', $reference) }}" target="_blank" rel="noopener"><img src="{{ route('rental.reference.image', $reference) }}" alt="Foto referensi {{ $loop->iteration }}" width="96" height="96" loading="lazy" decoding="async"></a></li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 </section>
 
 <div class="adm-stack" style="margin-top:var(--adm-gap)">
@@ -179,6 +190,14 @@
                             @endforeach
                         </ul>
                     @endif
+                @endif
+
+                @if($unit->addons->isNotEmpty())
+                    <ul style="margin:12px 0 0 18px">
+                        @foreach($unit->addons as $addon)
+                            <li>{{ $addon->quantity }}× {{ $addon->name }} · Rp {{ number_format($addon->total, 0, ',', '.') }}</li>
+                        @endforeach
+                    </ul>
                 @endif
 
                 <p style="margin-top:12px"><strong>Total tagihan:</strong> {{ $unit->payableAmount() === null ? 'Menunggu persetujuan ongkos' : 'Rp '.number_format($unit->payableAmount(), 0, ',', '.') }}@if($unit->totalDiscount() > 0) · potongan voucher Rp {{ number_format($unit->totalDiscount(), 0, ',', '.') }}@endif</p>

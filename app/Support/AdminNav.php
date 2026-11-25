@@ -39,6 +39,7 @@ class AdminNav
                 'label' => 'Katalog & penawaran',
                 'items' => [
                     ['label' => 'Katalog papan', 'short' => 'Katalog', 'route' => 'admin.catalog.index', 'match' => ['admin.catalog.*'], 'icon' => 'package'],
+                    ['label' => 'Item tambahan', 'short' => 'Tambahan', 'route' => 'admin.rental.addons.index', 'match' => ['admin.rental.addons.*'], 'icon' => 'sparkles'],
                     ['label' => 'Universitas & tarif', 'short' => 'Universitas', 'route' => 'admin.rental.universities.index', 'match' => ['admin.rental.universities.*'], 'icon' => 'location'],
                     ['label' => 'Voucher sewa', 'short' => 'Voucher', 'route' => 'admin.rental.vouchers.index', 'match' => ['admin.rental.vouchers.*'], 'icon' => 'voucher'],
                 ],
@@ -54,7 +55,7 @@ class AdminNav
                 'label' => 'Pemantauan',
                 'items' => [
                     ['label' => 'Notifikasi', 'short' => 'Notifikasi', 'route' => 'admin.notifications', 'match' => ['admin.notifications', 'admin.notifications.*'], 'icon' => 'notifikasi'],
-                    ['label' => 'Audit trail', 'short' => 'Audit', 'route' => 'admin.audit.index', 'match' => ['admin.audit.*'], 'icon' => 'audit'],
+                    ['label' => 'Jejak audit', 'short' => 'Audit', 'route' => 'admin.audit.index', 'match' => ['admin.audit.*'], 'icon' => 'audit'],
                     ['label' => 'Panduan admin', 'short' => 'Panduan', 'route' => 'admin.help', 'match' => ['admin.help'], 'icon' => 'help'],
                 ],
             ],

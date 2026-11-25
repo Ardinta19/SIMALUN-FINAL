@@ -2194,3 +2194,36 @@ komentar yang menyebut nama sendiri tidak menyelamatkan aset yatim).
 Diverifikasi dengan membuat `public/css/zzz-orphan.css`: tes gagal menyebut
 berkas itu, lalu hijau setelah dihapus. Kesebelas CSS dan kesebelas JS yang ada
 sekarang semuanya punya pemakai.
+
+---
+
+## 9.53 — Item tambahan & foto referensi desain
+
+Dua permintaan pemilik dikerjakan bersamaan karena keduanya menyentuh form
+checkout: pelanggan boleh **mengunggah beberapa foto contoh desain** (karena
+menjelaskan selera lewat teks sering tidak cukup), dan admin boleh menyiapkan
+**katalog item tambahan** yang dipilih pelanggan per unit, dengan harga masuk
+tagihan.
+
+Keputusan yang dipakai (dari pemilik): foto berlaku **per pesanan** (maks 5),
+daftar item tambahan **global untuk semua papan**, harga masuk **total unit**
+sehingga ikut DP/pelunasan, dan pilihan **terkunci setelah pesanan dikirim**.
+
+Catatan visual singkat:
+
+| Bagian | Catatan |
+|---|---|
+| `.bk-addon-list` / `.bk-addon` | Satu baris per item: foto 56 px, nama + harga, kotak jumlah 44 px. Di bawah 420 px kotak jumlah turun ke baris sendiri dan melebar penuh. |
+| `.bk-addon__text small` | Keterangan memakai `--theme-ink-mid` dengan cadangan `#6f5960`, jadi terbaca di tema gelap tanpa aturan tambahan. |
+| Unggahan foto | Kotak putus-putus setinggi `--bk-touch`, tombol `::file-selector-button` 36 px di dalamnya. |
+| `.bk-reference-list` | Galeri 96 px (jauh di atas sasaran ketuk), garis `--theme-line`. |
+
+Halaman yang ikut berubah: checkout (dua bagian baru + `enctype`), detail
+pesanan pelanggan, detail unit, ringkasan cetak, dan detail pesanan admin.
+
+Rincian alur, tabel, dan batas perilaku ada di
+`docs/FITUR-ITEM-TAMBAHAN-DAN-FOTO-REFERENSI.md`.
+
+**Istilah ikut dirapikan:** menu admin "Audit trail" → **Jejak audit** (di
+`AdminNav` dan kartu menu profil admin), sesuai tabel istilah `docs/kl/i18n.md`
+yang sudah lebih dulu menetapkan "jejak audit".

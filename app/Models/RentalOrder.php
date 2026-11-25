@@ -10,6 +10,8 @@ class RentalOrder extends Model
     protected $fillable = ['reference', 'customer_id', 'confirmation_deadline', 'checkout_key', 'checkout_payload_hash', 'voucher_id', 'voucher_code', 'discount_amount'];
     protected $casts = ['confirmation_deadline' => 'datetime', 'discount_amount' => 'integer'];
     public function units(): HasMany { return $this->hasMany(RentalOrderUnit::class); }
+    /** Foto contoh desain dari pelanggan (berlaku untuk seluruh pesanan). */
+    public function references(): HasMany { return $this->hasMany(RentalOrderReference::class)->orderBy('id'); }
     public function customer(): BelongsTo { return $this->belongsTo(User::class, 'customer_id'); }
     public function voucher(): BelongsTo { return $this->belongsTo(Voucher::class); }
     public function voucherUsage(): \Illuminate\Database\Eloquent\Relations\HasOne { return $this->hasOne(RentalVoucherUsage::class); }

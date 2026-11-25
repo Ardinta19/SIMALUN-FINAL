@@ -1,8 +1,10 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\RentalAddon;
 use App\Models\RentalOrder;
 use App\Models\RentalOrderUnit;
+use App\Models\RentalOrderReference;
 use App\Models\RentalProduct;
 use App\Models\RentalDurationPackage;
 use App\Models\RentalUniversity;
@@ -16,6 +18,7 @@ use App\Services\RentalNotifications;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -44,7 +47,10 @@ class RentalOrderController extends Controller
         if ($draft && ($draft['cart_key'] ?? null) === $this->checkoutCartKey($cart) && ! $request->session()->hasOldInput()) {
             $request->session()->flashInput($draft['input']);
         }
-        return view('rental.checkout', compact('cart', 'products', 'universities', 'savedAddresses', 'bookedDates'));
+        // Item tambahan global (semua papan), urut sesuai aturan admin.
+        $addons = RentalAddon::active()->get();
+
+        return view('rental.checkout', compact('cart', 'products', 'universities', 'savedAddresses', 'bookedDates', 'addons'));
     }
 
     public function store(Request $request)
@@ -68,6 +74,12 @@ class RentalOrderController extends Controller
             'units.*.delivery_address' => ['nullable', 'string', 'max:1000'],
             'units.*.return_method' => ['required', Rule::in(['collection', 'dropoff'])],
             'units.*.return_address' => ['nullable', 'string', 'max:1000'],
+            // Item tambahan: kunci = id item, nilai = jumlah. 0 berarti tidak dipilih.
+            'units.*.addons' => ['nullable', 'array'],
+            'units.*.addons.*' => ['nullable', 'integer', 'min:0', 'max:5'],
+            // Foto referensi desain: per pesanan, bukan per unit.
+            'reference_images' => ['nullable', 'array', 'max:5'],
+            'reference_images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'voucher_code' => ['nullable', 'string', 'max:40'],
         ]);
         if (count($cart) !== count($data['units']) || array_diff(array_keys($cart), array_keys($data['units']))) {
@@ -96,99 +108,161 @@ class RentalOrderController extends Controller
         $checkoutKey = hash('sha256', json_encode([$request->user()->id, $cartKeys], JSON_THROW_ON_ERROR));
         $units = $data['units'];
         ksort($units);
-        foreach ($units as &$values) ksort($values);
+        foreach ($units as &$values) {
+            ksort($values);
+            // Urutan kunci item tambahan tidak boleh mengubah hash pesanan.
+            if (! empty($values['addons']) && is_array($values['addons'])) ksort($values['addons']);
+        }
         unset($values);
         // Kode voucher ikut menjadi bagian isi pesanan: pengiriman ulang dengan
         // kode berbeda harus dianggap sebagai pesanan berbeda, bukan duplikat.
         $voucherCode = mb_strtoupper(trim((string) ($data['voucher_code'] ?? '')));
         $payloadHash = hash('sha256', json_encode([$units, $voucherCode], JSON_THROW_ON_ERROR));
-        [$order, $created] = DB::transaction(function () use ($request, $cart, $data, $checkoutKey, $payloadHash, $voucherCode) {
-            // Serialize checkout pelanggan yang sama, termasuk jika dua request
-            // membaca sesi sebelum request pertama mengosongkan keranjang.
-            User::whereKey($request->user()->id)->lockForUpdate()->firstOrFail();
-            $existing = RentalOrder::where('checkout_key', $checkoutKey)->first();
-            if ($existing) {
-                if (! hash_equals($existing->checkout_payload_hash ?? '', $payloadHash)) {
-                    throw ValidationException::withMessages(['cart' => 'Keranjang ini sudah dikirim dengan detail berbeda. Periksa Pesanan saya sebelum membuat pesanan baru.']);
-                }
-                return [$existing, false];
-            }
-            // Mengunci produk dalam urutan konsisten dengan konfirmasi stok.
-            // Unit pending ikut dihitung karena sejak pesanan dikirim tanggalnya
-            // sudah ditahan sampai admin mengonfirmasi atau tenggatnya lewat.
-            $products = RentalProduct::with('category')->whereIn('id', array_column($cart, 'product_id'))->orderBy('id')->lockForUpdate()->get()->keyBy('id');
-            $rangesByProduct = [];
-            foreach ($cart as $key => $entry) {
-                $rangesByProduct[$entry['product_id']][] = ['starts_on' => $data['units'][$key]['starts_on'], 'ends_on' => $data['units'][$key]['ends_on']];
-            }
-            foreach ($rangesByProduct as $productId => $ranges) {
-                $product = $products->get($productId);
-                if (! $product || ! $product->is_active || ! $product->category?->is_active || ! app(RentalAvailability::class)->canFitRequested($product, $ranges, true)) {
-                    throw ValidationException::withMessages(['cart' => 'Jumlah papan '.($product?->name ?? 'yang dipilih').' tidak tersedia untuk tanggal tersebut. Ubah tanggal atau kurangi unit, lalu coba lagi.']);
-                }
-            }
-            $order = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $request->user()->id, 'confirmation_deadline' => now()->addHours(24), 'checkout_key' => $checkoutKey, 'checkout_payload_hash' => $payloadHash]);
-            $plans = [];
-            foreach ($cart as $key => $entry) {
-                $product = $products->get($entry['product_id']);
-                if (! $product || ! $product->is_active || ! $product->category->is_active || $product->stock < 1) throw ValidationException::withMessages(['cart' => 'Ada papan yang tidak tersedia. Perbarui keranjang.']);
-                $unit = $data['units'][$key];
-                // Durasi sudah divalidasi assertBookablePeriod() sebelum transaksi.
-                $days = (int) Carbon::parse($unit['starts_on'])->diffInDays(Carbon::parse($unit['ends_on'])) + 1;
-                $package = null;
-                if (! empty($unit['package_id'])) {
-                    $package = RentalDurationPackage::where('rental_product_id', $product->id)->where('is_active', true)->lockForUpdate()->find($unit['package_id']);
-                    if (! $package || (int) $package->days !== $days) throw ValidationException::withMessages(['units' => 'Paket tidak tersedia atau durasi sewa tidak sesuai. Periksa kembali paket dan tanggal.']);
-                }
-                $amount = $package ? (int) $package->price : $product->base_price * ($product->price_unit === 'day' ? $days : 1);
-                if ($amount > 4294967295) throw ValidationException::withMessages(['units' => 'Jumlah biaya sewa melebihi batas sistem.']);
-                $delivery = null; $collection = null;
-                if ($unit['delivery_method'] === 'delivery' && ! empty($unit['delivery_university_id'])) {
-                    $delivery = RentalUniversity::where('is_active', true)->lockForUpdate()->find($unit['delivery_university_id']);
-                    if (! $delivery) throw ValidationException::withMessages(['units' => 'Universitas pengantaran tidak lagi tersedia.']);
-                }
-                if ($unit['return_method'] === 'collection' && ! empty($unit['return_university_id'])) {
-                    $collection = RentalUniversity::where('is_active', true)->lockForUpdate()->find($unit['return_university_id']);
-                    if (! $collection) throw ValidationException::withMessages(['units' => 'Universitas pengambilan kembali tidak lagi tersedia.']);
-                }
-                $allFixed = ($unit['delivery_method'] !== 'delivery' || $delivery) && ($unit['return_method'] !== 'collection' || $collection);
-                $hasTransport = $unit['delivery_method'] === 'delivery' || $unit['return_method'] === 'collection';
-                $transport = ['delivery_university' => $delivery?->name, 'delivery_university_fee' => $delivery?->delivery_fee, 'return_university' => $collection?->name, 'return_university_fee' => $collection?->collection_fee];
-                if ($hasTransport && $allFixed) $transport += ['transport_quote' => (int) ($delivery?->delivery_fee ?? 0) + (int) ($collection?->collection_fee ?? 0), 'transport_quote_version' => 1, 'transport_quote_note' => 'Tarif universitas sesuai pilihan saat checkout.'];
-                // Unit dibuat setelah potongan voucher diketahui agar setiap
-                // baris unit langsung menyimpan bagian potongannya.
-                $plans[$key] = array_merge($unit, $transport, ['rental_product_id' => $product->id, 'product_name' => $product->name, 'unit_price' => $product->base_price, 'price_unit' => $product->price_unit, 'rental_amount' => $amount, 'rental_duration_package_id' => $package?->id, 'package_name' => $package?->name, 'package_days' => $package?->days]);
-            }
+        // Foto referensi disimpan lebih dulu di luar transaksi: transaksi bisa
+        // diulang saat deadlock, dan menyimpan berkas di dalamnya bisa
+        // menghasilkan duplikat. Bila pesanan sudah ada (kirim ulang), berkas
+        // baru dibuang lagi di bawah.
+        $referenceFiles = array_values(array_filter((array) $request->file('reference_images', [])));
+        $storedReferences = [];
+        foreach ($referenceFiles as $file) {
+            $path = $file->store('rental-references', 'local');
+            if (! $path) throw ValidationException::withMessages(['reference_images' => 'Foto referensi tidak dapat disimpan. Silakan coba lagi.']);
+            $storedReferences[] = $path;
+        }
 
-            // Voucher: diperiksa dan dikunci di dalam transaksi supaya kuota
-            // tidak bisa terpakai dua kali oleh pengiriman bersamaan.
-            $vouchers = app(RentalVouchers::class);
-            $rentalBase = array_sum(array_map(fn (array $plan) => (int) $plan['rental_amount'], $plans));
-            $voucher = null;
-            $discount = 0;
-            if ($voucherCode !== '') {
-                $voucher = Voucher::where('code', $voucherCode)->lockForUpdate()->first();
-                if (! $voucher) throw ValidationException::withMessages(['voucher_code' => 'Kode voucher tidak dikenal.']);
-                $problem = $vouchers->problem($voucher, $request->user(), $rentalBase);
-                if ($problem !== null) throw ValidationException::withMessages(['voucher_code' => $problem]);
-                $discount = $vouchers->discountFor($voucher, $rentalBase);
-            }
-            $weights = array_map(fn (array $plan) => (int) $plan['rental_amount'], $plans);
-            $allocation = $vouchers->allocate($discount, $weights);
-            $order->forceFill([
-                'voucher_id' => $voucher?->id,
-                'voucher_code' => $voucher?->code,
-                'discount_amount' => $discount,
-            ])->save();
-            foreach ($plans as $planKey => $plan) {
-                $order->units()->create($plan + ['discount_amount' => (int) ($allocation['rental'][$planKey] ?? 0)]);
-            }
-            if ($voucher && $discount > 0) {
-                $vouchers->record($voucher, $order, $discount, $request->user()->id);
-            }
-            app(RentalNotifications::class)->admins($order, 'Pesanan sewa baru', 'Pesanan baru menunggu konfirmasi admin.');
-            return [$order, true];
-        }, 3);
+        try {
+            [$order, $created] = DB::transaction(function () use ($request, $cart, $data, $checkoutKey, $payloadHash, $voucherCode, $storedReferences) {
+                // Serialize checkout pelanggan yang sama, termasuk jika dua request
+                // membaca sesi sebelum request pertama mengosongkan keranjang.
+                User::whereKey($request->user()->id)->lockForUpdate()->firstOrFail();
+                $existing = RentalOrder::where('checkout_key', $checkoutKey)->first();
+                if ($existing) {
+                    if (! hash_equals($existing->checkout_payload_hash ?? '', $payloadHash)) {
+                        throw ValidationException::withMessages(['cart' => 'Keranjang ini sudah dikirim dengan detail berbeda. Periksa Pesanan saya sebelum membuat pesanan baru.']);
+                    }
+                    return [$existing, false];
+                }
+                // Mengunci produk dalam urutan konsisten dengan konfirmasi stok.
+                // Unit pending ikut dihitung karena sejak pesanan dikirim tanggalnya
+                // sudah ditahan sampai admin mengonfirmasi atau tenggatnya lewat.
+                $products = RentalProduct::with('category')->whereIn('id', array_column($cart, 'product_id'))->orderBy('id')->lockForUpdate()->get()->keyBy('id');
+                // Item tambahan dikunci sebelum dipakai agar harga yang tersimpan
+                // sama dengan yang dihitung; item nonaktif ditolak.
+                $requestedAddons = [];
+                foreach ($cart as $key => $entry) {
+                    foreach (array_keys((array) ($data['units'][$key]['addons'] ?? [])) as $addonId) {
+                        if ((int) $addonId > 0) $requestedAddons[(int) $addonId] = true;
+                    }
+                }
+                $addonModels = $requestedAddons
+                    ? RentalAddon::whereIn('id', array_keys($requestedAddons))->where('is_active', true)->orderBy('id')->lockForUpdate()->get()->keyBy('id')
+                    : collect();
+                $rangesByProduct = [];
+                foreach ($cart as $key => $entry) {
+                    $rangesByProduct[$entry['product_id']][] = ['starts_on' => $data['units'][$key]['starts_on'], 'ends_on' => $data['units'][$key]['ends_on']];
+                }
+                foreach ($rangesByProduct as $productId => $ranges) {
+                    $product = $products->get($productId);
+                    if (! $product || ! $product->is_active || ! $product->category?->is_active || ! app(RentalAvailability::class)->canFitRequested($product, $ranges, true)) {
+                        throw ValidationException::withMessages(['cart' => 'Jumlah papan '.($product?->name ?? 'yang dipilih').' tidak tersedia untuk tanggal tersebut. Ubah tanggal atau kurangi unit, lalu coba lagi.']);
+                    }
+                }
+                $order = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $request->user()->id, 'confirmation_deadline' => now()->addHours(24), 'checkout_key' => $checkoutKey, 'checkout_payload_hash' => $payloadHash]);
+                $plans = [];
+                $addonRowsByKey = [];
+                $unitNumber = 0;
+                foreach ($cart as $key => $entry) {
+                    $unitNumber++;
+                    $unitLabel = 'Unit '.$unitNumber.': ';
+                    $product = $products->get($entry['product_id']);
+                    if (! $product || ! $product->is_active || ! $product->category->is_active || $product->stock < 1) throw ValidationException::withMessages(['cart' => 'Ada papan yang tidak tersedia. Perbarui keranjang.']);
+                    $unit = $data['units'][$key];
+                    // Item tambahan: jumlah 0 berarti tidak dipilih. Nama dan harga
+                    // disalin ke baris pesanan supaya katalog boleh berubah nanti.
+                    $addonRows = [];
+                    $addonTotal = 0;
+                    foreach ((array) ($unit['addons'] ?? []) as $addonId => $quantity) {
+                        $quantity = (int) $quantity;
+                        if ($quantity < 1) continue;
+                        $addon = $addonModels->get((int) $addonId);
+                        if (! $addon) throw ValidationException::withMessages(['units' => $unitLabel.'ada item tambahan yang sudah tidak tersedia. Muat ulang halaman checkout.']);
+                        $line = (int) $addon->price * $quantity;
+                        if ($line > 4294967295) throw ValidationException::withMessages(['units' => $unitLabel.'harga item tambahan melebihi batas sistem.']);
+                        $addonRows[] = ['rental_addon_id' => $addon->id, 'name' => $addon->name, 'price' => (int) $addon->price, 'quantity' => $quantity, 'total' => $line];
+                        $addonTotal += $line;
+                    }
+                    if ($addonTotal > 4294967295) throw ValidationException::withMessages(['units' => $unitLabel.'total item tambahan melebihi batas sistem.']);
+                    unset($unit['addons']);
+                    $addonRowsByKey[$key] = $addonRows;
+                    // Durasi sudah divalidasi assertBookablePeriod() sebelum transaksi.
+                    $days = (int) Carbon::parse($unit['starts_on'])->diffInDays(Carbon::parse($unit['ends_on'])) + 1;
+                    $package = null;
+                    if (! empty($unit['package_id'])) {
+                        $package = RentalDurationPackage::where('rental_product_id', $product->id)->where('is_active', true)->lockForUpdate()->find($unit['package_id']);
+                        if (! $package || (int) $package->days !== $days) throw ValidationException::withMessages(['units' => 'Paket tidak tersedia atau durasi sewa tidak sesuai. Periksa kembali paket dan tanggal.']);
+                    }
+                    $amount = $package ? (int) $package->price : $product->base_price * ($product->price_unit === 'day' ? $days : 1);
+                    if ($amount > 4294967295) throw ValidationException::withMessages(['units' => 'Jumlah biaya sewa melebihi batas sistem.']);
+                    $delivery = null; $collection = null;
+                    if ($unit['delivery_method'] === 'delivery' && ! empty($unit['delivery_university_id'])) {
+                        $delivery = RentalUniversity::where('is_active', true)->lockForUpdate()->find($unit['delivery_university_id']);
+                        if (! $delivery) throw ValidationException::withMessages(['units' => 'Universitas pengantaran tidak lagi tersedia.']);
+                    }
+                    if ($unit['return_method'] === 'collection' && ! empty($unit['return_university_id'])) {
+                        $collection = RentalUniversity::where('is_active', true)->lockForUpdate()->find($unit['return_university_id']);
+                        if (! $collection) throw ValidationException::withMessages(['units' => 'Universitas pengambilan kembali tidak lagi tersedia.']);
+                    }
+                    $allFixed = ($unit['delivery_method'] !== 'delivery' || $delivery) && ($unit['return_method'] !== 'collection' || $collection);
+                    $hasTransport = $unit['delivery_method'] === 'delivery' || $unit['return_method'] === 'collection';
+                    $transport = ['delivery_university' => $delivery?->name, 'delivery_university_fee' => $delivery?->delivery_fee, 'return_university' => $collection?->name, 'return_university_fee' => $collection?->collection_fee];
+                    if ($hasTransport && $allFixed) $transport += ['transport_quote' => (int) ($delivery?->delivery_fee ?? 0) + (int) ($collection?->collection_fee ?? 0), 'transport_quote_version' => 1, 'transport_quote_note' => 'Tarif universitas sesuai pilihan saat checkout.'];
+                    // Unit dibuat setelah potongan voucher diketahui agar setiap
+                    // baris unit langsung menyimpan bagian potongannya.
+                    $plans[$key] = array_merge($unit, $transport, ['rental_product_id' => $product->id, 'product_name' => $product->name, 'unit_price' => $product->base_price, 'price_unit' => $product->price_unit, 'rental_amount' => $amount, 'addon_amount' => $addonTotal, 'rental_duration_package_id' => $package?->id, 'package_name' => $package?->name, 'package_days' => $package?->days]);
+                }
+
+                // Voucher: diperiksa dan dikunci di dalam transaksi supaya kuota
+                // tidak bisa terpakai dua kali oleh pengiriman bersamaan.
+                $vouchers = app(RentalVouchers::class);
+                $rentalBase = array_sum(array_map(fn (array $plan) => (int) $plan['rental_amount'], $plans));
+                $voucher = null;
+                $discount = 0;
+                if ($voucherCode !== '') {
+                    $voucher = Voucher::where('code', $voucherCode)->lockForUpdate()->first();
+                    if (! $voucher) throw ValidationException::withMessages(['voucher_code' => 'Kode voucher tidak dikenal.']);
+                    $problem = $vouchers->problem($voucher, $request->user(), $rentalBase);
+                    if ($problem !== null) throw ValidationException::withMessages(['voucher_code' => $problem]);
+                    $discount = $vouchers->discountFor($voucher, $rentalBase);
+                }
+                $weights = array_map(fn (array $plan) => (int) $plan['rental_amount'], $plans);
+                $allocation = $vouchers->allocate($discount, $weights);
+                $order->forceFill([
+                    'voucher_id' => $voucher?->id,
+                    'voucher_code' => $voucher?->code,
+                    'discount_amount' => $discount,
+                ])->save();
+                foreach ($plans as $planKey => $plan) {
+                    $createdUnit = $order->units()->create($plan + ['discount_amount' => (int) ($allocation['rental'][$planKey] ?? 0)]);
+                    if (! empty($addonRowsByKey[$planKey])) $createdUnit->addons()->createMany($addonRowsByKey[$planKey]);
+                }
+                if ($voucher && $discount > 0) {
+                    $vouchers->record($voucher, $order, $discount, $request->user()->id);
+                }
+                foreach ($storedReferences as $path) {
+                    $order->references()->create(['image_path' => $path, 'uploaded_by' => $request->user()->id]);
+                }
+                app(RentalNotifications::class)->admins($order, 'Pesanan sewa baru', 'Pesanan baru menunggu konfirmasi admin.');
+                return [$order, true];
+            }, 3);
+        } catch (\Throwable $e) {
+            foreach ($storedReferences as $path) Storage::disk('local')->delete($path);
+            throw $e;
+        }
+
+        // Pesanan sudah pernah dikirim: foto yang baru diunggah tidak dipakai.
+        if (! $created) {
+            foreach ($storedReferences as $path) Storage::disk('local')->delete($path);
+        }
         $request->session()->forget(['rental_cart', 'rental_checkout_draft']);
         return redirect()->route('rental.orders.show', $order)->with('success', $created ? 'Pesanan dikirim dan menunggu konfirmasi admin. Tanggal sudah ditahan sampai tenggat konfirmasi.' : 'Pesanan ini sudah dikirim sebelumnya. Periksa rinciannya di bawah.');
     }
@@ -204,18 +278,32 @@ class RentalOrderController extends Controller
     public function show(Request $request, RentalOrder $order)
     {
         abort_unless($order->customer_id === $request->user()->id, 403);
-        $order->load(['units' => fn ($query) => $query->orderBy('id'), 'units.previews', 'units.payments']);
+        $order->load(['references', 'units' => fn ($query) => $query->orderBy('id'), 'units.previews', 'units.addons', 'units.payments']);
         $rating = DB::table('rental_order_reviews')->where('rental_order_id', $order->id)->value('rating');
         $likeShare = DB::table('rental_order_like_shares')->where('rental_order_id', $order->id)->first();
         $likeCount = DB::table('rental_order_likes')->where('rental_order_id', $order->id)->count();
         return view('rental.show', compact('order', 'rating', 'likeShare', 'likeCount'));
     }
 
+    /** Foto referensi hanya untuk pelanggan pemilik pesanan dan admin. */
+    public function referenceImage(Request $request, RentalOrderReference $reference)
+    {
+        $reference->loadMissing('order');
+        $user = $request->user();
+        abort_unless($user->role === 'admin' || ($user->role === 'customer' && $reference->order->customer_id === $user->id), 403);
+        abort_unless(Storage::disk('local')->exists($reference->image_path), 404);
+
+        return Storage::disk('local')->response($reference->image_path, null, [
+            'Cache-Control' => 'private, no-store',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
     public function customerUnit(Request $request, RentalOrder $order, RentalOrderUnit $unit)
     {
         abort_unless($order->customer_id === $request->user()->id, 403);
         abort_unless($unit->rental_order_id === $order->id, 404);
-        $unit->load('previews', 'payments.refunds', 'payments.corrections', 'progressEvents', 'cancellationEvents', 'transportQuoteEvents.recorder');
+        $unit->load('previews', 'addons', 'payments.refunds', 'payments.corrections', 'progressEvents', 'cancellationEvents', 'transportQuoteEvents.recorder');
         $paymentSettings = RentalPaymentSetting::find(1);
         $unitNumber = $order->units()->where('id', '<=', $unit->id)->count();
         $productRating = DB::table('rental_product_reviews')->where('rental_order_unit_id', $unit->id)->value('rating');
@@ -287,7 +375,7 @@ class RentalOrderController extends Controller
 
     public function adminShow(RentalOrder $order)
     {
-        $order->load(['customer', 'units.previews', 'units.payments.refunds', 'units.payments.corrections', 'units.progressEvents.recorder', 'units.cancellationEvents', 'units.transportQuoteEvents.recorder']);
+        $order->load(['customer', 'references', 'units.previews', 'units.addons', 'units.payments.refunds', 'units.payments.corrections', 'units.progressEvents.recorder', 'units.cancellationEvents', 'units.transportQuoteEvents.recorder']);
         return view('rental.admin-detail', ['order' => $order, 'filters' => []]);
     }
 

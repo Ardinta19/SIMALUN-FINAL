@@ -407,7 +407,7 @@ body {
                 @include('layouts.component._icon', ['name' => 'audit', 'size' => 20])
             </div>
             <div class="menu-card__body">
-                <div class="menu-card__label">Audit trail</div>
+                <div class="menu-card__label">Jejak audit</div>
                 <div class="menu-card__sub">Jejak tindakan admin terakhir</div>
             </div>
             <span class="menu-card__arrow">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>

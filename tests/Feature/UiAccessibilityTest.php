@@ -397,6 +397,22 @@ class UiAccessibilityTest extends TestCase
         $this->assertSame([], $offenders, 'Aset tanpa pemakai: '.implode(', ', $offenders));
     }
 
+    /** Form checkout mengirim berkas: tanpa enctype, foto referensi tidak
+     *  pernah sampai ke server walau inputnya ada. */
+    public function test_form_checkout_siap_mengunggah_foto_referensi(): void
+    {
+        $view = $this->read(resource_path('views/rental/checkout.blade.php'));
+
+        $this->assertStringContainsString('enctype="multipart/form-data"', $view, 'Form checkout harus bisa mengirim berkas.');
+        $this->assertStringContainsString('name="reference_images[]"', $view);
+        $this->assertStringContainsString('accept="image/jpeg,image/png,image/webp"', $view);
+        $this->assertMatchesRegularExpression('/name="reference_images\[\]"[^>]*multiple/', $view, 'Foto referensi harus bisa lebih dari satu.');
+
+        // Kontrol jumlah item tambahan tetap setinggi sasaran ketuk.
+        $css = $this->read(public_path('css/berkah-experience.css'));
+        $this->assertMatchesRegularExpression('/\.bk-addon__qty input \{[^}]*min-height:\s*var\(--bk-touch\)/s', $css);
+    }
+
     /** Judul halaman memakai satu pemisah, ` · `, bukan campuran ` – ` dan
      *  ` | `. Surel dikecualikan: klien surel memakai nama merek saja. */
     public function test_judul_halaman_memakai_pemisah_titik_tengah(): void

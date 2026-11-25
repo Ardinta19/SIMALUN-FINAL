@@ -6,6 +6,17 @@
 <p class="muted">Referensi: {{ $order->reference }}</p>
 @if($order->voucher_code)<p class="muted">Voucher {{ $order->voucher_code }} · potongan Rp {{ number_format((int) $order->discount_amount, 0, ',', '.') }} sudah termasuk pada tagihan tiap unit.</p>@endif
 <p class="muted">Batas konfirmasi: {{ $order->confirmation_deadline->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB</p>
+@if($order->references->isNotEmpty())
+<section class="card body" id="order-references">
+    <h2>Foto referensi desain</h2>
+    <p class="muted">Contoh yang kamu unggah saat checkout ({{ $order->references->count() }} foto). Foto hanya bisa dilihat olehmu dan admin.</p>
+    <ul class="bk-reference-list">
+        @foreach($order->references as $reference)
+            <li><a href="{{ route('rental.reference.image', $reference) }}" target="_blank" rel="noopener"><img src="{{ route('rental.reference.image', $reference) }}" alt="Foto referensi {{ $loop->iteration }}" width="96" height="96" loading="lazy" decoding="async"></a></li>
+        @endforeach
+    </ul>
+</section>
+@endif
 <p><a class="btn secondary" href="{{ route('rental.receipt', $order) }}">Ringkasan cetak</a></p>
 <div class="notice">Pilih unit untuk memeriksa ongkos, desain, pembayaran, dan perkembangannya. Tanggal ditahan sejak pesanan dikirim sampai admin mengonfirmasi.</div>
 <section class="card body bk-feedback-card"><h2>Rating pesanan</h2>
@@ -31,6 +42,7 @@
     <p><strong>{{ ['pending'=>'Menunggu konfirmasi', 'confirmed'=>'Dikonfirmasi', 'cancelled'=>'Dibatalkan'][$unit->status] ?? $unit->status }}</strong></p>
     <p>@if($unit->starts_on->isSameDay($unit->event_on)) Acara dan penerimaan: {{ $unit->event_on->format('d/m/Y') }} @else Penerimaan: {{ $unit->starts_on->format('d/m/Y') }} · Acara: {{ $unit->event_on->format('d/m/Y') }} @endif · Pengembalian: {{ $unit->ends_on->format('d/m/Y') }}</p>
     <p class="muted">Penerima: {{ $unit->recipient_name }}</p>
+    @if($unit->addons->isNotEmpty())<p class="muted">Item tambahan: {{ $unit->addons->map(fn ($addon) => $addon->quantity.'× '.$addon->name)->implode(', ') }} · Rp {{ number_format((int) $unit->addon_amount, 0, ',', '.') }}</p>@endif
     @if($unit->status === 'pending')<p class="muted">Menunggu konfirmasi admin. Tanggal sudah ditahan sampai tenggat konfirmasi.</p>
     @elseif($unit->status === 'cancelled')<p class="muted">Unit dibatalkan; buka detail untuk melihat tindak lanjut.</p>
     @else

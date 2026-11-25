@@ -21,6 +21,7 @@ use App\Http\Controllers\RentalOrderController;
 use App\Http\Controllers\RentalDesignController;
 use App\Http\Controllers\RentalPaymentController;
 use App\Http\Controllers\RentalProgressController;
+use App\Http\Controllers\RentalAddonController;
 use App\Http\Controllers\RentalUniversityController;
 use App\Http\Controllers\RentalVoucherController;
 use App\Http\Controllers\RentalCashBookController;
@@ -110,6 +111,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/ringkasan-sewa/{order}', [RentalReceiptController::class, 'show'])->name('rental.receipt');
     Route::get('/pembayaran-sewa/{payment}/bukti', [RentalPaymentController::class, 'proof'])->name('rental.payment.proof');
     Route::get('/preview-desain/{preview}/gambar', [RentalDesignController::class, 'image'])->name('rental.design.image');
+    Route::get('/referensi-pesanan/{reference}/gambar', [RentalOrderController::class, 'referenceImage'])->name('rental.reference.image');
 
     Route::middleware('role:customer')->group(function () {
         Route::post('/katalog/{product}/suka', [RentalFeedbackController::class, 'productLike'])->middleware('throttle:30,1')->name('rental.product.like');
@@ -174,6 +176,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/universitas', [RentalUniversityController::class, 'store'])->name('rental.universities.store');
         Route::put('/universitas/{university}', [RentalUniversityController::class, 'update'])->name('rental.universities.update');
         Route::patch('/universitas/{university}/status', [RentalUniversityController::class, 'toggle'])->name('rental.universities.toggle');
+        Route::get('/item-tambahan', [RentalAddonController::class, 'index'])->name('rental.addons.index');
+        Route::post('/item-tambahan', [RentalAddonController::class, 'store'])->name('rental.addons.store');
+        Route::put('/item-tambahan/{addon}', [RentalAddonController::class, 'update'])->name('rental.addons.update');
+        Route::patch('/item-tambahan/{addon}/status', [RentalAddonController::class, 'toggle'])->name('rental.addons.toggle');
+        Route::delete('/item-tambahan/{addon}', [RentalAddonController::class, 'destroy'])->name('rental.addons.destroy');
         Route::get('/voucher-sewa', [RentalVoucherController::class, 'index'])->name('rental.vouchers.index');
         Route::post('/voucher-sewa', [RentalVoucherController::class, 'store'])->name('rental.vouchers.store');
         Route::patch('/voucher-sewa/{voucher}/status', [RentalVoucherController::class, 'toggle'])->name('rental.vouchers.toggle');

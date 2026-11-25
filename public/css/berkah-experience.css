@@ -332,6 +332,123 @@ html:not(.bk-enhanced) .bk-header-space{height:auto!important;min-height:0;paddi
     line-height: 1.6;
 }
 
+/* Item tambahan (checkout): satu baris per item, sasaran ketuk 44 px.
+   Warna memakai token tema bila ada, dengan cadangan hangat untuk halaman
+   katalog yang tidak memuat _tokens. */
+.bk-addon-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--bk-space-3);
+}
+
+.bk-addon {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--bk-space-3);
+    padding: var(--bk-space-3);
+    border: 1px solid var(--theme-line, #f0dfe1);
+    border-radius: 14px;
+    background: var(--theme-surface-2, #fffaf8);
+}
+
+.bk-addon__img {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    object-fit: cover;
+    display: block;
+}
+
+.bk-addon__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.bk-addon__text strong {
+    font-size: var(--bk-fs-sm);
+    color: var(--theme-ink, #321d24);
+}
+
+.bk-addon__price {
+    font-size: var(--bk-fs-sm);
+    font-weight: 800;
+    color: var(--theme-brand-strong, #85092d);
+}
+
+.bk-addon__text small {
+    font-size: var(--bk-fs-2xs);
+    color: var(--theme-ink-mid, #6f5960);
+    line-height: 1.5;
+}
+
+/* Label jumlah tidak memakai margin label checkout: barisnya sudah berjarak. */
+.checkout-form .bk-addon__qty {
+    display: grid;
+    gap: 4px;
+    justify-items: end;
+    margin: 0;
+    min-width: 76px;
+}
+
+.bk-addon__qty span {
+    font-size: var(--bk-fs-2xs);
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--theme-ink-mid, #6f5960);
+}
+
+.bk-addon__qty input {
+    width: 76px;
+    min-height: var(--bk-touch);
+    text-align: center;
+}
+
+@media (max-width: 420px) {
+    .bk-addon {
+        grid-template-columns: auto 1fr;
+    }
+
+    .bk-addon__qty {
+        grid-column: 1 / -1;
+        justify-items: stretch;
+    }
+
+    .bk-addon__qty input {
+        width: 100%;
+    }
+}
+
+/* Unggahan foto referensi: kotak putus-putus setinggi sasaran ketuk. */
+.checkout-form input[type="file"] {
+    width: 100%;
+    min-height: var(--bk-touch);
+    padding: 10px 12px;
+    border: 1px dashed var(--theme-line, #e0c7cd);
+    border-radius: var(--bk-r-control);
+    background: var(--theme-surface-2, #fffaf8);
+    color: var(--theme-ink, #321d24);
+    font: inherit;
+}
+
+.checkout-form input[type="file"]::file-selector-button {
+    min-height: 36px;
+    margin-right: 12px;
+    padding: 6px 14px;
+    border: 1px solid var(--theme-line, #e0c7cd);
+    border-radius: 10px;
+    background: var(--theme-surface, #fff);
+    color: inherit;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
 /* Tombol kirim selalu cukup besar dan selebar kartu di ponsel. */
 .checkout-form [data-checkout-submit] {
     width: 100%;
