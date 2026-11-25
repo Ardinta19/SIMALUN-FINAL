@@ -77,7 +77,7 @@
 
     <div class="adm-field">
         <label for="pay-instructions">Petunjuk tambahan</label>
-        <textarea id="pay-instructions" name="instructions" maxlength="3000">{{ $oldText('instructions', $settings?->instructions) }}</textarea>
+        <textarea placeholder="Contoh: Transfer ke BCA 1234567890 a.n. Berkah Kreatif, lalu kirim bukti lewat WhatsApp." id="pay-instructions" name="instructions" maxlength="3000">{{ $oldText('instructions', $settings?->instructions) }}</textarea>
         <span class="adm-help">Petunjuk ini terlihat pada detail pesanan pelanggan, bersama QRIS.</span>
     </div>
 

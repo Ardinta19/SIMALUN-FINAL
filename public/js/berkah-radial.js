@@ -108,6 +108,35 @@
             return { radius: radius, points: points };
         };
 
+        /* Kotak pandang tempat busur harus muat, dihitung dari titik tumpu
+           tombol. Tiap tujuan berjari 23 px ditambah 10 px napas dari tepi. */
+        const arcViewport = () => {
+            const width = window.innerWidth || document.documentElement.clientWidth || 0;
+            const height = window.innerHeight || document.documentElement.clientHeight || 0;
+            const rect = summary.getBoundingClientRect();
+            const centerX = rect.left + (rect.width / 2);
+            const centerY = rect.top + (rect.height / 2);
+            return {
+                width: width,
+                height: height,
+                centerX: centerX,
+                centerY: centerY,
+                maxLeft: Math.max(0, centerX - ARC_EDGE - 10),
+                maxRight: Math.max(0, width - centerX - ARC_EDGE - 10),
+                maxUp: Math.max(0, centerY - ARC_EDGE - 10),
+                maxDown: Math.max(0, height - centerY - ARC_EDGE - 10)
+            };
+        };
+
+        /* Setiap titik dijepit ke area aman pandangan. Tanpa ini, tombol yang
+           menempel di tepi kanan membuat tujuan terakhir keluar layar; elemen
+           absolut itu ikut melebarkan dokumen sehingga seluruh halaman bisa
+           digeser mendatar (pil header bergeser, tepi kartu terpotong). */
+        const clampPoints = (points, ctx) => points.map(point => [
+            Math.max(-ctx.maxLeft, Math.min(ctx.maxRight, point[0])),
+            Math.max(-ctx.maxUp, Math.min(ctx.maxDown, point[1]))
+        ]);
+
         const useServerArc = () => {
             items.forEach((item, index) => {
                 item.style.setProperty('--rx', defaults[index][0]);
@@ -117,43 +146,89 @@
             menu.classList.remove('is-arc-opposite');
         };
 
+        /* Menulis satu set titik ke semua tujuan sekaligus, setelah dijepit ke
+           area aman. `mode` hanya mengatur penanda kelas untuk CSS. */
+        const commitArc = (ctx, slots, rawPoints, mode) => {
+            const safe = clampPoints(rawPoints, ctx);
+            slots.forEach((item, index) => {
+                item.style.setProperty('--rx', Math.round(safe[index][0]) + 'px');
+                item.style.setProperty('--ry', Math.round(safe[index][1]) + 'px');
+            });
+            menu.classList.toggle('is-arc-u', mode === 'u');
+            menu.classList.toggle('is-arc-opposite', mode === 'side');
+        };
+
         const applyArc = () => {
             if (!summary.getBoundingClientRect) {
                 useServerArc();
                 return;
             }
-            const rect = summary.getBoundingClientRect();
-            const width = window.innerWidth || document.documentElement.clientWidth || 0;
+            const ctx = arcViewport();
             // Tanpa tata letak (mis. jsdom) ukuran 0: pertahankan nilai server.
-            if (!rect.width || !width) return;
-            const center = rect.left + (rect.width / 2);
-            const roomLeft = center;
-            const roomRight = width - center;
+            if (!ctx.width || !ctx.height) return;
             const slots = filledItems();
-            const arc = layoutArc(slots.length, center, roomRight);
+            if (!slots.length) {
+                useServerArc();
+                return;
+            }
+            const roomLeft = ctx.centerX;
+            const roomRight = ctx.width - ctx.centerX;
+
+            const arc = layoutArc(slots.length, roomLeft, roomRight);
             if (arc) {
-                slots.forEach((item, index) => {
-                    item.style.setProperty('--rx', arc.points[index][0] + 'px');
-                    item.style.setProperty('--ry', arc.points[index][1] + 'px');
-                });
-                menu.classList.add('is-arc-u');
-                menu.classList.remove('is-arc-opposite');
+                commitArc(ctx, slots, arc.points, 'u');
                 return;
             }
             // Ruang kiri jelas lebih sempit: cermin busur server ke kanan.
             if (roomRight > roomLeft + 24) {
                 const mirror = layoutSide(slots.length, roomRight);
                 if (mirror) {
-                    slots.forEach((item, index) => {
-                        item.style.setProperty('--rx', mirror.points[index][0] + 'px');
-                        item.style.setProperty('--ry', mirror.points[index][1] + 'px');
-                    });
-                    menu.classList.add('is-arc-opposite');
-                    menu.classList.remove('is-arc-u');
+                    commitArc(ctx, slots, mirror.points, 'side');
                     return;
                 }
             }
-            useServerArc();
+            // Busur bawaan server (kiri-bawah) — tetap dijepit bila tombolnya
+            // menempel di tepi kanan.
+            commitArc(ctx, slots, defaults.map(point => [
+                parseFloat(point[0]) || 0,
+                parseFloat(point[1]) || 0
+            ]), 'server');
+        };
+
+        /* Header bisa berganti bentuk tepat setelah busur dibuka (pil ringkas
+           ⇄ penuh/pinned), dan titik tumpu tombolnya ikut bergeser selama
+           morph 0,34 dtk. Bentuk busur dihitung ulang setiap kali posisi
+           tombol berubah, selama ±0,55 dtk — bukan sekali saja saat membuka,
+           yang dulu meninggalkan busur dihitung dari posisi lama sehingga
+           tujuan terakhir terpotong tepi layar. */
+        const nowMs = () => (window.performance && typeof window.performance.now === 'function')
+            ? window.performance.now()
+            : Date.now();
+        let followFrame = 0;
+        let followUntil = 0;
+        let followKey = '';
+        const followPivot = () => {
+            followFrame = 0;
+            if (!menu.open) return;
+            const rect = summary.getBoundingClientRect();
+            const key = Math.round(rect.left) + ':' + Math.round(rect.top) + ':' + Math.round(rect.width) + ':' + Math.round(rect.height);
+            if (key !== followKey) {
+                followKey = key;
+                applyArc();
+            }
+            if (nowMs() < followUntil) followFrame = window.requestAnimationFrame(followPivot);
+        };
+        const followPivotFor = milliseconds => {
+            followUntil = nowMs() + milliseconds;
+            followKey = '';
+            if (!followFrame && window.requestAnimationFrame) {
+                followFrame = window.requestAnimationFrame(followPivot);
+            }
+        };
+        const stopFollowing = () => {
+            if (followFrame && window.cancelAnimationFrame) window.cancelAnimationFrame(followFrame);
+            followFrame = 0;
+            followUntil = 0;
         };
 
         let timeline = null;
@@ -222,6 +297,8 @@
             // header penuh menaruh tombol di ujung kanan. Keduanya butuh bentuk
             // yang berbeda, dan lebarnya bisa berubah setelah rotasi.
             applyArc();
+            // Pivot masih bisa bergeser selama header bermorph.
+            followPivotFor(550);
             freezeScroll(true);
 
             const gsap = gsapCore();
@@ -326,6 +403,7 @@
                 open();
                 return;
             }
+            stopFollowing();
             freezeScroll(false);
             /* Ditutup dari luar skrip ini (berkah-experience.js, header
                diganti, atau [open] dilepas program lain): hentikan tween yang

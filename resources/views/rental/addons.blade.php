@@ -50,7 +50,7 @@
             </div>
             <div class="adm-field">
                 <label for="addon-sort">Urutan tampil</label>
-                <input id="addon-sort" type="number" name="sort_order" min="0" max="999" value="{{ old('sort_order', 0) }}">
+                <input placeholder="Contoh: 0" id="addon-sort" type="number" name="sort_order" min="0" max="999" value="{{ old('sort_order', 0) }}">
                 <p class="muted">Angka kecil tampil lebih dulu.</p>
             </div>
         </div>

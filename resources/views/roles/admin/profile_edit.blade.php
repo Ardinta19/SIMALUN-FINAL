@@ -225,7 +225,7 @@ body {
                 <label class="form-label" for="name">Nama Lengkap</label>
                 <div class="input-wrap">
                     <span class="input-icon">@include('layouts.component._icon', ['name' => 'profile', 'size' => 16])</span>
-                    <input type="text" id="name" name="name" class="form-input" value="{{ $oldText('name', $user->name) }}" required>
+                    <input placeholder="Contoh: Sari Wulandari" type="text" id="name" name="name" class="form-input" value="{{ $oldText('name', $user->name) }}" required>
                 </div>
             </div>
 
@@ -233,7 +233,7 @@ body {
                 <label class="form-label" for="email">Alamat Email</label>
                 <div class="input-wrap">
                     <span class="input-icon">@include('layouts.component._icon', ['name' => 'message-circle', 'size' => 16])</span>
-                    <input autocomplete="email" type="email" id="email" name="email" class="form-input" value="{{ $oldText('email', $user->email) }}" required>
+                    <input placeholder="Contoh: nama@email.com" autocomplete="email" type="email" id="email" name="email" class="form-input" value="{{ $oldText('email', $user->email) }}" required>
                 </div>
             </div>
 
@@ -241,7 +241,7 @@ body {
                 <label class="form-label" for="phone">Nomor WhatsApp</label>
                 <div class="input-wrap">
                     <span class="input-icon">@include('layouts.component._icon', ['name' => 'phone', 'size' => 16])</span>
-                    <input type="tel" id="phone" name="phone" autocomplete="tel" class="form-input" value="{{ $oldText('phone', $user->phone) }}" placeholder="08xxxxxxxxxx">
+                    <input placeholder="Contoh: 0812 3456 7890" type="tel" id="phone" name="phone" autocomplete="tel" class="form-input" value="{{ $oldText('phone', $user->phone) }}" placeholder="08xxxxxxxxxx">
                 </div>
             </div>
 

@@ -109,7 +109,11 @@
    selalu menjadi titik tumpu bagi panelnya. */
 .bk-header-radial{display:none;position:relative;flex:0 0 auto}
 .bk-header.is-compact .bk-header-radial>summary{width:44px;height:44px}
-@media(max-width:700px){.bk-header-radial{display:block}}
+/* Ambangnya sama dengan ambang nav lebar: di bawah 880 px tautan header
+   disembunyikan (lihat berkah-experience.css), jadi busur inilah satu-satunya
+   jalan ke Pesanan/Bantuan. Dulu ambangnya 700 px, dan pada tablet 701–880 px
+   tidak ada menu sama sekali: tautan header hilang, tombol busur juga. */
+@media(max-width:880px){.bk-header-radial{display:block}}
 
 html[data-theme] .bk-header-radial .customer-radial__panel{position:absolute;top:50%;right:50%;width:0;height:0;padding:0;margin:0;border:0;border-radius:0;background:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;transform:translate(50%,-50%);overflow:visible;max-height:none;z-index:1200}
 .bk-header-radial .customer-radial__heading{display:none}

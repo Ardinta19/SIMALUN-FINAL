@@ -2437,3 +2437,66 @@ Dijaga `ResponsiveLayoutTest::test_header_never_disappears_between_full_navbar_a
 `::test_radial_menu_icon_sits_in_the_middle_of_its_button`,
 `::test_customer_pages_cannot_scroll_sideways`, dan
 `MotionAssetsTest::test_gulir_roda_memakai_lerp_bukan_durasi_tetap`.
+
+### 9.58 Busur keluar layar, kolom tanpa contoh, dan ritme tipografi
+
+**a. Busur radial bisa keluar layar — dan itu yang membuat halaman bergeser.**
+`applyArc()` menghitung bentuk busur sekali saat menu dibuka, dari posisi
+tombol saat itu. Header bisa berganti bentuk tepat sesudahnya (pil ringkas ⇄
+penuh/pinned, morph 9.56) sehingga tombol bergeser ke tepi kanan, tetapi
+tujuan tetap memakai titik tumpu lama: lingkaran terakhir terpotong tepi
+layar. Karena tujuan itu `position: absolute` di dalam header yang juga
+`absolute` (belum ringkas), ia ikut melebarkan dokumen — seluruh halaman jadi
+bisa digeser mendatar, pil header tampak tidak di tengah, dan tepi kiri kartu
+terpotong.
+
+Perbaikan di `berkah-radial.js`:
+
+- `arcViewport()` menghitung area aman dari titik tumpu tombol (jarak ke tiap
+  tepi pandangan dikurangi jari-jari lingkaran 23 px + 10 px napas).
+- `clampPoints()` menjepit setiap titik ke area itu, dan **semua** jalur bentuk
+  (busur U, cermin satu sisi, busur server) menulis lewat `commitArc()` yang
+  sama — jadi tidak ada jalur yang bisa lolos keluar layar.
+- `followPivotFor(550)` mengikuti titik tumpu selama ±0,55 dtk setelah menu
+  dibuka: setiap kali `getBoundingClientRect()` tombol berubah, bentuk busur
+  dihitung ulang. Berhenti sendiri, dan dihentikan di `close()`.
+
+**b. Busur tidak ada di tablet 701–880 px.**
+Tautan header disembunyikan mulai `max-width: 880px`, sedangkan tombol busur
+baru muncul di `max-width: 700px`. Di pita tablet itu tidak ada menu sama
+sekali. Ambang busur disamakan dengan ambang nav (880 px), sehingga
+Pesanan/Bantuan tetap terjangkau di tablet; slot tema di busur hanya terisi di
+ponsel (≤700 px), jadi di tablet busur berisi tujuan saja.
+
+**c. Kolom isian tidak lagi kosong tanpa petunjuk.**
+44 kolom teks di formulir pelanggan dan admin sebelumnya hanya kotak kosong:
+pelanggan tidak tahu format alamat/ucapan, admin tidak tahu format tarif.
+Semuanya kini membawa contoh nyata (`Contoh: Jl. Merdeka No. 12, RT 03,
+Palembang`, `Contoh: 15000`, `Contoh: Ibu Sari Wulandari`, …). Kolom yang
+memang tidak butuh contoh — hidden, submit, pilihan, berkas, tanggal, dan
+kolom jumlah yang sudah bernilai — tidak disentuh. Salah ketik
+"Universitas Sriwjaya" juga diperbaiki.
+
+**d. Satu ritme tipografi untuk judul halaman, paragraf, dan kartu.**
+Jarak di dalam kartu dulu mengikuti margin bawaan peramban (`p` 1em
+atas-bawah): paragraf pertama menambah ±16 px di bawah judul, paragraf
+terakhir menambah ±16 px di atas padding kartu. Ukuran `h1` halaman pun
+berbeda-beda — 32 px bawaan di halaman unit, 52 px di dasbor.
+
+- `.bk-experience :where(.wrap > h1)` — satu skala judul halaman
+  `clamp(1.55rem, 1.15rem + 1.7vw, 2.2rem)`. `:where()` membuat specificity
+  nol, jadi judul hero/dasbor yang punya aturan berkelas tetap menang.
+- Paragraf di dalam `.card`, `.unit-section`, `.bk-row-card`, `.notice`,
+  `.bk-profile-card`: `margin: 0 0 12px`, `line-height: 1.65`, dan margin
+  bawah paragraf terakhir dinolkan. Kartu pesanan/alamat sengaja tidak ikut
+  karena di sana jarak diatur `gap` flex.
+- `overflow-wrap: break-word` pada teks kartu: kata panjang tanpa spasi
+  (nomor referensi, alamat, nama berkas) tidak melebarkan kartu di ponsel.
+
+Ditambah `body.bk-experience{overflow-x: clip}` (§9.57) sebagai jaring
+pengaman: kalau ada elemen dekoratif yang tetap lebih lebar, halaman tidak
+bisa digeser mendatar.
+
+Dijaga `RadialMenuTest::test_busur_tidak_keluar_layar_dan_mengikuti_titik_tumpu`,
+`FormPlaceholderTest` (dua tes), dan
+`ResponsiveLayoutTest::test_ritme_tipografi_kartu_sama_di_semua_halaman`.

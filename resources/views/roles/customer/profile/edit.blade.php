@@ -293,7 +293,7 @@ $oldText = function (string $key, $fallback = '') {
 
                 <div>
                     <label class="field-label" for="profile-name">Nama Lengkap <span class="req">*</span></label>
-                    <input type="text" id="profile-name" name="name"
+                    <input placeholder="Contoh: Sari Wulandari" type="text" id="profile-name" name="name"
                            class="field-input {{ $errors->has('name') ? 'is-error' : '' }}"
                            value="{{ $oldText('name', $user->name) }}" required>
                     @error('name') <div class="field-error">{{ $message }}</div> @enderror
@@ -301,7 +301,7 @@ $oldText = function (string $key, $fallback = '') {
 
                 <div>
                     <label class="field-label" for="profile-email">Email <span style="font-weight:600;color:var(--ink-lt)">(opsional)</span></label>
-                    <input autocomplete="email" type="email" id="profile-email" name="email"
+                    <input placeholder="Contoh: nama@email.com" autocomplete="email" type="email" id="profile-email" name="email"
                            class="field-input {{ $errors->has('email') ? 'is-error' : '' }}"
                            value="{{ $oldText('email', $user->email) }}"
                            placeholder="Boleh dikosongkan">
@@ -310,7 +310,7 @@ $oldText = function (string $key, $fallback = '') {
 
                 <div>
                     <label class="field-label" for="profile-phone">Nomor HP / WhatsApp <span class="req">*</span></label>
-                    <input autocomplete="tel" type="tel" id="profile-phone" name="phone"
+                    <input placeholder="Contoh: 0812 3456 7890" autocomplete="tel" type="tel" id="profile-phone" name="phone"
                            class="field-input"
                            value="{{ $oldText('phone', $user->phone) }}"
                            placeholder="08xxxxxxxxxx" required>
@@ -334,7 +334,7 @@ $oldText = function (string $key, $fallback = '') {
 
                 <div>
                     <label class="field-label" for="profile-address-label">Label <span class="req">*</span></label>
-                    <input type="text" id="profile-address-label" name="label"
+                    <input placeholder="Contoh: Rumah" type="text" id="profile-address-label" name="label"
                            class="field-input {{ $errors->has('label') ? 'is-error' : '' }}"
                            value="{{ $oldText('label', $primaryAddress->label ?? 'Rumah') }}"
                            placeholder="Rumah, Kantor, Kos..."
@@ -343,7 +343,7 @@ $oldText = function (string $key, $fallback = '') {
 
                 <div>
                     <label class="field-label" for="profile-address-recipient">Nama Penerima <span class="req">*</span></label>
-                    <input type="text" id="profile-address-recipient" name="recipient_name"
+                    <input placeholder="Contoh: Ibu Sari Wulandari" type="text" id="profile-address-recipient" name="recipient_name"
                            class="field-input {{ $errors->has('recipient_name') ? 'is-error' : '' }}"
                            value="{{ $oldText('recipient_name', $primaryAddress->recipient_name ?? $user->name) }}"
                            required>
@@ -351,7 +351,7 @@ $oldText = function (string $key, $fallback = '') {
 
                 <div>
                     <label class="field-label" for="profile-address-phone">No. HP Penerima</label>
-                    <input autocomplete="tel" type="tel" id="profile-address-phone" name="phone"
+                    <input placeholder="Contoh: 0812 3456 7890" autocomplete="tel" type="tel" id="profile-address-phone" name="phone"
                            class="field-input"
                            value="{{ $oldText('phone', $primaryAddress->phone ?? $user->phone) }}"
                            placeholder="08xxxxxxxxxx">
@@ -359,7 +359,7 @@ $oldText = function (string $key, $fallback = '') {
 
                 <div>
                     <label class="field-label" for="profile-address-full">Alamat Lengkap <span class="req">*</span></label>
-                    <textarea id="profile-address-full" name="full_address"
+                    <textarea placeholder="Contoh: Jl. Merdeka No. 12, RT 03, Palembang" id="profile-address-full" name="full_address"
                               class="field-input {{ $errors->has('full_address') ? 'is-error' : '' }}"
                               placeholder="Jalan, nomor rumah, RT/RW, kelurahan, kecamatan"
                               required>{{ $oldText('full_address', $primaryAddress->full_address ?? '') }}</textarea>
@@ -367,7 +367,7 @@ $oldText = function (string $key, $fallback = '') {
 
                 <div>
                     <label class="field-label" for="profile-address-notes">Catatan (opsional)</label>
-                    <input type="text" id="profile-address-notes" name="notes"
+                    <input placeholder="Contoh: Pagar hijau, titip ke satpam bila tidak ada orang." type="text" id="profile-address-notes" name="notes"
                            class="field-input"
                            value="{{ $oldText('notes', $primaryAddress->notes ?? '') }}"
                            placeholder="Patokan, warna pagar, lantai">

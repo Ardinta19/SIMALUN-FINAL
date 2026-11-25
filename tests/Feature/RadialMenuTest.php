@@ -153,7 +153,7 @@ class RadialMenuTest extends TestCase
         $this->assertStringNotContainsString('.bk-header-radial{display:none', $nav);
         $radial = File::get(resource_path('views/layouts/component/customer/_radial_customer.blade.php'));
         $this->assertStringContainsString('.bk-header-radial{display:none;position:relative;flex:0 0 auto}', $radial);
-        $this->assertStringContainsString('@media(max-width:700px){.bk-header-radial{display:block}}', $radial);
+        $this->assertStringContainsString('@media(max-width:880px){.bk-header-radial{display:block}}', $radial);
 
         // Menu harus tetap terjangkau setelah header menjadi ringkas.
         $this->assertStringNotContainsString('.bk-header.is-compact .bk-header-radial{display:none', $nav);
@@ -168,6 +168,39 @@ class RadialMenuTest extends TestCase
         $kit = File::get(public_path('js/berkah-ui-kit.js'));
         $this->assertStringContainsString("'[data-bk-theme-host=\"radial\"]'", $kit);
         $this->assertStringContainsString("window.matchMedia('(max-width: 700px)').matches", $kit);
+    }
+
+    /** Busur tidak boleh keluar layar, dan titik tumpunya harus diikuti.
+     *
+     *  Dulu bentuk busur dihitung sekali saat menu dibuka. Header bisa
+     *  berganti bentuk tepat sesudahnya (pil ringkas ⇄ penuh/pinned) sehingga
+     *  tombol bergeser ke tepi kanan, tetapi tujuannya tetap dihitung dari
+     *  posisi lama: lingkaran terakhir terpotong tepi layar. Elemen absolut
+     *  yang keluar layar itu juga melebarkan dokumen, jadi seluruh halaman
+     *  bisa digeser mendatar dan tepi kartu terpotong.
+     */
+    public function test_busur_tidak_keluar_layar_dan_mengikuti_titik_tumpu(): void
+    {
+        $js = File::get(public_path('js/berkah-radial.js'));
+
+        // Area aman dihitung dari titik tumpu tombol.
+        $this->assertStringContainsString('const arcViewport = () => {', $js);
+        foreach (['maxLeft', 'maxRight', 'maxUp', 'maxDown'] as $edge) {
+            $this->assertStringContainsString($edge, $js, "Batas layar {$edge} hilang.");
+        }
+
+        // Setiap titik dijepit, dan semua jalur (U, cermin, busur server) lewat
+        // jalur penulisan yang sama.
+        $this->assertStringContainsString('const clampPoints = (points, ctx)', $js);
+        $this->assertStringContainsString('const commitArc = (ctx, slots, rawPoints, mode)', $js);
+        $this->assertMatchesRegularExpression('/commitArc\(ctx, slots, arc\.points, \'u\'\)/', $js);
+        $this->assertMatchesRegularExpression('/commitArc\(ctx, slots, mirror\.points, \'side\'\)/', $js);
+        $this->assertStringContainsString("commitArc(ctx, slots, defaults.map(point => [", $js);
+
+        // Pivot diikuti selama morph header berjalan, lalu berhenti sendiri.
+        $this->assertStringContainsString('followPivotFor(550)', $js);
+        $this->assertStringContainsString('followPivot', $js);
+        $this->assertStringContainsString('stopFollowing', $js);
     }
 
     public function test_busur_menyesuaikan_posisi_tombol(): void

@@ -104,7 +104,7 @@ class RentalCustomerNavigationTest extends TestCase
         $html = $response->assertOk()->getContent();
 
         $this->assertStringContainsString('.bk-header-radial{display:none;position:relative;flex:0 0 auto}', $html);
-        $this->assertStringContainsString('@media(max-width:700px){.bk-header-radial{display:block}}', $html);
+        $this->assertStringContainsString('@media(max-width:880px){.bk-header-radial{display:block}}', $html);
 
         // Tema bawaan (tanpa data-theme) tetap punya titik tumpu panel: aturan
         // tampil tidak boleh bergantung pada atribut tema.

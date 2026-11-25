@@ -256,6 +256,32 @@ class ResponsiveLayoutTest extends TestCase
         );
     }
 
+    /** Satu ritme tipografi untuk judul halaman, paragraf, dan kartu.
+     *
+     *  Sebelumnya jarak di dalam kartu mengikuti margin bawaan peramban (`p`
+     *  1em atas-bawah), sehingga paragraf pertama menambah ±16 px di bawah
+     *  judul dan paragraf terakhir menambah ±16 px di atas padding kartu.
+     *  Ukuran `h1` halaman pun berbeda-beda: 32 px bawaan di halaman unit,
+     *  52 px di dasbor. Sekarang judul halaman memakai satu skala (dengan
+     *  specificity nol lewat `:where()` supaya hero/dasbor tetap menang), dan
+     *  paragraf kartu memakai satu jarak.
+     */
+    public function test_ritme_tipografi_kartu_sama_di_semua_halaman(): void
+    {
+        $css = File::get(public_path('css/berkah-experience.css'));
+
+        $this->assertStringContainsString('.bk-experience :where(.wrap > h1)', $css);
+        $this->assertMatchesRegularExpression(
+            '/:is\(\.card, \.unit-section, \.bk-row-card, \.notice, \.bk-profile-card\) p\s*\{[^}]*margin: 0 0 var\(--bk-space-3\)[^}]*line-height: 1\.65/',
+            $css,
+            'Paragraf di dalam kartu harus memakai satu jarak (12 px antarparagraf, 1.65 baris).'
+        );
+        $this->assertStringContainsString('overflow-wrap: break-word', $css, 'Kata panjang tidak boleh melebarkan kartu.');
+
+        // Kartu yang mengatur jarak lewat `gap` flex tidak boleh ikut ditimpa.
+        $this->assertStringNotContainsString(':is(.card, .unit-section, .bk-row-card, .notice, .bk-order-card', $css);
+    }
+
     public function test_customer_bottom_navigation_does_not_cover_content(): void
     {
         $css = File::get(public_path('css/berkah-experience.css'));

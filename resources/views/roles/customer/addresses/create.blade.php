@@ -239,7 +239,7 @@ $oldText = function (string $key, $fallback = '') {
             <div class="section-body">
                 <div>
                     <label class="field-label" for="address-label">Label Alamat <span class="required">*</span></label>
-                    <input type="text" name="label" id="address-label" class="field-input {{ $errors->has('label') ? 'is-error' : '' }}"
+                    <input placeholder="Contoh: Rumah" type="text" name="label" id="address-label" class="field-input {{ $errors->has('label') ? 'is-error' : '' }}"
                         placeholder="Rumah, Kantor, Kos, dll."
                         value="{{ $oldText('label', 'Rumah') }}" required>
                     @error('label') <div class="field-error">{{ $message }}</div> @enderror
@@ -247,7 +247,7 @@ $oldText = function (string $key, $fallback = '') {
 
                 <div>
                     <label class="field-label" for="address-recipient_name">Nama Penerima <span class="required">*</span></label>
-                    <input type="text" name="recipient_name" id="address-recipient_name" class="field-input {{ $errors->has('recipient_name') ? 'is-error' : '' }}"
+                    <input placeholder="Contoh: Ibu Sari Wulandari" type="text" name="recipient_name" id="address-recipient_name" class="field-input {{ $errors->has('recipient_name') ? 'is-error' : '' }}"
                         placeholder="Nama penerima"
                         value="{{ $oldText('recipient_name', auth()->user()->name) }}" required>
                     @error('recipient_name') <div class="field-error">{{ $message }}</div> @enderror
@@ -282,7 +282,7 @@ $oldText = function (string $key, $fallback = '') {
 
                 <div>
                     <label class="field-label" for="address-full_address">Alamat Lengkap <span class="required">*</span></label>
-                    <textarea name="full_address" id="address-full_address" class="field-input {{ $errors->has('full_address') ? 'is-error' : '' }}"
+                    <textarea placeholder="Contoh: Jl. Merdeka No. 12, RT 03, Palembang" name="full_address" id="address-full_address" class="field-input {{ $errors->has('full_address') ? 'is-error' : '' }}"
                         placeholder="Nama jalan, nomor rumah, RT/RW, Kelurahan, Kecamatan..."
                         required>{{ $oldText('full_address') }}</textarea>
                     @error('full_address') <div class="field-error">{{ $message }}</div> @enderror

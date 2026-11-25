@@ -551,3 +551,44 @@ html:not(.bk-enhanced) .bk-header-space{height:auto!important;min-height:0;paddi
 body.bk-experience {
     overflow-x: clip;
 }
+
+/* ==========================================================================
+   Ritme baca yang sama di setiap halaman: judul, paragraf, dan kartu
+   --------------------------------------------------------------------------
+   Sebelumnya jarak di dalam kartu bergantung pada margin bawaan peramban
+   (`p` 1em atas-bawah, `h1` 0.67em). Akibatnya paragraf pertama di dalam
+   kartu menambah ±16 px di bawah judul, paragraf terakhir menambah ±16 px di
+   atas padding kartu, dan ukuran `h1` halaman berbeda-beda (32 px bawaan di
+   halaman unit, 52 px di dasbor).
+
+   Dua aturan di bawah menyamakan ritme itu tanpa menyentuh judul yang sudah
+   punya gaya sendiri (hero, kartu sambutan): `:where()` menjaga specificity
+   nol, jadi setiap aturan berkelas tetap menang.
+   ========================================================================== */
+
+/* Judul halaman (anak langsung <main class="wrap">) memakai satu skala. */
+.bk-experience :where(.wrap > h1) {
+    font-size: clamp(1.55rem, 1.15rem + 1.7vw, 2.2rem);
+    line-height: 1.18;
+    letter-spacing: -.02em;
+    margin: 0 0 var(--bk-space-2);
+}
+
+/* Paragraf di dalam kartu: jarak antarbaris 1.65, jarak antarparagraf 12 px,
+   tanpa sisa margin di awal/akhir kartu. Kartu pesanan/alamat tidak ikut —
+   di sana `p` sudah `margin: 0` karena jarak diatur `gap` flex. */
+.bk-experience :is(.card, .unit-section, .bk-row-card, .notice, .bk-profile-card) p {
+    margin: 0 0 var(--bk-space-3);
+    line-height: 1.65;
+}
+
+.bk-experience :is(.card, .unit-section, .bk-row-card, .notice, .bk-profile-card) > :is(p, ul, ol, dl, table, figure):last-child {
+    margin-bottom: 0;
+}
+
+/* Kata panjang tanpa spasi (nomor referensi, alamat, nama berkas) tidak boleh
+   melebarkan kartu di ponsel; patahkan hanya bila memang tidak muat. Kartu
+   profil sudah memakai `anywhere` sendiri, jadi tidak didaftarkan di sini. */
+.bk-experience :is(.card, .unit-section, .bk-row-card, .notice) :is(p, li, dd, dt, h2, h3, h4, summary) {
+    overflow-wrap: break-word;
+}

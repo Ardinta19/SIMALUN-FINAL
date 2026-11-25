@@ -29,15 +29,15 @@
         <div class="adm-field-grid">
             <div class="adm-field" style="grid-column: span 2; min-width: min(100%, 240px)">
                 <label for="uni-name">Nama universitas</label>
-                <input id="uni-name" name="name" maxlength="160" required placeholder="Contoh: Universitas Sriwjaya">
+                <input id="uni-name" name="name" maxlength="160" required placeholder="Contoh: Universitas Sriwijaya">
             </div>
             <div class="adm-field">
                 <label for="uni-delivery">Tarif antar (Rp)</label>
-                <input id="uni-delivery" type="number" name="delivery_fee" min="0" max="100000000" required>
+                <input placeholder="Contoh: 15000" id="uni-delivery" type="number" name="delivery_fee" min="0" max="100000000" required>
             </div>
             <div class="adm-field">
                 <label for="uni-collection">Tarif jemput kembali (Rp)</label>
-                <input id="uni-collection" type="number" name="collection_fee" min="0" max="100000000" required>
+                <input placeholder="Contoh: 20000" id="uni-collection" type="number" name="collection_fee" min="0" max="100000000" required>
             </div>
         </div>
         <div><button class="btn" type="submit">Tambah</button></div>

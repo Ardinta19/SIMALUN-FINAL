@@ -16,20 +16,20 @@
 </div>
 <div class="adm-field">
     <label for="{{ $fieldId }}-name">Nama papan</label>
-    <input id="{{ $fieldId }}-name" name="name" value="{{ $oldText('name', $product?->name) }}" maxlength="160" required>
+    <input placeholder="Contoh: Papan bunga duka cita" id="{{ $fieldId }}-name" name="name" value="{{ $oldText('name', $product?->name) }}" maxlength="160" required>
 </div>
 <div class="adm-field">
     <label for="{{ $fieldId }}-size">Ukuran</label>
-    <input id="{{ $fieldId }}-size" name="size" value="{{ $oldText('size', $product?->size) }}" maxlength="100" placeholder="Contoh: 150 × 200 cm">
+    <input placeholder="Contoh: 180 × 90 cm" id="{{ $fieldId }}-size" name="size" value="{{ $oldText('size', $product?->size) }}" maxlength="100" placeholder="Contoh: 150 × 200 cm">
 </div>
 <div class="adm-field">
     <label for="{{ $fieldId }}-description">Deskripsi</label>
-    <textarea id="{{ $fieldId }}-description" name="description" maxlength="3000">{{ $oldText('description', $product?->description) }}</textarea>
+    <textarea placeholder="Contoh: Rangkaian mawar putih dengan pita duka." id="{{ $fieldId }}-description" name="description" maxlength="3000">{{ $oldText('description', $product?->description) }}</textarea>
 </div>
 <div class="adm-field-grid">
     <div class="adm-field">
         <label for="{{ $fieldId }}-base">Harga dasar (Rp)</label>
-        <input id="{{ $fieldId }}-base" name="base_price" type="number" min="0" max="100000000" value="{{ $oldText('base_price', $product?->base_price) }}" required>
+        <input placeholder="Contoh: 450000" id="{{ $fieldId }}-base" name="base_price" type="number" min="0" max="100000000" value="{{ $oldText('base_price', $product?->base_price) }}" required>
     </div>
     <div class="adm-field">
         <label for="{{ $fieldId }}-unit">Perhitungan</label>
@@ -40,7 +40,7 @@
     </div>
     <div class="adm-field">
         <label for="{{ $fieldId }}-stock">Jumlah unit</label>
-        <input id="{{ $fieldId }}-stock" name="stock" type="number" min="0" max="10000" value="{{ $oldText('stock', $product?->stock ?? 1) }}" required>
+        <input placeholder="Contoh: 5" id="{{ $fieldId }}-stock" name="stock" type="number" min="0" max="10000" value="{{ $oldText('stock', $product?->stock ?? 1) }}" required>
     </div>
 </div>
 <div class="adm-field">
