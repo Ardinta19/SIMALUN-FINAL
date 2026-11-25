@@ -86,6 +86,22 @@ tampilan di halaman pelanggan dan admin — termasuk render halaman panel admin
 `UiAccessibilityTest::test_form_checkout_siap_mengunggah_foto_referensi` menjaga
 `enctype`, atribut `multiple`, dan tinggi sasaran ketuk kontrol jumlah.
 
+### Batas dan pesan galat
+
+| Batas | Ditegakkan oleh | Pesan |
+|---|---|---|
+| Maksimal 5 **jenis** item per unit | `RentalOrderController::store` (cek manual per unit) | `Unit 1: pilih maksimal 5 jenis item tambahan per unit.` |
+| Jumlah tiap item 0–5 | aturan `integer\|min:0\|max:5` | `Jumlah tiap item tambahan maksimal 5.` |
+| Maksimal 5 foto per pesanan | aturan `array\|max:5` | `Maksimal 5 foto referensi.` |
+| Format foto JPG/PNG/WebP | `image` + `mimes` | `Berkas harus berupa gambar.` / `Format foto harus JPG, PNG, atau WebP.` |
+| Ukuran foto ≤5 MB | `max:5120` | `Ukuran tiap foto maksimal 5 MB.` |
+
+Batas jenis diperiksa secara manual (bukan `max` pada array) supaya pesannya
+menyebut unit yang salah, bukan nama field teknis `units.1.addons`. Semua pesan
+berada di `lang/id/validation.php` (`custom` + `attributes`), sehingga tidak ada
+lagi teks bawaan berbahasa Inggris atau nama kunci mentah di layar pelanggan.
+Petunjuk batas juga ditulis di halaman checkout.
+
 ### Tulisan baku item tambahan
 
 Semua halaman memakai satu bentuk: **nama**, lalu ` × jumlah` hanya bila jumlah

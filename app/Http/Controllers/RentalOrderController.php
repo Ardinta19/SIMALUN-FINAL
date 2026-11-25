@@ -99,6 +99,11 @@ class RentalOrderController extends Controller
             if ($unit['return_method'] !== 'collection') $data['units'][$key]['return_address'] = null;
             if ($unit['delivery_method'] === 'delivery' && empty($unit['delivery_address'])) throw ValidationException::withMessages(['units' => $label.'alamat pengantaran wajib diisi.']);
             if ($unit['return_method'] === 'collection' && empty($unit['return_address'])) throw ValidationException::withMessages(['units' => $label.'alamat pengambilan kembali wajib diisi.']);
+            // Batas 5 jenis item per unit. Diperiksa di sini (bukan lewat aturan
+            // `max` pada array) supaya pesannya menyebut unit yang salah, bukan
+            // "units.1.addons" tanpa konteks.
+            $chosenAddons = array_filter((array) ($unit['addons'] ?? []), fn ($quantity) => (int) $quantity > 0);
+            if (count($chosenAddons) > 5) throw ValidationException::withMessages(['units' => $label.'pilih maksimal 5 jenis item tambahan per unit.']);
         }
         // Identitas unit keranjang tidak berubah saat permintaan diulang.
         // Data unit juga disimpan sebagai hash agar pengulangan yang berbeda

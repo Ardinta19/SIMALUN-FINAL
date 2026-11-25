@@ -2247,3 +2247,8 @@ Ikut dirapikan: tulisan item tambahan kini seragam di semua halaman
 (`Lilin × 2`, jumlah 1 tanpa pengali) lewat `RentalOrderUnitAddon::label()`, dan
 baris item di halaman unit dipindahkan keluar dari blok potongan voucher agar
 tetap tampil pada pesanan tanpa voucher.
+
+Pesan galat item tambahan dan foto referensi kini berbahasa Indonesia penuh
+(`lang/id/validation.php`), dan batas "5 jenis item per unit" yang sebelumnya
+hanya tertulis di dokumentasi kini benar-benar ditolak server dengan pesan
+per unit.

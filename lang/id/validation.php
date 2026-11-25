@@ -206,6 +206,12 @@ return [
         'description' => 'keterangan',
         'entry_type' => 'jenis entri',
 
+        // Item tambahan sewa & foto referensi
+        'units.*.addons' => 'pilihan item tambahan',
+        'units.*.addons.*' => 'jumlah item tambahan',
+        'reference_images' => 'foto referensi',
+        'reference_images.*' => 'foto referensi',
+
         // Item lines
         'item_lines' => 'item satuan',
         'item_lines.*.service_id' => 'layanan item',
@@ -283,6 +289,24 @@ return [
         ],
         'description' => [
             'required' => 'Keterangan wajib diisi.',
+        ],
+        'units.*.addons' => [
+            'array' => 'Pilihan item tambahan tidak valid.',
+        ],
+        'units.*.addons.*' => [
+            'integer' => 'Jumlah item tambahan harus angka bulat.',
+            'min' => 'Jumlah item tambahan tidak boleh negatif.',
+            'max' => 'Jumlah tiap item tambahan maksimal 5.',
+        ],
+        'reference_images' => [
+            'array' => 'Foto referensi tidak valid.',
+            'max' => 'Maksimal 5 foto referensi.',
+        ],
+        'reference_images.*' => [
+            'image' => 'Berkas harus berupa gambar.',
+            'mimes' => 'Format foto harus JPG, PNG, atau WebP.',
+            'uploaded' => 'Foto gagal diunggah. Coba unggah ulang dengan ukuran lebih kecil.',
+            'max' => 'Ukuran tiap foto maksimal 5 MB.',
         ],
     ],
 ];

@@ -58,7 +58,7 @@
     </li>
 @endforeach
 </ul>
-<p class="muted">Isi 0 bila tidak dipakai.</p>
+<p class="muted">Isi 0 bila tidak dipakai. Maksimal 5 jenis item per unit, dan tiap jenis maksimal 5 buah.</p>
 @endif
 <h3>Serah terima</h3><label for="checkout-{{ $unitNumber }}-delivery_method">Penerimaan <span class="bk-req">(wajib)</span><select id="checkout-{{ $unitNumber }}-delivery_method" name="units[{{ $key }}][delivery_method]" aria-describedby="{{ $errors->has('units.'.$key.'.delivery_method') ? 'checkout-errors-'.$unitNumber.' checkout-'.$unitNumber.'-delivery-hint' : 'checkout-'.$unitNumber.'-delivery-hint' }}" @error('units.'.$key.'.delivery_method') aria-invalid="true" @enderror required><option value="pickup" @selected($oldUnit('delivery_method', $entry['delivery_method'] ?? '') === 'pickup')>Diambil di outlet</option><option value="delivery" @selected($oldUnit('delivery_method', $entry['delivery_method'] ?? '') === 'delivery')>Diantar penjual</option></select></label><div data-delivery-fields>
 @if($savedAddresses->isNotEmpty())<div data-saved-address hidden><label>Pakai alamat tersimpan untuk pengantaran<select data-address-choice><option value="">Pilih alamat tersimpan</option>@foreach($savedAddresses as $address)<option value="{{ $address->id }}" data-address="{{ $address->full_address }}">{{ $address->label }}{{ $address->is_primary ? ' · utama' : '' }}</option>@endforeach</select></label><p class="muted">Pilihan akan menyalin alamat ke kolom di bawah; periksa dan lengkapi jika perlu.</p></div>@endif

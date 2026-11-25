@@ -159,6 +159,74 @@ class RentalAddonsTest extends TestCase
         $this->assertSame(24000, (int) $unit->addon_amount);
     }
 
+    /** Semua pesan galat dari permintaan terakhir, digabung agar mudah dicari. */
+    private function errorText(): string
+    {
+        $bag = session('errors');
+
+        return $bag ? implode(' | ', $bag->getBag('default')->all()) : '';
+    }
+
+    public function test_pesan_galat_item_tambahan_berbahasa_indonesia(): void
+    {
+        $product = $this->product(100000);
+        $addon = RentalAddon::create(['name' => 'Lilin', 'price' => 12000]);
+        $this->actingAs($this->customer())->post(route('cart.store', $product), ['quantity' => 1]);
+
+        // Jumlah per item di atas 5: pesan menyebut batasnya, tanpa nama field
+        // teknis seperti "units.1.addons.3".
+        $this->post(route('rental.checkout.store'), [
+            'terms' => '1',
+            'units' => $this->unitPayload($product, ['addons' => [$addon->id => 6]]),
+        ])->assertSessionHasErrors();
+
+        $this->assertStringContainsString('Jumlah tiap item tambahan maksimal 5.', $this->errorText());
+        $this->assertStringNotContainsString('units.', $this->errorText());
+
+        // Enam jenis berbeda melewati batas 5 jenis per unit.
+        for ($i = 1; $i <= 5; $i++) {
+            RentalAddon::create(['name' => 'Item '.$i, 'price' => 1000, 'sort_order' => $i]);
+        }
+
+        $this->post(route('rental.checkout.store'), [
+            'terms' => '1',
+            'units' => $this->unitPayload($product, ['addons' => RentalAddon::pluck('id')->mapWithKeys(fn ($id) => [$id => 1])->all()]),
+        ])->assertSessionHasErrors();
+
+        $this->assertStringContainsString('Unit 1: pilih maksimal 5 jenis item tambahan per unit.', $this->errorText());
+    }
+
+    public function test_pesan_galat_foto_referensi_berbahasa_indonesia(): void
+    {
+        $product = $this->product(100000);
+        $this->actingAs($this->customer())->post(route('cart.store', $product), ['quantity' => 1]);
+
+        $payload = fn (array $files) => [
+            'terms' => '1',
+            'units' => $this->unitPayload($product),
+            'reference_images' => $files,
+        ];
+
+        $enam = [];
+        for ($i = 1; $i <= 6; $i++) {
+            $enam[] = UploadedFile::fake()->image('contoh-'.$i.'.jpg');
+        }
+
+        $this->post(route('rental.checkout.store'), $payload($enam))->assertSessionHasErrors();
+        $this->assertStringContainsString('Maksimal 5 foto referensi.', $this->errorText());
+
+        $this->post(route('rental.checkout.store'), $payload([
+            UploadedFile::fake()->create('dokumen.pdf', 100, 'application/pdf'),
+        ]))->assertSessionHasErrors();
+        $this->assertStringContainsString('Berkas harus berupa gambar.', $this->errorText());
+
+        $this->post(route('rental.checkout.store'), $payload([
+            UploadedFile::fake()->create('besar.jpg', 6000, 'image/jpeg'),
+        ]))->assertSessionHasErrors();
+        $this->assertStringContainsString('Ukuran tiap foto maksimal 5 MB.', $this->errorText());
+        $this->assertStringNotContainsString('reference_images', $this->errorText());
+    }
+
     public function test_baris_item_tambahan_tampil_di_halaman_unit_tanpa_voucher(): void
     {
         $product = $this->product(100000);
