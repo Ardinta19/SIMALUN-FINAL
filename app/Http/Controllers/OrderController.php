@@ -833,7 +833,8 @@ class OrderController extends Controller
             'customer_phone' => 'nullable|string|max:20',
             'service_category_id' => 'nullable|exists:service_categories,id',
             'service_id' => 'required|exists:services,id',
-            'weight_estimate' => 'required|numeric|min:0.5',
+            'weight_estimate' => 'required|numeric|min:0.5|max:50',
+            'weight_estimate.max' => 'Berat melebihi batas (maks 50 kg).',
             'pickup_time' => 'required|in:pagi,siang,sore',
         ]);
 
@@ -959,7 +960,9 @@ class OrderController extends Controller
      */
     private function resolveWalkinCustomer(string $name, ?string $phone): User|RedirectResponse
     {
-        $cleanPhone = $phone !== null && $phone !== '' ? $phone : null;
+        $normalizedPhone = preg_replace('/[\s\-\.]/', '', trim((string) $phone));
+        $normalizedPhone = preg_replace('/^(\+?62|0)/', '', $normalizedPhone);
+        $cleanPhone = $normalizedPhone !== '' ? $normalizedPhone : null;
 
         if ($cleanPhone !== null) {
             // Cek dulu siapapun yang pakai nomor ini — terlepas role
@@ -1024,7 +1027,7 @@ class OrderController extends Controller
 
         $request->validate([
             'status' => 'required|in:dicuci,dikirim,selesai',
-            'weight_actual' => 'nullable|numeric|min:0.1',
+            'weight_actual' => 'nullable|numeric|min:0.1|max:50',
             'proof_image' => 'nullable|image|mimetypes:image/jpeg,image/png,image/webp|max:5120',
             'payment_channel' => 'nullable|in:cash,transfer,qris',
         ]);
