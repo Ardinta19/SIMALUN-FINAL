@@ -689,10 +689,19 @@ class ResponsiveLayoutTest extends TestCase
         $this->assertMatchesRegularExpression('/\.adm-app \.adm-faq summary \{[^}]*min-height: 44px;/s', $admin,
             'Pertanyaan FAQ admin harus 44 px.');
 
+        $this->assertMatchesRegularExpression('/\.adm-app details\.adm-card > summary \{[^}]*min-height: 44px;/s', $admin,
+            'Kartu buka-tutup admin harus 44 px.');
+        $this->assertStringContainsString('<summary class="bk-disclosure">Perbaiki nama', File::get(resource_path('views/rental/unit.blade.php')),
+            'Pembuka formulir perbaikan unit harus memakai kendali bersama 44 px.');
+
         // Aturan paginasi lama (40 px) tidak boleh tersisa: spesifisitasnya
         // mengalahkan `.bk-page-nav__link` sehingga paginasi admin menyusut.
         $this->assertStringNotContainsString('.adm-app .pagination', $admin,
             'Aturan paginasi lama di panel admin harus dicabut.');
+
+        $this->assertMatchesRegularExpression('/\.bk-disclosure \{[^}]*min-height: var\(--bk-touch\);/s',
+            File::get(public_path('css/berkah-ui-kit.css')),
+            'Pembuka formulir ubah di admin harus 44 px.');
     }
 
     /** `hidden` harus menang atas `display` milik kelas.

@@ -145,7 +145,10 @@
     display: inline-flex;
     align-items: center;
     gap: var(--bk-space-2);
-    min-height: var(--bk-touch-sm);
+    /* 44 px: `bk-disclosure` dipakai lima kali sebagai pembuka formulir ubah
+       di panel admin ("Ubah item", "Koreksi nominal", "Catat pengembalian
+       dana"). 38 px terlalu sempit untuk ujung jari. */
+    min-height: var(--bk-touch);
     margin-left: calc(var(--bk-space-2) * -1);
     padding: 0 var(--bk-space-2);
     border-radius: 10px;

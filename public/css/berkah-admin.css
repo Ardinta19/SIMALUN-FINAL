@@ -1062,7 +1062,12 @@ body.adm-layer-open { overflow: hidden; }
 }
 
 /* Kartu yang bisa dilipat (product/category panel) */
-.adm-app details.adm-card > summary { list-style: none; }
+.adm-app details.adm-card > summary {
+    list-style: none;
+    /* Kartu yang dibuka-tutup: seluruh baris judul bisa ditekan (44 px),
+       bukan hanya tinggi hurufnya. Padding kartu tetap memberi jarak visual. */
+    display: flex; align-items: center; min-height: 44px;
+}
 .adm-app details.adm-card > summary::-webkit-details-marker { display: none; }
 .adm-app details.adm-card > summary:focus-visible { outline: 3px solid var(--adm-rose); outline-offset: 4px; }
 .adm-app details.adm-card[open] > summary { margin-bottom: 4px; }
