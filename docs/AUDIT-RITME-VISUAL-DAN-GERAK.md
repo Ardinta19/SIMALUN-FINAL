@@ -2979,6 +2979,15 @@ menjadi 38×42 — di tablet berujung sentuh sasaran itu terlalu kecil. Kini
 44×44 di semua rentang, dan tautan `.bk-desktop-nav` ikut 44 px agar sederajat.
 Dijaga `ResponsiveLayoutTest::test_tombol_ikon_header_katalog_minimal_44_px`.
 
-**Hasil harness akhir:** **128 lulus, 0 gagal, 216 dilewati**; `blade-scan`
+**i. Tautan "Langsung ke isi" hanya di satu cabang peran katalog.**
+`catalog.layout` memilih header menurut peran: cabang pelanggan/tamu memuat
+`catalog.customer-navigation` yang berisi `.bk-skip`, sedangkan cabang lain
+(admin membuka katalog publik) memakai header `.top` **tanpa** tautan lompat —
+pengguna papan ketik harus menekan Tab melewati seluruh header di 12 halaman
+yang mewarisi layout itu. Tautan yang sama kini dipasang juga di cabang
+`@else`. Dijaga
+`StandalonePageShellTest::test_katalog_publik_punya_tautan_lompat_di_semua_cabang`.
+
+**Hasil harness akhir:** **129 lulus, 0 gagal, 216 dilewati**; `blade-scan`
 81 view 0/0 (dua view mati dihapus); `.tmp-verify.php` 26 lulus; `node --check` seluruh `public/js`
 bersih.

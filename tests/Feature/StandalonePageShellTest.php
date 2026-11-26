@@ -138,6 +138,24 @@ class StandalonePageShellTest extends TestCase
             'Cincin fokus harus sama di halaman yang tidak punya aturan fokus sendiri.');
     }
 
+    /** Katalog publik punya tautan lompat di SEMUA cabang peran.
+     *
+     *  `catalog.layout` memilih header berdasarkan peran: cabang
+     *  pelanggan/tamu memuat `catalog.customer-navigation` (berisi `.bk-skip`),
+     *  sedangkan cabang lain memakai header `.top` yang tidak punya tautan
+     *  apa pun. Admin yang membuka katalog publik karena itu kehilangan
+     *  "Langsung ke isi". Sekarang kedua cabang memasangnya.
+     */
+    public function test_katalog_publik_punya_tautan_lompat_di_semua_cabang(): void
+    {
+        $layout = (string) File::get(resource_path('views/catalog/layout.blade.php'));
+
+        $this->assertGreaterThanOrEqual(2, substr_count($layout, 'class="bk-skip"') + substr_count($layout, 'catalog.customer-navigation'), 'Tautan lompat hanya ada di satu cabang peran.');
+        $this->assertStringContainsString('<a class="bk-skip" href="#main-content">Langsung ke isi</a>', $layout);
+        $this->assertMatchesRegularExpression('/@else\s*(?:\{\{--.*?--\}\}\s*)?<a class="bk-skip"/s', $layout);
+        $this->assertStringContainsString('<main class="wrap" id="main-content" tabindex="-1">', $layout);
+    }
+
     /** Lima halaman admin sudah pindah ke `layouts.admin`.
      *
      *  Sebelumnya kelimanya berdiri sendiri: `<head>` sendiri, palet terang
