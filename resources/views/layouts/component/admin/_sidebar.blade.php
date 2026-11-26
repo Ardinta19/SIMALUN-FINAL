@@ -16,7 +16,7 @@
     <div class="adm-sidebar__head">
         <a class="adm-brand" href="{{ route('dashboard.admin') }}">
             <span class="adm-brand__logo">
-                <img src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt="Logo Berkah Kreatif">
+                <img src="{{ asset('images/logo-104.png') }}" width="104" height="57" alt="Logo Berkah Kreatif">
             </span>
             <span class="adm-brand__text">
                 <span class="adm-brand__name">Berkah Kreatif</span>

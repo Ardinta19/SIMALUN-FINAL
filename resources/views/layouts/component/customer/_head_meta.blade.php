@@ -1,2 +1,0 @@
-{{-- Shared meta tags for all pages --}}
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%2385092d'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='white' font-family='Arial'>B</text></svg>">

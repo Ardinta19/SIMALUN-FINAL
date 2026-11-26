@@ -112,7 +112,7 @@ $oldText = function (string $key, $fallback = '') {
 <div id="bk-splash" hidden role="dialog" aria-modal="true" aria-label="Membuka halaman masuk Berkah Kreatif">
   <div class="bk-splash__petals" aria-hidden="true"><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span></div>
   <div class="bk-splash__center">
-    <div class="bk-splash__logo"><img src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt="Logo Berkah Kreatif"></div>
+    <div class="bk-splash__logo"><img src="{{ asset('images/logo-216.png') }}" width="216" height="118" alt="Logo Berkah Kreatif" decoding="async"></div>
     <p class="bk-splash__eyebrow">Papan Bunga &amp; Hadiah</p>
     <p class="bk-splash__brand">Berkah Kreatif</p>
     <div class="bk-splash__rule"></div>
@@ -158,7 +158,7 @@ $oldText = function (string $key, $fallback = '') {
   <div id="header">
     <div id="drum-wrap">
       <div id="drum-spin-ring"></div>
-      <img id="brand-logo" src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt="Logo Berkah Kreatif" style="width:100%;height:100%;object-fit:contain;border-radius:50%;background:white">
+      <img id="brand-logo" src="{{ asset('images/logo-104.png') }}" width="104" height="57" alt="Logo Berkah Kreatif" style="width:100%;height:100%;object-fit:contain;border-radius:50%;background:white">
     </div>
     <div class="wm-name">Berkah Kreatif</div>
     <div class="wm-sub">PAPAN BUNGA&nbsp;&nbsp;•&nbsp;&nbsp;BERKAH KREATIF</div>

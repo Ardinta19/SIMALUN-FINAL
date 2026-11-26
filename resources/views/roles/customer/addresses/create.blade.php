@@ -6,7 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 @include('layouts.component._page_shell')
 <title>Tambah Alamat · Berkah Kreatif</title>
-@include('layouts.component.customer._head_meta')
 <link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.css') }}?v={{ filemtime(public_path('vendor/leaflet/leaflet.css')) }}">
 <script src="{{ asset('vendor/leaflet/leaflet.js') }}?v={{ filemtime(public_path('vendor/leaflet/leaflet.js')) }}"></script>
 <meta name="csrf-token" content="{{ csrf_token() }}">

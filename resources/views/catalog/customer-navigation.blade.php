@@ -9,7 +9,7 @@
 <div class="bk-header-space">
     <header class="bk-header {{ request()->routeIs('welcome') ? 'bk-header--catalog' : '' }}" data-bk-header>
         <div class="bk-header-inner">
-            <a class="bk-logo" href="{{ route('welcome') }}" aria-label="Berkah Kreatif, buka katalog"><img src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt=""></a>
+            <a class="bk-logo" href="{{ route('welcome') }}" aria-label="Berkah Kreatif, buka katalog"><img src="{{ asset('images/logo-104.png') }}" width="104" height="57" alt=""></a>
             <a class="bk-wordmark" href="{{ route('welcome') }}"><strong>Berkah Kreatif</strong><span>Papan bunga untuk setiap cerita</span></a>
             <nav class="bk-desktop-nav" aria-label="Navigasi utama">
                 @if($isCustomer)<a href="{{ route('customer.dashboard') }}" @if(request()->routeIs('customer.dashboard')) aria-current="page" @endif>Beranda</a>@endif
@@ -35,7 +35,7 @@
                  dialog "Jelajahi": tujuan mereka (katalog, keranjang, daftar,
                  masuk) kini berada di busur yang sama. --}}
             @include('layouts.component.customer._radial_customer', ['inHeader' => true])
-            <button type="button" class="bk-expand" data-bk-expand hidden aria-label="Kembali ke atas"><img src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt=""></button>
+            <button type="button" class="bk-expand" data-bk-expand hidden aria-label="Kembali ke atas"><img src="{{ asset('images/logo-104.png') }}" width="104" height="57" alt=""></button>
         </div>
     </header>
 </div>

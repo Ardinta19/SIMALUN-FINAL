@@ -13,7 +13,7 @@
      (fonts.bunny.net dulu dipakai di sini, satu-satunya sisa Breeze). --}}
 <link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}?v={{ filemtime(public_path('css/page-transitions.css')) }}">
 <script src="{{ asset('js/page-transitions.js') }}?v={{ filemtime(public_path('js/page-transitions.js')) }}" defer></script>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%2385092d'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='white' font-family='Arial'>B</text></svg>">
+
 
 {{-- Shell ini dulu layout bawaan Breeze: latar abu-abu, logo Laravel, dan
      font dari fonts.bunny.net. Sekarang memakai token --bk-* yang sama dengan
@@ -263,7 +263,7 @@
 
 <main class="guest-shell" id="main-content" tabindex="-1">
     <a class="guest-brand" href="{{ url('/') }}">
-        <img src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt="" width="52" height="52" decoding="async">
+        <img src="{{ asset('images/logo-104.png') }}" alt="" width="52" height="52" decoding="async">
         <span class="guest-brand__text">Berkah Kreatif<small>Papan bunga &amp; dekorasi</small></span>
     </a>
 

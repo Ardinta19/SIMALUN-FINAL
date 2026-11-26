@@ -6,7 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 @include('layouts.component._page_shell')
 <title>Ubah profil · Berkah Kreatif</title>
-@include('layouts.component.customer._head_meta')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <style>
     :root {
@@ -300,7 +299,7 @@ $oldText = function (string $key, $fallback = '') {
             <div class="section-body">
                 <div class="avatar-wrap">
                     <img id="avatar-preview" class="avatar-preview"
-                         src="{{ $user->avatar ? asset('storage/'.$user->avatar) : asset('images/berkah-kreatif-logo.jpeg') }}"
+                         src="{{ $user->avatar ? asset('storage/'.$user->avatar) : asset('images/logo-104.png') }}"
                          alt="Foto profil">
                     <label class="avatar-action">
                         Ubah Foto

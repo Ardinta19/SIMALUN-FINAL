@@ -38,7 +38,7 @@
 <div class="adm-grid adm-grid--split" style="margin-bottom:var(--adm-gap)">
     <section class="adm-card" data-adm-reveal="identity" aria-labelledby="adm-profile-name">
         <div class="adm-row" style="gap:14px;align-items:center">
-            <img src="{{ $user->avatar ? asset('storage/'.$user->avatar) : asset('images/berkah-kreatif-logo.jpeg') }}"
+            <img src="{{ $user->avatar ? asset('storage/'.$user->avatar) : asset('images/logo-104.png') }}"
                  alt="Foto profil {{ $user->name }}" width="64" height="64"
                  style="width:64px;height:64px;flex:none;border-radius:50%;object-fit:cover;border:1px solid var(--adm-line);background:var(--adm-surface-3)">
             <div style="min-width:0">

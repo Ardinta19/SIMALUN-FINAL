@@ -744,4 +744,51 @@ class UiDefaultsTest extends TestCase
         }
         $this->assertStringContainsString('Allow: /', $robots);
     }
+
+    /** Logo dan ikon situs memakai berkas yang sudah diperkecil.
+     *
+     *  `berkah-kreatif-logo.jpeg` berukuran 3460x1892 dan 564 KB, tetapi tidak
+     *  pernah ditampilkan lebih dari 108 px (logo header 44–52 px). Setiap
+     *  halaman memuatnya — termasuk dua kali di header pelanggan — sehingga di
+     *  jaringan seluler gambar itu menghabiskan sebagian besar muatan awal.
+     *  Turunan 104 px (7 KB), 216 px untuk splash login (22 KB), dan ikon
+     *  32/180 px dibuat ulang dari berkas yang sama.
+     */
+    public function test_logo_memakai_berkas_ringkas_dan_ikon_situs_seragam(): void
+    {
+        $head = File::get(resource_path('views/layouts/component/_theme_head.blade.php'));
+
+        foreach (['icon-32.png', 'icon-180.png'] as $berkas) {
+            $path = public_path('images/'.$berkas);
+
+            $this->assertFileExists($path, $berkas.' belum ada.');
+            $this->assertLessThan(60 * 1024, filesize($path), $berkas.' terlalu besar untuk sebuah ikon.');
+            $this->assertStringContainsString($berkas, $head, $berkas.' belum dirujuk di kepala halaman.');
+        }
+
+        $this->assertLessThanOrEqual(32 * 1024, filesize(public_path('images/logo-104.png')),
+            'Logo header harus di bawah 32 KB (tampil 44–52 px).');
+
+        $jpeg = public_path('images/berkah-kreatif-logo.jpeg');
+        $this->assertSame([], array_values(array_unique($this->viewsMemakaiLogoBesar())),
+            'Masih ada view yang memuat JPEG logo 564 KB; pakai images/logo-104.png (atau logo-216.png untuk splash).');
+    }
+
+    /** @return array<int, string> */
+    private function viewsMemakaiLogoBesar(): array
+    {
+        $pelanggaran = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            if (str_contains((string) File::get($file->getPathname()), 'images/berkah-kreatif-logo.jpeg')) {
+                $pelanggaran[] = str_replace('\\', '/', $file->getRelativePathname());
+            }
+        }
+
+        return $pelanggaran;
+    }
 }

@@ -3261,3 +3261,58 @@ notifikasi admin satu-satunya waktu berformat `d M Y H:i` di antara
 
 **Hasil:** harness **151 lulus, 0 gagal, 216 dilewati**; `blade-scan` 81 view
 0/0; `node --check` bersih; `.tmp-verify.php` 26 lulus; kurung CSS seimbang.
+
+### 9.67 Putaran ketujuh: aset, ikon situs, dan bahasa kerangka
+
+**a. Logo 564 KB untuk kotak 44 px.** `berkah-kreatif-logo.jpeg` berukuran
+3460×1892 dan **564 KB**, tetapi tidak pernah digambar lebih dari 108 px:
+logo header 44–52 px (di header pelanggan muncul **dua kali** — logo dan
+tombol kembali-ke-atas), avatar admin 64–72 px, splash login maksimal 108 px.
+Setiap halaman memuatnya, jadi di jaringan seluler satu gambar ini menghabiskan
+sebagian besar muatan awal. Diganti turunan dari berkas yang sama:
+`logo-104.png` (7 KB), `logo-216.png` untuk splash (22 KB), `icon-32.png`
+(1 KB), `icon-180.png` (13 KB). Semua `<img>` logo kini punya `width`/`height`
+sehingga ruangnya sudah dipesan sebelum CSS/gambar selesai dimuat.
+
+**b. Ikon situs tidak seragam.** Hanya halaman login/daftar, halaman lupa
+sandi, dan tiga halaman pelanggan yang mendeklarasikan `<link rel="icon">` —
+itu pun SVG data-URI berbeda-beda; halaman lain jatuh ke `/favicon.ico`.
+Sekarang `_theme_head` (dipakai 12 halaman) mendeklarasikan ikon 32 px dan
+`apple-touch-icon` 180 px sekaligus, dan deklarasi per-halaman dicabut
+(`_head_meta` dihapus, berkasnya hanya berisi satu baris ikon). Lembar harian
+dan lembar pesanan (halaman mandiri tanpa `_theme_head`) mendapat ikon 32 px
+sendiri.
+
+**c. Kalimat Inggris dari kerangka Laravel.** `lang/id` hanya berisi
+`validation.php`. Akibatnya `__('auth.password')` di
+`ConfirmablePasswordController` jatuh ke `fallback_locale` (en) sehingga
+halaman konfirmasi kata sandi menampilkan **"This password is incorrect."**,
+dan `ResetPasswordController` (`__($status)` dari broker) bisa menampilkan
+kunci mentah `passwords.token`. Ditambahkan `lang/id/auth.php` dan
+`lang/id/passwords.php`; `lang/id/pagination.php` tidak dibuat karena tampilan
+paginasi memakai teks Indonesia langsung (dijaga
+`test_setiap_kamus_bahasa_punya_pemakai`).
+
+**d. Nama kolom mentah di pesan validasi.** 47 kolom yang divalidasi belum
+punya entri `attributes`, sehingga pesan berbunyi "kolom proof wajib diisi"
+atau "kolom gender wajib diisi". Ditambahkan 36 entri untuk kolom yang benar-
+benar tampil ke pengguna (gender, avatar, proof, greeting, design_notes,
+delivery/return address, latitude/longitude, voucher_code, dan kolom panel
+admin: harga, stok, voucher, QRIS, WhatsApp). Sisa aplikasi lama (laundry)
+dicabut: `pickup_date`, `pickup_time`, `weight_estimate`, `service_id`,
+`driver_id`, `assignment_type`, `weight_actual`, `proof_image`, `item_lines`,
+beserta blok `custom`-nya — pesan "Layanan laundry wajib dipilih" tidak ada
+hubungannya dengan pemesanan papan bunga. Juga `'Password wajib diisi'` di
+`LoginController` menjadi `'Kata sandi wajib diisi'`.
+
+**e. Halaman galat.** Status 429 belum punya tampilan sendiri (pengguna yang
+kena batas percobaan masuk melihat halaman bawaan Laravel tanpa merek);
+judul galat berbahasa Inggris ("Server Error") dan berjudul kapital ("Akses
+Ditolak", "Sesi Kedaluwarsa"). `errors/429.blade.php` ditambahkan, semua judul
+jadi kalimat biasa dan berbahasa Indonesia, dan `public/robots.txt` menutup
+`/admin`, `/dashboard`, `/customer`, `/keranjang`, `/checkout`, `/pesanan`,
+`/profile`, `/addresses`, `/notifications`, `/pengaturan-pembayaran-sewa`
+sementara etalase tetap `Allow: /`.
+
+**Hasil:** harness **161 lulus, 0 gagal, 217 dilewati**; `blade-scan` 81 view
+0/0; `node --check` bersih; kurung CSS seimbang (518/649/242/204).

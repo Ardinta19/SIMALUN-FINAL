@@ -29,6 +29,14 @@
 {{-- Warna bilah peramban: satu nilai merek untuk seluruh aplikasi. Skrip di
      bawah menukarnya ke #140f12 saat tema gelap dan memulihkannya kembali. --}}
 <meta name="theme-color" content="#54051f">
+{{-- Ikon situs: satu sumber untuk semua halaman. Dulu hanya halaman auth dan
+     tiga halaman pelanggan yang punya `<link rel="icon">`; sisanya jatuh ke
+     /favicon.ico. Berkas logo aslinya 3460x1892 (564 KB) dan tidak pernah
+     ditampilkan lebih dari 108 px, jadi ikon dan logo memakai turunan kecil
+     yang dibuat dari logo yang sama. --}}
+<link rel="icon" type="image/png" sizes="32x32" href="{{ $themeAsset('images/icon-32.png') }}">
+<link rel="apple-touch-icon" sizes="180x180" href="{{ $themeAsset('images/icon-180.png') }}">
+<meta name="apple-mobile-web-app-title" content="Berkah Kreatif">
 @once
 <script>
 (function () {

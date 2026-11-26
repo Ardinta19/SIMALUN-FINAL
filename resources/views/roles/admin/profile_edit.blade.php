@@ -49,7 +49,7 @@
 
         <div class="adm-row" style="gap:16px;align-items:flex-start">
             <img data-adm-avatar-preview
-                 src="{{ $user->avatar ? asset('storage/'.$user->avatar) : asset('images/berkah-kreatif-logo.jpeg') }}"
+                 src="{{ $user->avatar ? asset('storage/'.$user->avatar) : asset('images/logo-104.png') }}"
                  alt="Foto profil {{ $user->name }}"
                  width="72" height="72"
                  style="width:72px;height:72px;flex:none;border-radius:50%;object-fit:cover;border:1px solid var(--adm-line);background:var(--adm-surface-3)">

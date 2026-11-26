@@ -367,7 +367,7 @@ $oldText = function (string $key, $fallback = '') {
   <div id="header">
     <div id="drum-wrap">
       <div id="drum-spin-ring"></div>
-      <img id="brand-logo" src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt="Logo Berkah Kreatif" style="width:100%;height:100%;object-fit:contain;border-radius:50%;background:white">
+      <img id="brand-logo" src="{{ asset('images/logo-104.png') }}" width="104" height="57" alt="Logo Berkah Kreatif" style="width:100%;height:100%;object-fit:contain;border-radius:50%;background:white">
     </div>
     <div class="wm-name">Berkah Kreatif</div>
     <div class="wm-sub">PAPAN BUNGA&nbsp;&nbsp;•&nbsp;&nbsp;BERKAH KREATIF</div>
