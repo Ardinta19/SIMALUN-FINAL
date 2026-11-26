@@ -135,6 +135,62 @@ class StandalonePageShellTest extends TestCase
             'Cincin fokus harus sama di halaman yang tidak punya aturan fokus sendiri.');
     }
 
+    /** Halaman admin mandiri dipatok terang sampai dimigrasikan.
+     *
+     *  Kelimanya memakai palet terang `_tokens` dan kartu putih. Tema global
+     *  (`html[data-theme="dark"] body`, `:is(h1..h6)`) tetap berlaku di sana,
+     *  sehingga judul menjadi terang di atas kartu putih. Dua variabel tema
+     *  dipatok ke nilai terang per halaman; setelah migrasi ke
+     *  `layouts.admin` (`.adm-app`) pinning ini bisa dihapus.
+     */
+    public function test_halaman_admin_mandiri_dipatok_terang(): void
+    {
+        $halaman = [
+            'roles/admin/dashboard.blade.php',
+            'roles/admin/notifications.blade.php',
+            'roles/admin/profile.blade.php',
+            'roles/admin/profile_edit.blade.php',
+            'roles/admin/audit/index.blade.php',
+        ];
+
+        foreach ($halaman as $relative) {
+            $html = (string) File::get(resource_path('views/'.$relative));
+
+            $this->assertStringContainsString('class="adm-standalone"', $html, $relative.' belum menandai <body>.');
+            $this->assertStringContainsString(
+                'html[data-theme="dark"] body.adm-standalone {',
+                $html,
+                $relative.' belum mematok variabel tema terang.'
+            );
+            $this->assertStringContainsString('--theme-ink: var(--brand-900);', $html, $relative.' teks judul bisa jadi terang di kartu putih.');
+        }
+    }
+
+    /** Tema gelap tidak boleh "gagal" di halaman pelanggan mandiri.
+     *
+     *  Tiga halaman ini memakai `<style>` sendiri dengan variabel lokal
+     *  (`--surface`, `--card`, `--ink`, `--border`) dan latar putih lepas,
+     *  sehingga tetap menyala terang walau pengguna memilih tema gelap di
+     *  header. Pemetaan gelap ditulis per halaman agar tidak mengubah halaman
+     *  lain yang memakai nama variabel sama untuk palet terangnya.
+     */
+    public function test_halaman_pelanggan_mandiri_mengikuti_tema_gelap(): void
+    {
+        $halaman = [
+            'roles/customer/addresses/create.blade.php',
+            'roles/customer/addresses/edit.blade.php',
+            'roles/customer/profile/edit.blade.php',
+        ];
+
+        foreach ($halaman as $relative) {
+            $html = (string) File::get(resource_path('views/'.$relative));
+
+            $this->assertStringContainsString('html[data-theme="dark"] {', $html, $relative.' belum punya pemetaan variabel gelap.');
+            $this->assertStringContainsString('html[data-theme="dark"] .section-card', $html, $relative.' belum menggelapkan kartu.');
+            $this->assertStringContainsString('html[data-theme="dark"] .field-input', $html, $relative.' belum menggelapkan kolom isian.');
+        }
+    }
+
     public function test_area_admin_punya_pengaman_sendiri(): void
     {
         $css = preg_replace('/\s+/', ' ', (string) File::get(public_path('css/berkah-admin.css')));

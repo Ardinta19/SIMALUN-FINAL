@@ -288,13 +288,24 @@ body {
     .revenue { padding: 22px 24px; }
     .revenue__val { font-size: 2.2rem; }
 }
+
+/* Halaman admin mandiri ini masih memakai palet terang `_tokens` (belum
+   dimigrasikan ke `.adm-app`). Saat tema gelap aktif, tema global mengubah
+   <body> dan judul menjadi terang sehingga judul di kartu putih tidak
+   terbaca. Dua variabel tema dipatok ke nilai terang di halaman ini saja,
+   jadi seluruh warna turunan tema ikut terang dan tampilan tetap konsisten
+   sampai migrasi ke `layouts.admin` dikerjakan. */
+html[data-theme="dark"] body.adm-standalone {
+    --theme-bg: var(--surface-50);
+    --theme-ink: var(--brand-900);
+}
 </style>
 @include('layouts.component._theme_head')
 <link rel="stylesheet" href="{{ asset('css/berkah-admin.css') }}?v={{ filemtime(public_path('css/berkah-admin.css')) }}">
 <link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}?v={{ filemtime(public_path('css/page-transitions.css')) }}">
 <script src="{{ asset('js/page-transitions.js') }}?v={{ filemtime(public_path('js/page-transitions.js')) }}" defer></script>
 </head>
-<body>
+<body class="adm-standalone">
 @include('layouts.component._skip_link')
 
 @php

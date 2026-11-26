@@ -199,6 +199,29 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
         animation-iteration-count: 1 !important;
     }
 }
+
+/* Tema gelap: halaman ini memakai variabel lokal (--surface/--card/--ink/--border)
+   dan beberapa latar putih lepas, jadi tidak ikut membaik saat pengguna memilih
+   tema gelap di header. Pemetaan di bawah hanya berlaku di halaman ini (tidak
+   mengubah halaman lain yang juga memakai --ink untuk palet terangnya). */
+html[data-theme="dark"] {
+    --surface: #140f12;
+    --card: #1d1619;
+    --ink: #f6eef0;
+    --ink-mid: #cbb9bf;
+    --ink-lt: #ab989f;
+    --border: #3a2b31;
+    --blue-sky: #2a1c22;
+}
+html[data-theme="dark"] body { background: var(--surface); color: var(--ink); }
+html[data-theme="dark"] .section-card,
+html[data-theme="dark"] .field-input,
+html[data-theme="dark"] .zone-pill,
+html[data-theme="dark"] textarea.field-input {
+    background: var(--card); color: var(--ink); border-color: var(--border);
+}
+html[data-theme="dark"] .alert-error { background: #3a1418; color: #ffb4b4; }
+html[data-theme="dark"] .alert-success { background: #0f2b22; color: #8ff0cc; }
 </style>
 <link rel="stylesheet" href="{{ $asset('css/page-transitions.css') }}"><script src="{{ $asset('js/page-transitions.js') }}" defer></script>
 <link rel="stylesheet" href="{{ $asset('css/customer-forms.css') }}">

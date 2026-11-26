@@ -287,6 +287,29 @@ class ResponsiveLayoutTest extends TestCase
             'Baris pil versi halaman unit harus dibatasi lebar induknya.');
     }
 
+    /** Nomor halaman tidak boleh terpotong di layar 320 px.
+     *
+     *  `.bk-pagination` dulu `width:max-content` tanpa `flex-wrap`; dengan
+     *  tombol 44 px, tujuh tombol sudah lebih lebar dari layar ponsel.
+     */
+    public function test_navigasi_halaman_turun_baris_di_layar_sempit(): void
+    {
+        $css = preg_replace('/\s+/', ' ', File::get(public_path('css/berkah-experience.css')));
+
+        $this->assertMatchesRegularExpression(
+            '/\.bk-experience \.bk-pagination \{[^}]*flex-wrap: wrap;/',
+            $css,
+            'Paginasi harus boleh turun baris, bukan melebar melewati layar.'
+        );
+        $this->assertMatchesRegularExpression('/\.bk-experience \.bk-pagination \{[^}]*width: auto;/', $css,
+            '`width:max-content` membuat paginasi selalu selebar isinya.');
+        $this->assertMatchesRegularExpression(
+            '/\.bk-experience \.bk-pagination__pages \{[^}]*flex-wrap: wrap;/',
+            $css,
+            'Kelompok nomor halaman juga harus boleh turun baris.'
+        );
+    }
+
     public function test_kolom_formulir_admin_sejajar_dari_label(): void
     {
         $css = preg_replace('/\s+/', ' ', File::get(public_path('css/berkah-admin.css')));

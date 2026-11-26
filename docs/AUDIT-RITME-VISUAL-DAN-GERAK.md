@@ -2830,3 +2830,55 @@ memastikan `$errors->any()` tetap ada di tag `<body>`.
 
 **Hasil harness:** 118 lulus, 0 gagal, 216 dilewati; `blade-scan` 83 view,
 0 direktif menempel, 0 blok tidak seimbang; `.tmp-verify.php` 26 lulus.
+
+#### 9.61 lanjutan — tema gelap, paginasi, dan status migrasi
+
+**g. Tema gelap di halaman pelanggan mandiri.**
+`roles/customer/addresses/create`, `addresses/edit`, dan `profile/edit` memakai
+`<style>` sendiri dengan variabel lokal (`--surface`, `--card`, `--ink`,
+`--border`) dan latar `white` lepas. Saat pengguna memilih tema gelap di header,
+halaman ini tetap menyala terang. Ditambahkan pemetaan per halaman (bukan di
+berkas tema, karena nama variabel yang sama dipakai palet terang halaman lain):
+
+```css
+html[data-theme="dark"] {
+    --surface: #140f12; --card: #1d1619; --ink: #f6eef0;
+    --ink-mid: #cbb9bf; --ink-lt: #ab989f; --border: #3a2b31;
+}
+html[data-theme="dark"] .section-card,
+html[data-theme="dark"] .field-input,
+html[data-theme="dark"] .zone-pill { background: var(--card); color: var(--ink); border-color: var(--border); }
+```
+
+Tombol geser (`.toggle-switch::after`) sengaja tetap putih karena ia "knob" di
+atas lintasan berwarna merek.
+
+**h. Halaman admin mandiri dipatok terang (sementara).**
+Kelimanya memakai palet terang `_tokens` + kartu putih, sedangkan tema global
+tetap mengubah `body` dan judul (`html[data-theme="dark"] :is(h1…)`) — akibatnya
+judul menjadi terang di atas kartu putih. Karena migrasi ke `layouts.admin`
+belum dikerjakan, halaman diberi `class="adm-standalone"` dan
+`--theme-bg`/`--theme-ink` dipatok ke nilai terang **hanya** di halaman itu:
+
+```css
+html[data-theme="dark"] body.adm-standalone {
+    --theme-bg: var(--surface-50);
+    --theme-ink: var(--brand-900);
+}
+```
+
+Setelah migrasi ke `.adm-app` (yang sudah punya aturan gelap di
+`berkah-admin.css`), pinning ini dihapus. Dijaga
+`StandalonePageShellTest::test_halaman_admin_mandiri_dipatok_terang`.
+
+**i. Paginasi turun baris di layar sempit.** `.bk-pagination` memakai
+`width:max-content; min-width:100%` tanpa `flex-wrap`. Dengan sasaran sentuh
+44 px, tujuh tombol sudah melewati 320 px sehingga nomor terakhir hanya bisa
+dicapai dengan menggulir kotak paginasi. Sekarang `.bk-pagination` dan
+`.bk-pagination__pages` memakai `flex-wrap: wrap`, `width: auto`,
+`max-width: 100%`, dan `justify-content: center`. Dijaga
+`ResponsiveLayoutTest::test_navigasi_halaman_turun_baris_di_layar_sempit`.
+
+**Hasil harness akhir:** **121 lulus, 0 gagal, 216 dilewati**; `blade-scan`
+83 view 0/0; `.tmp-verify.php` 26 lulus; `node --check` seluruh `public/js`
+bersih.

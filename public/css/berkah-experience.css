@@ -658,3 +658,27 @@ body.bk-experience {
 .bk-experience .notice {
     max-width: 100%;
 }
+
+/* ==========================================================================
+   9.62 Navigasi halaman yang turun baris
+   --------------------------------------------------------------------------
+   `.bk-pagination` memakai `width:max-content; min-width:100%` tanpa
+   `flex-wrap`. Dengan tombol 44 px (sasaran sentuh), tujuh tombol sudah
+   melewati 320 px sehingga nomor halaman terakhir hanya bisa dicapai dengan
+   menggulir kotak paginasi — bukan hal yang wajar di ponsel.
+   ========================================================================== */
+
+.bk-experience .bk-pagination {
+    flex-wrap: wrap;
+    width: auto;
+    min-width: 0;
+    max-width: 100%;
+    justify-content: center;
+    row-gap: 6px;
+}
+
+.bk-experience .bk-pagination__pages {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+}
