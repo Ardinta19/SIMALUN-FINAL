@@ -179,4 +179,41 @@ class AdminWalkInOrderTest extends TestCase
             'weight_estimate' => 1.5,
         ]);
     }
+
+    public function test_walkin_berat_lebih_dari_50_ditolak_server(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $kategori = ServiceCategory::create([
+            'name' => 'Kiloan',
+            'pricing_model' => 'per_kg',
+            'is_active' => true,
+        ]);
+
+        $service = Service::create([
+            'name' => 'Cuci Kiloan Batas Berat',
+            'slug' => 'cuci-batas-'.uniqid(),
+            'pricing_model' => 'per_kg',
+            'unit_price' => 7000,
+            'unit_type' => 'kg',
+            'price_per_kg' => 7000,
+            'estimated_hours' => 24,
+            'description' => 'Tes batas berat',
+            'service_category_id' => $kategori->id,
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->from(route('admin.walkin.form'))
+            ->post(route('admin.orders.walk-in.store'), [
+                'customer_name' => 'Tes Berat',
+                'customer_phone' => null,
+                'service_id' => $service->id,
+                'weight_estimate' => 100,
+                'pickup_time' => 'pagi',
+            ]);
+
+        $response->assertSessionHasErrors(['weight_estimate']);
+        $this->assertDatabaseCount('orders', 0);
+    }
 }

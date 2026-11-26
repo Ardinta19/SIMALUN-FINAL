@@ -834,8 +834,9 @@ class OrderController extends Controller
             'service_category_id' => 'nullable|exists:service_categories,id',
             'service_id' => 'required|exists:services,id',
             'weight_estimate' => 'required|numeric|min:0.5|max:50',
-            'weight_estimate.max' => 'Berat melebihi batas (maks 50 kg).',
             'pickup_time' => 'required|in:pagi,siang,sore',
+        ], [
+            'weight_estimate.max' => 'Berat melebihi batas (maks 50 kg).',
         ]);
 
         // Validasi konsistensi: kategori yang dipilih harus sama dengan kategori
@@ -961,7 +962,7 @@ class OrderController extends Controller
     private function resolveWalkinCustomer(string $name, ?string $phone): User|RedirectResponse
     {
         $normalizedPhone = preg_replace('/[\s\-\.]/', '', trim((string) $phone));
-        $normalizedPhone = preg_replace('/^(\+?62|0)/', '', $normalizedPhone);
+        $normalizedPhone = preg_replace('/^\+?62/', '0', $normalizedPhone);
         $cleanPhone = $normalizedPhone !== '' ? $normalizedPhone : null;
 
         if ($cleanPhone !== null) {

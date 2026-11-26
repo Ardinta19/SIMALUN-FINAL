@@ -539,8 +539,8 @@ body {
     var itemTemplate = document.getElementById('walkin-item-template');
 
     function visibleItemOptions() {
-        if (!mainCategoryId) return ITEM_OPTIONS;
-        return ITEM_OPTIONS.filter(function (o) { return String(o.category) === String(mainCategoryId); });
+        // Item services use categories separate from the main per-kg service.
+        return ITEM_OPTIONS;
     }
 
     function setItemRowService(row, value) {
