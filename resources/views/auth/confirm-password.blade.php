@@ -9,7 +9,7 @@
         @csrf
 
         <div>
-            <x-input-label for="password" :value="__('Kata Sandi')" />
+            <x-input-label for="password" :value="__('Kata sandi')" />
 
             <x-text-input id="password"
                             type="password"

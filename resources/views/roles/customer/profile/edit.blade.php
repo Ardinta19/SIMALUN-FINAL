@@ -413,19 +413,19 @@ $oldText = function (string $key, $fallback = '') {
             </div>
             <div class="section-body">
                 <div>
-                    <label class="field-label" for="profile-current-password">Kata Sandi Saat Ini</label>
+                    <label class="field-label" for="profile-current-password">Kata sandi saat ini</label>
                     <input type="password" id="profile-current-password" name="current_password" class="field-input" autocomplete="current-password" placeholder="••••••••">
                     @error('current_password', 'updatePassword') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
 
                 <div>
-                    <label class="field-label" for="profile-new-password">Kata Sandi Baru</label>
+                    <label class="field-label" for="profile-new-password">Kata sandi baru</label>
                     <input type="password" id="profile-new-password" name="password" class="field-input" autocomplete="new-password" placeholder="Minimal 8 karakter">
                     @error('password', 'updatePassword') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
 
                 <div>
-                    <label class="field-label" for="profile-confirm-password">Konfirmasi Kata Sandi Baru</label>
+                    <label class="field-label" for="profile-confirm-password">Konfirmasi kata sandi baru</label>
                     <input type="password" id="profile-confirm-password" name="password_confirmation" class="field-input" autocomplete="new-password" placeholder="Ulangi kata sandi baru">
                 </div>
 

@@ -3056,3 +3056,43 @@ positif palsu (ekspresi Blade `->` memotong regex) atau aman.
 
 **Hasil:** harness **133 lulus, 0 gagal, 216 dilewati**; `blade-scan` 81 view
 0/0; `node --check` bersih; `.tmp-verify.php` 26 lulus.
+
+### 9.64 Putaran keempat: sisa Breeze di komponen, label, dan $type
+
+**a. Komponen Breeze masih membawa kelas Tailwind yang CSS-nya tidak ada.**
+`x-text-input` (`border-gray-300 focus:border-indigo-500 focus:ring-indigo-500
+rounded-md shadow-sm`), `x-input-label` (`block font-medium text-sm
+text-gray-700`), `x-primary-button` (`bg-gray-800`, `text-gray-800`), dan
+`x-input-error` (`text-red-600 space-y-1`) adalah sisa dari build Tailwind yang
+sudah dicabut. Kalau CSS-nya tidak ada, atribut `class` itu hanya keluaran mati
+yang membingungkan: pembaca mengira kontrol masih ditata oleh kelas, padahal
+`layouts.guest` menatanya lewat selektor elemen (`.guest-card input`,
+`.guest-card label`, `.guest-card button[type="submit"]`, `.guest-card ul`).
+Keempat komponen kini mengeluarkan elemen bersih; `x-primary-button` tetap
+memaksa `type="submit"`. `x-input-error` mempertahankan `role="alert"` supaya
+galat konfirmasi sandi dan verifikasi email tetap diumumkan.
+
+**b. Label isian yang Judul Kapital di tengah formulir huruf kecil.**
+Konvensi yang dipakai login dan daftar: label isian **huruf kecil** ("Kata
+sandi", "Email"), sedangkan judul kartu dan tombol utama Judul Kapital ("Masuk
+Sekarang", "Ganti Kata Sandi"). Dua halaman melanggar:
+
+* `auth/confirm-password` — label `Kata Sandi` → `Kata sandi`.
+* `roles/customer/profile/edit` — label `Kata Sandi Saat Ini`, `Kata Sandi
+  Baru`, `Konfirmasi Kata Sandi Baru` → huruf kecil; judul kartu "Ganti Kata
+  Sandi" tetap.
+* `auth/verify-email` — h1 `Verifikasi email Anda` → `Verifikasi Email Anda`
+  agar sejalan dengan judul halamannya (`Verifikasi Email`).
+
+Dijaga `UiDefaultsTest::test_label_isian_memakai_huruf_kecil_sesuai_kalimat`.
+
+**c. Pemeriksaan tambahan yang bersih tanpa perubahan.** Seluruh `<img>` punya
+`alt`; tidak ada `target="_blank"` tanpa `rel="noopener"`; tidak ada `<form>`
+POST tanpa `@csrf`, unggahan tanpa `enctype`, atau metode palsu tanpa
+`@method`; tidak ada `<h1>` ganda maupun halaman tanpa `<h1>`; rujukan
+`aria-describedby`/`labelledby`/`controls` semuanya punya target; 15 halaman
+admin memakai `.adm-page-head` + tepat satu `<h1>`; 12 halaman pelanggan juga
+satu `<h1>`; tabel email satu-satunya `<table>` tanpa pembungkus gulir dan itu
+memang benar (HTML surel).
+
+**Hasil:** harness **134 lulus, 0 gagal, 216 dilewati**.

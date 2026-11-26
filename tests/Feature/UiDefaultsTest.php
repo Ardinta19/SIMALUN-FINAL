@@ -272,6 +272,28 @@ class UiDefaultsTest extends TestCase
         $this->assertStringContainsString("route('logout')", $profile);
     }
 
+    public function test_label_isian_memakai_huruf_kecil_sesuai_kalimat(): void
+    {
+        // Judul halaman dan tombol utama boleh Judul Kapital (seperti
+        // "Masuk Sekarang" di halaman login), tetapi LABEL ISIAN memakai
+        // huruf kecil sesuai kalimat — sama dengan "Kata sandi" di login dan
+        // daftar. Halaman konfirmasi sandi dan profil pelanggan sempat memakai
+        // "Kata Sandi Saat Ini", sehingga satu formulir punya dua gaya.
+        $konfirmasi = File::get(resource_path('views/auth/confirm-password.blade.php'));
+        $verifikasi = File::get(resource_path('views/auth/verify-email.blade.php'));
+        $profil = File::get(resource_path('views/roles/customer/profile/edit.blade.php'));
+
+        $this->assertStringContainsString("__('Kata sandi')", $konfirmasi);
+        $this->assertStringContainsString("__('Verifikasi Email Anda')", $verifikasi);
+
+        foreach (['Kata sandi saat ini', 'Kata sandi baru', 'Konfirmasi kata sandi baru'] as $label) {
+            $this->assertStringContainsString('>'.$label.'<', $profil, 'Label "'.$label.'" hilang dari profil pelanggan.');
+        }
+
+        $this->assertStringNotContainsString('>Kata Sandi', $profil, 'Label isian tidak boleh Judul Kapital.');
+        $this->assertStringContainsString('Ganti Kata Sandi', $profil, 'Judul kartu tetap Judul Kapital.');
+    }
+
     public function test_no_view_prints_the_word_array(): void
     {
         // Beberapa tes fitur memakai kata "Array" sebagai penanda bahwa suatu
