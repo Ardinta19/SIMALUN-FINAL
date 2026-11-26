@@ -359,7 +359,6 @@ $oldText = function (string $key, $fallback = '') {
                     <input placeholder="Contoh: Rumah" type="text" id="profile-address-label" name="label"
                            class="field-input {{ $errors->has('label') ? 'is-error' : '' }}"
                            value="{{ $oldText('label', $primaryAddress->label ?? 'Rumah') }}"
-                           placeholder="Rumah, Kantor, Kos..."
                            required>
                 </div>
 
@@ -375,15 +374,13 @@ $oldText = function (string $key, $fallback = '') {
                     <label class="field-label" for="profile-address-phone">No. HP Penerima</label>
                     <input placeholder="Contoh: 0812 3456 7890" autocomplete="tel" type="tel" inputmode="tel" id="profile-address-phone" name="phone"
                            class="field-input"
-                           value="{{ $oldText('phone', $primaryAddress->phone ?? $user->phone) }}"
-                           placeholder="08xxxxxxxxxx">
+                           value="{{ $oldText('phone', $primaryAddress->phone ?? $user->phone) }}">
                 </div>
 
                 <div>
                     <label class="field-label" for="profile-address-full">Alamat Lengkap <span class="req">*</span></label>
                     <textarea placeholder="Contoh: Jl. Merdeka No. 12, RT 03, Palembang" id="profile-address-full" name="full_address"
                               class="field-input {{ $errors->has('full_address') ? 'is-error' : '' }}"
-                              placeholder="Jalan, nomor rumah, RT/RW, kelurahan, kecamatan"
                               required>{{ $oldText('full_address', $primaryAddress->full_address ?? '') }}</textarea>
                 </div>
 
@@ -391,8 +388,7 @@ $oldText = function (string $key, $fallback = '') {
                     <label class="field-label" for="profile-address-notes">Catatan (opsional)</label>
                     <input placeholder="Contoh: Pagar hijau, titip ke satpam bila tidak ada orang." type="text" id="profile-address-notes" name="notes"
                            class="field-input"
-                           value="{{ $oldText('notes', $primaryAddress->notes ?? '') }}"
-                           placeholder="Patokan, warna pagar, lantai">
+                           value="{{ $oldText('notes', $primaryAddress->notes ?? '') }}">
                 </div>
 
                 <button type="submit" class="btn-submit secondary">

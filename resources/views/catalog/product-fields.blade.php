@@ -20,7 +20,7 @@
 </div>
 <div class="adm-field">
     <label for="{{ $fieldId }}-size">Ukuran</label>
-    <input placeholder="Contoh: 180 × 90 cm" id="{{ $fieldId }}-size" name="size" value="{{ $oldText('size', $product?->size) }}" maxlength="100" placeholder="Contoh: 150 × 200 cm">
+    <input placeholder="Contoh: 180 × 90 cm" id="{{ $fieldId }}-size" name="size" value="{{ $oldText('size', $product?->size) }}" maxlength="100">
 </div>
 <div class="adm-field">
     <label for="{{ $fieldId }}-description">Deskripsi</label>

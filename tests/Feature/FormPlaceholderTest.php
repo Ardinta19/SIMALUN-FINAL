@@ -170,4 +170,44 @@ class FormPlaceholderTest extends TestCase
 
         $this->assertSame([], $ganda, 'Atribut placeholder ganda: '.implode(', ', $ganda));
     }
+
+    /** Satu atribut, satu kali.
+     *
+     *  HTML tidak mengizinkan atribut ganda; peramban memakai yang pertama
+     *  dan membuang sisanya. Tiga halaman isian alamat (buat, ubah, dan
+     *  profil) dulu menulis `placeholder` dua kali per kolom — "Contoh: Rumah"
+     *  lalu "Rumah, Kantor, Kos, dll." — sehingga niat penulis kedua tidak
+     *  pernah terlihat dan sumbernya membingungkan. Audit 2026-11-25
+     *  menemukannya lewat pemindai atribut ganda.
+     */
+    public function test_tidak_ada_atribut_ganda_dalam_satu_tag(): void
+    {
+        $ganda = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            $relative = str_replace('\\', '/', $file->getRelativePathname());
+            $html = (string) preg_replace('/\{\{--.*?--\}\}/s', '', File::get($file->getPathname()));
+            $scan = str_replace('->', "\u{2192}", $html);
+
+            preg_match_all('/<(?:input|textarea|select|button|img|label)\b[^>]*>/i', $scan, $found);
+
+            foreach ($found[0] as $tag) {
+                preg_match_all('/(?<![\w-])([a-z-]+)\s*=/i', $tag, $attrs);
+
+                foreach (array_count_values($attrs[1]) as $nama => $jumlah) {
+                    if ($jumlah > 1) {
+                        $ganda[] = $relative.' → '.$nama.' ×'.$jumlah;
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        $this->assertSame([], $ganda, 'Atribut ganda: '.implode(', ', $ganda));
+    }
 }

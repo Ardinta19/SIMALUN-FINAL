@@ -154,7 +154,6 @@ $oldText = function (string $key, $fallback = '') {
                 <div>
                     <label class="field-label" for="address-label">Label Alamat <span class="required">*</span></label>
                     <input placeholder="Contoh: Rumah" type="text" name="label" id="address-label" class="field-input {{ $errors->has('label') ? 'is-error' : '' }}"
-                        placeholder="Rumah, Kantor, Kos, dll."
                         value="{{ $oldText('label', $address->label) }}" required>
                     @error('label') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
@@ -167,7 +166,7 @@ $oldText = function (string $key, $fallback = '') {
                 <div>
                     <label class="field-label" for="address-phone">No. HP / WhatsApp</label>
                     <input placeholder="Contoh: 0812 3456 7890" autocomplete="tel" type="tel" inputmode="tel" name="phone" id="address-phone" class="field-input"
-                        value="{{ $oldText('phone', $address->phone) }}" placeholder="08xxxxxxxxxx">
+                        value="{{ $oldText('phone', $address->phone) }}">
                 </div>
             </div>
         </div>
