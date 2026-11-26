@@ -1675,6 +1675,21 @@ h1, h2, h3 {
    Paginasi bersama — dipakai katalog, halaman pelanggan, dan panel admin.
    Butir halaman 44 px; sebelumnya 32 px karena padding sebaris.
    ================================================================ */
+/* ================================================================
+   Atribut `hidden` menang atas `display` apa pun.
+   ----------------------------------------------------------------
+   `hidden` adalah kendali HTML, bukan saran. Beberapa kelas di proyek ini
+   memberi `display:flex/grid/inline-flex` (`.btn`, `.bk-header-filter`,
+   `.bk-expand` di kepala ringkas) dengan spesifisitas yang mengalahkan gaya
+   bawaan peramban, sehingga tombol yang seharusnya disembunyikan sampai
+   JavaScript siap justru tampil — dan tak bisa dipakai. Satu aturan ini
+   mengembalikan perilaku standar untuk seluruh halaman yang memuat berkas
+   ini (katalog, pelanggan, admin, halaman tamu).
+   ================================================================ */
+[hidden] {
+    display: none !important;
+}
+
 .bk-page-nav {
     display: flex;
     flex-wrap: wrap;

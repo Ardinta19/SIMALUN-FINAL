@@ -282,8 +282,6 @@
         if (!window.gsap || !switchSvg) return null;
         const handWrap = switchSvg.querySelector('#bk-theme-hand-wrap');
         const thumb = switchSvg.querySelector('#bk-theme-thumb');
-        const hand2 = switchSvg.querySelector('#bk-theme-hand-2');
-        const hand1 = switchSvg.querySelector('#bk-theme-hand-1');
         if (!handWrap || !knob) return null;
 
         const tl = window.gsap.timeline({ paused: true, defaults: { ease: 'expo.inOut' } });
@@ -298,9 +296,6 @@
                 ease: 'elastic(0.7, 0.3)',
                 transformOrigin: '55% 95%',
             }, '-=0.6');
-        }
-        if (hand1 && hand2) {
-            tl.to([hand1, hand2], { opacity: (i) => (i === 0 ? 0 : 1), duration: 0.12 }, '-=0.45');
         }
         tl.to(handWrap, { x: () => handState.from, duration: 0.5, ease: 'back.in(1.15)' }, '+=0.12');
         if (thumb) tl.to(thumb, { rotation: 23, duration: 0.3, ease: 'power2.in' }, '-=0.42');

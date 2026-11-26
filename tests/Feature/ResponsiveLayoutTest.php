@@ -691,4 +691,25 @@ class ResponsiveLayoutTest extends TestCase
         $this->assertStringNotContainsString('.adm-app .pagination', $admin,
             'Aturan paginasi lama di panel admin harus dicabut.');
     }
+
+    /** `hidden` harus menang atas `display` milik kelas.
+     *
+     *  `.btn`, `.bk-header-filter`, dan `.bk-expand` (di kepala ringkas)
+     *  menulis `display` dengan spesifisitas lebih tinggi daripada gaya
+     *  bawaan peramban. Akibatnya tombol yang ditandai `hidden` sampai
+     *  JavaScript siap tetap tampil — mis. tombol "Salin alamat pesanan
+     *  sebelumnya" dan "Pesan untuk hari yang sama" di checkout.
+     */
+    public function test_atribut_hidden_selalu_menyembunyikan(): void
+    {
+        $kit = File::get(public_path('css/berkah-ui-kit.css'));
+
+        $this->assertMatchesRegularExpression('/\[hidden\] \{[^}]*display: none !important;/s', $kit);
+
+        // Berkas ini harus dimuat semua cangkang halaman bertema.
+        foreach (['catalog/layout.blade.php', 'layouts/admin.blade.php', 'layouts/guest.blade.php'] as $layout) {
+            $html = File::get(resource_path('views/'.$layout));
+            $this->assertStringContainsString("layouts.component._theme_head", $html, $layout.' tidak memuat kepala tema.');
+        }
+    }
 }

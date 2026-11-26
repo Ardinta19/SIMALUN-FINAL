@@ -967,7 +967,7 @@ html.adm-reduced [data-adm-reveal] { opacity: 1 !important; transform: none !imp
     .adm-topbar { gap: 8px; padding-inline: 12px; }
     .adm-crumbs { font-size: var(--adm-fs-2xs); }
     .adm-stat { padding: 14px; }
-    .adm-drawer { width: 100vw; }
+    .adm-drawer { width: 100%; }
 }
 
 /* --------------------------------------------------------------------------

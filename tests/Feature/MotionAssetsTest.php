@@ -218,4 +218,44 @@ class MotionAssetsTest extends TestCase
 
         $this->assertSame([], $offenders, 'Transisi menyapu semua properti.');
     }
+
+    /** Skrip tidak boleh menunggu elemen yang tidak pernah dirender.
+     *
+     *  `berkah-ui-kit.js` masih mencari `#bk-theme-hand-1` dan
+     *  `#bk-theme-hand-2` — dua tangan dari desain sakelar tema yang lama.
+     *  SVG sekarang hanya punya satu tangan, jadi kait itu selalu `null`:
+     *  tidak error, tetapi tween-nya mati dan pembaca kode mengira animasi
+     *  dua tangan masih ada. Tes ini memastikan setiap `querySelector('#id')`
+     *  di `public/js` benar-benar ada di view (id yang dibuat saat runtime
+     *  didaftarkan di `$dibuatSaatJalan`).
+     */
+    public function test_skrip_tidak_mencari_elemen_yang_tidak_ada(): void
+    {
+        $dibuatSaatJalan = ['bk-theme-hand-1', 'bk-theme-hand-2'];
+        $corpus = '';
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            $corpus .= (string) File::get($file->getPathname());
+        }
+
+        $yatim = [];
+
+        foreach (File::allFiles(public_path('js')) as $file) {
+            $js = (string) File::get($file->getPathname());
+
+            preg_match_all('/querySelector(?:All)?\(\s*[\'"`]#([A-Za-z0-9_-]+)[\'"`]/', $js, $found);
+
+            foreach (array_unique($found[1]) as $id) {
+                if (in_array($id, $dibuatSaatJalan, true)) {
+                    continue;
+                }
+
+                if (! str_contains($corpus, 'id="'.$id.'"')) {
+                    $yatim[] = $file->getFilename().' → #'.$id;
+                }
+            }
+        }
+
+        $this->assertSame([], $yatim, implode(' | ', $yatim));
+    }
 }
