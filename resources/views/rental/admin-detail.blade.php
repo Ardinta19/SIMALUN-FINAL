@@ -170,7 +170,7 @@
                             </div>
                             <div class="adm-field">
                                 <label for="transport-note-{{ $unit->id }}">Rincian ongkos</label>
-                                <textarea id="transport-note-{{ $unit->id }}" placeholder="Contoh: Antar 15.000 dan jemput kembali 20.000, sudah termasuk tol." name="note" maxlength="1000">{{ $unit->transport_quote_note }}</textarea>
+                                <textarea id="transport-note-{{ $unit->id }}" placeholder="Contoh: Antar 15.000 dan jemput kembali 20.000, sudah termasuk tol." name="note" maxlength="1000" rows="4">{{ $unit->transport_quote_note }}</textarea>
                             </div>
                             <p class="adm-help">Mengirim versi baru membatalkan persetujuan lama; pelanggan wajib menyetujui versi terbaru.</p>
                             <div><button class="btn secondary" type="submit">Kirim penawaran</button></div>
@@ -233,7 +233,7 @@
                     <p class="adm-help">{{ $unit->status_before_cancel === 'pending' ? 'Unit kembali menunggu konfirmasi; tenggat konfirmasi tetap berlaku.' : 'Unit kembali dikonfirmasi setelah pembayaran lunas terverifikasi dan stok tersedia.' }}</p>
                     <div class="adm-field">
                         <label for="resume-reason-{{ $unit->id }}">Alasan melanjutkan (tercatat di riwayat)</label>
-                        <textarea id="resume-reason-{{ $unit->id }}" placeholder="Contoh: Pelanggan melunasi pembayaran dan stok unit tersedia kembali." name="reason" maxlength="500" required>{{ is_scalar(old('reason')) ? old('reason') : '' }}</textarea>
+                        <textarea id="resume-reason-{{ $unit->id }}" placeholder="Contoh: Pelanggan melunasi pembayaran dan stok unit tersedia kembali." name="reason" maxlength="500" required rows="4">{{ is_scalar(old('reason')) ? old('reason') : '' }}</textarea>
                     </div>
                     <div><button class="btn" type="submit">Lanjutkan unit</button></div>
                 </form>
@@ -370,7 +370,7 @@
                         <p class="adm-note adm-note--warn" style="margin:0">Pelanggan belum merespons sampai batas. Pengerjaan dapat dimulai tanpa persetujuan; keputusan ini tercatat dan pelanggan tetap dapat menyetujui atau meminta revisi.</p>
                         <div class="adm-field">
                             <label for="override-note-{{ $unit->id }}">Alasan melanjutkan tanpa persetujuan (wajib, minimal 10 karakter)</label>
-                            <textarea id="override-note-{{ $unit->id }}" placeholder="Contoh: Pelanggan belum membalas sejak kemarin, pengerjaan dimulai sesuai tenggat." name="note" minlength="10" maxlength="2000" required>{{ is_scalar(old('note')) ? old('note') : '' }}</textarea>
+                            <textarea id="override-note-{{ $unit->id }}" placeholder="Contoh: Pelanggan belum membalas sejak kemarin, pengerjaan dimulai sesuai tenggat." name="note" minlength="10" maxlength="2000" required rows="4">{{ is_scalar(old('note')) ? old('note') : '' }}</textarea>
                         </div>
                         <label class="adm-switch">
                             <input type="checkbox" name="confirmed" value="1" required>

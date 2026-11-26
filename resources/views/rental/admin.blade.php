@@ -35,7 +35,7 @@
     <div class="adm-field-grid">
         <div class="adm-field adm-field--wide">
             <label for="adm-order-q">Cari referensi, pelanggan, penerima, atau papan</label>
-            <input id="adm-order-q" name="q" maxlength="160" value="{{ $filters['q'] ?? '' }}" data-adm-search placeholder="Contoh: papan mawar / nama penerima">
+            <input id="adm-order-q" type="search" autocomplete="off" name="q" maxlength="160" value="{{ $filters['q'] ?? '' }}" data-adm-search placeholder="Contoh: papan mawar / nama penerima">
         </div>
         <div class="adm-field">
             <label for="adm-order-status">Status atau tugas</label>

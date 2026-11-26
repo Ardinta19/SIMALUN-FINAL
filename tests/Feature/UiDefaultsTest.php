@@ -791,4 +791,104 @@ class UiDefaultsTest extends TestCase
 
         return $pelanggaran;
     }
+
+    /** Sapaan "kamu" dipakai di seluruh aplikasi, termasuk notifikasi.
+     *
+     *  Dua pesan notifikasi masih menyapa "Anda" setelah halaman lain
+     *  diseragamkan, sehingga satu pelanggan bisa membaca dua sapaan berbeda
+     *  pada hari yang sama.
+     */
+    public function test_sapaan_seragam_kamu(): void
+    {
+        $pelanggaran = [];
+
+        foreach (array_merge(File::allFiles(resource_path('views')), File::allFiles(app_path())) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php') && ! str_ends_with($file->getFilename(), '.php')) {
+                continue;
+            }
+
+            $isi = (string) File::get($file->getPathname());
+
+            if (preg_match('/\bAnda\b/', $isi)) {
+                $pelanggaran[] = str_replace('\\', '/', $file->getRelativePathname());
+            }
+        }
+
+        $this->assertSame([], array_values(array_unique($pelanggaran)), 'Masih memakai sapaan "Anda".');
+    }
+
+    /** Kolom teks panjang cukup tinggi sejak awal.
+     *
+     *  `<textarea>` tanpa `rows` hanya setinggi dua baris. Untuk ucapan,
+     *  catatan desain, dan alamat lengkap, pelanggan harus menggulir kotak
+     *  kecil sebelum bisa membaca kembali tulisannya sendiri — di ponsel itu
+     *  pembatas gulir halaman mudah tertukar dengan gulir di dalam kotak.
+     */
+    public function test_kolom_teks_panjang_punya_tinggi_awal(): void
+    {
+        $panjang = ['greeting', 'design_notes', 'full_address', 'delivery_address', 'return_address', 'reason', 'note', 'instructions'];
+        $kurang = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            $relative = str_replace('\\', '/', $file->getRelativePathname());
+            $html = (string) File::get($file->getPathname());
+            $scan = str_replace('->', "\u{2192}", $html);
+
+            preg_match_all('/<textarea\b[^>]*>/i', $scan, $found);
+
+            foreach ($found[0] as $tag) {
+                if (! preg_match('/name="([^"]+)"/', $tag, $m)) {
+                    continue;
+                }
+
+                $base = preg_replace('/^.*[.\[]/', '', rtrim($m[1], ']'));
+
+                if (! in_array($base, $panjang, true)) {
+                    continue;
+                }
+
+                if (! preg_match('/rows="([3-9]|\d{2,})"/', $tag)) {
+                    $kurang[] = $relative.' → '.$base;
+                }
+            }
+        }
+
+        $this->assertSame([], array_values(array_unique($kurang)), 'Kolom teks panjang butuh rows>=3: '.implode(', ', array_unique($kurang)));
+    }
+
+    /** Kolom pencarian memakai `type="search"`.
+     *
+     *  Dengan `type="search"`, papan ketik ponsel menampilkan tombol "Cari"
+     *  dan peramban memberi tombol bersihkan; dengan `type` bawaan (teks)
+     *  keduanya tidak muncul dan pengguna harus menghapus kata kunci manual.
+     */
+    public function test_kolom_pencarian_memakai_type_search(): void
+    {
+        $kurang = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            $relative = str_replace('\\', '/', $file->getRelativePathname());
+            $html = (string) File::get($file->getPathname());
+
+            preg_match_all('/<input\b[^>]*>/i', $html, $found);
+
+            foreach ($found[0] as $tag) {
+                $pencarian = str_contains($tag, 'data-adm-search') || preg_match('/name="q"/', $tag);
+
+                if ($pencarian && ! str_contains($tag, 'type="search"')) {
+                    $kurang[] = $relative.' → '.substr($tag, 0, 70);
+                }
+            }
+        }
+
+        $this->assertSame([], array_values(array_unique($kurang)), 'Kolom pencarian tanpa type=search.');
+    }
 }

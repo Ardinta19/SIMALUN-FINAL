@@ -24,7 +24,7 @@
 </div>
 <div class="adm-field">
     <label for="{{ $fieldId }}-description">Deskripsi</label>
-    <textarea placeholder="Contoh: Rangkaian mawar putih dengan pita duka." id="{{ $fieldId }}-description" name="description" maxlength="3000">{{ $oldText('description', $product?->description) }}</textarea>
+    <textarea placeholder="Contoh: Rangkaian mawar putih dengan pita duka." id="{{ $fieldId }}-description" name="description" maxlength="3000" rows="4">{{ $oldText('description', $product?->description) }}</textarea>
 </div>
 <div class="adm-field-grid">
     <div class="adm-field">

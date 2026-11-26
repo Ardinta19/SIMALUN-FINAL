@@ -41,7 +41,7 @@
         <input type="hidden" name="expected_progress" value="{{ $unit->progress }}">
         <div class="adm-field">
             <label for="progress-note-{{ $unit->id }}">Catatan perkembangan (opsional)</label>
-            <textarea id="progress-note-{{ $unit->id }}" placeholder="Contoh: Rangkaian selesai dirakit, siap diantar pukul 14.00." name="note" maxlength="1000"></textarea>
+            <textarea id="progress-note-{{ $unit->id }}" placeholder="Contoh: Rangkaian selesai dirakit, siap diantar pukul 14.00." name="note" maxlength="1000" rows="4"></textarea>
         </div>
         <div><button class="btn secondary" type="submit">{{ $nextLabels[$unit->progress] }}</button></div>
     </form>

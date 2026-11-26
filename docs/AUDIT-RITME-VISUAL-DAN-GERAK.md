@@ -3262,7 +3262,7 @@ notifikasi admin satu-satunya waktu berformat `d M Y H:i` di antara
 **Hasil:** harness **151 lulus, 0 gagal, 216 dilewati**; `blade-scan` 81 view
 0/0; `node --check` bersih; `.tmp-verify.php` 26 lulus; kurung CSS seimbang.
 
-### 9.67 Putaran ketujuh: aset, ikon situs, dan bahasa kerangka
+### 9.68 Putaran kedelapan: aset, ikon situs, dan bahasa kerangka
 
 **a. Logo 564 KB untuk kotak 44 px.** `berkah-kreatif-logo.jpeg` berukuran
 3460×1892 dan **564 KB**, tetapi tidak pernah digambar lebih dari 108 px:
@@ -3316,3 +3316,38 @@ sementara etalase tetap `Allow: /`.
 
 **Hasil:** harness **161 lulus, 0 gagal, 217 dilewati**; `blade-scan` 81 view
 0/0; `node --check` bersih; kurung CSS seimbang (518/649/242/204).
+
+### 9.69 Putaran kesembilan: sapaan notifikasi, tinggi kolom teks, dan kolom pencarian
+
+**a. Dua "Anda" yang tersisa di notifikasi.** Seluruh halaman sudah memakai
+"kamu" (§9.67d), tetapi dua pesan notifikasi di controller masih menyapa
+"Anda": "dibatalkan atas permintaan Anda" dan "menunggu respons Anda".
+Notifikasi adalah tempat pelanggan paling sering membaca kalimat panjang, jadi
+campuran sapaan justru paling terlihat di sana. Dijaga
+`test_sapaan_seragam_kamu` (memindai `resources/views` **dan** `app`).
+
+**b. `<textarea>` setinggi dua baris.** 22 kolom teks panjang (ucapan, catatan
+desain, alamat lengkap, alasan pembatalan, petunjuk pembayaran) tidak punya
+`rows`, jadi peramban memberi tinggi bawaan dua baris. Di ponsel, kotak
+setinggi itu membuat pelanggan menggulir di dalam kotak kecil — dan gulir
+dalam kotak mudah tertukar dengan gulir halaman. Semua kini `rows="4"`.
+Dijaga `test_kolom_teks_panjang_punya_tinggi_awal`.
+
+**c. Kolom pencarian bertipe teks.** `#adm-order-q` dan `#order-search`
+adalah kolom pencarian tetapi tidak bertipe `search`, sehingga papan ketik
+ponsel tidak menampilkan tombol "Cari" dan peramban tidak memberi tombol
+bersihkan. Keduanya kini `type="search" autocomplete="off"`. Dijaga
+`test_kolom_pencarian_memakai_type_search`.
+
+**d. Yang diperiksa dan sudah bersih** (supaya tidak diaudit ulang):
+114 rujukan `route()` semuanya ada; 15 rujukan aset statis ada di `public/`;
+tidak ada token CSS tanpa definisi (tiga sisanya sengaja `var(--x, fallback)`
+yang diisi JS); tidak ada `for`/`aria-describedby` yang menunjuk id hilang;
+tidak ada `tabindex` positif; tidak ada tag berpasangan yang tidak seimbang;
+tidak ada tabel data tanpa wadah gulir atau `<caption>`; tidak ada `<img>`
+tanpa `alt`; tidak ada `<a>` tanpa `href` atau `<form>` POST tanpa `@csrf`;
+24 `<select>` semuanya ditingkatkan `initFormControls` (atribut
+`data-fc-select` hanya penanda tambahan); `localStorage`/`matchMedia` selalu
+dibungkus `try`.
+
+**Hasil:** harness **164 lulus, 0 gagal, 217 dilewati**.

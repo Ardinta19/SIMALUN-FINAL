@@ -9,5 +9,5 @@
 @endif
 @if($admin && $unit->status === 'confirmed' && isset($nextLabels[$unit->progress]))
 <p class="muted">Pengerjaan memerlukan persetujuan pratinjau terbaru, atau keputusan "lanjutkan dengan catatan" setelah tenggat respons desain lewat; serah terima memerlukan pembayaran lunas terverifikasi.</p>
-<form class="stack" method="post" action="{{ route('admin.rental.progress.advance', $unit) }}">@csrf<input type="hidden" name="expected_progress" value="{{ $unit->progress }}"><label>Catatan perkembangan (opsional)<textarea placeholder="Contoh: Papan selesai dirakit dan menunggu pengeringan." name="note" maxlength="1000"></textarea></label><p><button type="submit" class="btn secondary">{{ $nextLabels[$unit->progress] }}</button></p></form>
+<form class="stack" method="post" action="{{ route('admin.rental.progress.advance', $unit) }}">@csrf<input type="hidden" name="expected_progress" value="{{ $unit->progress }}"><label>Catatan perkembangan (opsional)<textarea placeholder="Contoh: Papan selesai dirakit dan menunggu pengeringan." name="note" maxlength="1000" rows="4"></textarea></label><p><button type="submit" class="btn secondary">{{ $nextLabels[$unit->progress] }}</button></p></form>
 @endif

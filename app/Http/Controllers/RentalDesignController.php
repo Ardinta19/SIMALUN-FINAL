@@ -31,7 +31,7 @@ class RentalDesignController extends Controller
                 $unit->previews()->create(['version' => $version, 'image_path' => $path, 'admin_note' => $data['admin_note'] ?? null, 'created_by' => $request->user()->id]);
                 // Versi baru selalu memerlukan persetujuan sendiri.
                 if ($unit->design_override_at !== null) $unit->update(['design_override_at' => null, 'design_override_by' => null, 'design_override_version' => null, 'design_override_note' => null]);
-                app(RentalNotifications::class)->customer($unit->order, 'Pratinjau desain tersedia', 'Pratinjau desain unit '.$unit->product_name.' menunggu respons Anda.');
+                app(RentalNotifications::class)->customer($unit->order, 'Pratinjau desain tersedia', 'Pratinjau desain unit '.$unit->product_name.' menunggu responsmu.');
             });
         } catch (\Throwable $e) {
             Storage::disk('local')->delete($path);

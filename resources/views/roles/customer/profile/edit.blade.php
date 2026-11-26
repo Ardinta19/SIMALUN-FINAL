@@ -380,7 +380,7 @@ $oldText = function (string $key, $fallback = '') {
                     <label class="field-label" for="profile-address-full">Alamat Lengkap <span class="req">*</span></label>
                     <textarea placeholder="Contoh: Jl. Merdeka No. 12, RT 03, Palembang" id="profile-address-full" name="full_address"
                               class="field-input {{ $errors->has('full_address') ? 'is-error' : '' }}"
-                              required autocomplete="street-address">{{ $oldText('full_address', $primaryAddress->full_address ?? '') }}</textarea>
+                              required autocomplete="street-address" rows="4">{{ $oldText('full_address', $primaryAddress->full_address ?? '') }}</textarea>
                 </div>
 
                 <div>

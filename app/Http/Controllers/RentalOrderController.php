@@ -479,7 +479,7 @@ class RentalOrderController extends Controller
             }
             $unit->cancellationEvents()->create(['action' => 'cancel', 'previous_status' => $unit->status, 'new_status' => 'cancelled', 'note' => $data['reason'], 'responsibility' => 'customer', 'recorded_by' => $request->user()->id]);
             $unit->update(['status_before_cancel' => $unit->status, 'status' => 'cancelled', 'cancel_code' => 'customer_request', 'cancel_reason' => $data['reason'], 'cancel_responsibility' => 'customer', 'cancelled_at' => now(), 'cancelled_by' => $request->user()->id]);
-            app(RentalNotifications::class)->customer($unit->order, 'Unit dibatalkan', 'Unit '.$unit->product_name.' dibatalkan atas permintaan Anda. Admin akan menindaklanjuti pembayaran yang sudah masuk.');
+            app(RentalNotifications::class)->customer($unit->order, 'Unit dibatalkan', 'Unit '.$unit->product_name.' dibatalkan atas permintaanmu. Admin akan menindaklanjuti pembayaran yang sudah masuk.');
             app(RentalNotifications::class)->admins($unit->order, 'Pembatalan oleh pelanggan', 'Pelanggan membatalkan unit '.$unit->product_name.'. Alasan: '.$data['reason'].'. Periksa pembayaran dan pengembalian dana.');
         }, 3);
         return back()->with('success', 'Unit dibatalkan. DP mengikuti ketentuan; hubungi admin untuk pengembalian dana bila sudah membayar.');
