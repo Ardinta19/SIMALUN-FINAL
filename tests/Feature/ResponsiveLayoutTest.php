@@ -686,6 +686,9 @@ class ResponsiveLayoutTest extends TestCase
 ".'    .adm-page-note summary { min-height: 44px;', $admin,
             'Ringkasan catatan halaman harus 44 px di perangkat sentuh.');
 
+        $this->assertMatchesRegularExpression('/\.adm-app \.adm-faq summary \{[^}]*min-height: 44px;/s', $admin,
+            'Pertanyaan FAQ admin harus 44 px.');
+
         // Aturan paginasi lama (40 px) tidak boleh tersisa: spesifisitasnya
         // mengalahkan `.bk-page-nav__link` sehingga paginasi admin menyusut.
         $this->assertStringNotContainsString('.adm-app .pagination', $admin,
@@ -711,5 +714,25 @@ class ResponsiveLayoutTest extends TestCase
             $html = File::get(resource_path('views/'.$layout));
             $this->assertStringContainsString("layouts.component._theme_head", $html, $layout.' tidak memuat kepala tema.');
         }
+    }
+
+    /** Kendali buka-tutup pelanggan: 44 px dan tanda buka yang terlihat.
+     *
+     *  `.bk-order-filter summary` menyembunyikan segitiga bawaan tanpa
+     *  pengganti, dan empat kendali (`filter pesanan`, `keluar akun`,
+     *  `hapus alamat`, `tanya-jawab bantuan`) hanya setinggi teksnya.
+     */
+    public function test_kendali_buka_tutup_pelanggan_44_px(): void
+    {
+        $css = File::get(public_path('css/berkah-experience.css'));
+
+        $this->assertMatchesRegularExpression(
+            '/\.bk-order-filter summary,\s*\n\.bk-profile-signout summary,\s*\n\.bk-address-delete summary,\s*\n\.bk-help \.help-card summary \{\s*min-height: var\(--bk-touch\);/',
+            $css
+        );
+        $this->assertStringContainsString('.bk-order-filter summary::after {', $css);
+        $this->assertStringContainsString('.bk-order-filter[open] summary::after {', $css);
+        $this->assertStringContainsString('.bk-help .help-card summary:focus-visible {', $css);
+        $this->assertMatchesRegularExpression('/@media \(prefers-reduced-motion: reduce\) \{\s*\.bk-order-filter summary::after \{\s*transition: none;/s', $css);
     }
 }

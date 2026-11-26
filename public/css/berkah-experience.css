@@ -660,3 +660,43 @@ body.bk-experience {
     max-width: 100%;
 }
 
+
+/* ── Kendali buka-tutup pelanggan: 44 px dan tanda yang terlihat ───────────
+   `.bk-order-filter summary` menyembunyikan segitiga bawaan
+   (`list-style:none` + `::-webkit-details-marker`) tanpa pengganti, dan tiga
+   kendali lain (keluar akun, hapus alamat, tanya-jawab bantuan) hanya setinggi
+   teksnya — sekitar 22 px di ponsel. Sekarang keempatnya 44 px dan filter
+   pesanan punya panah yang berputar saat terbuka. */
+.bk-order-filter summary,
+.bk-profile-signout summary,
+.bk-address-delete summary,
+.bk-help .help-card summary {
+    min-height: var(--bk-touch);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.bk-order-filter summary::after {
+    content: "▾";
+    margin-left: auto;
+    font-size: var(--bk-fs-2xs);
+    line-height: 1;
+    transition: transform .2s ease;
+}
+
+.bk-order-filter[open] summary::after {
+    transform: rotate(180deg);
+}
+
+.bk-help .help-card summary:focus-visible {
+    outline: 3px solid #bc5b75;
+    outline-offset: 3px;
+    border-radius: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bk-order-filter summary::after {
+        transition: none;
+    }
+}

@@ -109,6 +109,9 @@
 const checkoutForm = document.querySelector('[data-checkout-form]');
 const checkoutSubmit = document.querySelector('[data-checkout-submit]');
 const checkoutStatus = document.querySelector('[data-checkout-status]');
+// Label tombol disimpan sekali: teksnya tidak ditulis ulang di dua tempat,
+// jadi mengubah label cukup di markup.
+const checkoutSubmitLabel = checkoutSubmit ? checkoutSubmit.textContent : '';
 checkoutForm.addEventListener('submit', event => {
     if (checkoutSubmit.disabled) { event.preventDefault(); return; }
     checkoutSubmit.disabled = true;
@@ -184,7 +187,7 @@ if (voucherBox && voucherCode && voucherStatus) {
 
 window.addEventListener('pageshow', () => {
     checkoutSubmit.disabled = false;
-    checkoutSubmit.textContent = 'Kirim pesanan uji coba';
+    checkoutSubmit.textContent = checkoutSubmitLabel;
     checkoutForm.removeAttribute('aria-busy');
     checkoutStatus.textContent = '';
 });

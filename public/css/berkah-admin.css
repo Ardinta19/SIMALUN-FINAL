@@ -1366,7 +1366,10 @@ body.adm-layer-open { overflow: hidden; }
 .adm-app .adm-faq:first-of-type { border-top: 0; padding-top: 2px; }
 .adm-app .adm-faq:last-of-type { padding-bottom: 0; }
 .adm-app .adm-faq summary {
-    display: flex; align-items: baseline; gap: 8px;
+    display: flex; align-items: center; gap: 8px;
+    /* Pertanyaan FAQ adalah kendali buka-tutup: seluruh band 44 px harus bisa
+       ditekan, bukan hanya tinggi teksnya (~21 px). */
+    min-height: 44px;
     cursor: pointer; list-style: none;
     font-size: var(--adm-fs-sm); font-weight: 700; color: var(--adm-ink);
 }
