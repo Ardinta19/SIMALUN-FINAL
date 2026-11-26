@@ -2739,3 +2739,94 @@ untuk dicetak.
 4. Untuk tiap halaman: `scrollWidth == clientWidth` (skrip di §9.59d),
    judul tidak terpotong, tombol ≥44 px, dan setiap kolom isi memperlihatkan
    contoh saat kosong.
+
+---
+
+### 9.61 Sapuan detail kedua: matriks periksa dan temuan
+
+Sapuan pertama (§9.60) menyelesaikan luapan mendatar, contoh isian, dan
+pengaman halaman mandiri. Sapuan kedua memeriksa **detail kecil yang tidak
+terlihat dari screenshot** — semuanya statis dan bisa diuji ulang tanpa
+peramban.
+
+| # | Yang diperiksa | Cara | Hasil |
+| --- | --- | --- | --- |
+| 1 | `label for` menunjuk kolom yang ada | pindai semua `<label for>` vs `id`/`name` per view | 0 temuan |
+| 2 | `id` duplikat dalam satu view | hitung `id` per view | 1 temuan semu (`auth-title` di tiga cabang `@if` yang saling eksklusif — aman) |
+| 3 | `<img>` tanpa `alt` | pindai seluruh view | 0 temuan |
+| 4 | `<button>` di dalam `<form>` tanpa `type` | pindai seluruh view | 0 temuan |
+| 5 | `target="_blank"` tanpa `rel="noopener"` | pindai seluruh view | 0 temuan |
+| 6 | Tautan mati `href="#"` | pindai seluruh view | 0 temuan |
+| 7 | Form POST tanpa `@csrf` | pindai `<form>` + isinya | 0 temuan |
+| 8 | Form PUT/PATCH/DELETE tanpa `@method` | idem | 0 temuan |
+| 9 | Form berisi `<input type="file">` tanpa `enctype` | idem | 0 temuan |
+| 10 | `name` ikon dipakai vs tersedia | bandingkan dengan `$aliases` + `_icon_glyphs.php` (75 glyph) | 55 nama dipakai, 0 tidak dikenal |
+| 11 | Aset `asset('css|js|images|vendor/…')` benar-benar ada | cek `public/` | 0 hilang |
+| 12 | Berkas CSS yang tidak pernah dimuat | cek rujukan di seluruh view | 0 (12/12 dimuat) |
+| 13 | `data-*` hook punya penangan skrip | cari literal, camelCase `dataset`, dan skrip inline | 0 hook menganggur |
+| 14 | `viewport` + `lang="id"` + `<title>` | semua view ber-`<!DOCTYPE>` | 0 temuan |
+| 15 | Jumlah `<h1>` per halaman | semua view ber-`<!DOCTYPE>` | tepat satu (kecuali layout, yang `<h1>`-nya dari konten) |
+| 16 | `prefers-reduced-motion` pada halaman beranimasi | hitung `@keyframes`/`transition` vs blok media | 2 temuan, diperbaiki |
+| 17 | `inputmode` untuk kolom uang/telepon | nama kolom vs atribut | 0 temuan |
+| 18 | Tombol ikon tanpa nama aksesibel | teks/`aria-label`/`title` | 0 temuan |
+| 19 | Tautan lompat ke isi + target fokus | semua view ber-`<!DOCTYPE>` | 13 temuan, diperbaiki |
+| 20 | Cincin fokus seragam | aturan `:focus-visible` per halaman | 2 halaman tanpa aturan → ditambah di pengaman |
+
+**a. Satu bentuk untuk semua contoh isian.** Placeholder kini wajib berbentuk
+`Contoh: …` (isian) atau `Cari …` (kotak pencarian). Delapan placeholder lama
+dirapikan:
+
+- `auth/forgot-password`: `nama@contoh.com` → `Contoh: nama@email.com`.
+- `catalog/index`: `Nama papan bunga` → `Cari nama papan bunga`.
+- `rental/payment-settings`: `6281234567890` → `Contoh: 6281234567890`.
+- `roles/admin/audit`: `contoh: voucher, pesanan.` → `Contoh: voucher, pesanan.`
+- `roles/customer/addresses/create`: `08xxxxxxxxxx` →
+  `Contoh: 081234567890`; `Warna pagar, patokan, titipkan di mana, dll.` →
+  `Contoh: Pagar hijau, titip di pos keamanan.`
+- `roles/customer/addresses/edit`: `Warna pagar, patokan, dll.` → idem.
+
+`FormPlaceholderTest::test_contoh_isian_memakai_kata_contoh` sekarang menolak
+placeholder yang bukan `Contoh`/`Cari`, jadi bentuk lama tidak bisa kembali.
+
+**b. Halaman mandiri bisa dilewati ke isi.** Hanya halaman ber-layout yang
+punya tautan "Langsung ke isi". Tiga belas halaman mandiri memaksa pengguna
+papan ketik menekan Tab melewati header lebih dulu. Ditambahkan:
+
+- Partial baru `layouts/component/_skip_link.blade.php` — tautan `#main-content`
+  (atau `#page` untuk login/register) dengan gaya sendiri, muncul saat fokus,
+  disembunyikan saat dicetak, dan menghormati `prefers-reduced-motion`.
+- Setiap halaman mandiri kini punya target `id="main-content"`/`id="page"` +
+  `tabindex="-1"` sehingga fokus benar-benar berpindah. Tiga halaman
+  (`auth/register`, `roles/admin/profile`, `roles/admin/profile_edit`) memakai
+  `<div role="main">` — sengaja tidak diubah menjadi `<main>` agar pohon
+  flex/grid halaman tidak berubah; `role="main"` memberi landmark yang sama.
+
+**c. Cincin fokus seragam.** `berkah-page-shell.css` menambah
+`:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible
+{ outline: 3px solid #bc5b75; outline-offset: 2px; }`. Specificity nol, jadi
+halaman yang punya gaya fokus sendiri tetap menang.
+
+**d. Kurangi gerak di halaman alamat.** `roles/customer/addresses/create` dan
+`edit` beranimasi (5 transisi) tanpa blok `prefers-reduced-motion`. Ditambah
+blok yang menetapkan `transition-duration`/`animation-duration` ke `.01ms`.
+
+**e. Desktop tidak lagi berupa kolom ponsel.** Empat halaman admin mandiri
+memakai `max-width: 520px` di semua ukuran, sementara
+`layouts.component.admin._navbar_admin` sudah berubah menjadi baris menu di
+≥900 px — hasilnya kolom sempit di tengah layar lebar. Ditambah:
+
+```css
+@media (min-width: 900px) { .appbar, .wrap { max-width: 960px; } }
+```
+
+(`roles/admin/profile` memakai `.profile-header, .page-body`; dasbor sudah
+melebar ke 1120 px sejak awal.)
+
+**f. Catatan perbaikan.** Saat menyisipkan tautan lompat ke `auth/login`, tag
+`<body … @if($errors->any() …)>` terpotong karena operator `->` mengandung
+`>` (jebakan yang sama seperti §9.60d). Sudah diperbaiki dan dijaga
+`UiDefaultsTest::test_login_has_a_branded_splash_with_an_escape_hatch`, yang
+memastikan `$errors->any()` tetap ada di tag `<body>`.
+
+**Hasil harness:** 118 lulus, 0 gagal, 216 dilewati; `blade-scan` 83 view,
+0 direktif menempel, 0 blok tidak seimbang; `.tmp-verify.php` 26 lulus.

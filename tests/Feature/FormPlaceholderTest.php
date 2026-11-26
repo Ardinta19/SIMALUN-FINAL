@@ -102,7 +102,11 @@ class FormPlaceholderTest extends TestCase
         $this->assertSame([], $tanpaContoh, 'Kolom teks tanpa contoh isian: '.implode(', ', $tanpaContoh));
     }
 
-    /** Contoh isian harus benar-benar berupa contoh, bukan mengulang label. */
+    /** Contoh isian harus benar-benar berupa contoh, bukan mengulang label.
+     *
+     *  Bentuk yang diterima: `Contoh: …` (isian) atau `Cari …` (pencarian).
+     *  Kata sandi dikecualikan karena tidak boleh diberi contoh isi.
+     */
     public function test_contoh_isian_memakai_kata_contoh(): void
     {
         $kurangJelas = [];
@@ -128,8 +132,10 @@ class FormPlaceholderTest extends TestCase
                     continue;
                 }
 
-                // Cari contoh yang berupa perintah, bukan contoh isi.
-                if (preg_match('/^(masukkan|isi|ketik|tulis)\b/i', $trimmed)) {
+                // Satu bentuk untuk semua: `Contoh: …` untuk isian,
+                // `Cari …` untuk kotak pencarian. Selain itu berarti masih
+                // berupa perintah/label (“Masukkan…”, “Warna pagar, dll.”).
+                if (! preg_match('/^(contoh|cari)\b/i', $trimmed)) {
                     $kurangJelas[] = $relative.' → '.$trimmed;
                 }
             }

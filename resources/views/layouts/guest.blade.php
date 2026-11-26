@@ -259,7 +259,9 @@
 @include('layouts.component._theme_head')
 </head>
 <body class="guest-body">
-<main class="guest-shell" id="main-content">
+@include('layouts.component._skip_link')
+
+<main class="guest-shell" id="main-content" tabindex="-1">
     <a class="guest-brand" href="{{ url('/') }}">
         <img src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt="" width="52" height="52" decoding="async">
         <span class="guest-brand__text">Berkah Kreatif<small>Papan bunga &amp; dekorasi</small></span>

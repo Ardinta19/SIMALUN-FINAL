@@ -167,6 +167,14 @@ body {
     text-align: center; margin-top: var(--space-4);
     font-size: var(--adm-fs-2xs); font-weight: 700; color: var(--ink-muted); letter-spacing: 1px; text-transform: uppercase;
 }
+
+/* Layar lebar: `layouts.component.admin._navbar_admin` sudah naik menjadi baris
+   menu di ≥900 px, jadi isi halaman ikut melebar (960 px, sejajar halaman admin
+   ber-layout). Sebelumnya halaman ini tetap 520 px sehingga tampak seperti
+   kolom ponsel di tengah desktop. */
+@media (min-width: 900px) {
+    .appbar, .wrap { max-width: 960px; }
+}
 </style>
 @include('layouts.component._theme_head')
 <link rel="stylesheet" href="{{ asset('css/berkah-admin.css') }}?v={{ filemtime(public_path('css/berkah-admin.css')) }}">
@@ -174,6 +182,8 @@ body {
 <script src="{{ asset('js/page-transitions.js') }}?v={{ filemtime(public_path('js/page-transitions.js')) }}" defer></script>
 </head>
 <body>
+@include('layouts.component._skip_link')
+
 
 <header class="appbar reveal d1">
     <a data-smart-back href="{{ \App\Support\BackUrl::resolve(request(), 'dashboard.admin') }}" id="btn-back" class="icon-btn" aria-label="Kembali">
@@ -191,7 +201,7 @@ body {
     };
 @endphp
 
-<div class="wrap" role="main">
+<div class="wrap" id="main-content" tabindex="-1" role="main">
 
     @if(session('status') === 'profile-updated')
         <div class="alert alert-success reveal d1">

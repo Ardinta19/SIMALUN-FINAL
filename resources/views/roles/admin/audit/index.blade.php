@@ -167,6 +167,14 @@ body {
 /* ── Pagination ── */
 .pagination-wrap { display: flex; justify-content: center; margin-top: var(--space-4); margin-bottom: var(--space-4); }
 .pagination-wrap nav { font-size: var(--adm-fs-sm); }
+
+/* Layar lebar: `layouts.component.admin._navbar_admin` sudah naik menjadi baris
+   menu di ≥900 px, jadi isi halaman ikut melebar (960 px, sejajar halaman admin
+   ber-layout). Sebelumnya halaman ini tetap 520 px sehingga tampak seperti
+   kolom ponsel di tengah desktop. */
+@media (min-width: 900px) {
+    .appbar, .wrap { max-width: 960px; }
+}
 </style>
 @include('layouts.component._theme_head')
 <link rel="stylesheet" href="{{ asset('css/berkah-admin.css') }}?v={{ filemtime(public_path('css/berkah-admin.css')) }}">
@@ -174,6 +182,8 @@ body {
 <script src="{{ asset('js/page-transitions.js') }}?v={{ filemtime(public_path('js/page-transitions.js')) }}" defer></script>
 </head>
 <body>
+@include('layouts.component._skip_link')
+
 
 {{-- ══════════════ HEADER ══════════════ --}}
 <header class="appbar">
@@ -181,7 +191,7 @@ body {
     <h1 class="appbar__title">Jejak Audit</h1>
 </header>
 
-<main class="wrap">
+<main class="wrap" id="main-content" tabindex="-1">
 
     {{-- Quick filter per action (prefix tags) — preserves bug-fixed prefix logic --}}
     @if($actionGroups->isNotEmpty())
@@ -232,7 +242,7 @@ body {
                         <label class="field-label" for="action-filter">Aksi</label>
                         <input type="text" name="action" id="action-filter" class="field"
                                value="{{ request('action') }}"
-                               placeholder="contoh: voucher, pesanan.">
+                               placeholder="Contoh: voucher, pesanan.">
                     </div>
 
                     <div class="field-block">

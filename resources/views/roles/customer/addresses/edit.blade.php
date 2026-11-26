@@ -71,6 +71,15 @@ textarea.field-input{resize:none;min-height:80px;line-height:1.5;}
 
 .alert-error{background:#fff1f1;border:1.5px solid #fecaca;border-radius:var(--radius-sm);padding:12px 14px;font-size:var(--bk-fs-xs);font-weight:700;color:var(--red);margin-bottom:14px;}
 .map-hint[hidden]{display:none}
+
+/* Hormati pengaturan "kurangi gerak": transisi warna/tombol menjadi instan. */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
 </style>
 <link rel="stylesheet" href="{{ $asset('css/page-transitions.css') }}"><script src="{{ $asset('js/page-transitions.js') }}" defer></script>
 <link rel="stylesheet" href="{{ $asset('css/customer-forms.css') }}">
@@ -166,7 +175,7 @@ $oldText = function (string $key, $fallback = '') {
                 <div>
                     <label class="field-label" for="address-notes">Catatan Tambahan</label>
                     <input type="text" name="notes" id="address-notes" class="field-input"
-                        placeholder="Warna pagar, patokan, dll."
+                        placeholder="Contoh: Pagar hijau, titip di pos keamanan."
                         value="{{ $oldText('notes', $address->notes) }}">
                 </div>
             </div>

@@ -339,6 +339,8 @@ html:not(.register-enhanced) #registration-progress{display:none}
 @include('layouts.component._theme_head')
 </head>
 <body class="auth-page">
+@include('layouts.component._skip_link', ['target' => 'page'])
+
 @php
 $oldText = function (string $key, $fallback = '') {
     $value = old($key, $fallback);
@@ -361,7 +363,7 @@ $oldText = function (string $key, $fallback = '') {
 
 <a href="{{ route('login') }}" id="btn-back" title="Kembali ke masuk" aria-label="Kembali ke masuk">&#8592;</a>
 
-<div id="page">
+<div id="page" tabindex="-1" role="main">
   <div id="header">
     <div id="drum-wrap">
       <div id="drum-spin-ring"></div>

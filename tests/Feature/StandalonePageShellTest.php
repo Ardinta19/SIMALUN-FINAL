@@ -90,6 +90,36 @@ class StandalonePageShellTest extends TestCase
         );
     }
 
+    /** Pengguna papan ketik harus bisa melewati header.
+     *
+     *  Sebelumnya hanya halaman ber-layout yang punya tautan "Langsung ke isi"
+     *  (`.bk-skip` / `.adm-skip`). Halaman mandiri — termasuk 5 halaman admin —
+     *  memaksa pengguna menekan Tab melewati seluruh navigasi lebih dulu.
+     */
+    public function test_setiap_halaman_mandiri_punya_tautan_lompat_ke_isi(): void
+    {
+        $masalah = [];
+
+        foreach ($this->halamanMandiri() as $relative) {
+            $html = (string) File::get(resource_path('views/'.$relative));
+
+            $punyaTautan = str_contains($html, '_skip_link')
+                || str_contains($html, 'catalog.customer-navigation')
+                || str_contains($html, 'bk-skip')
+                || str_contains($html, 'adm-skip');
+
+            $punyaTarget = (bool) preg_match('/<(?:main|div)\b[^>]*\bid="(?:main-content|page)"[^>]*\btabindex="-1"/', $html);
+
+            if (! $punyaTautan || ! $punyaTarget) {
+                $masalah[] = $relative
+                    .($punyaTautan ? '' : ' → tanpa tautan lompat')
+                    .($punyaTarget ? '' : ' → tanpa target id + tabindex="-1"');
+            }
+        }
+
+        $this->assertSame([], $masalah, 'Halaman mandiri yang sulit dilewati: '.implode(', ', $masalah));
+    }
+
     public function test_berkas_pengaman_berisi_aturan_kunci(): void
     {
         $css = preg_replace('/\s+/', ' ', (string) File::get(public_path('css/berkah-page-shell.css')));
@@ -101,6 +131,8 @@ class StandalonePageShellTest extends TestCase
             'Anak grid/flex harus boleh menyusut.');
         $this->assertStringContainsString('.adm-scroll-x', $css,
             'Tabel lebar tetap menggulir di pembungkusnya.');
+        $this->assertStringContainsString(':focus-visible { outline: 3px solid #bc5b75;', $css,
+            'Cincin fokus harus sama di halaman yang tidak punya aturan fokus sendiri.');
     }
 
     public function test_area_admin_punya_pengaman_sendiri(): void

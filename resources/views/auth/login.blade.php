@@ -101,6 +101,7 @@ html, body {
 @include('layouts.component._theme_head')
 </head>
 <body class="auth-page" @if($errors->any() || session('error') || session('success')) data-no-splash="1" @endif>
+@include('layouts.component._skip_link', ['target' => 'page'])
 @php
 $oldText = function (string $key, $fallback = '') {
     $value = old($key, $fallback);
@@ -152,7 +153,7 @@ $oldText = function (string $key, $fallback = '') {
 
 <a href="{{ url('/') }}" id="btn-back" title="Kembali ke katalog" aria-label="Kembali ke katalog">&#8592;</a>
 
-<main id="page">
+<main id="page" tabindex="-1">
 
   <div id="header">
     <div id="drum-wrap">

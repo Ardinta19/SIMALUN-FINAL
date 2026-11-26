@@ -190,6 +190,15 @@ textarea.field-input { resize:none; min-height:80px; line-height:1.5; }
     margin-bottom:14px;
 }
 .map-hint[hidden]{display:none}
+
+/* Hormati pengaturan "kurangi gerak": transisi warna/tombol menjadi instan. */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
 </style>
 <link rel="stylesheet" href="{{ $asset('css/page-transitions.css') }}"><script src="{{ $asset('js/page-transitions.js') }}" defer></script>
 <link rel="stylesheet" href="{{ $asset('css/customer-forms.css') }}">
@@ -257,7 +266,7 @@ $oldText = function (string $key, $fallback = '') {
                 <div>
                     <label class="field-label" for="address-phone">No. HP / WhatsApp</label>
                     <input autocomplete="tel" type="tel" name="phone" id="address-phone" class="field-input"
-                        placeholder="08xxxxxxxxxx"
+                        placeholder="Contoh: 081234567890"
                         value="{{ $oldText('phone', auth()->user()->phone) }}">
                 </div>
             </div>
@@ -292,7 +301,7 @@ $oldText = function (string $key, $fallback = '') {
                 <div>
                     <label class="field-label" for="address-notes">Catatan Tambahan</label>
                     <input type="text" name="notes" id="address-notes" class="field-input"
-                        placeholder="Warna pagar, patokan, titipkan di mana, dll."
+                        placeholder="Contoh: Pagar hijau, titip di pos keamanan."
                         value="{{ $oldText('notes') }}">
                 </div>
             </div>

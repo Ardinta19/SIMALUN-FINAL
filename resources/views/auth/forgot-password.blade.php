@@ -9,13 +9,15 @@
 @include('layouts.component._theme_head')
 </head>
 <body class="auth-page">
+@include('layouts.component._skip_link')
+
 @php
 $oldText = function (string $key, $fallback = '') {
     $value = old($key, $fallback);
     return is_scalar($value) ? (string) $value : '';
 };
 @endphp
-<main class="auth-shell">
+<main class="auth-shell" id="main-content" tabindex="-1">
     <section class="auth-intro"><a href="{{ route('welcome') }}" class="auth-brand"><img src="{{ asset('images/berkah-kreatif-logo.jpeg') }}" alt=""><span>Berkah Kreatif<small>Papan bunga untuk setiap cerita</small></span></a><div class="auth-intro-copy"><span class="auth-eyebrow">RUANG PELANGGAN</span><h1>Satu langkah kembali ke akunmu.</h1><p>Jaga akses ke pesanan dan kabar untuk momen istimewamu.</p></div><span class="auth-flower bk-i" aria-hidden="true">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span></section>
     <section class="auth-main" aria-labelledby="auth-title"><div class="auth-card">
         <a class="auth-back" href="{{ route('login') }}">@include('layouts.component._icon', ['name' => 'arrow-left', 'size' => 20])<span>Kembali ke masuk</span></a>
@@ -35,7 +37,7 @@ $oldText = function (string $key, $fallback = '') {
             @if(session('status'))<div class="auth-alert" role="status">Jika email terdaftar, tautan pemulihan telah dikirim. Periksa kotak masuk dan folder spam.</div>@endif
             @if(session('error'))<div class="auth-alert is-error" role="alert">{{ session('error') }}</div>@endif
             <form method="post" action="{{ route('password.email') }}" class="auth-form">@csrf
-                <label for="recovery-email">Email akun</label><input id="recovery-email" type="email" name="email" value="{{ $oldText('email') }}" placeholder="nama@contoh.com" autocomplete="email" required @error('email') aria-invalid="true" aria-describedby="recovery-email-error" @enderror>
+                <label for="recovery-email">Email akun</label><input id="recovery-email" type="email" name="email" value="{{ $oldText('email') }}" placeholder="Contoh: nama@email.com" autocomplete="email" required @error('email') aria-invalid="true" aria-describedby="recovery-email-error" @enderror>
                 @error('email')<p class="auth-error" id="recovery-email-error">{{ $message }}</p>@enderror
                 <button class="auth-button" type="submit">Kirim tautan pemulihan</button>
             </form>

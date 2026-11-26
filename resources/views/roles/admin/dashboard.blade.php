@@ -295,6 +295,8 @@ body {
 <script src="{{ asset('js/page-transitions.js') }}?v={{ filemtime(public_path('js/page-transitions.js')) }}" defer></script>
 </head>
 <body>
+@include('layouts.component._skip_link')
+
 @php
     $fullName = trim(auth()->user()->name ?? 'Admin');
     $adminName = explode(' ', $fullName)[0] ?: 'Admin';
@@ -316,7 +318,7 @@ body {
     <div class="stat reveal d2"><div class="stat__ico stat__ico--orange" aria-hidden="true">@include('layouts.component._icon', ['name' => 'orders', 'size' => 18])</div><div class="stat__val" data-adm-count data-to="{{ (int) $rentalPending }}" data-duration="1">{{ $rentalPending }}</div><div class="stat__lbl">Menunggu</div></div>
     <div class="stat reveal d3"><div class="stat__ico stat__ico--green" aria-hidden="true">@include('layouts.component._icon', ['name' => 'search', 'size' => 18])</div><div class="stat__val" data-adm-count data-to="{{ (int) $rentalReview }}" data-duration="1">{{ $rentalReview }}</div><div class="stat__lbl">Tinjau manual</div></div>
 </section>
-<main class="body">
+<main class="body" id="main-content" tabindex="-1">
     <section class="revenue reveal d3" style="margin-top:18px"><div class="revenue__head"><span class="revenue__ico" aria-hidden="true">@include('layouts.component._icon', ['name' => 'finance', 'size' => 18])</span><span class="revenue__cap">Pemasukan hari ini · seluruh buku kas</span></div><div class="revenue__val"><span class="revenue__cur">Rp</span> <span data-adm-count data-to="{{ (int) ($pemasukanHari ?? 0) }}" data-duration="1.2">{{ number_format($pemasukanHari ?? 0, 0, ',', '.') }}</span></div><div class="revenue__foot"><span class="revenue__foot-txt">Bulan ini <b>Rp {{ number_format($pemasukanBulan ?? 0, 0, ',', '.') }}</b></span><a class="revenue__foot-link" href="{{ route('admin.rental.cashbook.index') }}">Buku kas →</a></div></section>
     <section class="section reveal"><div class="section__head"><div><div class="section__title">Perlu perhatian</div><div class="section__title-sm">Buka tugas untuk memeriksa detail tiap unit</div></div></div>
         <a href="{{ route('admin.rental.orders', ['status' => 'pending']) }}" class="quick-item" style="margin-bottom:8px"><span class="quick-item__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'orders', 'size' => 18])</span><span class="quick-item__label">{{ $rentalPending }} unit menunggu konfirmasi</span></a>

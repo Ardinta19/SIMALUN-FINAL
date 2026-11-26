@@ -134,6 +134,14 @@ body {
 /* ── Pagination ── */
 .pagination-wrap { display: flex; justify-content: center; margin-top: var(--space-3); }
 .pagination-wrap nav { font-size: var(--adm-fs-sm); }
+
+/* Layar lebar: `layouts.component.admin._navbar_admin` sudah naik menjadi baris
+   menu di ≥900 px, jadi isi halaman ikut melebar (960 px, sejajar halaman admin
+   ber-layout). Sebelumnya halaman ini tetap 520 px sehingga tampak seperti
+   kolom ponsel di tengah desktop. */
+@media (min-width: 900px) {
+    .appbar, .wrap { max-width: 960px; }
+}
 </style>
 @include('layouts.component._theme_head')
 <link rel="stylesheet" href="{{ asset('css/berkah-admin.css') }}?v={{ filemtime(public_path('css/berkah-admin.css')) }}">
@@ -141,6 +149,8 @@ body {
 <script src="{{ asset('js/page-transitions.js') }}?v={{ filemtime(public_path('js/page-transitions.js')) }}" defer></script>
 </head>
 <body>
+@include('layouts.component._skip_link')
+
 
 {{-- ══════════════ HEADER ══════════════ --}}
 <header class="appbar">
@@ -153,7 +163,7 @@ body {
     @endif
 </header>
 
-<main class="wrap">
+<main class="wrap" id="main-content" tabindex="-1">
 
     {{-- ══════════════ ANTRIAN OPERASIONAL ══════════════ --}}
     <section class="card reveal d1">

@@ -61,3 +61,12 @@ iframe {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }
+
+/* f. Cincin fokus yang sama di semua halaman mandiri. Sebagian halaman tidak
+      punya aturan fokus sendiri, sehingga pengguna papan ketik hanya melihat
+      garis bawaan peramban yang tipis di atas latar gelap. `:where()` membuat
+      specificity nol, jadi aturan fokus milik halaman tetap menang. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 3px solid #bc5b75;
+    outline-offset: 2px;
+}

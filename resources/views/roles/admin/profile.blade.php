@@ -273,6 +273,14 @@ body {
     color: var(--ink-muted);
     letter-spacing: .3px;
 }
+
+/* Layar lebar: `layouts.component.admin._navbar_admin` sudah naik menjadi baris
+   menu di ≥900 px, jadi isi halaman ikut melebar (960 px, sejajar halaman admin
+   ber-layout). Sebelumnya halaman ini tetap 520 px sehingga tampak seperti
+   kolom ponsel di tengah desktop. */
+@media (min-width: 900px) {
+    .profile-header, .page-body { max-width: 960px; }
+}
 </style>
 @include('layouts.component._theme_head')
 <link rel="stylesheet" href="{{ asset('css/berkah-admin.css') }}?v={{ filemtime(public_path('css/berkah-admin.css')) }}">
@@ -280,6 +288,8 @@ body {
 <script src="{{ asset('js/page-transitions.js') }}?v={{ filemtime(public_path('js/page-transitions.js')) }}" defer></script>
 </head>
 <body>
+@include('layouts.component._skip_link')
+
 
 @php
     $adminUnread = auth()->user()->unreadNotifications->count();
@@ -302,7 +312,7 @@ body {
     </a>
 </header>
 
-<div class="page-body" role="main">
+<div class="page-body" id="main-content" tabindex="-1" role="main">
 
     @if(session('status') === 'profile-updated')
         <div class="page-alert page-alert--success reveal d1">Profil berhasil diperbarui.</div>
