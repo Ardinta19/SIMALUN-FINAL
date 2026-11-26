@@ -479,11 +479,11 @@ html:not(.bk-enhanced) .bk-header-space{height:auto!important;min-height:0;paddi
     margin-bottom: var(--bk-space-4);
 }
 
-.unit-section h4 {
+.unit-section :is(h3, h4) {
     margin: var(--bk-space-5) 0 var(--bk-space-2);
 }
 
-.unit-section h4:first-of-type {
+.unit-section :is(h3, h4):first-of-type {
     margin-top: var(--bk-space-2);
 }
 
@@ -698,5 +698,31 @@ body.bk-experience {
 @media (prefers-reduced-motion: reduce) {
     .bk-order-filter summary::after {
         transition: none;
+    }
+}
+
+/* ==========================================================================
+   Lompat ke bagian: sasaran tidak boleh berhenti di bawah header lengket
+   --------------------------------------------------------------------------
+   Pil "Lihat bagian" di halaman unit dan "Lompat ke bagian bantuan" di halaman
+   bantuan mengarah ke `#anchor` di tengah halaman. Header pelanggan lengket
+   setinggi 60–80 px (plus safe area iOS), jadi tanpa `scroll-margin-top`
+   judul bagian yang dituju mendarat tepat di bawahnya dan tidak terlihat —
+   pengguna mengira tautan tidak bekerja. Checkout sudah punya aturan serupa;
+   sekarang semua sasaran lompat pelanggan memakainya.
+   ========================================================================== */
+.bk-experience #main-content,
+.bk-experience .help-card[id],
+.bk-experience .unit-section[id],
+.bk-experience [data-checkout-unit] {
+    scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 84px);
+}
+
+@media (max-width: 700px) {
+    .bk-experience #main-content,
+    .bk-experience .help-card[id],
+    .bk-experience .unit-section[id],
+    .bk-experience [data-checkout-unit] {
+        scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 72px);
     }
 }

@@ -45,7 +45,7 @@
 </section>
 
 <div class="adm-row" style="justify-content:space-between;margin:26px 0 12px" data-adm-reveal="list-title">
-    <h2 style="margin:0">Daftar universitas</h2>
+    <h2>Daftar universitas</h2>
     <span class="adm-chip">{{ $universities->count() }} universitas</span>
 </div>
 
@@ -53,7 +53,7 @@
     <article class="adm-card adm-card--hover" data-adm-reveal="unis">
         <div class="adm-row" style="justify-content:space-between;align-items:flex-start;gap:12px">
             <div>
-                <h3 style="margin:0">{{ $university->name }}</h3>
+                <h3>{{ $university->name }}</h3>
                 <div class="adm-row" style="gap:6px;margin-top:6px">
                     <span class="adm-badge {{ $university->is_active ? 'adm-badge--confirmed' : 'adm-badge--cancelled' }}">
                         {{ $university->is_active ? 'Aktif' : 'Nonaktif' }}

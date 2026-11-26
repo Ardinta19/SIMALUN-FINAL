@@ -750,6 +750,19 @@ html[data-theme="dark"] :is(.bk-order-status span) {
     color: var(--theme-ink-mid);
 }
 
+/* Notifikasi masuk dan avatar profil: dua warna wine yang dulu hanya punya
+   nilai terang. `small` pada judul notifikasi menempel langsung di atas
+   permukaan gelap (1,9:1), dan avatar tetap blush terang sehingga menyilaukan
+   di tengah kartu gelap. */
+html[data-theme="dark"] :is(.bk-inbox-title small) {
+    color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] :is(.bk-profile-avatar) {
+    background: var(--theme-surface-3);
+    color: var(--theme-accent-text);
+}
+
 html[data-theme="dark"] :is(.bk-profile-identity, .bk-profile-card, .bk-profile-signout) {
     background: var(--theme-surface);
     color: var(--theme-ink);

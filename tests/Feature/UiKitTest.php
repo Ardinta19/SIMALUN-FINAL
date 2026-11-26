@@ -500,6 +500,8 @@ class UiKitTest extends TestCase
             '.err',
             '.sum-discount',
             '.order-card__badge',
+            '.bk-inbox-title small',
+            '.bk-profile-avatar',
             '.bk-page-nav__edge',
             '.bk-page-nav__gap',
             '.bk-page-nav__current',

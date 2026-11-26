@@ -83,7 +83,7 @@
 </div>
 
 <div class="adm-row" style="justify-content:space-between;margin:26px 0 12px" data-adm-reveal="list-title">
-    <h2 style="margin:0">Papan di katalog</h2>
+    <h2>Papan di katalog</h2>
     <span class="adm-chip">{{ $products->total() }} papan</span>
 </div>
 
@@ -117,7 +117,7 @@
                 <button type="submit" class="btn secondary adm-btn--sm">{{ $product->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button>
             </form>
 
-            <h3 style="margin:20px 0 4px">Paket durasi</h3>
+            <h3 class="adm-subhead">Paket durasi</h3>
             <p class="adm-help">Paket berlaku untuk jumlah hari yang tepat, termasuk hari penerimaan dan pengembalian.</p>
 
             @foreach($product->packages as $package)

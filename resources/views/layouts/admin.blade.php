@@ -12,6 +12,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{{ $admPageTitle }} · Berkah Kreatif</title>
 <meta name="color-scheme" content="light dark">
+{{-- Panel admin tidak untuk mesin pencari: halaman memuat data pelanggan. --}}
+<meta name="robots" content="noindex, nofollow">
 <script>
     /* Tandai lebih awal: tanpa kelas ini semua konten reveal tetap terlihat,
        sehingga tidak ada bagian halaman yang hilang bila skrip gagal. */

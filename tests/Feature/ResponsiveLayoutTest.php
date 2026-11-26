@@ -744,4 +744,37 @@ class ResponsiveLayoutTest extends TestCase
         $this->assertStringContainsString('.bk-help .help-card summary:focus-visible {', $css);
         $this->assertMatchesRegularExpression('/@media \(prefers-reduced-motion: reduce\) \{\s*\.bk-order-filter summary::after \{\s*transition: none;/s', $css);
     }
+
+    /** Sasaran lompat di halaman pelanggan tidak boleh tertutup header lengket.
+     *
+     *  Header pelanggan 60–80 px dan lengket di atas. Tanpa
+     *  `scroll-margin-top`, "Lihat bagian" di halaman unit dan "Lompat ke
+     *  bagian bantuan" mendaratkan judul tepat di bawah header — bagian yang
+     *  dituju tidak terlihat sama sekali.
+     */
+    public function test_sasaran_lompat_tidak_tertutup_header_lengket(): void
+    {
+        $css = preg_replace('/\s+/', ' ', File::get(public_path('css/berkah-experience.css')));
+
+        $this->assertMatchesRegularExpression(
+            '/\.bk-experience #main-content, \.bk-experience \.help-card\[id\], \.bk-experience \.unit-section\[id\], \.bk-experience \[data-checkout-unit\] \{ scroll-margin-top: calc\(env\(safe-area-inset-top, 0px\) \+ 84px\); \}/',
+            $css,
+            'Sasaran lompat (termasuk "Langsung ke isi") harus menyisakan ruang untuk header lengket.'
+        );
+
+        // Panel admin: topbar lengket, jadi sasaran lompatnya butuh jarak sama.
+        $adm = preg_replace('/\s+/', ' ', File::get(public_path('css/berkah-admin.css')));
+
+        $this->assertMatchesRegularExpression(
+            '/\.adm-app :is\(#main-content, \[id\^="unit-"\]\) \{ scroll-margin-top: calc\(env\(safe-area-inset-top, 0px\) \+ 72px\); \}/',
+            $adm,
+            'Panel admin juga punya topbar lengket; sasaran lompat butuh jarak.'
+        );
+
+        $this->assertStringContainsString('html.adm-js .adm-app tbody tr[data-adm-reveal]', $adm,
+            'Baris tabel hanya boleh disembunyikan kalau JS aktif; tanpa itu tabel tampak kosong.');
+
+        // Header memang lengket: kalau tidak, jarak ini hanya menambah celah.
+        $this->assertStringContainsString('position: sticky', $css);
+    }
 }

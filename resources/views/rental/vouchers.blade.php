@@ -120,7 +120,7 @@
 </section>
 
 <div class="adm-row" style="justify-content:space-between;margin:26px 0 12px" data-adm-reveal="list-title">
-    <h2 style="margin:0">Daftar voucher</h2>
+    <h2>Daftar voucher</h2>
     <span class="adm-chip">{{ $vouchers->count() }} voucher</span>
 </div>
 
@@ -134,7 +134,7 @@
         <div class="adm-row" style="justify-content:space-between;align-items:flex-start;gap:12px">
             <div style="min-width:0">
                 <div class="adm-row" style="gap:8px">
-                    <h3 style="margin:0;letter-spacing:.04em">{{ $voucher->code }}</h3>
+                    <h3 class="adm-title--code">{{ $voucher->code }}</h3>
                     <span class="adm-badge {{ $voucher->is_active ? 'adm-badge--confirmed' : 'adm-badge--cancelled' }}">
                         {{ $voucher->is_active ? 'Aktif' : 'Nonaktif' }}
                     </span>

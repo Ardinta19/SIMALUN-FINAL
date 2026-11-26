@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 @include('layouts.component._page_shell')
-<title>Edit Alamat · Berkah Kreatif</title>
+<title>Ubah alamat · Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 <link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.css') }}?v={{ filemtime(public_path('vendor/leaflet/leaflet.css')) }}">
 <script src="{{ asset('vendor/leaflet/leaflet.js') }}?v={{ filemtime(public_path('vendor/leaflet/leaflet.js')) }}"></script>
@@ -126,7 +126,7 @@ $oldText = function (string $key, $fallback = '') {
             </svg>
         </a>
         <div>
-            <h1 class="header-title">Edit Alamat</h1>
+            <h1 class="header-title">Ubah alamat</h1>
             <div class="header-sub">{{ strtoupper($address->label ?? 'ALAMAT') }}</div>
         </div>
     </div>
@@ -148,19 +148,19 @@ $oldText = function (string $key, $fallback = '') {
         <div class="section-card js-card">
             <div class="section-head">
                 <div class="section-num">1</div>
-                <div class="section-title">Info Penerima</div>
+                <div class="section-title">Info penerima</div>
             </div>
             <div class="section-body">
                 <div>
                     <label class="field-label" for="address-label">Label Alamat <span class="required">*</span></label>
                     <input placeholder="Contoh: Rumah" type="text" name="label" id="address-label" class="field-input {{ $errors->has('label') ? 'is-error' : '' }}"
-                        value="{{ $oldText('label', $address->label) }}" required>
+                        value="{{ $oldText('label', $address->label) }}" required autocomplete="off">
                     @error('label') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
                 <div>
                     <label class="field-label" for="address-recipient_name">Nama Penerima <span class="required">*</span></label>
                     <input placeholder="Contoh: Ibu Sari Wulandari" type="text" name="recipient_name" id="address-recipient_name" class="field-input {{ $errors->has('recipient_name') ? 'is-error' : '' }}"
-                        value="{{ $oldText('recipient_name', $address->recipient_name) }}" required>
+                        value="{{ $oldText('recipient_name', $address->recipient_name) }}" required autocomplete="name">
                     @error('recipient_name') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
                 <div>
@@ -175,7 +175,7 @@ $oldText = function (string $key, $fallback = '') {
         <div class="section-card js-card">
             <div class="section-head">
                 <div class="section-num">2</div>
-                <div class="section-title">Lokasi Alamat</div>
+                <div class="section-title">Lokasi alamat</div>
             </div>
             <div class="section-body">
                 <div>
@@ -191,14 +191,14 @@ $oldText = function (string $key, $fallback = '') {
                 <div>
                     <label class="field-label" for="address-full_address">Alamat Lengkap <span class="required">*</span></label>
                     <textarea placeholder="Contoh: Jl. Merdeka No. 12, RT 03, Palembang" name="full_address" id="address-full_address" class="field-input {{ $errors->has('full_address') ? 'is-error' : '' }}"
-                        required>{{ $oldText('full_address', $address->full_address) }}</textarea>
+                        required autocomplete="street-address">{{ $oldText('full_address', $address->full_address) }}</textarea>
                     @error('full_address') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
                 <div>
                     <label class="field-label" for="address-notes">Catatan Tambahan</label>
                     <input type="text" name="notes" id="address-notes" class="field-input"
                         placeholder="Contoh: Pagar hijau, titip di pos keamanan."
-                        value="{{ $oldText('notes', $address->notes) }}">
+                        value="{{ $oldText('notes', $address->notes) }}" autocomplete="off">
                 </div>
             </div>
         </div>

@@ -6,7 +6,7 @@
 </style>@include('layouts.component._theme_head')
 </head><body>
 @include('layouts.component._skip_link')
-<main class="sheet" id="main-content" tabindex="-1"><div class="actions"><button type="button" onclick="window.print()">Cetak / Simpan PDF</button><a class="action" href="{{ auth()->user()->role === 'admin' ? route('admin.rental.orders') : route('rental.orders.show', $order) }}">Kembali</a></div>
+<main class="sheet" id="main-content" tabindex="-1"><div class="actions"><button type="button" onclick="window.print()">Cetak / simpan PDF</button><a class="action" href="{{ auth()->user()->role === 'admin' ? route('admin.rental.orders') : route('rental.orders.show', $order) }}">Kembali</a></div>
 <h1>Berkah Kreatif · Ringkasan pesanan</h1><p><strong>Referensi:</strong> {{ $order->reference }}<br><strong>Pelanggan:</strong> {{ $order->customer?->name ?? 'Pelanggan tidak tersedia' }}<br><strong>Dibuat:</strong> {{ $order->created_at->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB
 @if($order->voucher_code)<br><strong>Voucher:</strong> {{ $order->voucher_code }} · potongan Rp {{ number_format((int) $order->discount_amount, 0, ',', '.') }}@endif</p><p class="note">Dokumen ini adalah ringkasan uji coba, bukan bukti pembayaran atau jaminan ketersediaan. Status dapat berubah; periksa detail pesanan terbaru.</p>
 @foreach($order->units as $unit)

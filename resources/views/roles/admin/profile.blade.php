@@ -42,7 +42,7 @@
                  alt="Foto profil {{ $user->name }}" width="64" height="64"
                  style="width:64px;height:64px;flex:none;border-radius:50%;object-fit:cover;border:1px solid var(--adm-line);background:var(--adm-surface-3)">
             <div style="min-width:0">
-                <h2 id="adm-profile-name" style="margin:0;font-size:var(--adm-fs-lg);overflow-wrap:anywhere">{{ $user->name }}</h2>
+                <h2 id="adm-profile-name" class="adm-title--lg">{{ $user->name }}</h2>
                 <p class="adm-help" style="margin:2px 0 6px">Administrator · Berkah Kreatif</p>
                 <span class="adm-badge adm-badge--live"><span class="adm-dot" aria-hidden="true"></span> Mode pengujian</span>
             </div>

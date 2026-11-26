@@ -167,7 +167,7 @@ $oldText = function (string $key, $fallback = '') {
 
   <div id="card">
 
-    <h1 class="card-title">Selamat Datang</h1>
+    <h1 class="card-title">Selamat datang</h1>
     <div class="card-sub">Masuk ke akun Berkah Kreatif kamu</div>
 
     @if(session('error'))
@@ -240,7 +240,7 @@ $oldText = function (string $key, $fallback = '') {
       {{-- Submit Button --}}
       <button type="submit" id="btn-login">
         <span class="btn-spinner"></span>
-        <span class="btn-text">Masuk Sekarang</span>
+        <span class="btn-text">Masuk sekarang</span>
       </button>
     </form>
 

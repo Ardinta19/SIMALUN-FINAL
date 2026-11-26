@@ -26,7 +26,7 @@
 
 <section class="adm-card" data-adm-reveal="queue" aria-labelledby="notif-queue-title" style="margin-bottom:var(--adm-gap)">
     <div class="adm-card__head">
-        <h2 id="notif-queue-title" class="adm-row" style="gap:8px;margin:0">
+        <h2 id="notif-queue-title" class="adm-row">
             @include('layouts.component._icon', ['name' => 'orders', 'size' => 20])
             Antrian operasional terbaru
         </h2>
@@ -56,7 +56,7 @@
 
 <section class="adm-card" data-adm-reveal="system" aria-labelledby="notif-system-title">
     <div class="adm-card__head">
-        <h2 id="notif-system-title" class="adm-row" style="gap:8px;margin:0">
+        <h2 id="notif-system-title" class="adm-row">
             @include('layouts.component._icon', ['name' => 'notifikasi', 'size' => 20])
             Notifikasi sistem
         </h2>

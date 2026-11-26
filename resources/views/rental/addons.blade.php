@@ -21,7 +21,7 @@
 
 @if($errors->any())
     <div class="adm-card" role="alert" data-adm-reveal="errors">
-        <h2 style="margin-top:0">Periksa isian</h2>
+        <h2>Periksa isian</h2>
         <ul>
             @foreach($errors->all() as $message)
                 <li>{{ $message }}</li>
@@ -72,7 +72,7 @@
 </section>
 
 <div class="adm-row" style="justify-content:space-between;margin:26px 0 12px" data-adm-reveal="list-title">
-    <h2 style="margin:0">Daftar item tambahan</h2>
+    <h2>Daftar item tambahan</h2>
     <span class="adm-chip">{{ $addons->count() }} item</span>
 </div>
 
@@ -86,7 +86,7 @@
                          style="width:72px;height:72px;object-fit:cover;border-radius:12px;border:1px solid var(--adm-line)">
                 @endif
                 <div>
-                    <h3 style="margin:0">{{ $addon->name }}</h3>
+                    <h3>{{ $addon->name }}</h3>
                     <div class="adm-row" style="gap:6px;margin-top:6px;flex-wrap:wrap">
                         <span class="adm-badge {{ $addon->is_active ? 'adm-badge--confirmed' : 'adm-badge--cancelled' }}">
                             {{ $addon->is_active ? 'Aktif' : 'Nonaktif' }}

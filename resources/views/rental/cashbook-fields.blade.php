@@ -21,7 +21,7 @@
 </div>
 <div class="adm-field">
     <label for="cash-notes-{{ $entry?->id ?? 'new' }}">Catatan</label>
-    <textarea id="cash-notes-{{ $entry?->id ?? 'new' }}" placeholder="Contoh: Bensin 100.000 dan tol 50.000 untuk antar unit." name="notes" maxlength="1000" required>{{ $entry?->notes }}</textarea>
+    <textarea id="cash-notes-{{ $entry?->id ?? 'new' }}" placeholder="Contoh: Bensin 100.000 dan tol 50.000 untuk antar unit." name="notes" maxlength="1000" required autocomplete="off">{{ $entry?->notes }}</textarea>
 </div>
 <label class="adm-switch">
     <input type="checkbox" name="not_rental_payment" value="1">

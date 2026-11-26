@@ -18,7 +18,7 @@
             <section class="bk-profile-card"><div class="bk-profile-card__head"><div><span class="bk-kicker">UNTUK SERAH TERIMA</span><h2>Alamat utama</h2></div><a href="{{ route('customer.addresses.index') }}">Kelola semua ↗</a></div>
                 @if($primaryAddress)
                     <p><strong>{{ $primaryAddress->label }}</strong> · {{ $primaryAddress->recipient_name }}</p><p>{{ $primaryAddress->full_address }}</p>@if($primaryAddress->notes)<p class="muted">Catatan: {{ $primaryAddress->notes }}</p>@endif @if($primaryAddress->phone)<p class="muted">{{ $primaryAddress->phone }}</p>@endif
-                    <div class="bk-profile-actions"><a class="btn secondary" href="{{ route('customer.addresses.edit', $primaryAddress) }}">Edit alamat utama</a><a class="btn secondary" href="{{ route('customer.addresses.create') }}">Tambah alamat</a></div>
+                    <div class="bk-profile-actions"><a class="btn secondary" href="{{ route('customer.addresses.edit', $primaryAddress) }}">Ubah alamat utama</a><a class="btn secondary" href="{{ route('customer.addresses.create') }}">Tambah alamat</a></div>
                 @else
                     <p class="muted">Belum ada alamat utama. Alamat tersimpan dapat dipilih saat checkout sewa.</p><a class="btn secondary" href="{{ route('customer.addresses.create') }}">Tambah alamat utama</a>
                 @endif

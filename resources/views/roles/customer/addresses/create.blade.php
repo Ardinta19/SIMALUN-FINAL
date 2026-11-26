@@ -245,7 +245,7 @@ $oldText = function (string $key, $fallback = '') {
             </svg>
         </a>
         <div>
-            <h1 class="header-title">Tambah Alamat</h1>
+            <h1 class="header-title">Tambah alamat</h1>
             <div class="header-sub">ALAMAT PENYERAHAN</div>
         </div>
     </div>
@@ -267,20 +267,20 @@ $oldText = function (string $key, $fallback = '') {
         <div class="section-card js-card">
             <div class="section-head">
                 <div class="section-num">1</div>
-                <div class="section-title">Info Penerima</div>
+                <div class="section-title">Info penerima</div>
             </div>
             <div class="section-body">
                 <div>
                     <label class="field-label" for="address-label">Label Alamat <span class="required">*</span></label>
                     <input placeholder="Contoh: Rumah" type="text" name="label" id="address-label" class="field-input {{ $errors->has('label') ? 'is-error' : '' }}"
-                        value="{{ $oldText('label', 'Rumah') }}" required>
+                        value="{{ $oldText('label', 'Rumah') }}" required autocomplete="off">
                     @error('label') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
 
                 <div>
                     <label class="field-label" for="address-recipient_name">Nama Penerima <span class="required">*</span></label>
                     <input placeholder="Contoh: Ibu Sari Wulandari" type="text" name="recipient_name" id="address-recipient_name" class="field-input {{ $errors->has('recipient_name') ? 'is-error' : '' }}"
-                        value="{{ $oldText('recipient_name', auth()->user()->name) }}" required>
+                        value="{{ $oldText('recipient_name', auth()->user()->name) }}" required autocomplete="name">
                     @error('recipient_name') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
 
@@ -297,7 +297,7 @@ $oldText = function (string $key, $fallback = '') {
         <div class="section-card js-card">
             <div class="section-head">
                 <div class="section-num">2</div>
-                <div class="section-title">Lokasi Alamat</div>
+                <div class="section-title">Lokasi alamat</div>
             </div>
             <div class="section-body">
                 <div>
@@ -314,7 +314,7 @@ $oldText = function (string $key, $fallback = '') {
                 <div>
                     <label class="field-label" for="address-full_address">Alamat Lengkap <span class="required">*</span></label>
                     <textarea placeholder="Contoh: Jl. Merdeka No. 12, RT 03, Palembang" name="full_address" id="address-full_address" class="field-input {{ $errors->has('full_address') ? 'is-error' : '' }}"
-                        required>{{ $oldText('full_address') }}</textarea>
+                        required autocomplete="street-address">{{ $oldText('full_address') }}</textarea>
                     @error('full_address') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
 
@@ -322,7 +322,7 @@ $oldText = function (string $key, $fallback = '') {
                     <label class="field-label" for="address-notes">Catatan Tambahan</label>
                     <input type="text" name="notes" id="address-notes" class="field-input"
                         placeholder="Contoh: Pagar hijau, titip di pos keamanan."
-                        value="{{ $oldText('notes') }}">
+                        value="{{ $oldText('notes') }}" autocomplete="off">
                 </div>
             </div>
         </div>

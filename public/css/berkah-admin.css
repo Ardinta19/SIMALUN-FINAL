@@ -182,6 +182,18 @@ html[data-theme="dark"] .adm-app :is(.adm-btn--ghost, .adm-btn--quiet):hover {
 .adm-app h1 { font-size: clamp(1.5rem, 2.4vw, 2rem); margin: 0; }
 .adm-app h2 { font-size: clamp(1.12rem, 1.6vw, 1.32rem); margin: 0; }
 .adm-app h3 { font-size: 1.02rem; margin: 0; }
+.adm-app h4 { font-size: .98rem; font-weight: 800; margin: var(--adm-space-5) 0 var(--adm-space-2); }
+.adm-app h4:first-child { margin-top: 0; }
+
+/* Judul kartu tidak lagi membawa `style="margin:0"` sebaris: `.adm-app h2/h3`
+   sudah bermargin 0. Yang benar-benar berbeda dari dasar diberi kelas di sini
+   supaya jarak antarkartu tetap satu tangga (--adm-space-*). */
+.adm-title--lg { font-size: var(--adm-fs-lg); overflow-wrap: anywhere; }
+.adm-title--sm { font-size: var(--adm-fs-md); margin-bottom: var(--adm-space-2); }
+.adm-title--code { letter-spacing: .04em; }
+.adm-title--tight { margin-top: 2px; }
+.adm-subhead { margin: var(--adm-space-5) 0 var(--adm-space-1); }
+.adm-section-title { margin: var(--adm-space-6) 0 var(--adm-space-3); }
 .adm-app p { margin: .5em 0; }
 .adm-app a { color: var(--adm-link); text-underline-offset: 3px; }
 .adm-app :focus-visible { outline: 3px solid var(--adm-rose); outline-offset: 3px; border-radius: 6px; }
@@ -860,7 +872,7 @@ html.adm-js [data-adm-reveal].is-in {
 html:not(.adm-js) [data-adm-reveal],
 html.adm-reduced [data-adm-reveal] { opacity: 1 !important; transform: none !important; transition: none !important; }
 
-.adm-app tbody tr[data-adm-reveal] { opacity: 0; transform: translateY(6px); }
+html.adm-js .adm-app tbody tr[data-adm-reveal] { opacity: 0; transform: translateY(6px); }
 .adm-app tbody tr[data-adm-reveal].is-in { opacity: 1; transform: none; }
 
 @keyframes adm-sidebar-in { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }
@@ -1729,3 +1741,10 @@ html[data-theme="dark"] .adm-app {
     border-color: var(--adm-line);
 }
 .adm-app .bk-page-nav__gap { border-color: transparent; }
+
+/* Sasaran lompat di panel admin (tautan "Langsung ke isi" dan `#unit-…`)
+   mendarat di bawah topbar yang lengket; tanpa jarak ini isi yang dituju
+   tertutup dan pengguna papan ketik tidak melihat ke mana fokus berpindah. */
+.adm-app :is(#main-content, [id^="unit-"]) {
+    scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 72px);
+}

@@ -26,7 +26,7 @@
 <section class="adm-card" data-adm-reveal="customer">
     <div class="adm-row" style="justify-content:space-between;align-items:flex-start;gap:14px">
         <div style="min-width:0">
-            <h2 style="margin:0">{{ $order->customer?->name ?? 'Pelanggan tidak tersedia' }}</h2>
+            <h2>{{ $order->customer?->name ?? 'Pelanggan tidak tersedia' }}</h2>
             <p class="muted" style="margin:4px 0 0">Referensi: <strong>{{ $order->reference }}</strong></p>
         </div>
         <div class="adm-row" style="gap:6px;justify-content:flex-end">
@@ -40,7 +40,7 @@
 
     @if($order->references->isNotEmpty())
         <div style="margin-top:14px">
-            <h3 style="margin:0 0 8px;font-size:var(--adm-fs-md)">Foto referensi desain ({{ $order->references->count() }})</h3>
+            <h3 class="adm-title--sm">Foto referensi desain ({{ $order->references->count() }})</h3>
             <ul class="bk-reference-list">
                 @foreach($order->references as $reference)
                     <li><a href="{{ route('rental.reference.image', $reference) }}" target="_blank" rel="noopener"><img src="{{ route('rental.reference.image', $reference) }}" alt="Foto referensi {{ $loop->iteration }}" width="96" height="96" loading="lazy" decoding="async"></a></li>

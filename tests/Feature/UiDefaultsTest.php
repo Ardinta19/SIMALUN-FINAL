@@ -274,8 +274,8 @@ class UiDefaultsTest extends TestCase
 
     public function test_label_isian_memakai_huruf_kecil_sesuai_kalimat(): void
     {
-        // Judul halaman dan tombol utama boleh Judul Kapital (seperti
-        // "Masuk Sekarang" di halaman login), tetapi LABEL ISIAN memakai
+        // Judul halaman, judul kartu, dan tombol memakai kalimat biasa
+        // ("Masuk sekarang"), jadi LABEL ISIAN pun memakai
         // huruf kecil sesuai kalimat — sama dengan "Kata sandi" di login dan
         // daftar. Halaman konfirmasi sandi dan profil pelanggan sempat memakai
         // "Kata Sandi Saat Ini", sehingga satu formulir punya dua gaya.
@@ -291,7 +291,8 @@ class UiDefaultsTest extends TestCase
         }
 
         $this->assertStringNotContainsString('>Kata Sandi', $profil, 'Label isian tidak boleh Judul Kapital.');
-        $this->assertStringContainsString('Ganti Kata Sandi', $profil, 'Judul kartu tetap Judul Kapital.');
+        $this->assertStringContainsString('>Ganti kata sandi<', $profil, 'Judul kartu ikut kalimat biasa.');
+        $this->assertStringNotContainsString('>Ganti Kata Sandi<', $profil, 'Judul kartu tidak boleh Judul Kapital.');
     }
 
     public function test_semua_waktu_tampil_menyebut_wib(): void
@@ -403,6 +404,21 @@ class UiDefaultsTest extends TestCase
      *  "22/11/2026 14:30" pada halaman lain. Campuran itu membuat kolom
      *  waktu tidak sejajar dan lebih sulit dipindai.
      */
+    /** Subjudul kartu unit memakai jarak yang sama meski tingkatnya h3.
+     *
+     *  `rental/unit` dulu memakai h4 (melompat dari h2) sehingga bergantung
+     *  pada aturan `.unit-section h4`. Setelah naik ke h3, aturan jarak harus
+     *  mencakup keduanya — kalau tidak, subjudul baru menempel ke paragraf
+     *  di atasnya.
+     */
+    public function test_jarak_subjudul_kartu_unit_mencakup_h3(): void
+    {
+        $css = File::get(public_path('css/berkah-experience.css'));
+
+        $this->assertStringContainsString('.unit-section :is(h3, h4) {', $css);
+        $this->assertStringContainsString('.unit-section :is(h3, h4):first-of-type {', $css);
+    }
+
     public function test_format_tanggal_jam_seragam(): void
     {
         $izin = ['d/m/Y H:i', 'd/m H:i'];
@@ -501,5 +517,119 @@ class UiDefaultsTest extends TestCase
         $tanpaLabel = array_values(array_diff(array_keys($kunci), array_unique($found[1])));
 
         $this->assertSame([], $tanpaLabel, 'Kolom tanpa label Indonesia: '.implode(', ', $tanpaLabel));
+    }
+
+    /** Judul tidak membawa jarak sebaris.
+     *
+     *  Delapan belas judul di panel admin menulis `style="margin:0"`,
+     *  `style="margin:20px 0 4px"`, dan seterusnya. `.adm-app h2/h3` sudah
+     *  bermargin 0, jadi sebagian besar itu mubazir; sisanya angka lepas
+     *  (2/4/8/12/16/20/24 px) yang tidak mengikuti tangga `--adm-space-*`.
+     *  Sekarang semua jarak judul datang dari kelas, bukan atribut.
+     */
+    public function test_judul_tidak_membawa_gaya_sebaris(): void
+    {
+        $pelanggaran = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            $relative = str_replace('\\', '/', $file->getRelativePathname());
+            $html = (string) File::get($file->getPathname());
+            $html = (string) preg_replace('/\{\{--.*?--\}\}/s', '', $html);
+
+            if (preg_match_all('/<h[1-6]\b[^>]*\bstyle\s*=/', $html, $found)) {
+                $pelanggaran[] = $relative.' → '.count($found[0]).' judul bergaya sebaris';
+            }
+        }
+
+        $this->assertSame([], $pelanggaran, implode('; ', $pelanggaran));
+
+        $css = File::get(public_path('css/berkah-admin.css'));
+        $this->assertStringContainsString('.adm-app h4 {', $css, 'h4 butuh aturan sendiri; tanpa itu ia memakai margin bawaan peramban.');
+        $this->assertStringContainsString('.adm-section-title {', $css);
+        $this->assertStringContainsString('.adm-subhead {', $css);
+    }
+
+    /** Judul halaman, judul bagian, dan tombol memakai huruf kecil kalimat.
+     *
+     *  Satu halaman menulis "Simpan Data Pribadi", "Edit Alamat Utama",
+     *  "Hapus Foto Profil", dan "Nonaktifkan Akun" sementara seluruh aplikasi
+     *  memakai kalimat biasa ("Simpan perubahan", "Ganti kata sandi"). Begitu
+     *  pula h1 "Selamat Datang", "Buat Akun Baru", dan "Tambah Alamat".
+     *  Akronim (PDF, QRIS) dan nama merek tetap boleh berhuruf besar.
+     */
+    public function test_judul_dan_tombol_memakai_huruf_kecil_kalimat(): void
+    {
+        $pelanggaran = [];
+        $penutup = ['PDF', 'QRIS', 'WhatsApp', 'SIMALUN', 'Berkah', 'Kreatif'];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            $relative = str_replace('\\', '/', $file->getRelativePathname());
+            $html = (string) File::get($file->getPathname());
+
+            preg_match_all('/<(h[1-4]|button|summary)\b[^>{}]*>([^<>{}]{4,60})</', $html, $found, PREG_SET_ORDER);
+
+            foreach ($found as $item) {
+                $text = trim($item[2]);
+
+                if (str_starts_with($text, '{{') || str_contains($text, '@')) {
+                    continue;
+                }
+
+                $kata = array_values(array_filter(
+                    preg_split('/[\s\/·]+/', $text),
+                    fn ($k) => preg_match('/[A-Za-z]/', (string) $k)
+                ));
+
+                if (count($kata) < 2) {
+                    continue;
+                }
+
+                $huruf = array_values(array_filter($kata, fn ($k) => ! in_array($k, $penutup, true) && ! ctype_upper($k) && mb_strlen($k) > 2));
+
+                if (count($huruf) < 2) {
+                    continue;
+                }
+
+                // Nama merek di awal judul sah ("Berkah Kreatif · …").
+                if (in_array($kata[0], $penutup, true)) {
+                    continue;
+                }
+
+                if (collect($huruf)->every(fn ($k) => ctype_upper(mb_substr($k, 0, 1)))) {
+                    $pelanggaran[] = $relative.' → '.$item[1].' "'.$text.'"';
+                }
+            }
+        }
+
+        $this->assertSame([], array_values(array_unique($pelanggaran)), implode(' | ', array_values(array_unique($pelanggaran))));
+    }
+
+    /** Halaman akun dan panel admin tidak boleh masuk mesin pencari.
+     *
+     *  Tata letak katalog dipakai bersama oleh etalase publik dan halaman akun
+     *  (keranjang, pesanan, profil). Etalase harus tetap terindeks, halaman akun
+     *  tidak — jadi meta `noindex` hanya dirender untuk pengguna yang masuk.
+     *  Panel admin memuat data pelanggan, jadi selalu `noindex`.
+     */
+    public function test_halaman_akun_tidak_diindeks(): void
+    {
+        $admin = File::get(resource_path('views/layouts/admin.blade.php'));
+        $catalog = File::get(resource_path('views/catalog/layout.blade.php'));
+
+        $this->assertStringContainsString('<meta name="robots" content="noindex, nofollow">', $admin);
+        $this->assertStringContainsString('@auth<meta name="robots" content="noindex">@endauth', $catalog);
+        $this->assertStringNotContainsString('<meta name="robots" content="noindex">@endif', $catalog);
+
+        foreach (['auth/login.blade.php', 'auth/register.blade.php', 'auth/forgot-password.blade.php', 'layouts/guest.blade.php'] as $relative) {
+            $this->assertStringContainsString('noindex', File::get(resource_path('views/'.$relative)), $relative.' harus noindex.');
+        }
     }
 }

@@ -874,4 +874,50 @@ class UiAccessibilityTest extends TestCase
         );
         $this->assertStringContainsString('.adm-scroll-x:focus-visible { outline: 3px solid var(--adm-rose); outline-offset: 2px; }', $css);
     }
+
+    /** Isian alamat memakai autocomplete yang benar.
+     *
+     *  Tanpa `autocomplete`, papan ketik ponsel tidak menawarkan nama, telepon,
+     *  atau alamat yang tersimpan, dan pengisian otomatis peramban bisa
+     *  menaruh email di kolom "Nama penerima". Kolom karangan sendiri
+     *  ("Label alamat", "Patokan") justru harus `off` agar tidak diisi nilai
+     *  yang salah.
+     */
+    public function test_isian_alamat_punya_autocomplete_yang_tepat(): void
+    {
+        $harapan = [
+            'recipient_name' => 'name',
+            'full_address' => 'street-address',
+            'notes' => 'off',
+            'label' => 'off',
+        ];
+
+        $salah = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            $relative = str_replace('\\', '/', $file->getRelativePathname());
+            $html = (string) File::get($file->getPathname());
+
+            // `->` di dalam `{{ $errors->has(...) }}` membuat `[^>]*` berhenti
+            // di tengah tag, jadi panah Blade diganti dulu (lihat tes galat).
+            $scan = str_replace('->', "\u{2192}", $html);
+
+            foreach ($harapan as $field => $nilai) {
+                preg_match_all('/<(?:input|textarea)\b[^>]*\bname="'.$field.'"[^>]*>/i', $scan, $found);
+
+                foreach ($found[0] as $tag) {
+                    if (! str_contains($tag, 'autocomplete="'.$nilai.'"')) {
+                        $salah[] = $relative.' → '.$field.' seharusnya autocomplete="'.$nilai.'"';
+                    }
+                }
+            }
+        }
+
+        $salah = array_values(array_unique($salah));
+        $this->assertSame([], $salah, implode(' | ', $salah));
+    }
 }

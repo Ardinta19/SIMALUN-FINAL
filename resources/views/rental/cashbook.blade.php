@@ -106,7 +106,7 @@
     </form>
 </section>
 
-<h2 style="margin:24px 0 12px" data-adm-reveal="table-title">Daftar transaksi</h2>
+<h2 class="adm-section-title" data-adm-reveal="table-title">Daftar transaksi</h2>
 
 @if($entries->isEmpty())
     <div class="adm-empty" data-adm-reveal="empty">

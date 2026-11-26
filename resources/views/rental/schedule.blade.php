@@ -61,7 +61,7 @@
 </form>
 
 <div class="adm-row" style="justify-content:space-between;margin:6px 0 14px" data-adm-reveal="month">
-    <h2 style="margin:0">{{ $month->locale('id')->translatedFormat('F Y') }}</h2>
+    <h2>{{ $month->locale('id')->translatedFormat('F Y') }}</h2>
     <span class="adm-chip">{{ collect($days)->sum(fn ($day) => count($day['units'])) }} unit terjadwal</span>
 </div>
 
@@ -72,7 +72,7 @@
             <div class="adm-card__head">
                 <div>
                     <span class="adm-kicker">{{ $day['date']->locale('id')->translatedFormat('l') }}</span>
-                    <h3 style="margin:2px 0 0">{{ $day['date']->locale('id')->translatedFormat('d F Y') }}</h3>
+                    <h3 class="adm-title--tight">{{ $day['date']->locale('id')->translatedFormat('d F Y') }}</h3>
                 </div>
                 <a class="adm-btn adm-btn--ghost adm-btn--sm" href="{{ route('admin.rental.schedule.daily-sheet', ['date' => $today]) }}">Lembar serah terima</a>
             </div>

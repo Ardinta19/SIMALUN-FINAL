@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 @include('layouts.component._page_shell')
-<title>Edit Profil · Berkah Kreatif</title>
+<title>Ubah profil · Berkah Kreatif</title>
 @include('layouts.component.customer._head_meta')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <style>
@@ -265,7 +265,7 @@ $oldText = function (string $key, $fallback = '') {
             </svg>
         </a>
         <div>
-            <h1 class="header-title">Edit Profil</h1>
+            <h1 class="header-title">Ubah profil</h1>
             <div class="header-sub">Perbarui data pribadi & alamat utama</div>
         </div>
     </div>
@@ -295,7 +295,7 @@ $oldText = function (string $key, $fallback = '') {
         <div class="section-card">
             <div class="section-head">
                 <div class="section-num">1</div>
-                <div class="section-title">Data Pribadi</div>
+                <div class="section-title">Data pribadi</div>
             </div>
             <div class="section-body">
                 <div class="avatar-wrap">
@@ -311,7 +311,7 @@ $oldText = function (string $key, $fallback = '') {
 
                 @if($user->avatar)
                 <div style="text-align:center; margin-top:4px;">
-                    <button type="button" class="btn-danger" style="width:auto; padding:8px 18px; font-size:var(--bk-fs-2xs);" id="btn-delete-avatar">Hapus Foto Profil</button>
+                    <button type="button" class="btn-danger" style="width:auto; padding:8px 18px; font-size:var(--bk-fs-2xs);" id="btn-delete-avatar">Hapus foto profil</button>
                 </div>
                 @endif
 
@@ -339,7 +339,7 @@ $oldText = function (string $key, $fallback = '') {
                     @error('phone') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
 
-                <button type="submit" class="btn-submit">Simpan Data Pribadi</button>
+                <button type="submit" class="btn-submit">Simpan data pribadi</button>
             </div>
         </div>
     </form>
@@ -350,7 +350,7 @@ $oldText = function (string $key, $fallback = '') {
         <div class="section-card">
             <div class="section-head">
                 <div class="section-num">2</div>
-                <div class="section-title">{{ $primaryAddress ? 'Edit Alamat Utama' : 'Tambah Alamat Utama' }}</div>
+                <div class="section-title">{{ $primaryAddress ? 'Ubah alamat utama' : 'Tambah alamat utama' }}</div>
             </div>
             <div class="section-body">
 
@@ -359,7 +359,7 @@ $oldText = function (string $key, $fallback = '') {
                     <input placeholder="Contoh: Rumah" type="text" id="profile-address-label" name="label"
                            class="field-input {{ $errors->has('label') ? 'is-error' : '' }}"
                            value="{{ $oldText('label', $primaryAddress->label ?? 'Rumah') }}"
-                           required>
+                           required autocomplete="off">
                 </div>
 
                 <div>
@@ -367,7 +367,7 @@ $oldText = function (string $key, $fallback = '') {
                     <input placeholder="Contoh: Ibu Sari Wulandari" type="text" id="profile-address-recipient" name="recipient_name"
                            class="field-input {{ $errors->has('recipient_name') ? 'is-error' : '' }}"
                            value="{{ $oldText('recipient_name', $primaryAddress->recipient_name ?? $user->name) }}"
-                           required>
+                           required autocomplete="name">
                 </div>
 
                 <div>
@@ -381,14 +381,14 @@ $oldText = function (string $key, $fallback = '') {
                     <label class="field-label" for="profile-address-full">Alamat Lengkap <span class="req">*</span></label>
                     <textarea placeholder="Contoh: Jl. Merdeka No. 12, RT 03, Palembang" id="profile-address-full" name="full_address"
                               class="field-input {{ $errors->has('full_address') ? 'is-error' : '' }}"
-                              required>{{ $oldText('full_address', $primaryAddress->full_address ?? '') }}</textarea>
+                              required autocomplete="street-address">{{ $oldText('full_address', $primaryAddress->full_address ?? '') }}</textarea>
                 </div>
 
                 <div>
                     <label class="field-label" for="profile-address-notes">Catatan (opsional)</label>
                     <input placeholder="Contoh: Pagar hijau, titip ke satpam bila tidak ada orang." type="text" id="profile-address-notes" name="notes"
                            class="field-input"
-                           value="{{ $oldText('notes', $primaryAddress->notes ?? '') }}">
+                           value="{{ $oldText('notes', $primaryAddress->notes ?? '') }}" autocomplete="off">
                 </div>
 
                 <button type="submit" class="btn-submit secondary">
@@ -405,7 +405,7 @@ $oldText = function (string $key, $fallback = '') {
         <div class="section-card">
             <div class="section-head">
                 <div class="section-num">3</div>
-                <div class="section-title">Ganti Kata Sandi</div>
+                <div class="section-title">Ganti kata sandi</div>
             </div>
             <div class="section-body">
                 <div>
@@ -425,7 +425,7 @@ $oldText = function (string $key, $fallback = '') {
                     <input type="password" id="profile-confirm-password" name="password_confirmation" class="field-input" autocomplete="new-password" placeholder="Ulangi kata sandi baru">
                 </div>
 
-                <button type="submit" class="btn-submit secondary">Perbarui Kata Sandi</button>
+                <button type="submit" class="btn-submit secondary">Perbarui kata sandi</button>
             </div>
         </div>
     </form>
@@ -434,7 +434,7 @@ $oldText = function (string $key, $fallback = '') {
         <div class="section-card">
             <div class="section-head" style="background:var(--theme-danger-soft,#fff5f5);">
                 <div class="section-num" style="background:var(--red);">!</div>
-                <div class="section-title" style="color:var(--red);">Hapus Akun</div>
+                <div class="section-title" style="color:var(--red);">Hapus akun</div>
             </div>
             <div class="section-body">
                 <div class="field-hint" style="margin:0;">
@@ -448,7 +448,7 @@ $oldText = function (string $key, $fallback = '') {
                         <input autocomplete="current-password" type="password" id="profile-delete-password" name="password" class="field-input" required placeholder="Masukkan kata sandi kamu">
                         @error('password') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                     </div>
-                    <button type="button" class="btn-danger" style="margin-top:12px;" id="btn-delete-account">Nonaktifkan Akun</button>
+                    <button type="button" class="btn-danger" style="margin-top:12px;" id="btn-delete-account">Nonaktifkan akun</button>
                 </form>
             </div>
         </div>
@@ -496,9 +496,9 @@ $oldText = function (string $key, $fallback = '') {
     if (btnDeleteAvatar) {
         btnDeleteAvatar.addEventListener('click', function() {
             showConfirmModal({
-                title: 'Hapus Foto Profil?',
+                title: 'Hapus foto profil?',
                 message: 'Foto profil kamu akan dihapus dan diganti dengan avatar default.',
-                confirmText: 'Ya, Hapus',
+                confirmText: 'Ya, hapus',
                 cancelText: 'Batal',
                 type: 'warning',
                 onConfirm: function() {
@@ -517,9 +517,9 @@ $oldText = function (string $key, $fallback = '') {
                 return;
             }
             showConfirmModal({
-                title: 'Nonaktifkan Akun?',
+                title: 'Nonaktifkan akun?',
                 message: 'Akun akan dinonaktifkan. Data pesanan dan catatan transaksi dapat tetap tersimpan. Lanjutkan?',
-                confirmText: 'Ya, Hapus Akun',
+                confirmText: 'Ya, nonaktifkan',
                 cancelText: 'Batal',
                 type: 'danger',
                 onConfirm: function() {

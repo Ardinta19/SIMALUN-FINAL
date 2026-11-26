@@ -22,7 +22,7 @@
 </ol>
 
 @if($unit->progressEvents->isNotEmpty())
-    <h4 style="margin:16px 0 8px">Riwayat tercatat</h4>
+    <h4>Riwayat tercatat</h4>
     <ul class="adm-timeline">
         @foreach($unit->progressEvents as $event)
             <li class="adm-timeline__item is-done">

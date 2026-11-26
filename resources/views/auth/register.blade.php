@@ -375,7 +375,7 @@ $oldText = function (string $key, $fallback = '') {
   </div>
 
   <div id="card" role="main">
-    <h1 class="card-title">Buat Akun Baru</h1>
+    <h1 class="card-title">Buat akun baru</h1>
     <div class="card-sub">Daftar sebagai pelanggan Berkah Kreatif</div>
 
     @if(session('error'))
