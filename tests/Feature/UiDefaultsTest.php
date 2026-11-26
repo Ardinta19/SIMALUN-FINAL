@@ -374,4 +374,24 @@ class UiDefaultsTest extends TestCase
             );
         }
     }
+
+    /** Bilah peramban mengikuti tema sejak lukisan pertama.
+     *
+     *  `<meta name="theme-color">` hanya diganti oleh `berkah-ui-kit.js`.
+     *  Halaman masuk dan daftar tidak memuat skrip itu, dan halaman lain pun
+     *  sempat menampilkan bilah merah merek di atas halaman gelap sampai
+     *  skrip selesai. Sekarang skrip pra-lukis di `_theme_head` yang mengatur.
+     */
+    public function test_bilah_peramban_mengikuti_tema_saat_lukisan_pertama(): void
+    {
+        $head = File::get(resource_path('views/layouts/component/_theme_head.blade.php'));
+
+        $this->assertStringContainsString('<meta name="theme-color" content="#54051f">', $head);
+        $this->assertStringContainsString("bar.setAttribute('content', dark ? '#140f12' : '#54051f')", $head);
+
+        // Nilai gelap di skrip pra-lukis dan di berkah-ui-kit.js harus sama,
+        // supaya tidak berkedip saat sakelar tema dipakai.
+        $kit = File::get(public_path('js/berkah-ui-kit.js'));
+        $this->assertStringContainsString("const DARK_THEME_COLOR = '#140f12';", $kit);
+    }
 }

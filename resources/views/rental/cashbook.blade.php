@@ -118,6 +118,9 @@
     <div class="adm-card adm-card--pad-0" data-adm-reveal="table">
         <div class="adm-scroll-x">
             <table class="adm-table adm-table--stack">
+                {{-- Keterangan tabel untuk pembaca layar: tanpa ini tabel hanya
+                     dikenali sebagai "tabel" tanpa konteks. --}}
+                <caption class="bk-sr-only">Rincian kas: tanggal, jenis, kategori, nominal, sumber, dan catatan</caption>
                 <thead>
                     <tr>
                         <th scope="col">Tanggal</th>

@@ -819,4 +819,40 @@ class UiAccessibilityTest extends TestCase
 
         $this->assertSame([], $pelanggaran, implode(' | ', $pelanggaran));
     }
+
+    /** Tabel data harus punya keterangan.
+     *
+     *  Satu-satunya tabel data di aplikasi ini (rincian kas admin) dulu tanpa
+     *  `<caption>`, sehingga pembaca layar hanya mengumumkan "tabel" tanpa
+     *  konteks. Tabel tata letak email (`role="presentation"`) dikecualikan.
+     */
+    public function test_tabel_data_punya_caption(): void
+    {
+        $tanpa = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            $relative = str_replace('\\', '/', $file->getRelativePathname());
+            $html = str_replace('->', "\u{2192}", (string) File::get($file->getPathname()));
+
+            preg_match_all('/<table\b([^>]*)>/i', $html, $found, PREG_OFFSET_CAPTURE);
+
+            foreach ($found[1] as $i => $attrs) {
+                if (str_contains(strtolower($attrs[0]), 'role="presentation"')) {
+                    continue;
+                }
+
+                $tail = substr($html, $found[0][$i][1], 400);
+
+                if (! str_contains($tail, '<caption')) {
+                    $tanpa[] = $relative;
+                }
+            }
+        }
+
+        $this->assertSame([], $tanpa, 'Tabel tanpa caption: '.implode(', ', $tanpa));
+    }
 }

@@ -43,6 +43,15 @@
     }
     root.setAttribute('data-theme', dark ? 'dark' : 'light');
     root.style.colorScheme = dark ? 'dark' : 'light';
+
+    /* Bilah peramban ikut tema sejak lukisan pertama. Tanpa ini halaman gelap
+       memakai bilah merah merek, dan di halaman yang tidak memuat
+       berkah-ui-kit.js (mis. masuk & daftar) warnanya tidak pernah menyesuaikan. */
+    var bar = document.querySelector('meta[name="theme-color"]');
+
+    if (bar) {
+        bar.setAttribute('content', dark ? '#140f12' : '#54051f');
+    }
 })();
 </script>
 <link rel="stylesheet" href="{{ $themeAsset('css/berkah-theme.css') }}">
