@@ -1291,6 +1291,50 @@ class UiKitTest extends TestCase
         }
     }
 
+    /** Kontras paginasi bersama, terang dan gelap.
+     *
+     *  Paginasi dipakai semua peran, jadi warnanya diuji seperti teks biasa:
+     *  nomor halaman, tautan, dan tombol "Sebelumnya/Berikutnya" harus
+     *  terbaca di atas latarnya sendiri — bukan hanya di atas permukaan
+     *  halaman. Tema gelap memakai pasangan token `--theme-*`.
+     */
+    public function test_kontras_paginasi_bersama_minimal_aa(): void
+    {
+        $kit = File::get(public_path('css/berkah-ui-kit.css'));
+        $theme = File::get(public_path('css/berkah-theme.css'));
+
+        $this->assertSame(1, preg_match('/:root\s*\{(.*?)\}/s', $kit, $light), ':root kit tidak ditemukan.');
+        $this->assertSame(1, preg_match('/html\[data-theme="dark"\]\s*\{(.*?)\}/s', $theme, $dark), 'Palet gelap tidak ditemukan.');
+
+        $pairs = [
+            // [teks, latar] pada palet terang
+            ['--bk-page-nav-ink', '--bk-page-nav-bg'],
+            ['--bk-page-nav-gap-ink', '--bk-page-nav-bg'],
+            ['--bk-page-nav-on', '--bk-page-nav-current-bg'],
+            ['--bk-link-ink', '--bk-page-nav-edge-bg'],
+            // [teks, latar] pada palet gelap
+            ['--theme-ink', '--theme-surface-2'],
+            ['--theme-ink-mid', '--theme-surface-2'],
+        ];
+
+        foreach ($pairs as [$teks, $latar]) {
+            $blok = str_starts_with($teks, '--theme') ? $dark[1] : $light[1];
+            $nilaiTeks = $this->ambilToken($blok, $teks);
+            $nilaiLatar = $this->ambilToken($blok, $latar);
+
+            $this->assertNotNull($nilaiTeks, $teks.' tidak terdefinisi.');
+            $this->assertNotNull($nilaiLatar, $latar.' tidak terdefinisi.');
+
+            $rasio = $this->rasioKontras($nilaiTeks, $nilaiLatar);
+
+            $this->assertGreaterThanOrEqual(4.5, $rasio, sprintf('%s di atas %s hanya %.2f:1.', $teks, $latar, $rasio));
+        }
+
+        // Nomor halaman aktif: putih di atas wine pekat, di kedua tema.
+        $this->assertGreaterThanOrEqual(4.5, $this->rasioKontras('#ffffff', $this->ambilToken($light[1], '--bk-page-nav-current-bg')));
+        $this->assertGreaterThanOrEqual(4.5, $this->rasioKontras('#ffffff', '#8f1a37'));
+    }
+
     private function ambilToken(string $blok, string $nama): ?string
     {
         return preg_match('/'.preg_quote($nama, '/').'\s*:\s*(#[0-9a-fA-F]{6})/', $blok, $m) === 1 ? $m[1] : null;
