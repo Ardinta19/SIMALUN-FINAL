@@ -116,7 +116,8 @@
     </div>
 @else
     <div class="adm-card adm-card--pad-0" data-adm-reveal="table">
-        <div class="adm-scroll-x">
+        {{-- Wadah gulir mendatar harus bisa difokus papan ketik (WCAG 2.1.1). --}}
+        <div class="adm-scroll-x" tabindex="0" role="region" aria-label="Tabel rincian kas">
             <table class="adm-table adm-table--stack">
                 {{-- Keterangan tabel untuk pembaca layar: tanpa ini tabel hanya
                      dikenali sebagai "tabel" tanpa konteks. --}}

@@ -855,4 +855,23 @@ class UiAccessibilityTest extends TestCase
 
         $this->assertSame([], $tanpa, 'Tabel tanpa caption: '.implode(', ', $tanpa));
     }
+
+    /** Wadah gulir mendatar harus bisa dijangkau papan ketik.
+     *
+     *  Kotak `overflow-x:auto` tanpa `tabindex` hanya bisa digulir dengan
+     *  tetikus atau sentuhan; pengguna papan ketik tidak dapat membaca kolom
+     *  terakhir tabel kas. Sesuai WCAG 2.1.1, wadahnya difokus dan diberi
+     *  label, dengan cincin fokus yang terlihat.
+     */
+    public function test_wadah_gulir_mendatar_bisa_difokus(): void
+    {
+        $view = File::get(resource_path('views/rental/cashbook.blade.php'));
+        $css = File::get(public_path('css/berkah-admin.css'));
+
+        $this->assertMatchesRegularExpression(
+            '/<div class="adm-scroll-x" tabindex="0" role="region" aria-label="[^"]+">/',
+            $view
+        );
+        $this->assertStringContainsString('.adm-scroll-x:focus-visible { outline: 3px solid var(--adm-rose); outline-offset: 2px; }', $css);
+    }
 }

@@ -39,7 +39,7 @@
                 <strong style="display:block;overflow-wrap:anywhere">{{ $order->product_name }} · {{ $order->order->reference }}</strong>
                 <p class="adm-help" style="margin:2px 0 8px">
                     {{ $order->order->customer?->name ?? 'Pelanggan tidak tersedia' }} ·
-                    {{ $order->created_at->copy()->timezone('Asia/Jakarta')->translatedFormat('d M Y H:i') }} WIB
+                    {{ $order->created_at->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB
                 </p>
                 <a class="adm-btn adm-btn--ghost adm-btn--sm" href="{{ route('admin.rental.orders.show', $order->order) }}">Lihat pesanan</a>
             </div>

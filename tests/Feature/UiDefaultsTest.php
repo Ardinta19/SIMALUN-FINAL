@@ -394,4 +394,36 @@ class UiDefaultsTest extends TestCase
         $kit = File::get(public_path('js/berkah-ui-kit.js'));
         $this->assertStringContainsString("const DARK_THEME_COLOR = '#140f12';", $kit);
     }
+
+    /** Satu bentuk tanggal-jam untuk halaman yang menyebut jam.
+     *
+     *  Seluruh panel admin dan halaman pesanan memakai `d/m/Y H:i` (tanggal
+     *  hari ini cukup `d/m H:i`). Notifikasi admin sempat memakai
+     *  `translatedFormat('d M Y H:i')` — "22 Nov 2026 14.30" di antara
+     *  "22/11/2026 14:30" pada halaman lain. Campuran itu membuat kolom
+     *  waktu tidak sejajar dan lebih sulit dipindai.
+     */
+    public function test_format_tanggal_jam_seragam(): void
+    {
+        $izin = ['d/m/Y H:i', 'd/m H:i'];
+        $menyimpang = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            $relative = str_replace('\\', '/', $file->getRelativePathname());
+            $html = (string) File::get($file->getPathname());
+            preg_match_all("/(?:->format|translatedFormat|isoFormat)\(\s*'([^']*H:i[^']*)'/", $html, $found);
+
+            foreach (array_unique($found[1]) as $format) {
+                if (! in_array($format, $izin, true)) {
+                    $menyimpang[] = $relative.' → '.$format;
+                }
+            }
+        }
+
+        $this->assertSame([], $menyimpang, implode(' | ', $menyimpang));
+    }
 }
