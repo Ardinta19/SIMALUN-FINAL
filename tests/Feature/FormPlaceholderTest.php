@@ -143,4 +143,31 @@ class FormPlaceholderTest extends TestCase
 
         $this->assertSame([], $kurangJelas, 'Placeholder yang bukan contoh isian: '.implode(', ', $kurangJelas));
     }
+
+    /** Satu tag isian hanya boleh punya satu `placeholder`.
+     *
+     *  Audit 2026-11-25 menemukan dua isian di profil pelanggan yang memasang
+     *  `placeholder` dua kali (`Contoh: 0812 3456 7890` lalu `08xxxxxxxxxx`).
+     *  Peramban memakai yang terakhir, sehingga contoh isian yang benar hilang
+     *  tanpa jejak — dan tes placeholder di kelas ini tetap hijau karena hanya
+     *  membaca atribut pertama. Tes ini memindai seluruh tag.
+     */
+    public function test_tidak_ada_atribut_placeholder_ganda(): void
+    {
+        $ganda = [];
+
+        foreach ($this->semuaView() as $relative => $html) {
+            preg_match_all('/<(?:input|textarea)\b[^>]*>/i', $html, $found);
+
+            foreach ($found[0] as $tag) {
+                $jumlah = preg_match_all('/\bplaceholder\s*=/i', $tag);
+
+                if ($jumlah > 1) {
+                    $ganda[] = $relative.' → '.$jumlah.' placeholder';
+                }
+            }
+        }
+
+        $this->assertSame([], $ganda, 'Atribut placeholder ganda: '.implode(', ', $ganda));
+    }
 }

@@ -1497,3 +1497,106 @@ html[data-theme="dark"] .adm-app {
 .adm-app .adm-note {
     max-width: 100%;
 }
+
+/* --------------------------------------------------------------------------
+   Daftar notifikasi admin
+   --------------------------------------------------------------------------
+   Satu butir = satu tautan (bisa diklik di mana saja, tinggi ≥ 56 px).
+   Dipakai halaman Notifikasi yang kini memakai shell admin, bukan header
+   sendiri. Di layar sangat sempit waktu turun ke baris kedua isi pesan.
+   -------------------------------------------------------------------------- */
+.adm-notif {
+    display: grid; grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 12px; align-items: center;
+    min-height: 56px; padding: 12px 14px; margin-bottom: 10px;
+    border: 1px solid var(--adm-line); border-left: 3px solid transparent;
+    border-radius: var(--adm-r-md);
+    background: var(--adm-surface-2); color: inherit; text-decoration: none;
+    transition: border-color var(--adm-dur-2) var(--adm-ease), background var(--adm-dur-2) var(--adm-ease);
+}
+.adm-notif:hover { border-color: var(--adm-line-strong); background: var(--adm-surface-3); }
+.adm-notif.is-unread { border-left-color: var(--adm-rose); }
+.adm-notif__icon {
+    display: flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px; flex: none;
+    border-radius: var(--adm-r-pill);
+    background: var(--adm-surface-3); color: var(--adm-wine);
+}
+.adm-notif__title { display: block; font-size: var(--adm-fs-sm); font-weight: 800; overflow-wrap: anywhere; }
+.adm-notif__msg {
+    display: block; margin-top: 2px;
+    color: var(--adm-ink-2); font-size: var(--adm-fs-2xs); font-weight: 600;
+    line-height: 1.5; overflow-wrap: anywhere;
+}
+.adm-notif__time { font-size: var(--adm-fs-2xs); font-weight: 700; color: var(--adm-ink-3); white-space: nowrap; }
+@media (max-width: 420px) {
+    .adm-notif { grid-template-columns: auto minmax(0, 1fr); }
+    .adm-notif__time { grid-column: 2; }
+}
+
+/* ════════════════════════════════════════════════
+   DASBOR ADMIN · baris tautan daftar (migrasi 2026-11-25)
+   Dipakai kartu "Perlu perhatian", "Menunggu pelanggan",
+   dan "Pesanan terbaru" di roles/admin/dashboard. Menggantikan
+   `.quick-item` halaman mandiri lama.
+════════════════════════════════════════════════ */
+.adm-listlink {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid var(--adm-line);
+    border-radius: var(--adm-r-md);
+    background: var(--adm-surface-2);
+    color: inherit;
+    font-size: var(--adm-fs-xs);
+    line-height: 1.5;
+    text-decoration: none;
+    transition: background var(--adm-dur-2) var(--adm-ease), border-color var(--adm-dur-2) var(--adm-ease);
+}
+.adm-listlink:hover { background: var(--adm-surface-3); border-color: var(--adm-line-2); }
+.adm-listlink:active { transform: translateY(1px); }
+.adm-listlink .adm-stat__icon { width: 32px; height: 32px; }
+@media (max-width: 420px) {
+    .adm-listlink { padding: 9px 10px; gap: 10px; }
+    .adm-listlink .adm-stat__icon { width: 28px; height: 28px; }
+}
+
+/* ════════════════════════════════════════════════
+   TARGET SENTUH ≥ 44 px (audit 2026-11-25)
+   `.adm-btn` sudah 44 px, tetapi varian kecil (38 px), tombol kuiet
+   (40 px), chip tautan filternya (40 px), dan `.adm-iconbtn` (40 px)
+   lebih rendah dari pedoman 44 px. Di perangkat sentuh dan layar
+   sempit semua dinaikkan tanpa mengubah tampilan desktop.
+════════════════════════════════════════════════ */
+@media (pointer: coarse), (max-width: 700px) {
+    .adm-btn--sm,
+    .adm-btn--quiet,
+    .adm-chip--link,
+    .adm-nav__link,
+    .adm-tab {
+        min-height: 44px;
+    }
+
+    .adm-iconbtn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .adm-chip--link { padding-block: 10px; }
+}
+
+/* Titik status sebaris (bukan penanda sudut `.adm-iconbtn__dot` yang
+   berposisi absolut). Dipakai di kepala halaman dasbor (antrean menunggu)
+   dan lencana "mode pengujian" pada profil admin. */
+.adm-dot {
+    display: inline-block;
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: adm-soft-pulse 2.6s var(--adm-ease) infinite;
+}

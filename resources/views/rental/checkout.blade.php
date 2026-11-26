@@ -83,14 +83,14 @@
 @if($serverUploadTight)
 <p class="muted" id="reference-images-server-hint">Server ini masih membatasi unggahan sekitar {{ $serverUploadMb }} MB per berkas. Bila fotomu lebih besar, perkecil dulu di galeri ponsel atau aplikasi penyunting foto.</p>
 @endif
-@error('reference_images')<p class="bk-field-error" id="reference-images-error">{{ $message }}</p>@enderror
-@error('reference_images.*')<p class="bk-field-error" id="reference-images-item-error">{{ $message }}</p>@enderror
+@error('reference_images')<p class="bk-field-error" id="reference-images-error" role="alert">{{ $message }}</p>@enderror
+@error('reference_images.*')<p class="bk-field-error" id="reference-images-item-error" role="alert">{{ $message }}</p>@enderror
 </section>
 <section class="card body" id="checkout-voucher">
 <h2>Kode voucher</h2>
 <p class="muted">Punya kode voucher? Masukkan di sini. Potongan dihitung dari harga sewa unit dan diperiksa kembali saat pesanan dikirim.</p>
 <label for="voucher_code">Kode voucher <span class="bk-muted-mark">(opsional)</span><input id="voucher_code" name="voucher_code" maxlength="40" autocomplete="off" autocapitalize="characters" spellcheck="false" value="{{ is_scalar(old('voucher_code')) ? old('voucher_code') : '' }}" @error('voucher_code') aria-invalid="true" aria-describedby="voucher-error" @enderror placeholder="Contoh: WISUDA10"></label>
-@error('voucher_code')<p class="bk-field-error" id="voucher-error">{{ $message }}</p>@enderror
+@error('voucher_code')<p class="bk-field-error" id="voucher-error" role="alert">{{ $message }}</p>@enderror
 <p><button type="button" class="btn secondary" data-voucher-check>Cek kode</button></p>
 <p class="muted" role="status" aria-live="polite" data-voucher-status>Kode diperiksa saat pesanan dikirim; tombol cek hanya menampilkan perkiraan potongan.</p>
 </section>
@@ -104,7 +104,7 @@
 <li><strong>Jika tenggat terlewati.</strong> Unit tanpa pelunasan atau bukti pelunasan tepat waktu direncanakan batal dan stok dilepas. Sampai H+1 pukul 12.00 WIB, bukti masih dapat dikirim dan admin dapat melanjutkan unit setelah pembayaran diverifikasi dan stok dicek; ada risiko terlambat. Setelah batas itu unit tidak dapat dilanjutkan dan DP hangus.</li>
 <li><strong>DP dan pengembalian.</strong> DP lama dihitung jika unit dilanjutkan; jika tidak dilanjutkan sampai H+1 pukul 12.00 WIB, DP hangus. Jika kesalahan penjual menyebabkan pembatalan, pembayaran dikembalikan. Tindak lanjut pengembalian masih manual.</li>
 </ul><p><strong>Alur ini masih diuji. Jangan kirim pembayaran nyata.</strong></p></section>
-<label class="bk-consent"><input type="checkbox" name="terms" value="1" @checked(is_scalar(old('terms')) && old('terms')) @error('terms') aria-invalid="true" aria-describedby="checkout-terms-error" @enderror required><span>Saya telah membaca dan menyetujui ketentuan penyewaan di atas, serta memahami pesanan ini masih dalam pengujian dan belum merupakan reservasi.</span></label>@error('terms')<p class="bk-field-error" id="checkout-terms-error">{{ $message }}</p>@enderror<p><button class="btn" type="submit" data-checkout-submit data-bk-press>Kirim pesanan uji coba</button></p><p class="muted" data-checkout-status role="status" aria-live="polite"></p></form>
+<label class="bk-consent"><input type="checkbox" name="terms" value="1" @checked(is_scalar(old('terms')) && old('terms')) @error('terms') aria-invalid="true" aria-describedby="checkout-terms-error" @enderror required><span>Saya telah membaca dan menyetujui ketentuan penyewaan di atas, serta memahami pesanan ini masih dalam pengujian dan belum merupakan reservasi.</span></label>@error('terms')<p class="bk-field-error" id="checkout-terms-error" role="alert">{{ $message }}</p>@enderror<p><button class="btn" type="submit" data-checkout-submit data-bk-press>Kirim pesanan uji coba</button></p><p class="muted" data-checkout-status role="status" aria-live="polite"></p></form>
 <script>
 const checkoutForm = document.querySelector('[data-checkout-form]');
 const checkoutSubmit = document.querySelector('[data-checkout-submit]');

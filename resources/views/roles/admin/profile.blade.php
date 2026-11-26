@@ -1,494 +1,156 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-@include('layouts.component._page_shell')
-<title>Profil Admin · Berkah Kreatif</title>
-@include('layouts.component.customer._head_meta')
-@include('layouts.component._tokens')
-<style>
-/* ═══════════════════════════════════════════════════════════
-   BERKAH KREATIF · ADMIN · PROFIL
-   Design System — token-only styling, Lucide icons, pure-CSS motion.
-   All colors/radii/shadows/spacing reference canonical tokens
-   emitted by layouts.component._tokens (mirrors tailwind.config.js).
-═══════════════════════════════════════════════════════════ */
-:root {
-    /* Page-local aliases — only reference canonical tokens (no literals) */
-    /* Palet merek datang dari _tokens.blade.php (wine), tidak lagi
-       ditimpa per halaman. */
-    --ink:        var(--brand-900);
-    --ink-muted:  var(--surface-400);
-    --line:       var(--surface-200);
-    --line-soft:  var(--surface-100);
-    --font:       'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body {
-    font-family: var(--font);
-    font-size: 16px;
-    background: var(--surface-50);
-    color: var(--ink);
-    min-height: 100vh;
-    min-height: 100dvh;
-    padding-bottom: calc(var(--space-20) + env(safe-area-inset-bottom, 0px));
-    overflow-x: clip;
-}
+@extends('layouts.admin')
 
-/* ── Entrance animation (pure CSS — transform/opacity only) ── */
-@keyframes riseIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-.reveal { opacity: 0; animation: riseIn .5s cubic-bezier(.22,.61,.36,1) forwards; }
-.d1{animation-delay:.04s}.d2{animation-delay:.10s}.d3{animation-delay:.16s}
-.d4{animation-delay:.22s}.d5{animation-delay:.28s}.d6{animation-delay:.34s}
-@media (prefers-reduced-motion: reduce){ .reveal{opacity:1;animation:none} }
+@section('back', route('dashboard.admin'))
+@section('title', 'Profil')
+@section('crumbs')<strong>Profil</strong>@endsection
 
-/* ═══════════════════════════════════════════════ HEADER */
-.profile-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-3);
-    padding: max(env(safe-area-inset-top, 0px), var(--space-4)) var(--space-5) var(--space-3);
-    max-width: 520px;
-    margin: 0 auto;
-}
-.profile-header__left { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
-.profile-header__back {
-    width: var(--space-9); height: var(--space-9);
-    border-radius: var(--radius-pill);
-    background: var(--brand-100);
-    border: 1px solid var(--surface-200);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--brand-900);
-    text-decoration: none;
-    flex-shrink: 0;
-    transition: transform .12s ease, background .15s ease;
-}
-.profile-header__back:active { transform: scale(.94); background: var(--surface-100); }
-.profile-header__avatar {
-    width: var(--space-9); height: var(--space-9);
-    border-radius: var(--radius-pill);
-    object-fit: cover;
-    border: 2px solid var(--surface-200);
-}
-.profile-header__title { font-weight: 800; font-size: 1.05rem; color: var(--ink); margin: 0; }
-.profile-header__notif {
-    width: var(--space-10); height: var(--space-10);
-    border-radius: var(--radius-pill);
-    background: var(--surface-raised);
-    border: 1px solid var(--surface-200);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--ink-muted);
-    text-decoration: none;
-    position: relative;
-    box-shadow: var(--shadow-card);
-    flex-shrink: 0;
-}
-.profile-header__badge {
-    position: absolute;
-    top: -2px; right: -2px;
-    min-width: 16px; height: 16px;
-    background: var(--accent-500);
-    color: var(--surface-raised);
-    border-radius: var(--radius-pill);
-    font-size: var(--adm-fs-2xs);
-    font-weight: 900;
-    display: flex; align-items: center; justify-content: center;
-    padding: 0 3px;
-    border: 2px solid var(--surface-50);
-}
-
-/* ═══════════════════════════════════════════════ BODY */
-.page-body { max-width: 520px; margin: 0 auto; padding: var(--space-2) var(--space-4) var(--space-4); }
-
-/* ── Alert ── */
-.page-alert {
-    padding: var(--space-3) var(--space-4);
-    border-radius: var(--radius-btn);
-    font-size: var(--adm-fs-sm);
-    font-weight: 700;
-    margin-bottom: var(--space-3);
-}
-.page-alert--success {
-    background: color-mix(in srgb, var(--success-500) 12%, transparent);
-    color: var(--success-500);
-    border: 1px solid color-mix(in srgb, var(--success-500) 28%, transparent);
-}
-
-/* ── Profile Card ── */
-.profile-card {
-    background: var(--surface-raised);
-    border: 1px solid var(--surface-200);
-    border-radius: var(--radius-card);
-    padding: var(--space-5);
-    margin-bottom: var(--space-3);
-    box-shadow: var(--shadow-card);
-}
-.profile-card__name { font-weight: 800; font-size: 1.25rem; color: var(--ink); line-height: 1.2; }
-.profile-card__role { font-size: var(--adm-fs-xs); font-weight: 600; color: var(--ink-muted); margin-top: var(--space-1); }
-.profile-card__status {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    margin-top: var(--space-3);
-    padding: var(--space-1) var(--space-3);
-    border-radius: var(--radius-pill);
-    background: color-mix(in srgb, var(--success-500) 12%, transparent);
-    border: 1px solid color-mix(in srgb, var(--success-500) 28%, transparent);
-    font-size: var(--adm-fs-2xs);
-    font-weight: 700;
-    color: var(--success-500);
-}
-.profile-card__status-dot { width: 7px; height: 7px; border-radius: var(--radius-pill); background: var(--success-500); }
-
-/* ── Stats ── */
-.stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-2);
-    margin-bottom: var(--space-3);
-}
-.stat-card {
-    background: var(--surface-raised);
-    border: 1px solid var(--surface-200);
-    border-radius: var(--radius-card);
-    padding: var(--space-3);
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    box-shadow: var(--shadow-card);
-}
-.stat-card__icon {
-    width: var(--space-10); height: var(--space-10);
-    border-radius: var(--radius-btn);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-}
-.stat-card__icon--blue { background: var(--brand-100); color: var(--brand-500); }
-.stat-card__icon--amber { background: color-mix(in srgb, var(--warning-500) 16%, transparent); color: var(--warning-500); }
-.stat-card__num { font-weight: 800; font-size: 1.25rem; color: var(--ink); line-height: 1; }
-.stat-card__label {
-    font-size: var(--adm-fs-2xs); font-weight: 700; color: var(--ink-muted);
-    text-transform: uppercase; letter-spacing: .3px; margin-top: var(--space-1);
-}
-
-/* ── Section Label ── */
-.section-label {
-    font-size: var(--adm-fs-2xs);
-    font-weight: 800;
-    color: var(--ink-muted);
-    text-transform: uppercase;
-    letter-spacing: .6px;
-    margin: var(--space-5) 0 var(--space-3);
-    padding-left: var(--space-1);
-}
-
-/* ── Menu ── */
-.menu-card {
-    background: var(--surface-raised);
-    border: 1px solid var(--surface-200);
-    border-radius: var(--radius-card);
-    overflow: hidden;
-    margin-bottom: var(--space-3);
-    box-shadow: var(--shadow-card);
-}
-.menu-card__item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-3) var(--space-4);
-    border-bottom: 1px solid var(--line-soft);
-    text-decoration: none;
-    color: var(--ink);
-    transition: background .12s;
-}
-.menu-card__item:last-child { border-bottom: none; }
-.menu-card__item:active { background: var(--line-soft); }
-.menu-card__icon {
-    width: var(--space-9); height: var(--space-9);
-    border-radius: var(--radius-btn);
-    background: var(--brand-100);
-    color: var(--brand-500);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-}
-.menu-card__body { flex: 1; min-width: 0; }
-.menu-card__label { font-weight: 700; font-size: var(--adm-fs-sm); color: var(--ink); }
-.menu-card__sub { font-size: var(--adm-fs-2xs); font-weight: 500; color: var(--ink-muted); margin-top: 1px; }
-.menu-card__arrow { color: var(--ink-muted); display: flex; flex-shrink: 0; }
-
-/* ── Banner ── */
-.ops-banner {
-    background: linear-gradient(135deg, var(--brand-900) 0%, var(--brand-500) 100%);
-    border-radius: var(--radius-card);
-    padding: var(--space-4) var(--space-5);
-    margin-bottom: var(--space-3);
-    position: relative;
-    overflow: hidden;
-    box-shadow: var(--shadow-card);
-}
-.ops-banner::after {
-    content: '';
-    position: absolute;
-    width: 100px; height: 100px;
-    border-radius: var(--radius-pill);
-    background: rgba(255,255,255,.05);
-    top: -30px; right: -20px;
-}
-.ops-banner__title {
-    font-weight: 800; font-size: 1rem; color: var(--surface-raised);
-    line-height: 1.3; margin-bottom: var(--space-1); position: relative; z-index: 1;
-}
-.ops-banner__sub {
-    font-size: var(--adm-fs-2xs); font-weight: 500; color: rgba(255,255,255,.72);
-    position: relative; z-index: 1;
-}
-
-/* ── Logout ── */
-.btn-logout {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-2);
-    width: 100%;
-    padding: var(--space-3);
-    border-radius: var(--radius-pill);
-    border: 1.5px solid color-mix(in srgb, var(--danger-500) 25%, transparent);
-    background: var(--surface-raised);
-    color: var(--danger-500);
-    font-family: var(--font);
-    font-weight: 700;
-    font-size: var(--adm-fs-sm);
-    cursor: pointer;
-    transition: background .15s, transform .12s ease;
-}
-.btn-logout:active { background: color-mix(in srgb, var(--danger-500) 8%, transparent); transform: scale(.98); }
-
-.version-text {
-    text-align: center;
-    margin-top: var(--space-3);
-    font-size: var(--adm-fs-2xs);
-    font-weight: 600;
-    color: var(--ink-muted);
-    letter-spacing: .3px;
-}
-
-/* Layar lebar: `layouts.component.admin._navbar_admin` sudah naik menjadi baris
-   menu di ≥900 px, jadi isi halaman ikut melebar (960 px, sejajar halaman admin
-   ber-layout). Sebelumnya halaman ini tetap 520 px sehingga tampak seperti
-   kolom ponsel di tengah desktop. */
-@media (min-width: 900px) {
-    .profile-header, .page-body { max-width: 960px; }
-}
-
-/* Halaman admin mandiri ini masih memakai palet terang `_tokens` (belum
-   dimigrasikan ke `.adm-app`). Saat tema gelap aktif, tema global mengubah
-   <body> dan judul menjadi terang sehingga judul di kartu putih tidak
-   terbaca. Dua variabel tema dipatok ke nilai terang di halaman ini saja,
-   jadi seluruh warna turunan tema ikut terang dan tampilan tetap konsisten
-   sampai migrasi ke `layouts.admin` dikerjakan. */
-html[data-theme="dark"] body.adm-standalone {
-    --theme-bg: var(--surface-50);
-    --theme-ink: var(--brand-900);
-}
-</style>
-@include('layouts.component._theme_head')
-<link rel="stylesheet" href="{{ asset('css/berkah-admin.css') }}?v={{ filemtime(public_path('css/berkah-admin.css')) }}">
-<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}?v={{ filemtime(public_path('css/page-transitions.css')) }}">
-<script src="{{ asset('js/page-transitions.js') }}?v={{ filemtime(public_path('js/page-transitions.js')) }}" defer></script>
-</head>
-<body class="adm-standalone">
-@include('layouts.component._skip_link')
-
-
+{{-- Dulu halaman mandiri (`<header class="profile-header">` + `_navbar_admin`).
+     Sekarang memakai shell admin, jadi sidebar/topbar/remah roti sama dengan
+     halaman admin lainnya. Isi dan tautannya tidak berubah. --}}
+@section('content')
 @php
     $adminUnread = auth()->user()->unreadNotifications->count();
+    $adminPhone = trim((string) ($user->phone ?? ''));
 @endphp
 
-<header class="profile-header reveal d1">
-    <div class="profile-header__left">
-        <a data-smart-back href="{{ \App\Support\BackUrl::resolve(request(), 'admin.dashboard') }}" class="profile-header__back" aria-label="Kembali">
-            @include('layouts.component._icon', ['name' => 'back', 'size' => 16, 'label' => 'Kembali'])
-        </a>
-        <img src="{{ $user->avatar ? asset('storage/'.$user->avatar) : asset('images/berkah-kreatif-logo.jpeg') }}"
-             alt="{{ $user->name }}" class="profile-header__avatar">
-        <h1 class="profile-header__title">Profil Admin</h1>
+<div class="adm-page-head" data-adm-reveal="head">
+    <div class="adm-page-head__text">
+        <span class="adm-kicker">Akun administrator</span>
+        <h1>Profil admin</h1>
+        <p class="adm-page-sub">Identitas akun, ringkasan operasional, dan pintasan menu harian.</p>
     </div>
-    <a href="{{ route('admin.notifications') }}" class="profile-header__notif" aria-label="Notifikasi">
-        @include('layouts.component._icon', ['name' => 'notif', 'size' => 20, 'label' => 'Notifikasi'])
-        @if($adminUnread > 0)
-            <span class="profile-header__badge">{{ $adminUnread }}</span>
-        @endif
-    </a>
-</header>
-
-<div class="page-body" id="main-content" tabindex="-1" role="main">
-
-    @if(session('status') === 'profile-updated')
-        <div class="page-alert page-alert--success reveal d1">Profil berhasil diperbarui.</div>
-    @endif
-
-    {{-- Profile Card --}}
-    <div class="profile-card reveal d2">
-        <div class="profile-card__name">{{ $user->name }}</div>
-        <div class="profile-card__role">Administrator &middot; Berkah Kreatif</div>
-        <div class="profile-card__status">
-            <span class="profile-card__status-dot"></span>
-            Mode pengujian
-        </div>
+    <div class="adm-actions">
+        <a class="adm-btn adm-btn--ghost" href="{{ route('admin.notifications') }}">
+            Notifikasi
+            @if($adminUnread > 0)<span class="adm-badge adm-badge--pending">{{ $adminUnread > 99 ? '99+' : $adminUnread }}</span>@endif
+        </a>
+        <a class="adm-btn" href="{{ route('profile.edit') }}">Ubah profil</a>
     </div>
-
-    {{-- Stats --}}
-    <div class="stats-grid reveal d3">
-        <div class="stat-card">
-            <div class="stat-card__icon stat-card__icon--blue">
-                @include('layouts.component._icon', ['name' => 'truck', 'size' => 20])
-            </div>
-            <div>
-                <div class="stat-card__num">{{ $rentalPending }}</div>
-                <div class="stat-card__label">Menunggu konfirmasi</div>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-card__icon stat-card__icon--amber">
-                @include('layouts.component._icon', ['name' => 'orders', 'size' => 20])
-            </div>
-            <div>
-                <div class="stat-card__num">{{ $rentalActive }}</div>
-                <div class="stat-card__label">Unit aktif</div>
-            </div>
-        </div>
-    </div>
-
-    {{-- Pengaturan Operasional --}}
-    <div class="section-label reveal d4">Pengaturan Operasional</div>
-    <div class="menu-card reveal d4">
-        <a href="{{ route('admin.rental.orders') }}" class="menu-card__item">
-            <div class="menu-card__icon">
-                @include('layouts.component._icon', ['name' => 'orders', 'size' => 20])
-            </div>
-            <div class="menu-card__body">
-                <div class="menu-card__label">Pesanan sewa</div>
-                <div class="menu-card__sub">Periksa konfirmasi, desain dan pembayaran</div>
-            </div>
-            <span class="menu-card__arrow">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>
-        </a>
-        <a href="{{ route('admin.catalog.index') }}" class="menu-card__item">
-            <div class="menu-card__icon">
-                @include('layouts.component._icon', ['name' => 'add-user', 'size' => 20])
-            </div>
-            <div class="menu-card__body">
-                <div class="menu-card__label">Kelola katalog</div>
-                <div class="menu-card__sub">Atur papan, kategori dan paket</div>
-            </div>
-            <span class="menu-card__arrow">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>
-        </a>
-        <a href="{{ route('admin.rental.cashbook.index') }}" class="menu-card__item">
-            <div class="menu-card__icon">
-                @include('layouts.component._icon', ['name' => 'finance', 'size' => 20])
-            </div>
-            <div class="menu-card__body">
-                <div class="menu-card__label">Buku kas</div>
-                <div class="menu-card__sub">Rekap pemasukan dan pengeluaran</div>
-            </div>
-            <span class="menu-card__arrow">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>
-        </a>
-        <a href="{{ route('admin.rental.schedule') }}" class="menu-card__item">
-            <div class="menu-card__icon">
-                @include('layouts.component._icon', ['name' => 'report', 'size' => 20])
-            </div>
-            <div class="menu-card__body">
-                <div class="menu-card__label">Jadwal sewa</div>
-                <div class="menu-card__sub">Lihat rencana serah terima</div>
-            </div>
-            <span class="menu-card__arrow">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>
-        </a>
-        <a href="{{ route('admin.help') }}" class="menu-card__item">
-            <div class="menu-card__icon">
-                @include('layouts.component._icon', ['name' => 'help', 'size' => 20])
-            </div>
-            <div class="menu-card__body">
-                <div class="menu-card__label">Panduan admin</div>
-                <div class="menu-card__sub">Langkah harian dan jawaban pertanyaan operasional</div>
-            </div>
-            <span class="menu-card__arrow">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>
-        </a>
-        <a href="{{ route('admin.notifications') }}" class="menu-card__item">
-            <div class="menu-card__icon">
-                @include('layouts.component._icon', ['name' => 'bell', 'size' => 20])
-            </div>
-            <div class="menu-card__body">
-                <div class="menu-card__label">Notifikasi admin</div>
-                <div class="menu-card__sub">Pemberitahuan pesanan dan tenggat</div>
-            </div>
-            <span class="menu-card__arrow">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>
-        </a>
-        <a href="{{ route('admin.audit.index') }}" class="menu-card__item">
-            <div class="menu-card__icon">
-                @include('layouts.component._icon', ['name' => 'audit', 'size' => 20])
-            </div>
-            <div class="menu-card__body">
-                <div class="menu-card__label">Jejak audit</div>
-                <div class="menu-card__sub">Jejak tindakan admin terakhir</div>
-            </div>
-            <span class="menu-card__arrow">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>
-        </a>
-        <a href="{{ route('profile.edit') }}" class="menu-card__item">
-            <div class="menu-card__icon">
-                @include('layouts.component._icon', ['name' => 'user', 'size' => 20])
-            </div>
-            <div class="menu-card__body">
-                <div class="menu-card__label">Ubah profil</div>
-                <div class="menu-card__sub">Nama, nomor telepon dan foto akun</div>
-            </div>
-            <span class="menu-card__arrow">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>
-        </a>
-    </div>
-
-    {{-- Banner --}}
-    <div class="ops-banner reveal d5">
-        <div class="ops-banner__title">Optimalkan Operasi</div>
-        <div class="ops-banner__sub">Cek performa outlet dan kelola semua dari sini</div>
-    </div>
-
-    {{-- Logout --}}
-    <form method="POST" action="{{ route('logout') }}" id="form-logout" class="reveal d6">
-        @csrf
-        <button type="button" class="btn-logout" id="btn-logout">
-            @include('layouts.component._icon', ['name' => 'logout', 'size' => 16])
-            Keluar dari Akun
-        </button>
-    </form>
-    <div class="version-text reveal d6">Berkah Kreatif &middot; Panel admin</div>
-
 </div>
 
-@include('layouts.component.admin._navbar_admin', ['active' => 'profil'])
-@include('layouts.component._confirm_modal')
+@if(session('status') === 'profile-updated')
+    <div class="adm-note adm-note--ok" role="status" data-adm-reveal="status">
+        <span class="adm-note__title">Tersimpan</span>
+        Profil berhasil diperbarui.
+    </div>
+@endif
 
+<div class="adm-grid adm-grid--split" style="margin-bottom:var(--adm-gap)">
+    <section class="adm-card" data-adm-reveal="identity" aria-labelledby="adm-profile-name">
+        <div class="adm-row" style="gap:14px;align-items:center">
+            <img src="{{ $user->avatar ? asset('storage/'.$user->avatar) : asset('images/berkah-kreatif-logo.jpeg') }}"
+                 alt="Foto profil {{ $user->name }}" width="64" height="64"
+                 style="width:64px;height:64px;flex:none;border-radius:50%;object-fit:cover;border:1px solid var(--adm-line);background:var(--adm-surface-3)">
+            <div style="min-width:0">
+                <h2 id="adm-profile-name" style="margin:0;font-size:var(--adm-fs-lg);overflow-wrap:anywhere">{{ $user->name }}</h2>
+                <p class="adm-help" style="margin:2px 0 6px">Administrator · Berkah Kreatif</p>
+                <span class="adm-badge adm-badge--live"><span class="adm-dot" aria-hidden="true"></span> Mode pengujian</span>
+            </div>
+        </div>
+
+        <hr class="adm-divider">
+
+        <dl class="adm-stack" style="gap:10px;margin:0">
+            <div>
+                <dt class="adm-help" style="margin:0">Email</dt>
+                <dd style="margin:0;font-weight:700;overflow-wrap:anywhere">{{ $user->email }}</dd>
+            </div>
+            <div>
+                <dt class="adm-help" style="margin:0">Nomor WhatsApp</dt>
+                <dd style="margin:0;font-weight:700">{{ $adminPhone !== '' ? $adminPhone : 'Belum diisi' }}</dd>
+            </div>
+        </dl>
+
+        <hr class="adm-divider">
+
+        <form method="POST" action="{{ route('logout') }}" id="form-logout">
+            @csrf
+            <button type="button" class="adm-btn adm-btn--ghost" data-adm-logout>
+                @include('layouts.component._icon', ['name' => 'logout', 'size' => 16])
+                Keluar dari akun
+            </button>
+        </form>
+    </section>
+
+    <div class="adm-grid">
+        <div class="adm-stats">
+            <a class="adm-stat" href="{{ route('admin.rental.orders') }}">
+                <span class="adm-stat__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'truck', 'size' => 20])</span>
+                <span class="adm-stat__value">{{ $rentalPending }}</span>
+                <span class="adm-stat__label">Menunggu konfirmasi</span>
+                <span class="adm-stat__hint">Pesanan yang belum dikonfirmasi</span>
+            </a>
+            <a class="adm-stat" href="{{ route('admin.rental.schedule') }}">
+                <span class="adm-stat__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'orders', 'size' => 20])</span>
+                <span class="adm-stat__value">{{ $rentalActive }}</span>
+                <span class="adm-stat__label">Unit aktif</span>
+                <span class="adm-stat__hint">Sedang berjalan atau siap diantar</span>
+            </a>
+        </div>
+
+        <div class="adm-note adm-note--warn" style="margin:0">
+            <span class="adm-note__title">Optimalkan operasi</span>
+            Cek performa outlet dan kelola semua pesanan dari panel ini.
+        </div>
+    </div>
+</div>
+
+<section class="adm-card" data-adm-reveal="menu" aria-labelledby="adm-profile-menu">
+    <div class="adm-card__head">
+        <h2 id="adm-profile-menu">Pintasan operasional</h2>
+        <span class="adm-chip">Semua menu admin</span>
+    </div>
+
+    @php
+        $admShortcuts = [
+            ['route' => 'admin.rental.orders', 'icon' => 'orders', 'label' => 'Pesanan sewa', 'sub' => 'Periksa konfirmasi, desain, dan pembayaran'],
+            ['route' => 'admin.catalog.index', 'icon' => 'add-user', 'label' => 'Kelola katalog', 'sub' => 'Atur papan, kategori, dan paket'],
+            ['route' => 'admin.rental.cashbook.index', 'icon' => 'finance', 'label' => 'Buku kas', 'sub' => 'Rekap pemasukan dan pengeluaran'],
+            ['route' => 'admin.rental.schedule', 'icon' => 'report', 'label' => 'Jadwal sewa', 'sub' => 'Lihat rencana serah terima'],
+            ['route' => 'admin.help', 'icon' => 'help', 'label' => 'Panduan admin', 'sub' => 'Langkah harian dan jawaban operasional'],
+            ['route' => 'admin.notifications', 'icon' => 'bell', 'label' => 'Notifikasi admin', 'sub' => 'Pemberitahuan pesanan dan tenggat'],
+            ['route' => 'admin.audit.index', 'icon' => 'audit', 'label' => 'Jejak audit', 'sub' => 'Jejak tindakan admin terakhir'],
+            ['route' => 'profile.edit', 'icon' => 'user', 'label' => 'Ubah profil', 'sub' => 'Nama, nomor telepon, dan foto akun'],
+        ];
+    @endphp
+
+    <div class="adm-grid adm-grid--auto">
+        @foreach($admShortcuts as $shortcut)
+            <a class="adm-card adm-card--hover" href="{{ route($shortcut['route']) }}" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit">
+                <span class="adm-stat__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => $shortcut['icon'], 'size' => 20])</span>
+                <span style="min-width:0">
+                    <span style="display:block;font-weight:800">{{ $shortcut['label'] }}</span>
+                    <span class="adm-help" style="display:block;margin-top:2px">{{ $shortcut['sub'] }}</span>
+                </span>
+                <span style="margin-left:auto;flex:none;color:var(--adm-ink-3)" aria-hidden="true">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>
+            </a>
+        @endforeach
+    </div>
+
+    <p class="adm-help" style="margin:16px 0 0">Berkah Kreatif · Panel admin</p>
+</section>
+@endsection
+
+@push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    var btnLogout = document.getElementById('btn-logout');
-    if (btnLogout) {
-        btnLogout.addEventListener('click', function() {
-            showConfirmModal({
-                title: 'Keluar dari Akun?',
-                message: 'Kamu akan keluar dari sesi ini. Yakin ingin melanjutkan?',
-                confirmText: 'Ya, Keluar',
-                cancelText: 'Batal',
-                type: 'danger',
-                onConfirm: function() {
-                    document.getElementById('form-logout').submit();
-                }
-            });
+/* Konfirmasi keluar memakai modal bersama (`_ui_kit` sudah memuat
+   `showConfirmModal` di setiap halaman admin). */
+(function () {
+    'use strict';
+    var button = document.querySelector('[data-adm-logout]');
+    var form = document.getElementById('form-logout');
+    if (!button || !form) return;
+    button.addEventListener('click', function () {
+        if (typeof window.showConfirmModal !== 'function') { form.submit(); return; }
+        window.showConfirmModal({
+            title: 'Keluar dari akun?',
+            message: 'Kamu akan keluar dari sesi ini. Yakin ingin melanjutkan?',
+            confirmText: 'Ya, keluar',
+            cancelText: 'Batal',
+            type: 'danger',
+            onConfirm: function () { form.submit(); }
         });
-    }
-});
+    });
+})();
 </script>
-
-@include('layouts.component._form_controls')
-@include('layouts.component._ui_kit')
-<script src="{{ asset('js/berkah-admin.js') }}" defer></script>
-</body>
-</html>
+@endpush

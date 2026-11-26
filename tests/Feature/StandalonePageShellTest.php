@@ -67,7 +67,10 @@ class StandalonePageShellTest extends TestCase
         }
 
         $this->assertSame([], $tanpaPengaman, 'Halaman mandiri tanpa pengaman luapan: '.implode(', ', $tanpaPengaman));
-        $this->assertGreaterThanOrEqual(16, count($mandiri), 'Jumlah halaman mandiri menyusut — ada halaman yang pindah layout tanpa pengaman.');
+        // Ambang 16 → 11 setelah lima halaman admin mandiri (dasbor,
+        // notifikasi, profil, ubah profil, jejak audit) pindah ke
+        // `layouts.admin`; shell admin sudah memuat pengamannya sendiri.
+        $this->assertGreaterThanOrEqual(11, count($mandiri), 'Jumlah halaman mandiri menyusut — ada halaman yang pindah layout tanpa pengaman.');
     }
 
     public function test_halaman_mandiri_tidak_lagi_memakai_overflow_x_hidden(): void
@@ -135,15 +138,16 @@ class StandalonePageShellTest extends TestCase
             'Cincin fokus harus sama di halaman yang tidak punya aturan fokus sendiri.');
     }
 
-    /** Halaman admin mandiri dipatok terang sampai dimigrasikan.
+    /** Lima halaman admin sudah pindah ke `layouts.admin`.
      *
-     *  Kelimanya memakai palet terang `_tokens` dan kartu putih. Tema global
-     *  (`html[data-theme="dark"] body`, `:is(h1..h6)`) tetap berlaku di sana,
-     *  sehingga judul menjadi terang di atas kartu putih. Dua variabel tema
-     *  dipatok ke nilai terang per halaman; setelah migrasi ke
-     *  `layouts.admin` (`.adm-app`) pinning ini bisa dihapus.
+     *  Sebelumnya kelimanya berdiri sendiri: `<head>` sendiri, palet terang
+     *  `_tokens`, dan dua variabel tema dipatok terang (`adm-standalone`) agar
+     *  judul tidak menjadi terang di atas kartu putih saat tema gelap aktif.
+     *  Setelah migrasi, tema gelap diurus `.adm-app` dan pinning itu **harus**
+     *  hilang — kalau tidak, tema gelap admin tetap mati di lima halaman ini.
+     *  Tes ini menjaga agar tidak ada yang mengembalikan halaman mandiri.
      */
-    public function test_halaman_admin_mandiri_dipatok_terang(): void
+    public function test_halaman_admin_tidak_lagi_memandiri_dari_shell(): void
     {
         $halaman = [
             'roles/admin/dashboard.blade.php',
@@ -156,14 +160,27 @@ class StandalonePageShellTest extends TestCase
         foreach ($halaman as $relative) {
             $html = (string) File::get(resource_path('views/'.$relative));
 
-            $this->assertStringContainsString('class="adm-standalone"', $html, $relative.' belum menandai <body>.');
-            $this->assertStringContainsString(
-                'html[data-theme="dark"] body.adm-standalone {',
-                $html,
-                $relative.' belum mematok variabel tema terang.'
-            );
-            $this->assertStringContainsString('--theme-ink: var(--brand-900);', $html, $relative.' teks judul bisa jadi terang di kartu putih.');
+            $this->assertStringContainsString("@extends('layouts.admin')", $html, $relative.' belum memakai shell admin.');
+            $this->assertStringNotContainsString('<!doctype', strtolower($html), $relative.' masih punya <head> sendiri.');
+            $this->assertStringNotContainsString('adm-standalone', $html, $relative.' masih memakai penanda halaman mandiri.');
+            $this->assertStringNotContainsString("@include('layouts.component.admin._navbar_admin'", $html, $relative.' masih memuat bilah bawah admin lama.');
         }
+    }
+
+    /** Pinning terang tidak boleh tersisa di view mana pun. */
+    public function test_tidak_ada_view_yang_mematok_tema_terang(): void
+    {
+        $sisa = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            $html = (string) File::get($file->getPathname());
+
+            if (str_contains($html, 'body.adm-standalone')) {
+                $sisa[] = str_replace('\\', '/', $file->getRelativePathname());
+            }
+        }
+
+        $this->assertSame([], $sisa, 'Pinning tema terang harus dicabut setelah migrasi: '.implode(', ', $sisa));
     }
 
     /** Tema gelap tidak boleh "gagal" di halaman pelanggan mandiri.

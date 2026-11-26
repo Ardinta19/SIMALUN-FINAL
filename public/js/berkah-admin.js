@@ -194,7 +194,7 @@
             } else {
                 sidebar.removeAttribute('aria-hidden');
             }
-            /* Ada dua tombol pembuka: topbar dan slot "Lainnya" di bilah bawah. */
+            /* Satu tombol pembuka: topbar (data-adm-nav-toggle). */
             each('[data-adm-nav-toggle]', document, function (btn) {
                 btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
             });
@@ -207,99 +207,6 @@
                 syncSidebar();
             });
         });
-
-        /* ------------------------------------------------------------
-           Lembar "Lainnya" pada halaman admin mandiri (<=899 px).
-           Markup-nya sudah ada — bilah bawah menyembunyikan tujuan di luar
-           empat menu harian — tetapi tanpa pengendali tombolnya tidak
-           melakukan apa pun, sehingga separuh menu tak bisa dijangkau di
-           ponsel. Satu pengendali: buka, tutup, jebak fokus, latar inert.
-           ------------------------------------------------------------ */
-        var sheet = document.getElementById('admin-sheet');
-        var sheetPanel = sheet ? sheet.querySelector('.admin-sheet__panel') : null;
-        var sheetFocus = null;
-        var sheetInerted = new WeakMap();
-
-        function setSheetBackgroundInert(on) {
-            if (!sheet || !document.body) return;
-            Array.prototype.forEach.call(document.body.children, function (node) {
-                if (node === sheet || node.contains(sheet)) return;
-                if (node.nodeName === 'SCRIPT' || node.nodeName === 'STYLE' || node.nodeName === 'LINK') return;
-
-                if (on) {
-                    if (!sheetInerted.has(node)) {
-                        sheetInerted.set(node, {
-                            inert: node.hasAttribute('inert'),
-                            hidden: node.getAttribute('aria-hidden')
-                        });
-                    }
-                    node.setAttribute('inert', '');
-                    node.setAttribute('aria-hidden', 'true');
-                    return;
-                }
-
-                var before = sheetInerted.get(node);
-                if (!before) return;
-                if (!before.inert) node.removeAttribute('inert');
-                if (before.hidden === null) node.removeAttribute('aria-hidden');
-                else node.setAttribute('aria-hidden', before.hidden);
-                sheetInerted.delete(node);
-            });
-        }
-
-        function syncSheet() {
-            if (!sheet) return;
-            var open = !sheet.hasAttribute('hidden');
-            each('[data-admin-more]', document, function (btn) {
-                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-            });
-        }
-
-        function openSheet(opener) {
-            if (!sheet || !sheet.hasAttribute('hidden')) return;
-            sheetFocus = opener || document.activeElement;
-            sheet.removeAttribute('hidden');
-            document.body.classList.add('adm-layer-open');
-            setSheetBackgroundInert(true);
-            syncSheet();
-            var first = sheetPanel && sheetPanel.querySelector('.admin-sheet__link');
-            if (first) {
-                try { first.focus({ preventScroll: true }); } catch (e) { first.focus(); }
-            }
-        }
-
-        function closeSheet() {
-            if (!sheet || sheet.hasAttribute('hidden')) return;
-            sheet.setAttribute('hidden', '');
-            /* Sidebar/drawer bisa saja masih terbuka di baliknya: jangan
-               melepas kunci gulir milik lapisan lain. */
-            if (!document.querySelector('.adm-drawer[data-open="true"], .adm-sidebar[data-open="true"]')) {
-                document.body.classList.remove('adm-layer-open');
-            }
-            setSheetBackgroundInert(false);
-            syncSheet();
-            var back = sheetFocus;
-            sheetFocus = null;
-            if (back && document.contains(back) && typeof back.focus === 'function') {
-                try { back.focus({ preventScroll: true }); } catch (e) { back.focus(); }
-            }
-        }
-
-        if (sheet) {
-            syncSheet();
-            each('[data-admin-more]', document, function (btn) {
-                on(btn, 'click', function (event) {
-                    event.preventDefault();
-                    openSheet(btn);
-                });
-            });
-            each('[data-admin-sheet-close]', sheet, function (btn) {
-                on(btn, 'click', function (event) {
-                    event.preventDefault();
-                    closeSheet();
-                });
-            });
-        }
 
         // Drawer umum
         each('[data-adm-open]', document, function (btn) {

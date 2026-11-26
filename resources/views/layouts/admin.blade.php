@@ -85,6 +85,7 @@
     @endif
 </div>
 
+@include('layouts.component._confirm_modal')
 @include('layouts.component._ui_kit')
 @include('layouts.component._form_controls')
 <script src="{{ $admAsset('js/berkah-admin.js') }}" defer></script>

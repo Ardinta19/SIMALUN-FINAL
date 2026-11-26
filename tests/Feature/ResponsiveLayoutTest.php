@@ -468,4 +468,47 @@ class ResponsiveLayoutTest extends TestCase
         $this->assertStringContainsString('<label for="catalog-search">Kata kunci</label>', $catalog);
         $this->assertStringNotContainsString('<label for="catalog-search">Cari papan</label>', $catalog);
     }
+
+    /** Target sentuh halaman admin minimal 44 px di layar sentuh.
+     *
+     *  `.adm-btn` sudah 44 px, tetapi varian kecil (38 px), tombol kuiet
+     *  (40 px), chip tautan filter (40 px), dan ikon bulat topbar (40 px)
+     *  belum. Di bawah 700 px / perangkat berujung sentuh semuanya dinaikkan;
+     *  desktop tidak berubah.
+     */
+    public function test_target_sentuh_admin_minimal_44_px(): void
+    {
+        $css = File::get(public_path('css/berkah-admin.css'));
+
+        $this->assertStringContainsString('@media (pointer: coarse), (max-width: 700px) {', $css);
+
+        foreach (['.adm-btn--sm', '.adm-btn--quiet', '.adm-chip--link', '.adm-nav__link', '.adm-tab'] as $selector) {
+            $this->assertMatchesRegularExpression(
+                '/@media \(pointer: coarse\), \(max-width: 700px\) \{[^}]*'.preg_quote($selector, '/').'/s',
+                $css,
+                $selector.' harus ikut naik ke 44 px di layar sentuh.'
+            );
+        }
+
+        $this->assertStringContainsString("    .adm-btn--sm,\n    .adm-btn--quiet,\n    .adm-chip--link,\n    .adm-nav__link,\n    .adm-tab {\n        min-height: 44px;\n    }", $css);
+        $this->assertStringContainsString("    .adm-iconbtn {\n        width: 44px;\n        height: 44px;\n    }", $css);
+    }
+
+    /** Halaman galat harus utuh di lebar 320 px.
+     *
+     *  Merek di bawah kartu ditulis huruf besar dengan `letter-spacing: 2.4px`
+     *  tanpa `flex-wrap`. Di 320 px ruang kartu hanya ~236 px, jadi baris itu
+     *  mendorong keluar. Sekarang ia boleh membungkus dan jarak hurufnya
+     *  dirapatkan di bawah 360 px.
+     */
+    public function test_halaman_galat_utuh_di_320_px(): void
+    {
+        $layout = File::get(resource_path('views/errors/layout.blade.php'));
+
+        $this->assertStringContainsString('flex-wrap:wrap', $layout);
+        $this->assertMatchesRegularExpression('/@media\(max-width:360px\)\{.*?\.brand\{[^}]*letter-spacing:1\.6px/s', $layout);
+        // Kartu tidak boleh mengunci lebar tetap: `width:100%` + `max-width`.
+        $this->assertStringContainsString('main{width:100%;max-width:440px;', $layout);
+        $this->assertStringContainsString('overflow-wrap:anywhere', $layout);
+    }
 }

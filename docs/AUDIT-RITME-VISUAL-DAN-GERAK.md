@@ -2882,3 +2882,97 @@ dicapai dengan menggulir kotak paginasi. Sekarang `.bk-pagination` dan
 **Hasil harness akhir:** **121 lulus, 0 gagal, 216 dilewati**; `blade-scan`
 83 view 0/0; `.tmp-verify.php` 26 lulus; `node --check` seluruh `public/js`
 bersih.
+
+### 9.62 Migrasi lima halaman admin ke shell `.adm-app`, dan empat cacat yang tersisa
+
+**a. Lima halaman admin mandiri pindah ke `layouts.admin` (`.adm-app`).**
+`roles/admin/{dashboard,notifications,profile,profile_edit,audit/index}` dulu
+membawa `<head>`, `<style>` sendiri, `_navbar_admin`, dan pinning tema terang.
+Sekarang kelimanya `@extends('layouts.admin')` dengan pola yang sama seperti
+halaman admin lain (`rental/addons`, `rental/orders`, …):
+
+* `@section('back', route('dashboard.admin'))`, `@section('title', …)`,
+  `@section('crumbs')<strong>…</strong>@endsection`, `@section('content')`.
+* Kepala halaman `.adm-page-head` + `.adm-kicker` + `.adm-page-sub` + `.adm-actions`
+  (ritme tipografi sama dengan halaman admin lain: satu `<h1>` per halaman).
+* Kartu `.adm-card` + `.adm-card__head` + `<h2>` ber-id, chip `.adm-chip`,
+  tombol `.adm-btn` / `.adm-btn--ghost` / `.adm-btn--sm`, catatan `.adm-note`
+  (`--ok`/`--warn`), keadaan kosong `.adm-empty`, lencana `.adm-badge`.
+* Dasbor: `.adm-stats` (angka tetap beranimasi lewat `data-adm-count` yang
+  sudah ada di `berkah-admin.js`), baris tautan baru `.adm-listlink`.
+* Jejak audit: chipbar filter `.adm-chipbar`/`.adm-chip--link`, formulir
+  `.adm-toolbar` + `.adm-field-grid` (label "Dari tanggal"/"Sampai tanggal"
+  kini satu baris grid, tidak lagi dua label bertumpuk di dalam satu kolom),
+  diff sebelum→sesudah tetap ditampilkan sebagai chip.
+* Profil admin: kartu identitas, `.adm-stats`, pintasan `.adm-grid--auto`,
+  keluar lewat `showConfirmModal` dari `_ui_kit` (sebelumnya `onclick`
+  sebaris). Ubah profil: pratinjau avatar dipindah dari `onchange="previewImage(this)"`
+  ke pendengar di `@push('scripts')` — tanpa fungsi global.
+
+Akibat migrasi, pinning `html[data-theme="dark"] body.adm-standalone` **dicabut**
+(tidak ada lagi view yang memuatnya) sehingga tema gelap admin benar-benar
+berlaku di lima halaman itu. Dijaga
+`StandalonePageShellTest::test_halaman_admin_tidak_lagi_memandiri_dari_shell`
+dan `test_tidak_ada_view_yang_mematok_tema_terang`.
+
+**b. Dua view mati dicabut.** Setelah lima halaman pindah,
+`layouts/component/admin/_navbar_admin.blade.php` (bilah bawah + lembar
+"Lainnya") dan `components/back-button.blade.php` tidak lagi dirujuk di mana
+pun. Navigasi ponsel kini memakai drawer `_sidebar` (`data-adm-nav-toggle` di
+topbar, `#adm-sidebar`, `data-adm-close`) yang sudah ada di shell. Keduanya
+dihapus bersama 93 baris pengendali `admin-sheet` di `berkah-admin.js`;
+penjaganya dipindah ke `UiDefaultsTest::test_admin_mobile_drawer_has_a_controller`.
+Ambang `UiKitTest` (halaman bertema) 25 → 20 karena lima halaman itu tidak lagi
+memuat `_theme_head` sendiri, dan ambang `StandalonePageShellTest` 16 → 11.
+
+**c. `placeholder` ganda di profil pelanggan.** Dua isian memasang
+`placeholder` dua kali:
+
+```html
+<input placeholder="Contoh: nama@email.com" … placeholder="Boleh dikosongkan">
+<input placeholder="Contoh: 0812 3456 7890" … placeholder="08xxxxxxxxxx">
+```
+
+Peramban memakai yang terakhir, jadi contoh isian yang benar hilang — dan tes
+placeholder lama tetap hijau karena hanya membaca atribut pertama. Keduanya
+dibetulkan, `autocomplete="name"` ditambahkan pada isian nama. Dijaga
+`FormPlaceholderTest::test_tidak_ada_atribut_placeholder_ganda` (memindai
+seluruh tag `input`/`textarea`).
+
+**d. Pesan galat yang bisu.** `.field-error` dan `.bk-field-error` dirender
+server setelah validasi gagal, tetapi tidak satu pun punya `role="alert"` atau
+`aria-live` di profil/alamat pelanggan, katalog, maupun halaman unit sewa.
+Pengguna pembaca layar kembali ke atas formulir tanpa tahu kolom mana yang
+salah. 23 wadah di 6 view diberi `role="alert"`; `aria-invalid` +
+`aria-describedby` yang sudah ada tetap dipertahankan. Dijaga
+`UiAccessibilityTest::test_pesan_galat_isian_selalu_diumumkan` (pemindai
+menetralkan `->` Blade lebih dulu agar tag tidak terpotong di tengah ekspresi).
+
+**e. Target sentuh admin di bawah 44 px.** `.adm-btn` sudah 44 px, tetapi
+`.adm-btn--sm` (38 px), `.adm-btn--quiet` (40 px), `.adm-chip--link` (40 px),
+dan `.adm-iconbtn` (40 px) belum. Blok baru di `berkah-admin.css`:
+
+```css
+@media (pointer: coarse), (max-width: 700px) {
+    .adm-btn--sm, .adm-btn--quiet, .adm-chip--link, .adm-nav__link, .adm-tab { min-height: 44px; }
+    .adm-iconbtn { width: 44px; height: 44px; }
+}
+```
+
+Dijaga `ResponsiveLayoutTest::test_target_sentuh_admin_minimal_44_px`.
+
+**f. Halaman galat di 320 px.** Baris merek di bawah kartu (`BERKAH KREATIF •
+SIMALUN`) memakai `letter-spacing: 2.4px` tanpa `flex-wrap`; di 320 px ruang
+kartu hanya ~236 px sehingga baris itu mendorong keluar. Sekarang
+`flex-wrap: wrap`, dan di bawah 360 px `letter-spacing` dirapatkan ke 1.6 px
+(chip kode ikut 1 px). Dijaga
+`ResponsiveLayoutTest::test_halaman_galat_utuh_di_320_px`.
+
+**g. Komponen baru.** `.adm-listlink` (baris tautan daftar dasbor: 44 px,
+grid `auto minmax(0,1fr) auto`, menyusut di 420 px) dan `.adm-dot` (titik
+status sebaris, menggantikan `.adm-iconbtn__dot` yang berposisi absolut dan
+salah tempat bila dipakai di dalam tombol/lencana).
+
+**Hasil harness akhir:** **127 lulus, 0 gagal, 216 dilewati**; `blade-scan`
+81 view 0/0 (dua view mati dihapus); `.tmp-verify.php` 26 lulus; `node --check` seluruh `public/js`
+bersih.

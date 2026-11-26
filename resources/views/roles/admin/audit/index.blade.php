@@ -1,211 +1,25 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-@include('layouts.component._page_shell')
-<title>Jejak Audit · {{ \App\Support\Laundry::name() }}</title>
-@include('layouts.component.customer._head_meta')
-@include('layouts.component._tokens')
-<style>
-/* ═══════════════════════════════════════════════════════════
-   BERKAH KREATIF · ADMIN · JEJAK AUDIT
-   Design System — token-only styling, Lucide icons, pure-CSS motion.
-   All colors/radii/shadows/spacing reference canonical tokens emitted
-   by layouts.component._tokens (mirrors tailwind.config.js). No page-
-   local literal palette — only canonical-token aliases below.
-═══════════════════════════════════════════════════════════ */
-:root {
-    /* Palet merek datang dari _tokens.blade.php (wine), tidak lagi
-       ditimpa per halaman. */
-    /* Page-local aliases — only reference canonical tokens (no literals) */
-    --ink:        var(--brand-900);
-    --ink-mid:    var(--surface-400);
-    --ink-lt:     var(--surface-400);
-    --line:       var(--surface-200);
-    --line-soft:  var(--surface-100);
-    --font:       'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body {
-    font-family: var(--font);
-    font-size: 16px;
-    background: var(--surface-50);
-    color: var(--ink);
-    min-height: 100vh;
-    min-height: 100dvh;
-    padding-bottom: calc(var(--space-20) + env(safe-area-inset-bottom, 0px));
-    overflow-x: clip;
-}
-.wrap { max-width: 520px; margin: 0 auto; padding: 0 var(--space-4); }
+@extends('layouts.admin')
 
-/* ── Entrance animation (pure CSS — transform/opacity only) ── */
-@keyframes riseIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-.reveal { opacity: 0; animation: riseIn .5s cubic-bezier(.22,.61,.36,1) forwards; }
-.d1{animation-delay:.04s}.d2{animation-delay:.10s}.d3{animation-delay:.16s}
-.d4{animation-delay:.22s}.d5{animation-delay:.28s}
-@media (prefers-reduced-motion: reduce){ .reveal{opacity:1;animation:none} }
+@section('back', route('dashboard.admin'))
+@section('title', 'Jejak audit')
+@section('crumbs')<strong>Jejak audit</strong>@endsection
 
-/* ═══════════════════════════════════════════════ HEADER */
-.appbar {
-    max-width: 520px; margin: 0 auto;
-    display: flex; align-items: center; gap: var(--space-3);
-    padding: max(env(safe-area-inset-top, 0px), var(--space-3)) var(--space-4) var(--space-4);
-}
-.appbar__title { font-size: 1.15rem; font-weight: 800; color: var(--brand-900); line-height: 1.1; }
+{{-- Dulu halaman mandiri dengan `<header class="appbar">` dan `_navbar_admin`.
+     Sekarang memakai shell admin. Logika filter (prefix aksi, aktor, periode)
+     dan isi catatan tidak berubah. --}}
+@section('content')
+<div class="adm-page-head" data-adm-reveal="head">
+    <div class="adm-page-head__text">
+        <span class="adm-kicker">Keamanan &amp; jejak</span>
+        <h1>Jejak audit</h1>
+        <p class="adm-page-sub">Setiap tindakan admin tercatat: siapa, kapan, dari IP mana, dan apa yang berubah.</p>
+    </div>
+    <div class="adm-actions">
+        <span class="adm-badge">{{ $logs->total() }} catatan</span>
+    </div>
+</div>
 
-/* ═══════════════════════════════════════════════ ACTION TAGS (prefix quick-filter) */
-.action-tags { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-4); }
-.action-tag {
-    display: inline-flex; align-items: center; gap: var(--space-1);
-    background: var(--surface-raised);
-    border: 1px solid var(--surface-200);
-    color: var(--ink-mid);
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-pill);
-    font-size: var(--adm-fs-2xs); font-weight: 800;
-    text-decoration: none;
-    transition: transform .12s ease, background .15s ease, color .15s ease;
-}
-.action-tag:active { transform: scale(.96); }
-.action-tag--active { background: var(--brand-500); color: var(--surface-raised); border-color: var(--brand-500); }
-.action-tag__count { opacity: .7; font-weight: 700; }
-
-/* ═══════════════════════════════════════════════ CARD */
-.card {
-    background: var(--surface-raised); border-radius: var(--radius-card);
-    border: 1px solid var(--surface-200); box-shadow: var(--shadow-card);
-    margin-bottom: var(--space-4); overflow: hidden;
-}
-.card__pad { padding: var(--space-4); }
-.card__title {
-    display: flex; align-items: center; gap: var(--space-2);
-    font-size: var(--adm-fs-md); font-weight: 800; color: var(--ink); margin-bottom: var(--space-3);
-}
-.card__title svg { color: var(--brand-500); }
-
-/* ── Filter form fields ── */
-.filter-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-3); }
-.field-block { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
-.field-label {
-    font-size: var(--adm-fs-2xs); font-weight: 800; color: var(--ink-mid);
-    text-transform: uppercase; letter-spacing: .4px; padding-left: 2px;
-}
-.field {
-    width: 100%; min-width: 0; min-height: var(--space-11);
-    padding: var(--space-2) var(--space-3); border-radius: var(--radius-btn);
-    border: 1px solid var(--surface-200); font-family: var(--font);
-    font-size: var(--adm-fs-sm); font-weight: 600; color: var(--ink);
-    background: var(--surface-raised); outline: none;
-    transition: border-color .15s ease;
-}
-.field:focus { border-color: var(--brand-500); }
-
-/* ── Date range (labeled, self-explanatory, no mobile overflow) ── */
-.date-range { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-2); }
-.date-field { flex: 1 1 130px; min-width: 0; display: flex; flex-direction: column; gap: var(--space-1); }
-.date-field .field { width: 100%; min-width: 0; }
-.date-sep { align-self: flex-end; padding-bottom: var(--space-3); font-size: 1rem; font-weight: 800; color: var(--ink-mid); flex: 0 0 auto; }
-
-.filter-actions { display: flex; gap: var(--space-2); margin-top: var(--space-4); }
-.btn {
-    min-height: var(--space-11); padding: 0 var(--space-5); border-radius: var(--radius-btn);
-    font-family: var(--font); font-size: var(--adm-fs-xs); font-weight: 800;
-    border: 1px solid transparent; cursor: pointer; text-decoration: none;
-    display: inline-flex; align-items: center; justify-content: center; gap: var(--space-1);
-    transition: transform .12s ease;
-}
-.btn:active { transform: scale(.97); }
-.btn--primary { background: var(--brand-500); color: var(--surface-raised); border-color: var(--brand-500); }
-.btn--ghost { background: var(--brand-100); color: var(--brand-900); border-color: var(--surface-200); }
-
-/* ═══════════════════════════════════════════════ LOG LIST */
-.log-row {
-    background: var(--surface-raised);
-    border: 1px solid var(--surface-200);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-card);
-    padding: var(--space-3) var(--space-4);
-    margin-bottom: var(--space-2);
-}
-.log-row__head {
-    display: flex; align-items: flex-start; justify-content: space-between;
-    gap: var(--space-2); margin-bottom: var(--space-1);
-}
-.log-row__action {
-    font-size: var(--adm-fs-2xs); font-weight: 800; color: var(--brand-900);
-    font-family: ui-monospace, 'Courier New', monospace;
-    background: var(--brand-100);
-    padding: 3px var(--space-2); border-radius: var(--radius-btn);
-    word-break: break-word;
-}
-.log-row__time { font-size: var(--adm-fs-2xs); color: var(--ink-lt); font-weight: 700; flex-shrink: 0; white-space: nowrap; }
-.log-row__summary { font-size: var(--adm-fs-sm); color: var(--ink); margin-bottom: var(--space-2); line-height: 1.45; }
-.log-row__meta { font-size: var(--adm-fs-2xs); color: var(--ink-lt); font-weight: 600; display: flex; gap: var(--space-3); flex-wrap: wrap; }
-.log-row__meta b { color: var(--ink-mid); font-weight: 800; }
-
-.log-diff {
-    margin-top: var(--space-2); padding: var(--space-2) var(--space-3);
-    background: var(--surface-50); border-radius: var(--radius-btn);
-    font-size: var(--adm-fs-2xs); font-family: ui-monospace, 'Courier New', monospace; overflow-x: auto;
-}
-.log-diff__row { display: flex; gap: var(--space-2); margin-bottom: 2px; }
-.log-diff__key { color: var(--ink-lt); font-weight: 800; min-width: 110px; }
-.log-diff__before { color: var(--danger-500); }
-.log-diff__after { color: var(--success-500); font-weight: 800; }
-.log-diff__arrow { color: var(--ink-lt); }
-
-/* ── Empty state (designed) ── */
-.empty-state { text-align: center; padding: var(--space-12) var(--space-5); }
-.empty-state__ico {
-    width: var(--space-14); height: var(--space-14); margin: 0 auto var(--space-3);
-    border-radius: var(--radius-pill); background: var(--brand-100);
-    display: flex; align-items: center; justify-content: center; color: var(--brand-500);
-}
-.empty-state__text { color: var(--ink-mid); font-size: var(--adm-fs-sm); font-weight: 700; line-height: 1.5; }
-
-/* ── Pagination ── */
-.pagination-wrap { display: flex; justify-content: center; margin-top: var(--space-4); margin-bottom: var(--space-4); }
-.pagination-wrap nav { font-size: var(--adm-fs-sm); }
-
-/* Layar lebar: `layouts.component.admin._navbar_admin` sudah naik menjadi baris
-   menu di ≥900 px, jadi isi halaman ikut melebar (960 px, sejajar halaman admin
-   ber-layout). Sebelumnya halaman ini tetap 520 px sehingga tampak seperti
-   kolom ponsel di tengah desktop. */
-@media (min-width: 900px) {
-    .appbar, .wrap { max-width: 960px; }
-}
-
-/* Halaman admin mandiri ini masih memakai palet terang `_tokens` (belum
-   dimigrasikan ke `.adm-app`). Saat tema gelap aktif, tema global mengubah
-   <body> dan judul menjadi terang sehingga judul di kartu putih tidak
-   terbaca. Dua variabel tema dipatok ke nilai terang di halaman ini saja,
-   jadi seluruh warna turunan tema ikut terang dan tampilan tetap konsisten
-   sampai migrasi ke `layouts.admin` dikerjakan. */
-html[data-theme="dark"] body.adm-standalone {
-    --theme-bg: var(--surface-50);
-    --theme-ink: var(--brand-900);
-}
-</style>
-@include('layouts.component._theme_head')
-<link rel="stylesheet" href="{{ asset('css/berkah-admin.css') }}?v={{ filemtime(public_path('css/berkah-admin.css')) }}">
-<link rel="stylesheet" href="{{ asset('css/page-transitions.css') }}?v={{ filemtime(public_path('css/page-transitions.css')) }}">
-<script src="{{ asset('js/page-transitions.js') }}?v={{ filemtime(public_path('js/page-transitions.js')) }}" defer></script>
-</head>
-<body class="adm-standalone">
-@include('layouts.component._skip_link')
-
-
-{{-- ══════════════ HEADER ══════════════ --}}
-<header class="appbar">
-    <x-back-button fallback="admin.dashboard" style="hero" />
-    <h1 class="appbar__title">Jejak Audit</h1>
-</header>
-
-<main class="wrap" id="main-content" tabindex="-1">
-
-    {{-- Quick filter per action (prefix tags) — preserves bug-fixed prefix logic --}}
-    @if($actionGroups->isNotEmpty())
+@if($actionGroups->isNotEmpty())
     @php
         $prefixTotals = [];
         foreach ($actionGroups as $group) {
@@ -213,169 +27,136 @@ html[data-theme="dark"] body.adm-standalone {
             $prefixTotals[$prefix] = ($prefixTotals[$prefix] ?? 0) + $group->total;
         }
     @endphp
-    <div class="action-tags reveal d1">
+    <div class="adm-chipbar" data-adm-reveal="chips" aria-label="Filter cepat berdasarkan aksi">
+        <span class="adm-chipbar__label">Aksi</span>
         <a href="{{ route('admin.audit.index') }}"
-           class="action-tag {{ ! request('action') ? 'action-tag--active' : '' }}">
-            Semua <span class="action-tag__count">({{ $logs->total() }})</span>
+           class="adm-chip adm-chip--link {{ ! request('action') ? 'is-active' : '' }}"
+           @if(! request('action')) aria-current="true" @endif>
+            Semua ({{ $logs->total() }})
         </a>
         @foreach($prefixTotals as $prefix => $prefixTotal)
             <a href="{{ route('admin.audit.index', ['action' => $prefix]) }}"
-               class="action-tag {{ request('action') === $prefix ? 'action-tag--active' : '' }}">
-                {{ $prefix }}<span class="action-tag__count">({{ $prefixTotal }})</span>
+               class="adm-chip adm-chip--link {{ request('action') === $prefix ? 'is-active' : '' }}"
+               @if(request('action') === $prefix) aria-current="true" @endif>
+                {{ $prefix }} ({{ $prefixTotal }})
             </a>
         @endforeach
     </div>
-    @endif
+@endif
 
-    {{-- Filter form --}}
-    <div class="card reveal d2">
-        <div class="card__pad">
-            <div class="card__title">
-                @include('layouts.component._icon', ['name' => 'filter', 'size' => 20])
-                Filter Jejak Audit
-            </div>
-            <form method="GET" action="{{ route('admin.audit.index') }}">
-                <div class="filter-grid">
-                    <div class="field-block">
-                        <label class="field-label" for="actor">Aktor</label>
-                        <select name="actor_id" id="actor" class="field" aria-label="Filter aktor"
-                                data-fc-select data-fc-title="Pilih Aktor">
-                            <option value="">Semua aktor</option>
-                            @foreach($actors as $actor)
-                            <option value="{{ $actor->id }}" {{ (string) request('actor_id') === (string) $actor->id ? 'selected' : '' }}>
-                                {{ $actor->name }} ({{ $actor->role }})
-                            </option>
-                            @endforeach
-                        </select>
-                    </div>
+<form class="adm-toolbar" method="GET" action="{{ route('admin.audit.index') }}" data-adm-reveal="filter" aria-label="Filter jejak audit">
+    <div class="adm-field-grid">
+        <div class="adm-field">
+            <label for="actor">Aktor</label>
+            <select name="actor_id" id="actor" data-fc-select data-fc-title="Pilih aktor">
+                <option value="">Semua aktor</option>
+                @foreach($actors as $actor)
+                    <option value="{{ $actor->id }}" @selected((string) request('actor_id') === (string) $actor->id)>
+                        {{ $actor->name }} ({{ $actor->role }})
+                    </option>
+                @endforeach
+            </select>
+        </div>
 
-                    <div class="field-block">
-                        <label class="field-label" for="action-filter">Aksi</label>
-                        <input type="text" name="action" id="action-filter" class="field"
-                               value="{{ request('action') }}"
-                               placeholder="Contoh: voucher, pesanan.">
-                    </div>
+        <div class="adm-field">
+            <label for="action-filter">Aksi</label>
+            <input type="text" name="action" id="action-filter" maxlength="80"
+                   value="{{ request('action') }}" placeholder="Contoh: voucher, pesanan.">
+        </div>
 
-                    <div class="field-block">
-                        <label class="field-label">Periode</label>
-                        <div class="date-range">
-                            <div class="date-field">
-                                <label class="field-label" for="date-from">Dari Tanggal</label>
-                                <input type="date" name="date_from" id="date-from" class="field"
-                                       value="{{ request('date_from') }}" aria-label="Dari tanggal"
-                                       data-fc-date data-fc-title="Dari Tanggal">
-                            </div>
-                            <span class="date-sep" aria-hidden="true">–</span>
-                            <div class="date-field">
-                                <label class="field-label" for="date-to">Sampai Tanggal</label>
-                                <input type="date" name="date_to" id="date-to" class="field"
-                                       value="{{ request('date_to') }}" aria-label="Sampai tanggal"
-                                       data-fc-date data-fc-title="Sampai Tanggal">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="adm-field">
+            <label for="date-from">Dari tanggal</label>
+            <input type="date" name="date_from" id="date-from"
+                   value="{{ request('date_from') }}" data-fc-date data-fc-title="Dari tanggal">
+        </div>
 
-                <div class="filter-actions">
-                    <button type="submit" class="btn btn--primary">
-                        @include('layouts.component._icon', ['name' => 'check', 'size' => 16])
-                        Terapkan
-                    </button>
-                    <a href="{{ route('admin.audit.index') }}" class="btn btn--ghost">
-                        @include('layouts.component._icon', ['name' => 'refresh', 'size' => 16])
-                        Atur ulang filter
-                    </a>
-                </div>
-            </form>
+        <div class="adm-field">
+            <label for="date-to">Sampai tanggal</label>
+            <input type="date" name="date_to" id="date-to"
+                   value="{{ request('date_to') }}" data-fc-date data-fc-title="Sampai tanggal">
         </div>
     </div>
 
-    {{-- List --}}
-    <div class="reveal d3">
+    <div class="adm-actions">
+        <button type="submit" class="adm-btn">
+            @include('layouts.component._icon', ['name' => 'check', 'size' => 16])
+            Terapkan
+        </button>
+        <a href="{{ route('admin.audit.index') }}" class="adm-btn adm-btn--ghost">
+            @include('layouts.component._icon', ['name' => 'refresh', 'size' => 16])
+            Atur ulang filter
+        </a>
+    </div>
+</form>
+
+<section class="adm-card" data-adm-reveal="logs" aria-labelledby="adm-audit-list-title">
+    <div class="adm-card__head">
+        <h2 id="adm-audit-list-title">Catatan terbaru</h2>
+        <span class="adm-help">Halaman {{ $logs->currentPage() }} dari {{ max(1, $logs->lastPage()) }}</span>
+    </div>
+
     @forelse($logs as $log)
-    <div class="log-row">
-        <div class="log-row__head">
-            <span class="log-row__action">{{ $log->action }}</span>
-            <span class="log-row__time">{{ $log->created_at->format('d/m/Y H:i') }}</span>
-        </div>
-
-        @if($log->summary)
-        <div class="log-row__summary">{{ $log->summary }}</div>
-        @endif
-
-        <div class="log-row__meta">
-            <span><b>Aktor:</b> {{ $log->actor?->name ?? 'Sistem' }}</span>
-            @if($log->ip)
-            <span><b>IP:</b> {{ $log->ip }}</span>
-            @endif
-            @if($log->auditable_type)
-            <span><b>Target:</b> {{ class_basename($log->auditable_type) }}#{{ $log->auditable_id }}</span>
-            @endif
-        </div>
-
-        @if($log->before || $log->after)
-        <div class="log-diff">
-            @php
-                $beforeArr = is_array($log->before) ? $log->before : [];
-                $afterArr  = is_array($log->after) ? $log->after : [];
-                $keys = array_unique(array_merge(array_keys($beforeArr), array_keys($afterArr)));
-            @endphp
-            @foreach($keys as $key)
-                @php
-                    $b = $beforeArr[$key] ?? null;
-                    $a = $afterArr[$key] ?? null;
-                    if (is_array($b)) $b = json_encode($b);
-                    if (is_array($a)) $a = json_encode($a);
-                @endphp
-                @if($b !== $a)
-                <div class="log-diff__row">
-                    <span class="log-diff__key">{{ $key }}:</span>
-                    @if($b !== null)
-                        <span class="log-diff__before">{{ Str::limit((string) $b, 60) }}</span>
-                        <span class="log-diff__arrow">→</span>
-                    @endif
-                    @if($a !== null)
-                        <span class="log-diff__after">{{ Str::limit((string) $a, 60) }}</span>
-                    @else
-                        <span class="log-diff__after">(dihapus)</span>
-                    @endif
-                </div>
-                @endif
-            @endforeach
-        </div>
-        @endif
-    </div>
-    @empty
-    <div class="card">
-        <div class="empty-state">
-            <div class="empty-state__ico" aria-hidden="true">
-                @include('layouts.component._icon', ['name' => 'audit', 'size' => 32])
+        <article class="adm-timeline__item" style="gap:6px;padding:14px 0;border-bottom:1px solid var(--adm-line)">
+            <div class="adm-row adm-row--between" style="gap:8px">
+                <span class="adm-badge adm-badge--info">{{ $log->action }}</span>
+                <time class="adm-timeline__time" datetime="{{ $log->created_at->toIso8601String() }}">{{ $log->created_at->format('d/m/Y H:i') }}</time>
             </div>
-            <p class="empty-state__text">Belum ada catatan audit yang cocok.<br>Coba ubah atau atur ulang filter di atas.</p>
-            @if(request()->hasAny(['actor_id','action','date_from','date_to']))
-                <a href="{{ route('admin.audit.index') }}" class="btn btn--ghost" style="margin-top:var(--space-4);">
+
+            @if($log->summary)
+                <p class="adm-timeline__note" style="margin:0;overflow-wrap:anywhere">{{ $log->summary }}</p>
+            @endif
+
+            <p class="adm-help" style="margin:0;overflow-wrap:anywhere">
+                <strong>Aktor:</strong> {{ $log->actor?->name ?? 'Sistem' }}
+                @if($log->ip)· <strong>IP:</strong> {{ $log->ip }}@endif
+                @if($log->auditable_type)· <strong>Target:</strong> {{ class_basename($log->auditable_type) }}#{{ $log->auditable_id }}@endif
+            </p>
+
+            @if($log->before || $log->after)
+                @php
+                    $beforeArr = is_array($log->before) ? $log->before : [];
+                    $afterArr = is_array($log->after) ? $log->after : [];
+                    $diffKeys = array_unique(array_merge(array_keys($beforeArr), array_keys($afterArr)));
+                @endphp
+                <div class="adm-stack" style="gap:4px;margin-top:4px">
+                    @foreach($diffKeys as $diffKey)
+                        @php
+                            $before = $beforeArr[$diffKey] ?? null;
+                            $after = $afterArr[$diffKey] ?? null;
+                            if (is_array($before)) { $before = json_encode($before); }
+                            if (is_array($after)) { $after = json_encode($after); }
+                        @endphp
+                        @continue($before === $after)
+                        <div class="adm-row" style="gap:6px;flex-wrap:wrap">
+                            <span class="adm-chip">{{ $diffKey }}</span>
+                            @if($before !== null)
+                                <span class="adm-chip" style="text-decoration:line-through;color:var(--adm-ink-3)">{{ Str::limit((string) $before, 60) }}</span>
+                                <span aria-hidden="true" style="color:var(--adm-ink-3)">→</span>
+                            @endif
+                            <span class="adm-chip" style="font-weight:800">{{ $after !== null ? Str::limit((string) $after, 60) : '(dihapus)' }}</span>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </article>
+    @empty
+        <div class="adm-empty">
+            <span class="adm-empty__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'audit', 'size' => 32])</span>
+            <p class="adm-empty__title">Belum ada catatan audit yang cocok</p>
+            <p class="adm-help" style="margin:0">Coba ubah atau atur ulang filter di atas.</p>
+            @if(request()->hasAny(['actor_id', 'action', 'date_from', 'date_to']))
+                <a href="{{ route('admin.audit.index') }}" class="adm-btn adm-btn--ghost adm-btn--sm" style="margin-top:10px">
                     @include('layouts.component._icon', ['name' => 'refresh', 'size' => 16])
                     Atur ulang filter
                 </a>
             @endif
         </div>
-    </div>
     @endforelse
-    </div>
 
     @if($logs->hasPages())
-    <div class="pagination-wrap">
-        {{ $logs->links('vendor.pagination.token-simple') }}
-    </div>
+        <div class="adm-row" style="justify-content:center;margin-top:16px">
+            {{ $logs->links('vendor.pagination.token-simple') }}
+        </div>
     @endif
-
-</main>
-
-{{-- Admin Navbar --}}
-@include('layouts.component.admin._navbar_admin', ['active' => 'beranda'])
-@include('layouts.component._form_controls')
-
-@include('layouts.component._ui_kit')
-<script src="{{ asset('js/berkah-admin.js') }}" defer></script>
-</body>
-</html>
+</section>
+@endsection

@@ -156,13 +156,13 @@ $oldText = function (string $key, $fallback = '') {
                     <input placeholder="Contoh: Rumah" type="text" name="label" id="address-label" class="field-input {{ $errors->has('label') ? 'is-error' : '' }}"
                         placeholder="Rumah, Kantor, Kos, dll."
                         value="{{ $oldText('label', $address->label) }}" required>
-                    @error('label') <div class="field-error">{{ $message }}</div> @enderror
+                    @error('label') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
                 <div>
                     <label class="field-label" for="address-recipient_name">Nama Penerima <span class="required">*</span></label>
                     <input placeholder="Contoh: Ibu Sari Wulandari" type="text" name="recipient_name" id="address-recipient_name" class="field-input {{ $errors->has('recipient_name') ? 'is-error' : '' }}"
                         value="{{ $oldText('recipient_name', $address->recipient_name) }}" required>
-                    @error('recipient_name') <div class="field-error">{{ $message }}</div> @enderror
+                    @error('recipient_name') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
                 <div>
                     <label class="field-label" for="address-phone">No. HP / WhatsApp</label>
@@ -193,7 +193,7 @@ $oldText = function (string $key, $fallback = '') {
                     <label class="field-label" for="address-full_address">Alamat Lengkap <span class="required">*</span></label>
                     <textarea placeholder="Contoh: Jl. Merdeka No. 12, RT 03, Palembang" name="full_address" id="address-full_address" class="field-input {{ $errors->has('full_address') ? 'is-error' : '' }}"
                         required>{{ $oldText('full_address', $address->full_address) }}</textarea>
-                    @error('full_address') <div class="field-error">{{ $message }}</div> @enderror
+                    @error('full_address') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
                 <div>
                     <label class="field-label" for="address-notes">Catatan Tambahan</label>

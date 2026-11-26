@@ -665,4 +665,41 @@ class UiAccessibilityTest extends TestCase
 
         $this->assertSame([], $offenders, 'Halaman tanpa atribut lang: '.implode(', ', $offenders));
     }
+
+    /** Pesan galat isian harus diumumkan pembaca layar.
+     *
+     *  `.field-error` dan `.bk-field-error` dirender server setelah validasi
+     *  gagal. Tanpa `role="alert"` atau `aria-live`, pembaca layar tidak
+     *  memberi tahu apa pun: pengguna kembali ke atas formulir tanpa tahu
+     *  kolom mana yang salah. Audit 2026-11-25 menemukan semua wadah galat di
+     *  profil/alamat pelanggan dan checkout dalam keadaan bisu.
+     */
+    public function test_pesan_galat_isian_selalu_diumumkan(): void
+    {
+        $bisu = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            $relative = str_replace('\\', '/', $file->getRelativePathname());
+            $html = (string) File::get($file->getPathname());
+
+            // Panah Blade (`$preview->id`) membuat `[^>]*` berhenti di tengah
+            // ekspresi, jadi `->` diganti panah tipografis yang panjangnya sama
+            // sebelum tag dipindai.
+            $scan = str_replace('->', "\u{2192}", $html);
+
+            preg_match_all('/<(?:div|p|span)\b[^>]*class\s*=\s*"[^"]*\b(?:field-error|bk-field-error)\b[^"]*"[^>]*>/i', $scan, $found);
+
+            foreach ($found[0] as $tag) {
+                if (! preg_match('/\b(?:role\s*=\s*"alert"|aria-live\s*=)/i', $tag)) {
+                    $bisu[] = $relative.' → '.$tag;
+                }
+            }
+        }
+
+        $this->assertSame([], $bisu, 'Pesan galat tanpa pengumuman: '.implode(' | ', $bisu));
+    }
 }

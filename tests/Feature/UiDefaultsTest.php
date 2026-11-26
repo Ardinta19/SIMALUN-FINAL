@@ -234,23 +234,42 @@ class UiDefaultsTest extends TestCase
         );
     }
 
-    public function test_admin_mobile_sheet_has_a_controller(): void
+    public function test_admin_mobile_drawer_has_a_controller(): void
     {
-        // Markup bilah admin menyembunyikan tujuan di luar empat menu harian
-        // di balik tombol "Lainnya". Tanpa pengendali di berkah-admin.js,
-        // tombol itu mati dan separuh menu tak bisa dijangkau di ponsel —
-        // persis cacat yang pernah lolos karena markup-nya "terlihat benar".
-        $nav = File::get(resource_path('views/layouts/component/admin/_navbar_admin.blade.php'));
+        // Shell admin menyembunyikan sidebar di layar kecil dan membukanya
+        // lewat tombol topbar. Tanpa pengendali di berkah-admin.js, tombol itu
+        // mati dan seluruh menu admin tak bisa dijangkau di ponsel — cacat
+        // yang dulu dijaga lewat lembar "Lainnya" pada bilah bawah mandiri.
+        // Bilah itu sudah dicabut setelah kelima halaman pindah ke
+        // `layouts.admin`, jadi penjaganya kini mengunci drawer sidebar.
+        $topbar = File::get(resource_path('views/layouts/component/admin/_topbar.blade.php'));
+        $sidebar = File::get(resource_path('views/layouts/component/admin/_sidebar.blade.php'));
         $js = File::get(public_path('js/berkah-admin.js'));
 
-        $this->assertStringContainsString('data-admin-more', $nav);
-        $this->assertStringContainsString('id="admin-sheet"', $nav);
-        $this->assertStringContainsString('data-admin-sheet-close', $nav);
+        $this->assertStringContainsString('data-adm-nav-toggle', $topbar);
+        $this->assertStringContainsString('id="adm-sidebar"', $sidebar);
+        $this->assertStringContainsString('data-adm-close', $sidebar);
 
-        $this->assertStringContainsString("getElementById('admin-sheet')", $js);
-        $this->assertStringContainsString("'[data-admin-more]'", $js);
-        $this->assertStringContainsString("'[data-admin-sheet-close]'", $js);
+        $this->assertStringContainsString("'.adm-sidebar'", $js);
+        $this->assertStringContainsString("'[data-adm-nav-toggle]'", $js);
+        $this->assertStringContainsString("'[data-adm-close]'", $js);
         $this->assertStringContainsString("setAttribute('aria-expanded'", $js);
+    }
+
+    public function test_shell_admin_memuat_modal_konfirmasi(): void
+    {
+        // Halaman profil admin memakai `showConfirmModal` untuk tombol keluar.
+        // Tanpa `_confirm_modal` di shell, fungsinya tidak ada dan tombol
+        // diam-diam langsung mengirim formulir — pengguna kehilangan
+        // kesempatan membatalkan. (Modal ini juga dipakai dialog hapus lain
+        // di halaman admin yang menyusul.)
+        $layout = File::get(resource_path('views/layouts/admin.blade.php'));
+        $profile = File::get(resource_path('views/roles/admin/profile.blade.php'));
+
+        $this->assertStringContainsString("@include('layouts.component._confirm_modal')", $layout);
+        $this->assertStringContainsString("window.showConfirmModal({", $profile);
+        $this->assertStringContainsString('id="form-logout"', $profile);
+        $this->assertStringContainsString("route('logout')", $profile);
     }
 
     public function test_no_view_prints_the_word_array(): void

@@ -317,28 +317,26 @@ $oldText = function (string $key, $fallback = '') {
 
                 <div>
                     <label class="field-label" for="profile-name">Nama Lengkap <span class="req">*</span></label>
-                    <input placeholder="Contoh: Sari Wulandari" type="text" id="profile-name" name="name"
+                    <input placeholder="Contoh: Sari Wulandari" autocomplete="name" type="text" id="profile-name" name="name"
                            class="field-input {{ $errors->has('name') ? 'is-error' : '' }}"
                            value="{{ $oldText('name', $user->name) }}" required>
-                    @error('name') <div class="field-error">{{ $message }}</div> @enderror
+                    @error('name') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
 
                 <div>
                     <label class="field-label" for="profile-email">Email <span style="font-weight:600;color:var(--ink-lt)">(opsional)</span></label>
                     <input placeholder="Contoh: nama@email.com" autocomplete="email" type="email" id="profile-email" name="email"
                            class="field-input {{ $errors->has('email') ? 'is-error' : '' }}"
-                           value="{{ $oldText('email', $user->email) }}"
-                           placeholder="Boleh dikosongkan">
-                    @error('email') <div class="field-error">{{ $message }}</div> @enderror
+                           value="{{ $oldText('email', $user->email) }}">
+                    @error('email') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
 
                 <div>
                     <label class="field-label" for="profile-phone">Nomor HP / WhatsApp <span class="req">*</span></label>
                     <input placeholder="Contoh: 0812 3456 7890" autocomplete="tel" type="tel" id="profile-phone" name="phone"
                            class="field-input"
-                           value="{{ $oldText('phone', $user->phone) }}"
-                           placeholder="08xxxxxxxxxx" required>
-                    @error('phone') <div class="field-error">{{ $message }}</div> @enderror
+                           value="{{ $oldText('phone', $user->phone) }}" required>
+                    @error('phone') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
 
                 <button type="submit" class="btn-submit">Simpan Data Pribadi</button>
@@ -417,13 +415,13 @@ $oldText = function (string $key, $fallback = '') {
                 <div>
                     <label class="field-label" for="profile-current-password">Kata Sandi Saat Ini</label>
                     <input type="password" id="profile-current-password" name="current_password" class="field-input" autocomplete="current-password" placeholder="••••••••">
-                    @error('current_password', 'updatePassword') <div class="field-error">{{ $message }}</div> @enderror
+                    @error('current_password', 'updatePassword') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
 
                 <div>
                     <label class="field-label" for="profile-new-password">Kata Sandi Baru</label>
                     <input type="password" id="profile-new-password" name="password" class="field-input" autocomplete="new-password" placeholder="Minimal 8 karakter">
-                    @error('password', 'updatePassword') <div class="field-error">{{ $message }}</div> @enderror
+                    @error('password', 'updatePassword') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
 
                 <div>
@@ -452,7 +450,7 @@ $oldText = function (string $key, $fallback = '') {
                     <div>
                         <label class="field-label" for="profile-delete-password">Konfirmasi Kata Sandi <span class="req">*</span></label>
                         <input autocomplete="current-password" type="password" id="profile-delete-password" name="password" class="field-input" required placeholder="Masukkan kata sandi Anda">
-                        @error('password') <div class="field-error">{{ $message }}</div> @enderror
+                        @error('password') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                     </div>
                     <button type="button" class="btn-danger" style="margin-top:12px;" id="btn-delete-account">Nonaktifkan Akun</button>
                 </form>

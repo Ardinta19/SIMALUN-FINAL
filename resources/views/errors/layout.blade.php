@@ -33,7 +33,7 @@ p.lead{font-size:var(--bk-fs-md);font-weight:600;color:#5b4149;line-height:1.6;m
 .btn-primary{background:linear-gradient(135deg,#85092d 0%,#b6435e 100%);color:#fff;box-shadow:0 8px 22px rgba(133,9,45,.32)}
 .btn-secondary{background:#fff;color:#85092d;border:1.5px solid #e5cbd0}
 .tip{margin-top:20px;padding-top:16px;border-top:1.5px dashed #e8d6dc;font-size:var(--bk-fs-2xs);font-weight:700;color:#7a626a;line-height:1.55}
-.brand{margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:var(--bk-fs-2xs);font-weight:900;color:rgba(255,255,255,.9);letter-spacing:2.4px;text-transform:uppercase}
+.brand{margin-top:16px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;font-size:var(--bk-fs-2xs);font-weight:900;color:rgba(255,255,255,.9);letter-spacing:2.4px;text-transform:uppercase}
 .brand span{display:inline-block}
 /* Animasi masuk: kartu muncul, isi menyusul berurutan. Murni transform +
    opacity agar tidak memicu tata letak ulang; dimatikan saat gerak dikurangi. */
@@ -44,7 +44,7 @@ p.lead{animation-delay:.17s}.actions{animation-delay:.21s}.tip{animation-delay:.
 .hero-icon{animation:errRise .5s cubic-bezier(.22,.7,.25,1) .07s both,wobble 4.5s ease-in-out .6s infinite}
 @keyframes errIn{from{opacity:0;transform:translateY(16px) scale(.98)}}
 @keyframes errRise{from{opacity:0;transform:translateY(10px)}}
-@media(max-width:360px){.card{padding:28px 18px 24px}.hero-icon{width:3rem;height:3rem}}
+@media(max-width:360px){.card{padding:28px 18px 24px}.hero-icon{width:3rem;height:3rem}.brand{letter-spacing:1.6px;padding-inline:2px}.code-pill{letter-spacing:1px}}
 @media(prefers-reduced-motion:reduce){.hero-icon{animation:none}.card,.code-pill,.code-big,h1,p.lead,.actions,.tip{animation:none}*,*::before,*::after{transition:none!important}}
 </style>
 @include('layouts.component._theme_head')
