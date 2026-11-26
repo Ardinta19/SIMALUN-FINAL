@@ -2,7 +2,7 @@
     <h1>{{ __('Konfirmasi kata sandi') }}</h1>
 
     <p>
-        {{ __('Ini adalah area aman aplikasi. Silakan konfirmasi kata sandi Anda sebelum melanjutkan.') }}
+        {{ __('Ini adalah area aman aplikasi. Silakan konfirmasi kata sandi kamu sebelum melanjutkan.') }}
     </p>
 
     <form method="POST" action="{{ route('password.confirm') }}">

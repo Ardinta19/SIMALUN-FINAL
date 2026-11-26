@@ -287,7 +287,7 @@ body.confirm-locked { overflow: hidden; }
         _lastFocus = document.activeElement;
 
         title.textContent = options.title || 'Konfirmasi';
-        message.textContent = options.message || 'Apakah Anda yakin?';
+        message.textContent = options.message || 'Apakah kamu yakin?';
         cancelBtn.textContent = options.cancelText || 'Batal';
         okBtn.textContent = options.confirmText || 'Ya, Lanjutkan';
 

@@ -284,7 +284,7 @@ class UiDefaultsTest extends TestCase
         $profil = File::get(resource_path('views/roles/customer/profile/edit.blade.php'));
 
         $this->assertStringContainsString("__('Kata sandi')", $konfirmasi);
-        $this->assertStringContainsString("__('Verifikasi Email Anda')", $verifikasi);
+        $this->assertStringContainsString("__('Verifikasi Email Kamu')", $verifikasi);
 
         foreach (['Kata sandi saat ini', 'Kata sandi baru', 'Konfirmasi kata sandi baru'] as $label) {
             $this->assertStringContainsString('>'.$label.'<', $profil, 'Label "'.$label.'" hilang dari profil pelanggan.');
@@ -425,5 +425,81 @@ class UiDefaultsTest extends TestCase
         }
 
         $this->assertSame([], $menyimpang, implode(' | ', $menyimpang));
+    }
+
+    /** Satu sapaan untuk seluruh aplikasi.
+     *
+     *  Copy pelanggan memakai "kamu" (30 kali) tetapi 13 tempat masih
+     *  "Anda", tiga di antaranya bercampur dalam satu halaman
+     *  (`rental/unit`, `rental/show`): "Anda dapat membayar bertahap" lalu
+     *  "Kamu masih dapat mengirim bukti". Nada yang berganti di tengah
+     *  halaman terbaca seperti dua orang yang menulis. Sekarang semua
+     *  "kamu", termasuk halaman verifikasi email, konfirmasi sandi, dan
+     *  dialog konfirmasi.
+     */
+    public function test_sapaan_pengguna_seragam(): void
+    {
+        $menyimpang = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            $relative = str_replace('\\', '/', $file->getRelativePathname());
+            $html = (string) File::get($file->getPathname());
+
+            if (preg_match_all('/\bAnda\b/', $html, $found) > 0) {
+                $menyimpang[] = $relative.' ('.count($found[0]).'×)';
+            }
+
+            $kamu = preg_match_all('/\b[Kk]amu\b/', $html);
+            $anda = count($found[0]);
+
+            if ($kamu > 0 && $anda > 0) {
+                $menyimpang[] = $relative.' mencampur "Anda" dan "kamu"';
+            }
+        }
+
+        $this->assertSame([], $menyimpang, 'Sapaan tidak seragam: '.implode(', ', $menyimpang));
+    }
+
+    /** Setiap kolom yang divalidasi punya nama Indonesia.
+     *
+     *  Laravel memakai kunci mentah sebagai `:attribute` kalau tidak ada di
+     *  `lang/id/validation.php`. Akibatnya pelanggan membaca
+     *  "units.0.event_on wajib diisi." dan admin membaca "entry_date wajib
+     *  diisi." — 22 kolom dalam keadaan itu sebelum audit 2026-11-25.
+     *  Sekarang semua kunci `validate()`/`validateWithBag()` di `app/`
+     *  memiliki label, termasuk kunci bertingkat `units.*.<field>`.
+     */
+    public function test_setiap_kolom_validasi_punya_label_indonesia(): void
+    {
+        $kunci = [];
+
+        foreach (File::allFiles(app_path()) as $file) {
+            if ($file->getExtension() !== 'php') {
+                continue;
+            }
+
+            $php = (string) File::get($file->getPathname());
+
+            preg_match_all("/validate(?:WithBag)?\(\s*(?:\[[^\]]*\]\s*,\s*)?\[(.*?)\]\s*(?:,|\))/s", $php, $blok);
+
+            foreach ($blok[1] as $isi) {
+                preg_match_all("/'([a-z0-9_.*]+)'\s*=>/", $isi, $fields);
+
+                foreach ($fields[1] as $field) {
+                    $kunci[$field] = true;
+                }
+            }
+        }
+
+        $lang = File::get(base_path('lang/id/validation.php'));
+        preg_match_all("/^\s*'([a-z0-9_.*]+)'\s*=>/m", $lang, $found);
+
+        $tanpaLabel = array_values(array_diff(array_keys($kunci), array_unique($found[1])));
+
+        $this->assertSame([], $tanpaLabel, 'Kolom tanpa label Indonesia: '.implode(', ', $tanpaLabel));
     }
 }

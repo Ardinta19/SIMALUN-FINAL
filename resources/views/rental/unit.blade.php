@@ -38,7 +38,7 @@
 @endif
 @if($payable !== null && $netPaid < $payable)
 @if($pendingAmount > 0)<p>Ada bukti pembayaran menunggu pemeriksaan admin.</p>@endif
-@if($canSubmit && $netPaid + $pendingAmount < $payable)<p>Anda dapat membayar bertahap. Periksa sisa dan batas pelunasan.</p><p><a class="btn secondary" href="#payment-{{ $unit->id }}">Lihat pembayaran</a></p>@endif
+@if($canSubmit && $netPaid + $pendingAmount < $payable)<p>Kamu dapat membayar bertahap. Periksa sisa dan batas pelunasan.</p><p><a class="btn secondary" href="#payment-{{ $unit->id }}">Lihat pembayaran</a></p>@endif
 @endif
 @if($unit->progress !== 'waiting')<p>{{ ['production' => 'Papan sedang dikerjakan.', 'ready' => 'Papan siap diserahkan.', 'handed_over' => 'Papan sudah diserahkan.', 'returned' => 'Papan sudah dikembalikan.'][$unit->progress] ?? 'Perkembangan unit dapat dilihat di bawah.' }}</p><p><a class="btn secondary" href="#unit-progress-{{ $unit->id }}">Lihat perkembangan</a>@if($unit->progress === 'returned' && !$productRating) · <a href="#rating-{{ $unit->id }}">Beri rating produk</a>@endif</p>@endif
 @endif
@@ -84,14 +84,14 @@
 @if($event->note) — {{ $event->note }}@endif</li>@endforeach</ul>@endif
 </details>@endif
 @if($unit->payment_review_hold)<p class="notice">Bukti pembayaran atau jadwal khusus sedang ditinjau manual oleh admin.</p>@endif
-@if($unit->cancel_code === 'payment_timeout')<p class="notice">Unit dibatalkan karena tenggat pelunasan. @if($graceDeadline)Anda masih dapat mengirim bukti paling lambat {{ $graceDeadline->format('d/m/Y H:i') }} WIB; kelanjutan memerlukan pembayaran terverifikasi dan pemeriksaan stok oleh admin. Setelah batas itu DP hangus dan unit tidak dapat dilanjutkan.@else Masa toleransi sudah berakhir; DP hangus dan unit tidak dapat dilanjutkan.@endif</p>@endif
+@if($unit->cancel_code === 'payment_timeout')<p class="notice">Unit dibatalkan karena tenggat pelunasan. @if($graceDeadline)Kamu masih dapat mengirim bukti paling lambat {{ $graceDeadline->format('d/m/Y H:i') }} WIB; kelanjutan memerlukan pembayaran terverifikasi dan pemeriksaan stok oleh admin. Setelah batas itu DP hangus dan unit tidak dapat dilanjutkan.@else Masa toleransi sudah berakhir; DP hangus dan unit tidak dapat dilanjutkan.@endif</p>@endif
 <details class="unit-section" id="unit-progress-{{ $unit->id }}"><summary>Riwayat dan perkembangan</summary>
 @include('rental.cancellation-history')
 @include('rental.progress', ['admin' => false])
 </details>
 <details class="unit-section" id="payment-{{ $unit->id }}" @if(($canSubmit && $payable !== null && $netPaid + $pendingAmount < $payable) || $errors->hasAny(['amount', 'proof', 'payment'])) open @endif><summary>Pembayaran</summary><p>Batas pelunasan: {{ $unit->plannedPaymentDeadline()->format('d/m/Y H:i') }} WIB. Bukti yang dikirim tepat waktu dapat menahan pembatalan sambil menunggu verifikasi. Bila tenggat terlewati, bukti masih dapat dikirim sampai {{ $deadlinePolicy->graceDeadline($unit)->format('d/m/Y H:i') }} WIB untuk melanjutkan unit.</p>@if($canSubmit && $payable !== null && $netPaid + $pendingAmount < $payable)
 <h3>1. Bayar melalui QRIS</h3>
-@if($paymentSettings?->qris_path)<p>Pindai QRIS berikut melalui aplikasi pembayaran Anda. Pastikan nama penerima benar. Simpan bukti untuk dikirim pada unit ini.</p><img class="bk-qris" src="{{ route('rental.payment.qris') }}" alt="QRIS Berkah Kreatif" loading="lazy" decoding="async">@else<p class="notice">QRIS belum tersedia. Hubungi admin sebelum melakukan pembayaran.</p>@endif
+@if($paymentSettings?->qris_path)<p>Pindai QRIS berikut melalui aplikasi pembayaran kamu. Pastikan nama penerima benar. Simpan bukti untuk dikirim pada unit ini.</p><img class="bk-qris" src="{{ route('rental.payment.qris') }}" alt="QRIS Berkah Kreatif" loading="lazy" decoding="async">@else<p class="notice">QRIS belum tersedia. Hubungi admin sebelum melakukan pembayaran.</p>@endif
 @if($paymentSettings?->whatsapp_number)<p><a class="btn secondary" href="https://wa.me/{{ $paymentSettings->whatsapp_number }}?text={{ rawurlencode('Halo Berkah Kreatif, saya ingin menanyakan metode pembayaran lain untuk pesanan '.$order->reference.'.') }}" target="_blank" rel="noopener noreferrer">Tanya metode lain via WhatsApp</a></p>@else<p class="muted">Kontak WhatsApp untuk metode lain belum diatur oleh admin.</p>@endif
 @if($paymentSettings?->instructions)<p>Petunjuk tambahan:</p><p style="white-space:pre-wrap">{{ $paymentSettings->instructions }}</p>@endif
 <p><strong>2. Kirim bukti pembayaran di bawah ini.</strong> Pembayaran baru dinyatakan lunas setelah admin memverifikasi bukti.</p>

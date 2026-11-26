@@ -449,7 +449,7 @@ $oldText = function (string $key, $fallback = '') {
                     @method('delete')
                     <div>
                         <label class="field-label" for="profile-delete-password">Konfirmasi Kata Sandi <span class="req">*</span></label>
-                        <input autocomplete="current-password" type="password" id="profile-delete-password" name="password" class="field-input" required placeholder="Masukkan kata sandi Anda">
+                        <input autocomplete="current-password" type="password" id="profile-delete-password" name="password" class="field-input" required placeholder="Masukkan kata sandi kamu">
                         @error('password') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                     </div>
                     <button type="button" class="btn-danger" style="margin-top:12px;" id="btn-delete-account">Nonaktifkan Akun</button>

@@ -46,8 +46,8 @@
     @if($unit->status === 'pending')<p class="muted">Menunggu konfirmasi admin. Tanggal sudah ditahan sampai tenggat konfirmasi.</p>
     @elseif($unit->status === 'cancelled')<p class="muted">Unit dibatalkan; buka detail untuk melihat tindak lanjut.</p>
     @else
-        @if($unit->transportRequired() && $unit->transport_quote !== null && !$unit->transport_approved_at)<p><strong>Ongkos menunggu persetujuan Anda.</strong></p>@endif
-        @if($unit->previews->first()?->status === 'pending')<p><strong>Pratinjau desain menunggu respons Anda.</strong></p>@endif
+        @if($unit->transportRequired() && $unit->transport_quote !== null && !$unit->transport_approved_at)<p><strong>Ongkos menunggu persetujuanmu.</strong></p>@endif
+        @if($unit->previews->first()?->status === 'pending')<p><strong>Pratinjau desain menunggu responsmu.</strong></p>@endif
         @if($unit->payments->where('status', 'pending')->isNotEmpty())<p class="muted">Bukti pembayaran sedang diperiksa.</p>@endif
     @endif
     <a class="btn secondary" href="{{ route('rental.orders.unit', [$order, $unit]) }}">Lihat detail unit {{ $loop->iteration }}</a>

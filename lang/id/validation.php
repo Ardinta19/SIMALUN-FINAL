@@ -212,6 +212,48 @@ return [
         'reference_images' => 'foto referensi',
         'reference_images.*' => 'foto referensi',
 
+        // Checkout sewa (kunci bertingkat: `units.*.<field>`)
+        'units' => 'daftar unit',
+        'units.*' => 'unit pesanan',
+        'units.*.package_id' => 'paket',
+        'starts_on' => 'tanggal mulai acara',
+        'units.*.starts_on' => 'tanggal acara',
+        'units.*.event_on' => 'tanggal acara',
+        'units.*.ends_on' => 'tanggal pengembalian',
+        'units.*.recipient_name' => 'nama penerima',
+        'units.*.greeting' => 'ucapan',
+        'units.*.design_notes' => 'catatan desain',
+        'units.*.delivery_method' => 'cara pengantaran',
+        'units.*.delivery_address' => 'alamat pengantaran',
+        'units.*.delivery_university_id' => 'universitas tujuan',
+        'units.*.return_method' => 'cara pengembalian',
+        'units.*.return_address' => 'alamat pengembalian',
+        'units.*.return_university_id' => 'universitas penjemputan',
+        'terms' => 'persetujuan syarat',
+
+        // Panel admin: kas, voucher, item tambahan, jadwal, audit
+        'code' => 'kode voucher',
+        'period' => 'periode',
+        'month' => 'bulan',
+        'entry_date' => 'tanggal transaksi',
+        'expected_amount' => 'nominal yang diharapkan',
+        'expected_progress' => 'tahap yang diharapkan',
+        'version' => 'versi data',
+        'instructions' => 'petunjuk pembayaran',
+        'not_rental_payment' => 'penanda pembayaran sewa',
+        'enabled' => 'status aktif',
+
+        // Aksi pelanggan
+        'quantity' => 'jumlah unit',
+        'rating' => 'penilaian',
+        'liked' => 'tanda suka',
+        'reason' => 'alasan',
+        'decision' => 'keputusan',
+        'token' => 'token pemulihan',
+        'note' => 'catatan',
+        'q' => 'kata kunci pencarian',
+        'rental_category_id' => 'kategori',
+
         // Item lines
         'item_lines' => 'item satuan',
         'item_lines.*.service_id' => 'layanan item',
