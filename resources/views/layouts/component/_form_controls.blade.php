@@ -6,7 +6,7 @@
 |   <select>                        → listbox + popover (bottom sheet di HP)
 |   <select data-fc-segmented>      → segmented control (2–4 opsi)
 |   <input type="date">             → kalender Indonesia (GSAP animated)
-|   <input type="number" data-fc-stepper> → stepper
+|   <input type="number" inputmode="numeric" data-fc-stepper> → stepper
 |
 | Kontrol native yang sudah di-enhance tetap berada di DOM sehingga nama
 | field, nilai, dan format kiriman TIDAK berubah (YYYY-MM-DD untuk tanggal).

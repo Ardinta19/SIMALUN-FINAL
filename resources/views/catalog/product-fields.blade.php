@@ -29,7 +29,7 @@
 <div class="adm-field-grid">
     <div class="adm-field">
         <label for="{{ $fieldId }}-base">Harga dasar (Rp)</label>
-        <input placeholder="Contoh: 450000" id="{{ $fieldId }}-base" name="base_price" type="number" min="0" max="100000000" value="{{ $oldText('base_price', $product?->base_price) }}" required>
+        <input placeholder="Contoh: 450000" id="{{ $fieldId }}-base" name="base_price" type="number" inputmode="numeric" min="0" max="100000000" value="{{ $oldText('base_price', $product?->base_price) }}" required>
     </div>
     <div class="adm-field">
         <label for="{{ $fieldId }}-unit">Perhitungan</label>
@@ -40,7 +40,7 @@
     </div>
     <div class="adm-field">
         <label for="{{ $fieldId }}-stock">Jumlah unit</label>
-        <input placeholder="Contoh: 5" id="{{ $fieldId }}-stock" name="stock" type="number" min="0" max="10000" value="{{ $oldText('stock', $product?->stock ?? 1) }}" required>
+        <input placeholder="Contoh: 5" id="{{ $fieldId }}-stock" name="stock" type="number" inputmode="numeric" min="0" max="10000" value="{{ $oldText('stock', $product?->stock ?? 1) }}" required>
     </div>
 </div>
 <div class="adm-field">

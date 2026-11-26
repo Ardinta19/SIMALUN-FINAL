@@ -2991,3 +2991,68 @@ yang mewarisi layout itu. Tautan yang sama kini dipasang juga di cabang
 **Hasil harness akhir:** **129 lulus, 0 gagal, 216 dilewati**; `blade-scan`
 81 view 0/0 (dua view mati dihapus); `.tmp-verify.php` 26 lulus; `node --check` seluruh `public/js`
 bersih.
+
+### 9.63 Putaran ketiga: yang hanya terlihat dari token, atribut, dan kontras
+
+**a. Kontrol form bersama "meminjam" palet katalog di panel admin.**
+`_form_controls` mengganti setiap `<select>`, `<input type="date">`, dan
+`<input type="month">` menjadi `.fc-trigger`, dan komponen itu di-`@include`
+juga oleh `layouts.admin`. Akibatnya di semua halaman admin tombol kontrol
+tetap berukuran **48 px**, radius `--fc-radius` (14 px), latar putih, dan
+bayangan katalog, berdiri di samping label `.adm-field` 12 px serta input
+admin 44 px — satu baris formulir tampak meminjam dua sistem. Popover, bottom
+sheet, dan kalender juga masih memakai `--fc-cream: #fffaf8` dan
+`--fc-muted: #7a626a`. Dua perbaikan:
+
+* `.adm-app` memetakan seluruh token `--fc-*` ke `--adm-*` (warna, garis,
+  bayangan, fokus, radius 12 px), sehingga lapisan yang ditempel ke `<body>`
+  ikut admin — termasuk di tema gelap, yang sebelumnya mempertemukan dua
+  palet gelap berbeda di satu layar.
+* `.adm-app .fc-trigger` diselaraskan: 44 px, radius 12 px, latar
+  `--adm-surface-2`, bobot 500, cincin fokus `--adm-rose-soft`.
+
+Dijaga `ResponsiveLayoutTest::test_kontrol_form_bersama_mengikuti_palet_admin`
+(yang juga menolak warna katalog tertinggal di aturan trigger admin).
+
+**b. `var(--adm-line-2)` — token yang tidak pernah ada.** Blok `.adm-listlink`
+memakai `var(--adm-line-2)`; token itu tidak dideklarasikan sehingga
+`border-color` jatuh ke `currentColor` dan garis hover berubah warna mengikuti
+teks. Diganti `--adm-line-strong`. Dijaga
+`UiKitTest::test_token_admin_yang_dipakai_selalu_terdefinisi` — memindai
+seluruh `var(--adm-*)` dan hanya membolehkan yang punya nilai cadangan (dipakai
+`--adm-i` dan `--adm-toast-life` yang disetel JS).
+
+**c. Kontras `--adm-ink-3` gagal AA.** `#93787f` hanya **3,6–3,9:1** di atas
+permukaan admin, padahal token itu dipakai `.adm-help`, `.adm-stat__hint`,
+`.adm-timeline__time`, `.adm-notif__time`, dan placeholder kontrol bersama —
+semuanya teks 11–12 px. Digelapkan ke `#80626a` (4,9:1 di `--adm-surface-3`,
+5,4:1 di `--adm-surface-2`). Dijaga
+`UiKitTest::test_kontras_teks_admin_minimal_aa`, yang menghitung rasio WCAG
+dari CSS itu sendiri (bukan dari nilai yang disalin ke tes) untuk 13 pasangan
+token di tema terang **dan** gelap. Palet pelanggan diperiksa dengan cara sama
+dan semua ≥ 4,6:1, jadi tidak diubah.
+
+**d. `inputmode` untuk isian angka dan telepon.** 28 isian
+`type="number"`/`type="tel"` di 11 view tidak punya `inputmode`, sehingga di
+ponsel papan ketik penuh (dengan `e`, `+`, `-`) muncul untuk nominal rupiah.
+Ditambahkan `inputmode="numeric"` untuk nominal dan `inputmode="tel"` untuk
+nomor telepon — nama field, validasi, dan `min`/`max` tidak berubah. Dijaga
+`UiAccessibilityTest::test_isian_angka_dan_telepon_punya_inputmode`.
+
+**e. Pesan galat halaman lupa sandi bisu.** Tiga `<p class="auth-error">` di
+`auth/forgot-password` tidak punya `role="alert"` (ringkasannya punya, pesan
+per-kolom tidak). Ketiganya diberi `role="alert"`, dan penjaga
+`UiAccessibilityTest::test_pesan_galat_isian_selalu_diumumkan` sekarang juga
+mencakup kelas `auth-error` di samping `field-error`/`bk-field-error`.
+
+**f. Skrip audit yang dipakai.** Selain tes, putaran ini memakai pemindai
+sementara untuk: `data-*` tanpa pembaca di JS mana pun (ditemukan penanganan
+`dataset.camelCase` yang benar, sisa `data-bk-like-form` dan `data-fc-select`
+yang aman), kelas CSS yang dipakai tanpa definisi, `var()` tanpa definisi,
+`aria-describedby`/`labelledby`/`controls` tanpa target, `placeholder` ganda,
+`<img>` tanpa `alt`, `target="_blank"` tanpa `rel`, serta `<button>` tanpa
+`type`. Semua temuan yang berdampak sudah ditutup di atas; sisanya terbukti
+positif palsu (ekspresi Blade `->` memotong regex) atau aman.
+
+**Hasil:** harness **133 lulus, 0 gagal, 216 dilewati**; `blade-scan` 81 view
+0/0; `node --check` bersih; `.tmp-verify.php` 26 lulus.

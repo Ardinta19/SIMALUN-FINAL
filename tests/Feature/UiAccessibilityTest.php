@@ -691,7 +691,7 @@ class UiAccessibilityTest extends TestCase
             // sebelum tag dipindai.
             $scan = str_replace('->', "\u{2192}", $html);
 
-            preg_match_all('/<(?:div|p|span)\b[^>]*class\s*=\s*"[^"]*\b(?:field-error|bk-field-error)\b[^"]*"[^>]*>/i', $scan, $found);
+            preg_match_all('/<(?:div|p|span)\b[^>]*class\s*=\s*"[^"]*\b(?:field-error|bk-field-error|auth-error)\b[^"]*"[^>]*>/i', $scan, $found);
 
             foreach ($found[0] as $tag) {
                 if (! preg_match('/\b(?:role\s*=\s*"alert"|aria-live\s*=)/i', $tag)) {
@@ -701,5 +701,41 @@ class UiAccessibilityTest extends TestCase
         }
 
         $this->assertSame([], $bisu, 'Pesan galat tanpa pengumuman: '.implode(' | ', $bisu));
+    }
+
+    /** Isian angka & telepon memakai papan ketik yang tepat di ponsel.
+     *
+     *  `type="number"` di Android/iOS masih memunculkan tombol `e`, `-`, dan
+     *  `+` yang tidak berguna untuk nominal rupiah; `type="tel"` memunculkan
+     *  papan ketik penuh. `inputmode="numeric"` dan `inputmode="tel"`
+     *  mempersempit papan ketik tanpa mengubah nama field atau validasi.
+     */
+    public function test_isian_angka_dan_telepon_punya_inputmode(): void
+    {
+        $kurang = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            $relative = str_replace('\\', '/', $file->getRelativePathname());
+            // Panah Blade diganti agar tag tidak terpotong di tengah ekspresi.
+            $html = str_replace('->', "\u{2192}", (string) File::get($file->getPathname()));
+
+            preg_match_all('/<input\b[^>]*>/i', $html, $found);
+
+            foreach ($found[0] as $tag) {
+                if (! preg_match('/type\s*=\s*"(?:number|tel)"/i', $tag)) {
+                    continue;
+                }
+
+                if (! preg_match('/inputmode\s*=\s*"(?:numeric|decimal|tel)"/i', $tag)) {
+                    $kurang[] = $relative.' → '.preg_replace('/\s+/', ' ', $tag);
+                }
+            }
+        }
+
+        $this->assertSame([], $kurang, 'Isian tanpa inputmode: '.implode(' | ', $kurang));
     }
 }

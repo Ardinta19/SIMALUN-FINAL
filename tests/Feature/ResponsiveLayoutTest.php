@@ -528,4 +528,32 @@ class ResponsiveLayoutTest extends TestCase
         $this->assertStringNotContainsString('width:38px;height:42px', $css);
         $this->assertStringNotContainsString('min-height:42px;padding:6px 8px', $css);
     }
+
+    /** Kontrol form bersama mengikuti palet admin, bukan palet katalog.
+     *
+     *  `_form_controls` mengganti setiap <select>/date/month dengan
+     *  `.fc-trigger`. Sebelumnya trigger itu tetap 48 px, radius 14 px,
+     *  latar putih, dan bayangan katalog — berdiri di samping label
+     *  `.adm-field` 12 px dan input admin 44 px, sehingga satu baris
+     *  formulir tampak meminjam dua sistem. Popover/sheet/kalender juga
+     *  masih memakai `--fc-cream: #fffaf8` dan `--fc-muted: #7a626a`.
+     */
+    public function test_kontrol_form_bersama_mengikuti_palet_admin(): void
+    {
+        $css = File::get(public_path('css/berkah-admin.css'));
+
+        $this->assertStringContainsString('--fc-cream: var(--adm-surface);', $css);
+        $this->assertStringContainsString('--fc-line: var(--adm-line);', $css);
+        $this->assertStringContainsString('--fc-ink: var(--adm-ink);', $css);
+        $this->assertStringContainsString('--fc-radius: 12px;', $css);
+
+        $this->assertStringContainsString('.adm-app .fc-trigger {', $css);
+        $this->assertMatchesRegularExpression('/\.adm-app \.fc-trigger \{[^}]*min-height: 44px;/s', $css);
+        $this->assertMatchesRegularExpression('/\.adm-app \.fc-trigger \{[^}]*border-radius: 12px;/s', $css);
+        // Warna katalog tidak boleh tertinggal di aturan trigger admin.
+        preg_match('/\.adm-app \.fc-trigger \{([^}]*)\}/s', $css, $rule);
+        $this->assertNotEmpty($rule, 'Aturan trigger admin tidak ditemukan.');
+        foreach (['#fff', '#fffaf8', '#7a626a', '#eadbd6'] as $katalog)
+            $this->assertStringNotContainsString($katalog, $rule[1], 'Trigger admin masih memakai warna katalog: '.$katalog);
+    }
 }

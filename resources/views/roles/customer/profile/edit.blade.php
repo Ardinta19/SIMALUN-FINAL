@@ -333,7 +333,7 @@ $oldText = function (string $key, $fallback = '') {
 
                 <div>
                     <label class="field-label" for="profile-phone">Nomor HP / WhatsApp <span class="req">*</span></label>
-                    <input placeholder="Contoh: 0812 3456 7890" autocomplete="tel" type="tel" id="profile-phone" name="phone"
+                    <input placeholder="Contoh: 0812 3456 7890" autocomplete="tel" type="tel" inputmode="tel" id="profile-phone" name="phone"
                            class="field-input"
                            value="{{ $oldText('phone', $user->phone) }}" required>
                     @error('phone') <div class="field-error" role="alert">{{ $message }}</div> @enderror
@@ -373,7 +373,7 @@ $oldText = function (string $key, $fallback = '') {
 
                 <div>
                     <label class="field-label" for="profile-address-phone">No. HP Penerima</label>
-                    <input placeholder="Contoh: 0812 3456 7890" autocomplete="tel" type="tel" id="profile-address-phone" name="phone"
+                    <input placeholder="Contoh: 0812 3456 7890" autocomplete="tel" type="tel" inputmode="tel" id="profile-address-phone" name="phone"
                            class="field-input"
                            value="{{ $oldText('phone', $primaryAddress->phone ?? $user->phone) }}"
                            placeholder="08xxxxxxxxxx">

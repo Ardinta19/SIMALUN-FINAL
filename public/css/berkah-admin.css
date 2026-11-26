@@ -35,7 +35,10 @@
 
     --adm-ink: #301722;
     --adm-ink-2: #6f5a63;
-    --adm-ink-3: #93787f;
+    /* 4,9:1 di atas --adm-surface-3 (sebelumnya #93787f hanya 3,6:1).
+       Token ini dipakai `.adm-help`, `.adm-stat__hint`, dan waktu pada
+       linimasa — semuanya teks 11–12 px yang wajib lolos AA 4,5:1. */
+    --adm-ink-3: #80626a;
     /* Warna teks tautan di dalam panel. Dipisah dari --adm-wine karena wine
        pekat hanya lolos kontras di atas permukaan terang. */
     --adm-link: #85092d;
@@ -1556,7 +1559,7 @@ html[data-theme="dark"] .adm-app {
     text-decoration: none;
     transition: background var(--adm-dur-2) var(--adm-ease), border-color var(--adm-dur-2) var(--adm-ease);
 }
-.adm-listlink:hover { background: var(--adm-surface-3); border-color: var(--adm-line-2); }
+.adm-listlink:hover { background: var(--adm-surface-3); border-color: var(--adm-line-strong); }
 .adm-listlink:active { transform: translateY(1px); }
 .adm-listlink .adm-stat__icon { width: 32px; height: 32px; }
 @media (max-width: 420px) {
@@ -1600,3 +1603,76 @@ html[data-theme="dark"] .adm-app {
     background: currentColor;
     animation: adm-soft-pulse 2.6s var(--adm-ease) infinite;
 }
+
+/* Token kontrol form bersama (`--fc-*`) dipetakan ke palet admin. Tanpa ini
+   popover, bottom sheet, dan kalender `_form_controls` tetap memakai warna
+   katalog (`#fffaf8`, `#eadbd6`, `#7a626a`) di tengah panel admin — paling
+   terasa di tema gelap, saat dua palet gelap bertemu di satu layar. Variabel
+   diwariskan ke seluruh isi <body class="adm-app">, termasuk lapisan yang
+   ditempel ke body. */
+.adm-app {
+    --fc-ink: var(--adm-ink);
+    --fc-ink-soft: var(--adm-ink-2);
+    --fc-wine: var(--adm-wine);
+    --fc-wine-dark: var(--adm-wine-deep);
+    --fc-wine-soft: var(--adm-rose);
+    --fc-blush: var(--adm-surface-3);
+    --fc-blush-strong: var(--adm-line);
+    --fc-cream: var(--adm-surface);
+    --fc-cream-deep: var(--adm-surface-2);
+    --fc-line: var(--adm-line);
+    --fc-line-strong: var(--adm-line-strong);
+    --fc-muted: var(--adm-ink-3);
+    --fc-danger: var(--adm-danger);
+    --fc-danger-soft: var(--adm-danger-soft);
+    --fc-focus: var(--adm-rose-soft);
+    --fc-shadow: var(--adm-shadow-2);
+    --fc-shadow-soft: var(--adm-shadow-1);
+    --fc-radius: 12px;
+}
+
+/* ════════════════════════════════════════════════
+   KONTROL FORM BERSAMA DI SHELL ADMIN (audit 2026-11-25)
+   `_form_controls` (berkah-controls.js) mengganti setiap <select>,
+   <input type=date>, dan <input type=month> dengan `.fc-trigger`. Tanpa
+   penyelarasan, tombol itu tetap memakai ukuran katalog: tinggi 48 px,
+   radius `--fc-radius`, latar putih, bayangan, dan bobot 600 — berdiri
+   di sebelah label `.adm-field` 12 px dan input admin 44 px, sehingga
+   satu baris formulir terlihat campur dua sistem. Blok ini memetakan
+   trigger ke token admin; popover/sheet tetap memakai gayanya sendiri.
+════════════════════════════════════════════════ */
+.adm-app .fc-trigger {
+    min-height: 44px;
+    padding: 9px 12px;
+    border: 1px solid var(--adm-line-strong);
+    border-radius: 12px;
+    background: var(--adm-surface-2);
+    color: var(--adm-ink);
+    font-family: inherit;
+    font-size: var(--adm-fs-md);
+    font-weight: 500;
+    line-height: 1.35;
+    box-shadow: none;
+    transition: border-color var(--adm-dur-2) var(--adm-ease), box-shadow var(--adm-dur-2) var(--adm-ease), background var(--adm-dur-2) var(--adm-ease);
+}
+.adm-app .fc-trigger:hover {
+    border-color: var(--adm-line-strong);
+    background: var(--adm-surface-3);
+}
+.adm-app .fc-trigger:focus-visible {
+    outline: none;
+    border-color: var(--adm-rose);
+    box-shadow: 0 0 0 4px var(--adm-rose-soft);
+}
+.adm-app .fc-trigger[aria-invalid="true"] {
+    border-color: var(--adm-danger);
+    box-shadow: 0 0 0 4px var(--adm-danger-soft);
+}
+.adm-app .fc-trigger__text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.adm-app .fc-trigger.is-placeholder .fc-trigger__text { color: var(--adm-ink-3); }
+.adm-app .fc-trigger svg { flex: none; color: var(--adm-ink-3); }
+.adm-app .fc-error { font-size: var(--adm-fs-2xs); font-weight: 700; color: var(--adm-danger); }

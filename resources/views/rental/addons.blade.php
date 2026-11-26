@@ -45,12 +45,12 @@
             </div>
             <div class="adm-field">
                 <label for="addon-price">Harga per item (Rp) <span class="adm-req">(wajib)</span></label>
-                <input id="addon-price" type="number" name="price" min="0" max="100000000" step="500" required value="{{ old('price') }}" placeholder="Contoh: 15000">
+                <input id="addon-price" type="number" inputmode="numeric" name="price" min="0" max="100000000" step="500" required value="{{ old('price') }}" placeholder="Contoh: 15000">
                 @error('price')<p class="adm-err" id="addon-price-error">{{ $message }}</p>@enderror
             </div>
             <div class="adm-field">
                 <label for="addon-sort">Urutan tampil</label>
-                <input placeholder="Contoh: 0" id="addon-sort" type="number" name="sort_order" min="0" max="999" value="{{ old('sort_order', 0) }}">
+                <input placeholder="Contoh: 0" id="addon-sort" type="number" inputmode="numeric" name="sort_order" min="0" max="999" value="{{ old('sort_order', 0) }}">
                 <p class="muted">Angka kecil tampil lebih dulu.</p>
             </div>
         </div>
@@ -128,11 +128,11 @@
                     </div>
                     <div class="adm-field">
                         <label for="addon-price-{{ $addon->id }}">Harga (Rp)</label>
-                        <input id="addon-price-{{ $addon->id }}" type="number" name="price" min="0" max="100000000" step="500" value="{{ $addon->price }}" required>
+                        <input id="addon-price-{{ $addon->id }}" type="number" inputmode="numeric" name="price" min="0" max="100000000" step="500" value="{{ $addon->price }}" required>
                     </div>
                     <div class="adm-field">
                         <label for="addon-sort-{{ $addon->id }}">Urutan tampil</label>
-                        <input id="addon-sort-{{ $addon->id }}" type="number" name="sort_order" min="0" max="999" value="{{ $addon->sort_order }}">
+                        <input id="addon-sort-{{ $addon->id }}" type="number" inputmode="numeric" name="sort_order" min="0" max="999" value="{{ $addon->sort_order }}">
                     </div>
                 </div>
                 <div class="adm-field">

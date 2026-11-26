@@ -1207,4 +1207,117 @@ class UiKitTest extends TestCase
         $this->assertStringNotContainsString('Please fill out this field', $js);
         $this->assertStringNotContainsString('Please enter', $js);
     }
+
+    /** Setiap `var(--adm-*)` di CSS admin harus benar-benar terdefinisi.
+     *
+     *  Salah satu blok baru memakai `var(--adm-line-2)` yang tidak pernah
+     *  dideklarasikan: peramban jatuh ke `currentColor`, sehingga garis hover
+     *  berubah warna mengikuti teks dan tidak ada yang menyadarinya. Tes ini
+     *  menangkap salah tulis token sebelum sampai ke layar. Variabel yang
+     *  memang disetel JS (`--adm-i`, `--adm-toast-life`) selalu punya nilai
+     *  cadangan sehingga dilewati.
+     */
+    public function test_token_admin_yang_dipakai_selalu_terdefinisi(): void
+    {
+        $css = File::get(public_path('css/berkah-admin.css'));
+
+        $defined = [];
+        preg_match_all('/(--adm-[a-z0-9-]+)\s*:/', $css, $defs);
+        foreach ($defs[1] as $name) {
+            $defined[$name] = true;
+        }
+
+        $offenders = [];
+
+        preg_match_all('/var\(\s*(--adm-[a-z0-9-]+)\s*([,)])/', $css, $uses, PREG_SET_ORDER);
+
+        foreach ($uses as $use) {
+            $name = $use[1];
+            $hasFallback = $use[2] === ',';
+
+            if (! isset($defined[$name]) && ! $hasFallback) {
+                $offenders[$name] = true;
+            }
+        }
+
+        $this->assertSame([], array_keys($offenders), 'Token admin tanpa definisi: '.implode(', ', array_keys($offenders)));
+    }
+
+    /** Kontras token teks admin: minimal 4,5:1 di semua permukaan.
+     *
+     *  Audit 2026-11-25 menemukan `--adm-ink-3` (#93787f) hanya 3,6–3,9:1 di
+     *  atas permukaan admin, padahal ia dipakai `.adm-help`, `.adm-stat__hint`,
+     *  `.adm-timeline__time`, dan placeholder kontrol bersama — semuanya teks
+     *  kecil. Tes ini menghitung rasio kontras WCAG dari CSS itu sendiri
+     *  (bukan dari nilai yang disalin ke tes) untuk tema terang dan gelap.
+     */
+    public function test_kontras_teks_admin_minimal_aa(): void
+    {
+        $css = File::get(public_path('css/berkah-admin.css'));
+
+        $this->assertSame(1, preg_match('/:root\s*\{(.*?)\}/s', $css, $light), ':root admin tidak ditemukan.');
+        $this->assertSame(1, preg_match('/html\[data-theme="dark"\]\s*\{(.*?)\}/s', $css, $dark), 'Blok gelap admin tidak ditemukan.');
+
+        $pasangan = [
+            ['ink', 'surface'],
+            ['ink', 'surface-2'],
+            ['ink', 'surface-3'],
+            ['ink-2', 'surface'],
+            ['ink-2', 'surface-3'],
+            ['ink-3', 'surface'],
+            ['ink-3', 'surface-2'],
+            ['ink-3', 'surface-3'],
+            ['link', 'surface'],
+            ['warn', 'warn-soft'],
+            ['ok', 'ok-soft'],
+            ['danger', 'danger-soft'],
+            ['info', 'info-soft'],
+        ];
+
+        foreach (['terang' => $light[1], 'gelap' => $dark[1]] as $tema => $blok) {
+            foreach ($pasangan as [$fg, $bg]) {
+                $warnaFg = $this->ambilToken($blok, '--adm-'.$fg);
+                $warnaBg = $this->ambilToken($blok, '--adm-'.$bg);
+
+                $this->assertNotNull($warnaFg, 'Token --adm-'.$fg.' hilang pada tema '.$tema.'.');
+                $this->assertNotNull($warnaBg, 'Token --adm-'.$bg.' hilang pada tema '.$tema.'.');
+
+                $rasio = $this->rasioKontras($warnaFg, $warnaBg);
+
+                $this->assertGreaterThanOrEqual(
+                    4.5,
+                    $rasio,
+                    'Kontras --adm-'.$fg.' di atas --adm-'.$bg.' ('.$tema.') hanya '.round($rasio, 2).':1.'
+                );
+            }
+        }
+    }
+
+    private function ambilToken(string $blok, string $nama): ?string
+    {
+        return preg_match('/'.preg_quote($nama, '/').'\s*:\s*(#[0-9a-fA-F]{6})/', $blok, $m) === 1 ? $m[1] : null;
+    }
+
+    private function rasioKontras(string $a, string $b): float
+    {
+        $la = $this->luminansi($a);
+        $lb = $this->luminansi($b);
+        $terang = max($la, $lb);
+        $gelap = min($la, $lb);
+
+        return ($terang + 0.05) / ($gelap + 0.05);
+    }
+
+    private function luminansi(string $hex): float
+    {
+        $hex = ltrim($hex, '#');
+        $kanal = [];
+
+        foreach ([0, 2, 4] as $offset) {
+            $c = hexdec(substr($hex, $offset, 2)) / 255;
+            $kanal[] = $c <= 0.03928 ? $c / 12.92 : (($c + 0.055) / 1.055) ** 2.4;
+        }
+
+        return 0.2126 * $kanal[0] + 0.7152 * $kanal[1] + 0.0722 * $kanal[2];
+    }
 }

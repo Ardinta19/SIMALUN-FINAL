@@ -33,11 +33,11 @@
             </div>
             <div class="adm-field">
                 <label for="uni-delivery">Tarif antar (Rp)</label>
-                <input placeholder="Contoh: 15000" id="uni-delivery" type="number" name="delivery_fee" min="0" max="100000000" required>
+                <input placeholder="Contoh: 15000" id="uni-delivery" type="number" inputmode="numeric" name="delivery_fee" min="0" max="100000000" required>
             </div>
             <div class="adm-field">
                 <label for="uni-collection">Tarif jemput kembali (Rp)</label>
-                <input placeholder="Contoh: 20000" id="uni-collection" type="number" name="collection_fee" min="0" max="100000000" required>
+                <input placeholder="Contoh: 20000" id="uni-collection" type="number" inputmode="numeric" name="collection_fee" min="0" max="100000000" required>
             </div>
         </div>
         <div><button class="btn" type="submit">Tambah</button></div>
@@ -81,11 +81,11 @@
                     </div>
                     <div class="adm-field">
                         <label for="uni-delivery-{{ $university->id }}">Tarif antar (Rp)</label>
-                        <input id="uni-delivery-{{ $university->id }}" type="number" name="delivery_fee" min="0" max="100000000" value="{{ $university->delivery_fee }}" required>
+                        <input id="uni-delivery-{{ $university->id }}" type="number" inputmode="numeric" name="delivery_fee" min="0" max="100000000" value="{{ $university->delivery_fee }}" required>
                     </div>
                     <div class="adm-field">
                         <label for="uni-collection-{{ $university->id }}">Tarif jemput kembali (Rp)</label>
-                        <input id="uni-collection-{{ $university->id }}" type="number" name="collection_fee" min="0" max="100000000" value="{{ $university->collection_fee }}" required>
+                        <input id="uni-collection-{{ $university->id }}" type="number" inputmode="numeric" name="collection_fee" min="0" max="100000000" value="{{ $university->collection_fee }}" required>
                     </div>
                 </div>
                 <div><button class="btn" type="submit">Simpan</button></div>

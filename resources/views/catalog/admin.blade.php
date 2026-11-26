@@ -136,11 +136,11 @@
                             </div>
                             <div class="adm-field">
                                 <label for="package-days-{{ $package->id }}">Durasi (hari)</label>
-                                <input id="package-days-{{ $package->id }}" type="number" name="days" min="1" max="366" value="{{ $package->days }}" required>
+                                <input id="package-days-{{ $package->id }}" type="number" inputmode="numeric" name="days" min="1" max="366" value="{{ $package->days }}" required>
                             </div>
                             <div class="adm-field">
                                 <label for="package-price-{{ $package->id }}">Harga paket (Rp)</label>
-                                <input id="package-price-{{ $package->id }}" type="number" name="price" min="0" max="100000000" value="{{ $package->price }}" required>
+                                <input id="package-price-{{ $package->id }}" type="number" inputmode="numeric" name="price" min="0" max="100000000" value="{{ $package->price }}" required>
                             </div>
                         </div>
                         <div><button class="btn secondary adm-btn--sm" type="submit">Simpan paket</button></div>
@@ -162,11 +162,11 @@
                     </div>
                     <div class="adm-field">
                         <label for="package-new-days-{{ $product->id }}">Durasi (hari)</label>
-                        <input id="package-new-days-{{ $product->id }}" placeholder="Contoh: 3" type="number" name="days" min="1" max="366" required>
+                        <input id="package-new-days-{{ $product->id }}" placeholder="Contoh: 3" type="number" inputmode="numeric" name="days" min="1" max="366" required>
                     </div>
                     <div class="adm-field">
                         <label for="package-new-price-{{ $product->id }}">Harga paket (Rp)</label>
-                        <input id="package-new-price-{{ $product->id }}" placeholder="Contoh: 450000" type="number" name="price" min="0" max="100000000" required>
+                        <input id="package-new-price-{{ $product->id }}" placeholder="Contoh: 450000" type="number" inputmode="numeric" name="price" min="0" max="100000000" required>
                     </div>
                 </div>
                 <div><button class="btn secondary adm-btn--sm" type="submit">Tambah paket</button></div>

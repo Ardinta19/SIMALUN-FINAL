@@ -47,7 +47,7 @@
             </div>
             <div class="adm-field">
                 <label for="voucher-value">Nilai potongan <span class="adm-req">(wajib)</span></label>
-                <input placeholder="Contoh: 10" id="voucher-value" type="number" name="value" min="1" max="100000000" required value="{{ old('value') }}" @error('value') aria-invalid="true" aria-describedby="voucher-value-error" @enderror>
+                <input placeholder="Contoh: 10" id="voucher-value" type="number" inputmode="numeric" name="value" min="1" max="100000000" required value="{{ old('value') }}" @error('value') aria-invalid="true" aria-describedby="voucher-value-error" @enderror>
                 <span class="adm-help">Persen (1–100) atau rupiah.</span>
                 @error('value')<p class="adm-err" id="voucher-value-error">{{ $message }}</p>@enderror
             </div>
@@ -64,12 +64,12 @@
         <div class="adm-field-grid">
             <div class="adm-field">
                 <label for="voucher-min">Minimum belanja (Rp)</label>
-                <input placeholder="Contoh: 100000" id="voucher-min" type="number" name="min_order" min="0" max="400000000" value="{{ old('min_order', 0) }}">
+                <input placeholder="Contoh: 100000" id="voucher-min" type="number" inputmode="numeric" name="min_order" min="0" max="400000000" value="{{ old('min_order', 0) }}">
                 <span class="adm-help">0 berarti tanpa minimum.</span>
             </div>
             <div class="adm-field">
                 <label for="voucher-max">Batas potongan persen (Rp)</label>
-                <input placeholder="Contoh: 50000" id="voucher-max" type="number" name="max_discount" min="1" max="400000000" value="{{ old('max_discount') }}">
+                <input placeholder="Contoh: 50000" id="voucher-max" type="number" inputmode="numeric" name="max_discount" min="1" max="400000000" value="{{ old('max_discount') }}">
                 <span class="adm-help">Kosongkan bila tanpa batas. Hanya untuk jenis persen.</span>
             </div>
         </div>
@@ -77,7 +77,7 @@
         <div class="adm-field-grid">
             <div class="adm-field">
                 <label for="voucher-quota">Kuota total pemakaian</label>
-                <input placeholder="Contoh: 20" id="voucher-quota" type="number" name="usage_limit" min="1" max="1000000" value="{{ old('usage_limit') }}">
+                <input placeholder="Contoh: 20" id="voucher-quota" type="number" inputmode="numeric" name="usage_limit" min="1" max="1000000" value="{{ old('usage_limit') }}">
                 <span class="adm-help">Kosongkan bila tanpa batas.</span>
             </div>
             <div class="adm-field">

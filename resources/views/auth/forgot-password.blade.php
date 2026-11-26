@@ -27,8 +27,8 @@ $oldText = function (string $key, $fallback = '') {
             <span class="auth-eyebrow">PEMULIHAN AKUN</span><h2 id="auth-title">Buat kata sandi baru</h2><p>Isi email akunmu dan pilih kata sandi yang baru.</p>
             @if($errors->any())<div class="auth-alert is-error" role="alert">Periksa kembali isian di bawah.</div>@endif
             <form method="post" action="{{ route('password.update.reset') }}" class="auth-form">@csrf<input type="hidden" name="token" value="{{ $token }}">
-                <label for="reset-email">Email akun</label><input placeholder="Contoh: nama@email.com" id="reset-email" type="email" name="email" value="{{ $oldText('email', $email ?? '') }}" autocomplete="email" required @error('email') aria-invalid="true" aria-describedby="reset-email-error" @enderror>@error('email')<p class="auth-error" id="reset-email-error">{{ $message }}</p>@enderror
-                <label for="new-password">Kata sandi baru</label><input id="new-password" type="password" name="password" autocomplete="new-password" required @error('password') aria-invalid="true" aria-describedby="reset-password-error" @enderror>@error('password')<p class="auth-error" id="reset-password-error">{{ $message }}</p>@enderror
+                <label for="reset-email">Email akun</label><input placeholder="Contoh: nama@email.com" id="reset-email" type="email" name="email" value="{{ $oldText('email', $email ?? '') }}" autocomplete="email" required @error('email') aria-invalid="true" aria-describedby="reset-email-error" @enderror>@error('email')<p class="auth-error" role="alert" id="reset-email-error">{{ $message }}</p>@enderror
+                <label for="new-password">Kata sandi baru</label><input id="new-password" type="password" name="password" autocomplete="new-password" required @error('password') aria-invalid="true" aria-describedby="reset-password-error" @enderror>@error('password')<p class="auth-error" role="alert" id="reset-password-error">{{ $message }}</p>@enderror
                 <label for="confirm-password">Ulangi kata sandi baru</label><input id="confirm-password" type="password" name="password_confirmation" autocomplete="new-password" required>
                 <button class="auth-button" type="submit">Simpan kata sandi</button>
             </form>
@@ -38,7 +38,7 @@ $oldText = function (string $key, $fallback = '') {
             @if(session('error'))<div class="auth-alert is-error" role="alert">{{ session('error') }}</div>@endif
             <form method="post" action="{{ route('password.email') }}" class="auth-form">@csrf
                 <label for="recovery-email">Email akun</label><input id="recovery-email" type="email" name="email" value="{{ $oldText('email') }}" placeholder="Contoh: nama@email.com" autocomplete="email" required @error('email') aria-invalid="true" aria-describedby="recovery-email-error" @enderror>
-                @error('email')<p class="auth-error" id="recovery-email-error">{{ $message }}</p>@enderror
+                @error('email')<p class="auth-error" role="alert" id="recovery-email-error">{{ $message }}</p>@enderror
                 <button class="auth-button" type="submit">Kirim tautan pemulihan</button>
             </form>
         @endif

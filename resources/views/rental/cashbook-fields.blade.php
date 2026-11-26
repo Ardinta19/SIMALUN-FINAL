@@ -16,7 +16,7 @@
     </div>
     <div class="adm-field">
         <label for="cash-amount-{{ $entry?->id ?? 'new' }}">Nominal (Rp)</label>
-        <input id="cash-amount-{{ $entry?->id ?? 'new' }}" placeholder="Contoh: 150000" type="number" name="amount" min="1" max="1000000000" value="{{ $entry?->amount }}" required>
+        <input id="cash-amount-{{ $entry?->id ?? 'new' }}" placeholder="Contoh: 150000" type="number" inputmode="numeric" name="amount" min="1" max="1000000000" value="{{ $entry?->amount }}" required>
     </div>
 </div>
 <div class="adm-field">

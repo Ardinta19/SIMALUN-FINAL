@@ -165,7 +165,7 @@
                             <div class="adm-field-grid">
                                 <div class="adm-field">
                                     <label for="transport-amount-{{ $unit->id }}">Ongkos total (Rp)</label>
-                                    <input id="transport-amount-{{ $unit->id }}" type="number" name="amount" min="0" max="200000000" value="{{ $unit->transport_quote }}" required>
+                                    <input id="transport-amount-{{ $unit->id }}" type="number" inputmode="numeric" name="amount" min="0" max="200000000" value="{{ $unit->transport_quote }}" required>
                                 </div>
                             </div>
                             <div class="adm-field">
@@ -287,7 +287,7 @@
                                     <div class="adm-field-grid">
                                         <div class="adm-field">
                                             <label for="correct-amount-{{ $payment->id }}">Nominal yang benar (Rp)</label>
-                                            <input id="correct-amount-{{ $payment->id }}" type="number" name="amount" min="1" max="100000000" value="{{ $payment->amount }}" required>
+                                            <input id="correct-amount-{{ $payment->id }}" type="number" inputmode="numeric" name="amount" min="1" max="100000000" value="{{ $payment->amount }}" required>
                                         </div>
                                         <div class="adm-field">
                                             <label for="correct-reason-{{ $payment->id }}">Alasan koreksi</label>
@@ -309,7 +309,7 @@
                                     <div class="adm-field-grid">
                                         <div class="adm-field">
                                             <label for="refund-amount-{{ $payment->id }}">Nominal (Rp)</label>
-                                            <input id="refund-amount-{{ $payment->id }}" placeholder="Contoh: 150000" type="number" name="amount" min="1" max="{{ $payment->amount - $payment->refunds->sum('amount') }}" required>
+                                            <input id="refund-amount-{{ $payment->id }}" placeholder="Contoh: 150000" type="number" inputmode="numeric" name="amount" min="1" max="{{ $payment->amount - $payment->refunds->sum('amount') }}" required>
                                         </div>
                                         <div class="adm-field">
                                             <label for="refund-reason-{{ $payment->id }}">Alasan dan keterangan</label>
