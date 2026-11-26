@@ -141,7 +141,7 @@ html:not(.bk-enhanced) .bk-header-space{height:auto!important;min-height:0;paddi
 .bk-star-rating__options input:checked~label{color:#b6435e;background:#f9ecee;border-color:#deb8c0}
 .bk-star-rating__options input:focus-visible+label{outline:3px solid #bc5b75;outline-offset:2px}
 .bk-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
-@media(max-width:420px){.bk-star-rating__options label{min-width:40px;min-height:40px;font-size:1.35rem}}
+@media(max-width:420px){.bk-star-rating__options label{font-size:1.35rem}}
 @media(prefers-reduced-motion:reduce){.bk-star-rating__options label{transition:none}}
 .cart-actions .muted{flex:1 1 100%;margin:4px 0 0}
 /* Header ringkas memuat logo dan pencarian tanpa terpotong. */
@@ -437,7 +437,7 @@ html:not(.bk-enhanced) .bk-header-space{height:auto!important;min-height:0;paddi
 }
 
 .checkout-form input[type="file"]::file-selector-button {
-    min-height: 36px;
+    min-height: 44px;
     margin-right: 12px;
     padding: 6px 14px;
     border: 1px solid var(--theme-line, #e0c7cd);
@@ -531,7 +531,8 @@ html:not(.bk-enhanced) .bk-header-space{height:auto!important;min-height:0;paddi
 
 @media (pointer: coarse) {
     .bk-jump a,
-    .bk-category-strip a {
+    .bk-category-strip a,
+    .bk-applied-filters a {
         min-height: var(--bk-touch);
     }
 }

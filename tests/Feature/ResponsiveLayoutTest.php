@@ -647,4 +647,48 @@ class ResponsiveLayoutTest extends TestCase
             $this->assertStringContainsString('->links()', $html, $relative.' tidak lagi memakai paginasi bawaan.');
         }
     }
+
+    /** Tidak ada kendali sentuh yang menyusut di bawah 44 px di ponsel.
+     *
+     *  Audit 2026-11-25 (putaran ketujuh) menemukan empat pelanggaran yang
+     *  lolos dari tes 44 px sebelumnya:
+     *
+     *  * bintang penilaian menyusut 40 px di ≤420 px — tepat di lebar ponsel;
+     *  * chip filter aktif (`Hapus filter`) 36 px dan hanya 44 px lewat jalur
+     *    yang tidak ada;
+     *  * tombol "Pilih berkas" 36 px di checkout dan di kontrol bersama;
+     *  * ringkasan "Catatan halaman" 30 px di panel admin.
+     */
+    public function test_kendali_sentuh_tidak_menyusut_di_bawah_44_px(): void
+    {
+        $exp = File::get(public_path('css/berkah-experience.css'));
+        $admin = File::get(public_path('css/berkah-admin.css'));
+        $controls = File::get(public_path('css/berkah-controls.css'));
+
+        $this->assertStringNotContainsString('min-width:40px;min-height:40px', $exp,
+            'Bintang penilaian tidak boleh menyusut di bawah 44 px.');
+        $this->assertDoesNotMatchRegularExpression('/\.bk-star-rating__options label\s*\{[^}]*min-(?:width|height):\s*(?:[0-3]?\d)px/s', $exp);
+
+        $this->assertMatchesRegularExpression(
+            '/@media \(pointer: coarse\) \{\s*\.bk-jump a,\s*\.bk-category-strip a,\s*\.bk-applied-filters a \{\s*min-height: var\(--bk-touch\);\s*\}\s*\}/',
+            $exp,
+            'Chip filter harus ikut aturan 44 px di perangkat sentuh.'
+        );
+
+        $this->assertStringContainsString("min-height: 44px;
+    margin-right: 12px;", $exp,
+            'Tombol pilih berkas di checkout harus 44 px.');
+        $this->assertStringContainsString("min-height: 44px;
+    padding: 9px 14px;", $controls,
+            'Tombol pilih berkas di kontrol bersama harus 44 px.');
+
+        $this->assertStringContainsString('@media (pointer: coarse) {'."
+".'    .adm-page-note summary { min-height: 44px;', $admin,
+            'Ringkasan catatan halaman harus 44 px di perangkat sentuh.');
+
+        // Aturan paginasi lama (40 px) tidak boleh tersisa: spesifisitasnya
+        // mengalahkan `.bk-page-nav__link` sehingga paginasi admin menyusut.
+        $this->assertStringNotContainsString('.adm-app .pagination', $admin,
+            'Aturan paginasi lama di panel admin harus dicabut.');
+    }
 }

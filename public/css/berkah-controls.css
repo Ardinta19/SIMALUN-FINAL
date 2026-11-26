@@ -83,6 +83,7 @@ html.fc-ui :where(input[type="checkbox"], input[type="radio"]) {
 
 html.fc-ui input[type="file"]::file-selector-button {
     margin-right: 10px;
+    min-height: 44px;
     padding: 9px 14px;
     border: 1px solid var(--fc-line-strong);
     border-radius: 10px;
@@ -406,10 +407,17 @@ html.fc-ui input[type="file"]::file-selector-button:hover {
     -webkit-tap-highlight-color: transparent;
 }
 
-.fc-opt:hover,
+.fc-opt:hover {
+    outline: none;
+    background: var(--fc-blush);
+}
+
+/* Fokus papan ketik harus lebih jelas daripada hover: di daftar panjang,
+   latar blush saja mudah tertukar dengan baris yang kebetulan disorot tetikus. */
 .fc-opt:focus-visible {
     outline: none;
     background: var(--fc-blush);
+    box-shadow: inset 0 0 0 2px var(--fc-wine-soft);
 }
 
 .fc-opt[aria-selected="true"] {

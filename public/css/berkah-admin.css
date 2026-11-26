@@ -1024,15 +1024,6 @@ html.adm-reduced [data-adm-reveal] { opacity: 1 !important; transform: none !imp
 .adm-app details.card > summary:hover { background: var(--adm-surface-3); }
 .adm-app details.card > :not(summary) { padding-inline: 18px; }
 .adm-app details.card > :last-child { padding-bottom: 16px; }
-.adm-app .pagination { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 16px; }
-.adm-app .pagination a, .adm-app .pagination span {
-    display: inline-grid; place-items: center; min-width: 40px; min-height: 40px; padding: 0 10px;
-    border-radius: 10px; border: 1px solid var(--adm-line); background: var(--adm-surface-2);
-    color: var(--adm-ink-2); text-decoration: none; font-size: var(--adm-fs-xs); font-weight: 700;
-    transition: border-color var(--adm-dur-2) var(--adm-ease), color var(--adm-dur-2) var(--adm-ease), transform var(--adm-dur-2) var(--adm-ease);
-}
-.adm-app .pagination a:hover { border-color: var(--adm-rose); color: var(--adm-wine); transform: translateY(-1px); }
-.adm-app .pagination .active, .adm-app .pagination span[aria-current] { background: var(--adm-solid); color: #fff; border-color: var(--adm-wine); }
 .adm-app .help-card { background: var(--adm-surface-2); border: 1px solid var(--adm-line); border-radius: var(--adm-r-lg); padding: 16px 18px; margin: 0 0 14px; }
 .adm-app .help-card h2 { margin: 0 0 8px; }
 .adm-app .help-card ol, .adm-app .help-card ul { padding-left: 1.2em; }
@@ -1236,6 +1227,12 @@ body.adm-layer-open { overflow: hidden; }
 }
 .adm-page-note[open] summary::after { transform: rotate(180deg); }
 .adm-page-note summary:hover { color: var(--adm-wine-deep); }
+
+/* "Catatan halaman" adalah kendali buka-tutup. Di ponsel ia harus 44 px;
+   di layar dengan tetikus 30 px cukup supaya kepala halaman tetap rapat. */
+@media (pointer: coarse) {
+    .adm-page-note summary { min-height: 44px; padding: 6px 0; }
+}
 .adm-page-note summary:focus-visible { outline: 3px solid var(--adm-rose); outline-offset: 3px; border-radius: 6px; }
 .adm-page-note p {
     margin: 6px 0 0; max-width: 68ch;

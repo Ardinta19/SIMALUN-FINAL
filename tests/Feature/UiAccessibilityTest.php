@@ -783,4 +783,40 @@ class UiAccessibilityTest extends TestCase
 
         $this->assertSame([], $kurang, implode(' | ', $kurang));
     }
+
+    /** Urutan judul tidak boleh melompati tingkat.
+     *
+     *  Pembaca layar memakai hierarki h1–h6 untuk daftar isi halaman. Audit
+     *  2026-11-25 menemukan `rental/unit` melompat h2 → h4 (dua subjudul di
+     *  dalam kartu unit). Sekarang h3. Aturan ini menjaga halaman lain.
+     */
+    public function test_urutan_judul_tidak_melompati_tingkat(): void
+    {
+        $pelanggaran = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            $relative = str_replace('\\', '/', $file->getRelativePathname());
+            $html = (string) preg_replace('/\{\{--.*?--\}\}/s', '', File::get($file->getPathname()));
+            preg_match_all('/<h([1-6])\b/', $html, $found);
+
+            $prev = null;
+            foreach ($found[1] as $level) {
+                $level = (int) $level;
+
+                if ($prev !== null && $level - $prev > 1) {
+                    $pelanggaran[] = $relative.' → h'.$prev.' lalu h'.$level;
+
+                    break;
+                }
+
+                $prev = $level;
+            }
+        }
+
+        $this->assertSame([], $pelanggaran, implode(' | ', $pelanggaran));
+    }
 }
