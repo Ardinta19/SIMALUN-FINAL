@@ -260,7 +260,7 @@ $oldText = function (string $key, $fallback = '') {
 
     <div class="register-row">
       Daftar sebagai pelanggan &rarr;
-      <a href="{{ route('register') }}">Buat Akun</a>
+      <a href="{{ route('register') }}">Buat akun</a>
     </div>
 
   </div>

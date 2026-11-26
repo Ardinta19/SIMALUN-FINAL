@@ -585,7 +585,7 @@ $oldText = function (string $key, $fallback = '') {
         Selamat datang di SIMALUN!<br>
         Akun kamu sudah aktif. Silakan masuk untuk mulai memesan.
       </div>
-      <a href="{{ route('login') }}" class="btn-to-login">Masuk Sekarang &rarr;</a>
+      <a href="{{ route('login') }}" class="btn-to-login">Masuk sekarang &rarr;</a>
       @endif
     </div>
 

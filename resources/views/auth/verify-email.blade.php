@@ -1,5 +1,5 @@
-<x-guest-layout :title="__('Verifikasi Email')">
-    <h1>{{ __('Verifikasi Email Kamu') }}</h1>
+<x-guest-layout :title="__('Verifikasi email')">
+    <h1>{{ __('Verifikasi email kamu') }}</h1>
 
     <p>
         {{ __('Terima kasih telah mendaftar! Sebelum memulai, silakan verifikasi alamat email kamu dengan mengklik tautan yang baru saja kami kirim. Jika tidak menerima email tersebut, kami akan dengan senang hati mengirim ulang.') }}

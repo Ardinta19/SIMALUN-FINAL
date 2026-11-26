@@ -3351,3 +3351,39 @@ tanpa `alt`; tidak ada `<a>` tanpa `href` atau `<form>` POST tanpa `@csrf`;
 dibungkus `try`.
 
 **Hasil:** harness **164 lulus, 0 gagal, 217 dilewati**.
+
+### 9.70 Putaran kesembilan (lanjutan): sisa Judul Kapital dan pemeriksaan yang terbukti aman
+
+**a. Empat sisa Judul Kapital.** `test_judul_dan_tombol_memakai_huruf_kecil_kalimat`
+(§9.62) hanya memindai `<h1>`–`<h4>`, `<button>`, dan `<summary>`. Akibatnya
+empat teks lolos: tautan **"Buat Akun"** di login, **"Masuk Sekarang →"** di
+daftar, judul **"Verifikasi Email Kamu"**, dan tombol **"Atur Ulang Kata
+Sandi"** di surel atur ulang sandi. Semua kini kalimat biasa — "Buat akun",
+"Masuk sekarang →", "Verifikasi email kamu", "Atur ulang kata sandi".
+"Email" ditulis huruf kecil karena ia kata biasa dalam bahasa Indonesia.
+
+Penjaga barunya `test_tautan_tombol_dan_teks_terjemahan_memakai_kalimat_biasa`
+memindai tautan berkelas `btn*` dan setiap string `__('…')`, jadi kelas teks
+yang tadinya lolos sekarang ikut diperiksa. Nama merek, akronim, dan nama
+bank/brand tetap dikecualikan.
+
+**b. Pemeriksaan yang terbukti aman** (jangan diulang):
+116 rujukan `[Controller::class, 'method']` di `routes/web.php` semuanya
+menemukan kelas **dan** metodenya (termasuk lewat kelas induk); tidak ada
+`console.log`, `dd()`, `dump()`, `ray()`, `TODO`, atau `FIXME` di `app/`,
+`routes/`, `config/`, `public/js`, `public/css`, dan view; `localStorage` dan
+`matchMedia` di `berkah-ui-kit.js` selalu dibungkus `try`; tabel
+`notifications` memakai `text` untuk `data` sehingga pesan panjang tidak
+terpotong; 24 `<select>` seluruhnya ditingkatkan `initFormControls` (atribut
+`data-fc-select` hanya penanda, bukan syarat); semua `env()` yang dipakai
+punya nilai bawaan di `config/`, dan `LAUNDRY_*` sudah terdokumentasi di
+`.env.example`.
+
+**c. Jangan hapus `@section('back')` dan `@section('crumbs')`.** Pemindai
+"section yatim" yang hanya melihat rantai `@extends` sempat menandai keduanya
+mati di 15 halaman admin — padahal `layouts/component/admin/_topbar.blade.php`
+mengisinya lewat `yieldContent('back')` dan `@yield('crumbs')`. Yang benar:
+hanya `@section('title')`, `back`, dan `crumbs` yang dipakai shell admin;
+section lain di halaman anak tidak akan tampil.
+
+**Hasil:** harness **165 lulus, 0 gagal, 217 dilewati**.

@@ -284,7 +284,9 @@ class UiDefaultsTest extends TestCase
         $profil = File::get(resource_path('views/roles/customer/profile/edit.blade.php'));
 
         $this->assertStringContainsString("__('Kata sandi')", $konfirmasi);
-        $this->assertStringContainsString("__('Verifikasi Email Kamu')", $verifikasi);
+        // "Email" adalah kata biasa dalam bahasa Indonesia (KBBI: surel/email),
+        // jadi judul ini ikut huruf kecil kalimat.
+        $this->assertStringContainsString("__('Verifikasi email kamu')", $verifikasi);
 
         foreach (['Kata sandi saat ini', 'Kata sandi baru', 'Konfirmasi kata sandi baru'] as $label) {
             $this->assertStringContainsString('>'.$label.'<', $profil, 'Label "'.$label.'" hilang dari profil pelanggan.');
@@ -890,5 +892,61 @@ class UiDefaultsTest extends TestCase
         }
 
         $this->assertSame([], array_values(array_unique($kurang)), 'Kolom pencarian tanpa type=search.');
+    }
+
+    /** Tautan bergaya tombol dan teks terjemahan juga kalimat biasa.
+     *
+     *  `test_judul_dan_tombol_memakai_huruf_kecil_kalimat` hanya memeriksa
+     *  `<h1>`–`<h4>`, `<button>`, dan `<summary>`. Tautan bergaya tombol
+     *  ("Buat Akun", "Masuk Sekarang") serta string `__()` yang dirender
+     *  lewat `{{ }}` lolos dari pemeriksaan itu, padahal terlihat sama
+     *  menonjol di mata pelanggan.
+     */
+    public function test_tautan_tombol_dan_teks_terjemahan_memakai_kalimat_biasa(): void
+    {
+        $nama = ['PDF', 'QRIS', 'WhatsApp', 'Instagram', 'Facebook', 'Google', 'Maps', 'SIMALUN', 'Berkah', 'Kreatif', 'Jambi', 'Halo', 'Toko', 'Bank', 'BCA', 'BRI', 'BNI', 'Mandiri', 'DANA', 'OVO', 'GoPay', 'QR', 'ID', 'AI', 'CSV'];
+        $pelanggaran = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            $relative = str_replace('\\', '/', $file->getRelativePathname());
+            $html = (string) File::get($file->getPathname());
+
+            $kandidat = [];
+
+            preg_match_all('/<a\b[^>]*class="[^"]*\bbtn[^"]*"[^>]*>([^<>{}]{4,60})</', $html, $tautan, PREG_SET_ORDER);
+            foreach ($tautan as $item) {
+                $kandidat[] = [$item[0], $item[1]];
+            }
+
+            preg_match_all("/__\(\s*'([^']{4,60})'\s*\)/", $html, $terjemah, PREG_SET_ORDER);
+            foreach ($terjemah as $item) {
+                $kandidat[] = [$item[0], $item[1]];
+            }
+
+            foreach ($kandidat as [$jejak, $text]) {
+                $text = trim(preg_replace('/&[a-z]+;/', '', $text));
+
+                $kata = array_values(array_filter(
+                    preg_split('/[\s\/·—]+/u', $text),
+                    fn ($k) => preg_match('/[A-Za-z]/', (string) $k)
+                ));
+
+                $huruf = array_values(array_filter($kata, fn ($k) => ! in_array($k, $nama, true) && ! ctype_upper($k) && mb_strlen($k) > 2));
+
+                if (count($huruf) < 2 || in_array($kata[0] ?? '', $nama, true)) {
+                    continue;
+                }
+
+                if (collect($huruf)->every(fn ($k) => ctype_upper(mb_substr($k, 0, 1)))) {
+                    $pelanggaran[] = $relative.' → "'.$text.'"';
+                }
+            }
+        }
+
+        $this->assertSame([], array_values(array_unique($pelanggaran)), implode(' | ', array_values(array_unique($pelanggaran))));
     }
 }
