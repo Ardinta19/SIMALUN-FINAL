@@ -16,7 +16,9 @@
         <a class="bk-page-nav__link bk-page-nav__edge" href="{{ $paginator->previousPageUrl() }}" rel="prev">Sebelumnya</a>
     @endif
 
-    @foreach ($elements as $element)
+    {{-- `simplePaginate()` tidak punya `$elements`; penjaga ini membuat satu
+         tampilan aman untuk length-aware maupun simple. --}}
+    @foreach ($elements ?? [] as $element)
         @if (is_string($element))
             <span class="bk-page-nav__gap" aria-hidden="true">{{ $element }}</span>
         @endif

@@ -282,7 +282,7 @@ $oldText = function (string $key, $fallback = '') {
     @endif
 
     @if($errors->any())
-        <div class="alert alert-error">
+        <div class="alert alert-error" role="alert">
             Periksa kembali isian berikut:
             @foreach($errors->all() as $e) <br>• {{ $e }} @endforeach
         </div>

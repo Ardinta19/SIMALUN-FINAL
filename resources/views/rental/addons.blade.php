@@ -41,12 +41,12 @@
             <div class="adm-field adm-field--wide">
                 <label for="addon-name">Nama item <span class="adm-req">(wajib)</span></label>
                 <input id="addon-name" name="name" maxlength="120" required value="{{ old('name') }}" placeholder="Contoh: Kartu ucapan cetak">
-                @error('name')<p class="adm-err" id="addon-name-error">{{ $message }}</p>@enderror
+                @error('name')<p class="adm-err" role="alert" id="addon-name-error">{{ $message }}</p>@enderror
             </div>
             <div class="adm-field">
                 <label for="addon-price">Harga per item (Rp) <span class="adm-req">(wajib)</span></label>
                 <input id="addon-price" type="number" inputmode="numeric" name="price" min="0" max="100000000" step="500" required value="{{ old('price') }}" placeholder="Contoh: 15000">
-                @error('price')<p class="adm-err" id="addon-price-error">{{ $message }}</p>@enderror
+                @error('price')<p class="adm-err" role="alert" id="addon-price-error">{{ $message }}</p>@enderror
             </div>
             <div class="adm-field">
                 <label for="addon-sort">Urutan tampil</label>
@@ -64,7 +64,7 @@
             <label for="addon-image">Foto item</label>
             <input id="addon-image" type="file" name="image" accept="image/jpeg,image/png,image/webp" aria-describedby="addon-image-hint">
             <p class="muted" id="addon-image-hint">JPG, PNG, atau WebP, maksimal 5 MB. Opsional.</p>
-            @error('image')<p class="adm-err" id="addon-image-error">{{ $message }}</p>@enderror
+            @error('image')<p class="adm-err" role="alert" id="addon-image-error">{{ $message }}</p>@enderror
         </div>
 
         <div><button class="btn" type="submit">Tambah item</button></div>

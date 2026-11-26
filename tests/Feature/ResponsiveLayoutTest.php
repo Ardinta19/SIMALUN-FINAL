@@ -305,6 +305,16 @@ class ResponsiveLayoutTest extends TestCase
         $this->assertStringNotContainsString('width: max-content', $css, 'Paginasi tidak boleh selebar isinya.');
         $this->assertStringContainsString("@include('vendor.pagination.token-simple')", $alias, 'Alih paginasi pelanggan harus memakai tampilan yang sama.');
         $this->assertStringNotContainsString('.bk-pagination', $experience, 'Aturan paginasi lama harus dicabut.');
+
+        // Dulu ada tiga sistem paginasi. Dua berkas lama kini hanya alias, dan
+        // tidak satu pun boleh membawa <style> sendiri.
+        foreach (['berkah.blade.php', 'customer-simple.blade.php'] as $alias) {
+            $isi = File::get(resource_path('views/vendor/pagination/'.$alias));
+            $markup = (string) preg_replace('/\{\{--.*?--\}\}/s', '', $isi);
+
+            $this->assertStringContainsString("@include('vendor.pagination.token-simple')", $isi, $alias.' harus memakai tampilan bersama.');
+            $this->assertStringNotContainsString('<style', $markup, $alias.' tidak boleh membawa gaya sendiri.');
+        }
     }
 
     public function test_kolom_formulir_admin_sejajar_dari_label(): void
@@ -605,6 +615,8 @@ class ResponsiveLayoutTest extends TestCase
         $this->assertStringContainsString('aria-current="page"', $view);
         $this->assertStringContainsString('rel="prev"', $view);
         $this->assertStringContainsString('rel="next"', $view);
+        $this->assertStringContainsString('@foreach ($elements ?? [] as $element)', $view,
+            'Tampilan yang sama dipakai `Paginator::defaultSimpleView`; tanpa penjaga, `simplePaginate()` gagal karena tidak punya $elements.');
 
         $this->assertStringContainsString('.bk-page-nav__link,', $css);
         $this->assertMatchesRegularExpression('/\.bk-page-nav__link,\s*\n\.bk-page-nav__current,\s*\n\.bk-page-nav__gap \{[^}]*min-height: var\(--bk-touch, 44px\);/s', $css);

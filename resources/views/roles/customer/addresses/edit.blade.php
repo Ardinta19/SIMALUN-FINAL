@@ -135,7 +135,7 @@ $oldText = function (string $key, $fallback = '') {
 <main class="page-body" id="main-content" tabindex="-1">
 
     @if($errors->any())
-    <div class="alert-error">
+    <div class="alert-error" role="alert">
         <span class="bk-i" aria-hidden="true">@include('layouts.component._icon', ['name' => 'alert-triangle', 'size' => 20])</span> Periksa kembali isian:<br>
         @foreach($errors->all() as $e) • {{ $e }}<br> @endforeach
     </div>

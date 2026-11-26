@@ -3155,3 +3155,48 @@ eksplisit. Sekarang memakai `timezone('Asia/Jakarta')` + "WIB", dengan
 
 **Hasil:** harness **138 lulus, 0 gagal, 216 dilewati**; `blade-scan` 81 view
 0/0; kurung CSS seimbang; `node --check` bersih.
+
+### 9.66 Putaran keenam: pesan galat yang bisu dan paginasi ketiga
+
+**a. Pesan galat yang tidak diumumkan.** Tes
+`test_pesan_galat_isian_selalu_diumumkan` hanya mengenal kelas
+`field-error`, `bk-field-error`, dan `auth-error`. Sapuan kelas di seluruh
+view menemukan empat wadah galat lain yang lolos dari jaring itu:
+`alert-error` (pendaftaran + dua halaman alamat pelanggan),
+`alert alert-error` (profil pelanggan), `adm-err` (12 kali di panel admin:
+profil, item tambahan, voucher), `form-error show` (tujuh galat server di
+pendaftaran), `error-msg` (login — sudah benar), dan `bk-unit-errors`
+(ringkasan galat per unit di checkout). Pola tes diperluas ke semua kelas itu,
+lalu:
+
+* `auth/register` — alert sesi diberi `role="alert"`, dan tujuh
+  `form-error show` yang dirender server ikut diumumkan (wadah JS di
+  sebelahnya sudah `aria-live="polite"`).
+* `roles/customer/addresses/{create,edit}` dan
+  `roles/customer/profile/edit` — `role="alert"`.
+* 10 `adm-err` di `roles/admin/profile_edit`, `rental/addons`,
+  `rental/vouchers` — `role="alert"`.
+* `rental/checkout` — ringkasan galat unit (`bk-unit-errors`) diberi
+  `role="alert"`; kotak ini hanya dirender kalau ada galat, jadi tidak
+  muncul kosong pada checkout yang bersih.
+
+**b. Formulir ganti kata sandi admin tidak pernah menampilkan galat.**
+`PasswordController::update` memvalidasi dengan
+`validateWithBag('updatePassword')`. Formulir admin menulis
+`@error('password')` (kantong bawaan) sehingga pesan "kata sandi saat ini
+salah" tidak pernah muncul — formulir kembali kosong tanpa penjelasan.
+Sekarang kedua isian memakai kantong `updatePassword`, punya `aria-invalid`
+dan `aria-describedby`, dan paragraf galatnya ber-`role="alert"`. Dijaga
+`UiAccessibilityTest::test_galat_ganti_kata_sandi_memakai_kantong_update_password`
+yang memindai setiap view ber-`route('password.update')`.
+
+**c. Tampilan paginasi ketiga.** `vendor/pagination/customer-simple.blade.php`
+ternyata tidak dipanggil dari mana pun, tetapi membawa `<style>` sebaris
+sendiri (`.pg*`, butir ~32 px) dan lima aturan tema gelap `.pg-*` di
+`berkah-theme.css`. Keduanya dicabut; berkas itu kini alias satu baris seperti
+`berkah.blade.php`, sehingga direktori paginasi hanya punya satu rupa
+(`.bk-page-nav*`). Tampilan bersama juga dijaga untuk `simplePaginate()`:
+`@foreach ($elements ?? [] as $element)` — `Paginator::defaultSimpleView`
+menunjuk berkas yang sama, dan paginator sederhana tidak punya `$elements`.
+
+**Hasil:** harness **139 lulus, 0 gagal, 216 dilewati**.

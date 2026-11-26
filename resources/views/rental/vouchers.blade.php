@@ -28,7 +28,7 @@
             <div class="adm-field">
                 <label for="voucher-code">Kode voucher <span class="adm-req">(wajib)</span></label>
                 <input id="voucher-code" name="code" maxlength="30" required autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Contoh: WISUDA10" value="{{ old('code') }}" @error('code') aria-invalid="true" aria-describedby="voucher-code-error" @enderror>
-                @error('code')<p class="adm-err" id="voucher-code-error">{{ $message }}</p>@enderror
+                @error('code')<p class="adm-err" role="alert" id="voucher-code-error">{{ $message }}</p>@enderror
             </div>
             <div class="adm-field">
                 <label for="voucher-description">Keterangan singkat <span class="adm-req">(wajib)</span></label>
@@ -49,7 +49,7 @@
                 <label for="voucher-value">Nilai potongan <span class="adm-req">(wajib)</span></label>
                 <input placeholder="Contoh: 10" id="voucher-value" type="number" inputmode="numeric" name="value" min="1" max="100000000" required value="{{ old('value') }}" @error('value') aria-invalid="true" aria-describedby="voucher-value-error" @enderror>
                 <span class="adm-help">Persen (1–100) atau rupiah.</span>
-                @error('value')<p class="adm-err" id="voucher-value-error">{{ $message }}</p>@enderror
+                @error('value')<p class="adm-err" role="alert" id="voucher-value-error">{{ $message }}</p>@enderror
             </div>
             <div class="adm-field">
                 <label for="voucher-scope">Potongan berlaku untuk</label>
@@ -102,7 +102,7 @@
                 <label for="voucher-until">Berlaku sampai</label>
                 <input id="voucher-until" type="date" name="valid_until" value="{{ old('valid_until') }}" @error('valid_until') aria-invalid="true" aria-describedby="voucher-until-error" @enderror>
                 <span class="adm-help">Kosongkan bila tanpa batas tanggal.</span>
-                @error('valid_until')<p class="adm-err" id="voucher-until-error">{{ $message }}</p>@enderror
+                @error('valid_until')<p class="adm-err" role="alert" id="voucher-until-error">{{ $message }}</p>@enderror
             </div>
         </div>
 

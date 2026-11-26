@@ -691,7 +691,7 @@ class UiAccessibilityTest extends TestCase
             // sebelum tag dipindai.
             $scan = str_replace('->', "\u{2192}", $html);
 
-            preg_match_all('/<(?:div|p|span)\b[^>]*class\s*=\s*"[^"]*\b(?:field-error|bk-field-error|auth-error)\b[^"]*"[^>]*>/i', $scan, $found);
+            preg_match_all('/<(?:div|p|span)\b[^>]*class\s*=\s*"[^"]*\b(?:field-error|bk-field-error|auth-error|alert-error|auth-alert\s+is-error|adm-err|form-error|error-msg|bk-unit-errors)\b[^"]*"[^>]*>/i', $scan, $found);
 
             foreach ($found[0] as $tag) {
                 if (! preg_match('/\b(?:role\s*=\s*"alert"|aria-live\s*=)/i', $tag)) {
@@ -737,5 +737,50 @@ class UiAccessibilityTest extends TestCase
         }
 
         $this->assertSame([], $kurang, 'Isian tanpa inputmode: '.implode(' | ', $kurang));
+    }
+
+    /** Galat ganti kata sandi harus tampil di kedua peran.
+     *
+     *  `PasswordController::update` memvalidasi dengan kantong
+     *  `updatePassword` (`validateWithBag`). Halaman yang hanya menulis
+     *  `@error('password')` membaca kantong bawaan, jadi admin yang salah
+     *  mengetik kata sandi lama tidak melihat pesan apa pun — formulir hanya
+     *  kembali kosong. Audit 2026-11-25 menemukan formulir admin dalam
+     *  keadaan itu; formulir pelanggan sudah benar.
+     */
+    public function test_galat_ganti_kata_sandi_memakai_kantong_update_password(): void
+    {
+        $kurang = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            $relative = str_replace('\\', '/', $file->getRelativePathname());
+            $html = (string) File::get($file->getPathname());
+
+            if (! str_contains($html, "route('password.update')")) {
+                continue;
+            }
+
+            foreach (['current_password', 'password'] as $field) {
+                $needle = "@error('".$field."', 'updatePassword')";
+
+                if (! str_contains($html, $needle)) {
+                    $kurang[] = $relative.' → tidak menampilkan galat '.$field;
+                }
+            }
+
+            // Pesan galat yang tampil harus diumumkan dan terhubung ke isian.
+            preg_match_all('/@error\(\'(current_password|password)\'[^)]*\)\s*<[^>]*>/', $html, $found);
+            foreach ($found[0] as $tag) {
+                if (! preg_match('/role\\s*=\\s*"alert"/', $tag)) {
+                    $kurang[] = $relative.' → galat tanpa role=alert: '.$tag;
+                }
+            }
+        }
+
+        $this->assertSame([], $kurang, implode(' | ', $kurang));
     }
 }

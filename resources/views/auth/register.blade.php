@@ -379,7 +379,7 @@ $oldText = function (string $key, $fallback = '') {
     <div class="card-sub">Daftar sebagai pelanggan Berkah Kreatif</div>
 
     @if(session('error'))
-      <div class="alert alert-error">@include('layouts.component._icon', ['name' => 'alert-triangle', 'size' => 20])<span>{{ session('error') }}</span></div>
+      <div class="alert alert-error" role="alert">@include('layouts.component._icon', ['name' => 'alert-triangle', 'size' => 20])<span>{{ session('error') }}</span></div>
     @endif
 
     <!-- Step Indicator -->
@@ -407,7 +407,7 @@ $oldText = function (string $key, $fallback = '') {
               placeholder="Contoh: Sari Wulandari"
               value="{{ $oldText('name') }}" autocomplete="name">
           </div>
-          @error('name')<div class="form-error show">{{ $message }}</div>@enderror
+          @error('name')<div class="form-error show" role="alert">{{ $message }}</div>@enderror
           <div class="form-error" aria-live="polite" id="err-name"></div>
         </div>
 
@@ -423,7 +423,7 @@ $oldText = function (string $key, $fallback = '') {
               <span>Perempuan</span>
             </label>
           </div>
-          @error('gender')<div class="form-error show">{{ $message }}</div>@enderror
+          @error('gender')<div class="form-error show" role="alert">{{ $message }}</div>@enderror
           <div class="form-error" aria-live="polite" id="err-gender"></div>
         </div>
 
@@ -438,7 +438,7 @@ $oldText = function (string $key, $fallback = '') {
                 value="{{ $oldText('phone') }}" inputmode="tel" autocomplete="tel">
             </div>
           </div>
-          @error('phone')<div class="form-error show">{{ $message }}</div>@enderror
+          @error('phone')<div class="form-error show" role="alert">{{ $message }}</div>@enderror
           <div class="form-error" aria-live="polite" id="err-phone"></div>
         </div>
 
@@ -462,7 +462,7 @@ $oldText = function (string $key, $fallback = '') {
               placeholder="Contoh: sari@email.com (opsional)"
               value="{{ $oldText('email') }}" autocomplete="email" inputmode="email">
           </div>
-          @error('email')<div class="form-error show">{{ $message }}</div>@enderror
+          @error('email')<div class="form-error show" role="alert">{{ $message }}</div>@enderror
           <div class="form-error" aria-live="polite" id="err-email"></div>
           <div style="font-size:var(--bk-fs-2xs);font-weight:700;color:rgba(255,255,255,.72);margin-top:.35rem;line-height:1.4;">
             Nomor HP digunakan untuk kontak. Notifikasi pesanan tersedia di dalam aplikasi.
@@ -477,7 +477,7 @@ $oldText = function (string $key, $fallback = '') {
               placeholder="Min. 8 karakter" autocomplete="new-password">
             <button type="button" class="pw-toggle" id="pw-toggle-1" aria-label="Tampilkan kata sandi" aria-pressed="false"><span data-glyph="eye">@include('layouts.component._icon', ['name' => 'eye', 'size' => 20])</span><span data-glyph="eye-off" hidden>@include('layouts.component._icon', ['name' => 'eye-off', 'size' => 20])</span></button>
           </div>
-          @error('password')<div class="form-error show">{{ $message }}</div>@enderror
+          @error('password')<div class="form-error show" role="alert">{{ $message }}</div>@enderror
           <div class="form-error" aria-live="polite" id="err-pw"></div>
           <!-- Strength meter -->
           <div class="pw-strength" id="pw-strength">
@@ -521,7 +521,7 @@ $oldText = function (string $key, $fallback = '') {
               placeholder="Contoh: Jl. Merdeka No. 12, RT 03/RW 05, Kel. Talang"
               rows="3" style="padding-left:2.65rem;resize:none;">{{ $oldText('address') }}</textarea>
           </div>
-          @error('address')<div class="form-error show">{{ $message }}</div>@enderror
+          @error('address')<div class="form-error show" role="alert">{{ $message }}</div>@enderror
           <div class="form-error" aria-live="polite" id="err-address"></div>
         </div>
 
@@ -541,7 +541,7 @@ $oldText = function (string $key, $fallback = '') {
             Saya menyetujui penggunaan data saya untuk pengelolaan akun dan pesanan Berkah Kreatif.
           </label>
         </div>
-        @error('terms')<div class="form-error show">{{ $message }}</div>@enderror
+        @error('terms')<div class="form-error show" role="alert">{{ $message }}</div>@enderror
         <div class="form-error" aria-live="polite" id="err-terms"></div>
 
         <div class="btn-row">
