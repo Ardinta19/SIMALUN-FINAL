@@ -2973,6 +2973,12 @@ grid `auto minmax(0,1fr) auto`, menyusut di 420 px) dan `.adm-dot` (titik
 status sebaris, menggantikan `.adm-iconbtn__dot` yang berposisi absolut dan
 salah tempat bila dipakai di dalam tombol/lencana).
 
-**Hasil harness akhir:** **127 lulus, 0 gagal, 216 dilewati**; `blade-scan`
+**h. Tombol ikon header katalog 42 px.** `.bk-desktop-action` (keranjang,
+notifikasi, pesanan) berukuran 42×42, dan di rentang 701–880 px menyusut lagi
+menjadi 38×42 — di tablet berujung sentuh sasaran itu terlalu kecil. Kini
+44×44 di semua rentang, dan tautan `.bk-desktop-nav` ikut 44 px agar sederajat.
+Dijaga `ResponsiveLayoutTest::test_tombol_ikon_header_katalog_minimal_44_px`.
+
+**Hasil harness akhir:** **128 lulus, 0 gagal, 216 dilewati**; `blade-scan`
 81 view 0/0 (dua view mati dihapus); `.tmp-verify.php` 26 lulus; `node --check` seluruh `public/js`
 bersih.

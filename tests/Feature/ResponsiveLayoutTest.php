@@ -511,4 +511,21 @@ class ResponsiveLayoutTest extends TestCase
         $this->assertStringContainsString('main{width:100%;max-width:440px;', $layout);
         $this->assertStringContainsString('overflow-wrap:anywhere', $layout);
     }
+
+    /** Tombol ikon header katalog minimal 44 px.
+     *
+     *  `.bk-desktop-action` dulu 42×42, dan di 701–880 px menyusut lagi ke
+     *  38×42 — di tablet berujung sentuh tombol keranjang/notifikasi jadi
+     *  sasaran yang mudah meleset. Sekarang 44×44 di semua rentang; nav
+     *  desktop ikut 44 px agar sederajat.
+     */
+    public function test_tombol_ikon_header_katalog_minimal_44_px(): void
+    {
+        $css = File::get(public_path('css/berkah-experience.css'));
+
+        $this->assertStringContainsString('.bk-desktop-action{position:relative;display:grid;place-items:center;width:44px;height:44px;', $css);
+        $this->assertStringContainsString('.bk-desktop-nav a{display:inline-flex;align-items:center;min-height:44px;', $css);
+        $this->assertStringNotContainsString('width:38px;height:42px', $css);
+        $this->assertStringNotContainsString('min-height:42px;padding:6px 8px', $css);
+    }
 }
