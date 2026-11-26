@@ -14,7 +14,7 @@
             <nav class="bk-desktop-nav" aria-label="Navigasi utama">
                 @if($isCustomer)<a href="{{ route('customer.dashboard') }}" @if(request()->routeIs('customer.dashboard')) aria-current="page" @endif>Beranda</a>@endif
                 <a href="{{ route('welcome') }}" @if(request()->routeIs('welcome', 'catalog.show')) aria-current="page" @endif>Katalog</a>
-                @if($isCustomer)<a href="{{ route('rental.orders.index') }}" @if(request()->routeIs('rental.orders.*')) aria-current="page" @endif>Pesanan</a><a class="bk-nav-help" href="{{ route('customer.help') }}" @if(request()->routeIs('customer.help')) aria-current="page" @endif>Bantuan</a>@else{{-- Tamu: tujuan di sini harus sama dengan isi busur di ponsel
+                @if($isCustomer)<a href="{{ route('rental.orders.index') }}" @if(request()->routeIs('rental.orders.*')) aria-current="page" @endif>Pesanan</a><a href="{{ route('customer.help') }}" @if(request()->routeIs('customer.help')) aria-current="page" @endif>Bantuan</a>@else{{-- Tamu: tujuan di sini harus sama dengan isi busur di ponsel
                 (katalog, keranjang, daftar, masuk). Tanpa “Daftar”, tamu di
                 layar lebar kehilangan satu tujuan yang di ponsel tersedia. --}}
                 <a href="{{ route('login') }}" @if(request()->routeIs('login')) aria-current="page" @endif>Masuk</a><a href="{{ route('register') }}" @if(request()->routeIs('register')) aria-current="page" @endif>Daftar</a>@endif

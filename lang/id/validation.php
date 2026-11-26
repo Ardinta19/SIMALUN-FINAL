@@ -182,17 +182,9 @@ return [
         'address' => 'alamat lengkap',
         'address_note' => 'patokan alamat',
         'zone' => 'zona pengiriman',
-        'pickup_date' => 'tanggal jemput',
-        'pickup_time' => 'waktu jemput',
-        'weight_estimate' => 'estimasi berat',
-        'service_id' => 'layanan',
         'notes' => 'catatan',
         'customer_address_id' => 'alamat tersimpan',
-        'weight_actual' => 'berat aktual',
-        'proof_image' => 'foto bukti pengiriman',
         'status' => 'status pesanan',
-        'driver_id' => 'kurir',
-        'assignment_type' => 'jenis penugasan',
 
         // Customer Address
         'label' => 'label alamat',
@@ -231,6 +223,48 @@ return [
         'units.*.return_university_id' => 'universitas penjemputan',
         'terms' => 'persetujuan syarat',
 
+        // Formulir pelanggan yang tidak memakai kunci bertingkat.
+        // Tanpa entri di sini, pesan tampil dengan nama kolom mentah
+        // ("kolom gender wajib diisi", "kolom proof wajib diisi").
+        'gender' => 'jenis kelamin',
+        'avatar' => 'foto profil',
+        'proof' => 'bukti pembayaran',
+        'greeting' => 'ucapan',
+        'design_notes' => 'catatan desain',
+        'delivery_address' => 'alamat pengantaran',
+        'return_address' => 'alamat pengambilan kembali',
+        'delivery_fee' => 'ongkos antar',
+        'collection_fee' => 'ongkos ambil',
+        'latitude' => 'titik peta',
+        'longitude' => 'titik peta',
+        'voucher_code' => 'kode voucher',
+
+        // Formulir panel admin (katalog, voucher, kas, pengaturan).
+        'price' => 'harga',
+        'base_price' => 'harga dasar',
+        'price_unit' => 'satuan harga',
+        'stock' => 'stok',
+        'value' => 'nilai',
+        'min_order' => 'minimum belanja',
+        'max_discount' => 'potongan maksimum',
+        'per_customer_limit' => 'batas per pelanggan',
+        'usage_limit' => 'batas pemakaian',
+        'valid_from' => 'tanggal mulai berlaku',
+        'valid_until' => 'tanggal berakhir',
+        'scope' => 'cakupan',
+        'type' => 'jenis',
+        'category' => 'kategori',
+        'size' => 'ukuran',
+        'sort_order' => 'urutan',
+        'is_active' => 'status aktif',
+        'days' => 'durasi (hari)',
+        'qris' => 'gambar QRIS',
+        'remove_qris' => 'hapus QRIS',
+        'whatsapp_number' => 'nomor WhatsApp',
+        'activity' => 'aktivitas',
+        'responsibility' => 'penanggung jawab',
+        'admin_note' => 'catatan admin',
+
         // Panel admin: kas, voucher, item tambahan, jadwal, audit
         'code' => 'kode voucher',
         'period' => 'periode',
@@ -254,10 +288,6 @@ return [
         'q' => 'kata kunci pencarian',
         'rental_category_id' => 'kategori',
 
-        // Item lines
-        'item_lines' => 'item satuan',
-        'item_lines.*.service_id' => 'layanan item',
-        'item_lines.*.qty' => 'jumlah item',
     ],
 
     /*
@@ -271,25 +301,6 @@ return [
             'required' => 'Alamat lengkap wajib diisi.',
             'min' => 'Alamat harus diisi lebih lengkap (minimal 10 karakter).',
             'string' => 'Alamat tidak valid.',
-        ],
-        'weight_estimate' => [
-            'required' => 'Estimasi berat wajib diisi.',
-            'numeric' => 'Estimasi berat harus berupa angka.',
-            'min' => 'Estimasi berat minimal 1 kg.',
-            'max' => 'Estimasi berat maksimal 100 kg.',
-        ],
-        'pickup_date' => [
-            'required' => 'Tanggal jemput wajib dipilih.',
-            'date' => 'Tanggal jemput tidak valid.',
-            'after_or_equal' => 'Tanggal jemput tidak boleh sebelum hari ini.',
-        ],
-        'pickup_time' => [
-            'required' => 'Waktu jemput wajib dipilih.',
-            'in' => 'Pilihan waktu jemput tidak valid.',
-        ],
-        'service_id' => [
-            'required' => 'Layanan laundry wajib dipilih.',
-            'exists' => 'Layanan yang dipilih tidak tersedia.',
         ],
         'zone' => [
             'required' => 'Zona pengiriman wajib dipilih.',

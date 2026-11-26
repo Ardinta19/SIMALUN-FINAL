@@ -23,7 +23,7 @@ class LoginController extends Controller
             'email' => ['nullable', 'string'],
             'password' => ['required', 'string'],
         ], [
-            'password.required' => 'Password wajib diisi',
+            'password.required' => 'Kata sandi wajib diisi',
         ]);
 
         $identifier = trim($credentials['identifier'] ?? $credentials['email'] ?? '');

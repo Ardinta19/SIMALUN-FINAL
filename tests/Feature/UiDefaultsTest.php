@@ -632,4 +632,116 @@ class UiDefaultsTest extends TestCase
             $this->assertStringContainsString('noindex', File::get(resource_path('views/'.$relative)), $relative.' harus noindex.');
         }
     }
+
+    /** Pesan validasi tidak boleh menampilkan nama kolom mentah.
+     *
+     *  Laravel menyisipkan `:attribute` dari `lang/id/validation.php`. Kalau
+     *  kolomnya tidak dipetakan, pelanggan membaca "kolom proof wajib diisi"
+     *  atau "kolom gender wajib diisi" — nama variabel, bukan bahasa manusia.
+     */
+    public function test_pesan_validasi_memakai_nama_kolom_indonesia(): void
+    {
+        $lang = File::get(base_path('lang/id/validation.php'));
+
+        $wajib = [
+            'gender' => 'jenis kelamin',
+            'avatar' => 'foto profil',
+            'proof' => 'bukti pembayaran',
+            'greeting' => 'ucapan',
+            'design_notes' => 'catatan desain',
+            'delivery_address' => 'alamat pengantaran',
+            'return_address' => 'alamat pengambilan kembali',
+            'latitude' => 'titik peta',
+            'longitude' => 'titik peta',
+            'voucher_code' => 'kode voucher',
+            'price' => 'harga',
+            'stock' => 'stok',
+            'whatsapp_number' => 'nomor WhatsApp',
+        ];
+
+        foreach ($wajib as $kolom => $nama) {
+            $this->assertMatchesRegularExpression(
+                "/'".preg_quote($kolom, '/')."'\s*=>\s*'".preg_quote($nama, '/')."'/",
+                $lang,
+                'Kolom "'.$kolom.'" belum punya nama Indonesia di pesan validasi.'
+            );
+        }
+
+        // Sisa-sisa aplikasi lama (laundry) tidak boleh muncul lagi: pesan
+        // seperti "Layanan laundry wajib dipilih" tidak ada hubungannya dengan
+        // pemesanan papan bunga.
+        $this->assertStringNotContainsStringIgnoringCase('laundry', $lang);
+        $this->assertStringNotContainsString("'pickup_date'", $lang);
+        $this->assertStringNotContainsString("'weight_estimate'", $lang);
+    }
+
+    /** Tidak ada kalimat Inggris yang bocor dari kerangka Laravel.
+     *
+     *  `ConfirmablePasswordController` memakai `__('auth.password')` dan
+     *  `ResetPasswordController` memakai `__($status)` dari broker
+     *  (`passwords.token`, `passwords.throttled`, …). Selama `lang/id` belum
+     *  punya berkas itu, Laravel jatuh ke `fallback_locale` = en: halaman
+     *  konfirmasi kata sandi menampilkan "This password is incorrect." dan
+     *  halaman reset bisa menampilkan kunci mentah.
+     */
+    public function test_pesan_kerangka_laravel_tersedia_dalam_bahasa_indonesia(): void
+    {
+        foreach (['auth' => ['failed', 'password', 'throttle'], 'passwords' => ['reset', 'sent', 'throttled', 'token', 'user']] as $berkas => $kunci) {
+            $path = base_path('lang/id/'.$berkas.'.php');
+
+            $this->assertFileExists($path, 'lang/id/'.$berkas.'.php belum ada; Laravel akan memakai bahasa Inggris.');
+
+            $isi = File::get($path);
+
+            foreach ($kunci as $k) {
+                $this->assertMatchesRegularExpression("/'".$k."'\s*=>/", $isi, 'Kunci '.$berkas.'.'.$k.' belum diterjemahkan.');
+            }
+        }
+
+        // Pesan bawaan login ikut memakai istilah aplikasi ini.
+        $login = File::get(app_path('Http/Controllers/Auth/LoginController.php'));
+        $this->assertStringContainsString("'Kata sandi wajib diisi'", $login);
+        $this->assertStringNotContainsString("'Password wajib diisi'", $login);
+    }
+
+    /** Halaman galat memakai bahasa Indonesia dan kalimat biasa.
+     *
+     *  "Server Error" adalah satu-satunya judul berbahasa Inggris di halaman
+     *  galat, sementara judul lain memakai Judul Kapital ("Akses Ditolak")
+     *  padahal seluruh aplikasi memakai kalimat biasa. Status 429 juga belum
+     *  punya halaman sendiri, sehingga pengguna yang kena batas percobaan
+     *  masuk melihat halaman bawaan Laravel yang tanpa merek.
+     */
+    public function test_halaman_galat_berbahasa_indonesia(): void
+    {
+        $harapan = [
+            '403' => 'Akses ditolak',
+            '404' => 'Halaman tidak ditemukan',
+            '413' => 'Unggahan terlalu besar',
+            '419' => 'Sesi kedaluwarsa',
+            '429' => 'Terlalu banyak percobaan',
+            '500' => 'Kesalahan server',
+            '503' => 'Sedang pemeliharaan',
+        ];
+
+        foreach ($harapan as $code => $judul) {
+            $path = resource_path('views/errors/'.$code.'.blade.php');
+
+            $this->assertFileExists($path, 'Halaman galat '.$code.' belum ada.');
+
+            $isi = File::get($path);
+            $this->assertStringContainsString('$title = \''.$judul.'\'', $isi, 'Judul '.$code.' harus "'.$judul.'".');
+
+            if (preg_match("/\$title = '([^']+)'/", $isi, $m)) {
+                $this->assertStringNotContainsStringIgnoringCase('error', $m[1], 'Judul galat tidak boleh berbahasa Inggris.');
+            }
+        }
+
+        // robots.txt menutup area akun dan panel admin.
+        $robots = File::get(public_path('robots.txt'));
+        foreach (['/admin', '/dashboard', '/customer', '/keranjang', '/checkout'] as $path) {
+            $this->assertStringContainsString('Disallow: '.$path, $robots, 'robots.txt harus menutup '.$path.'.');
+        }
+        $this->assertStringContainsString('Allow: /', $robots);
+    }
 }
