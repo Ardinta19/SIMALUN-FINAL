@@ -33,7 +33,7 @@
 
 <form class="adm-toolbar" method="get" action="{{ route('admin.rental.orders') }}" data-adm-reveal="filter">
     <div class="adm-field-grid">
-        <div class="adm-field" style="grid-column: span 2; min-width: min(100%, 260px)">
+        <div class="adm-field adm-field--wide">
             <label for="adm-order-q">Cari referensi, pelanggan, penerima, atau papan</label>
             <input id="adm-order-q" name="q" maxlength="160" value="{{ $filters['q'] ?? '' }}" data-adm-search placeholder="Contoh: papan mawar / nama penerima">
         </div>

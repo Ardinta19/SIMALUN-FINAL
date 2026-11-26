@@ -27,7 +27,7 @@
     <form class="adm-stack" method="post" action="{{ route('admin.rental.universities.store') }}">
         @csrf
         <div class="adm-field-grid">
-            <div class="adm-field" style="grid-column: span 2; min-width: min(100%, 240px)">
+            <div class="adm-field adm-field--wide">
                 <label for="uni-name">Nama universitas</label>
                 <input id="uni-name" name="name" maxlength="160" required placeholder="Contoh: Universitas Sriwijaya">
             </div>
@@ -75,7 +75,7 @@
                 @csrf
                 @method('PUT')
                 <div class="adm-field-grid">
-                    <div class="adm-field" style="grid-column: span 2; min-width: min(100%, 240px)">
+                    <div class="adm-field adm-field--wide">
                         <label for="uni-name-{{ $university->id }}">Nama</label>
                         <input id="uni-name-{{ $university->id }}" name="name" value="{{ $university->name }}" maxlength="160" required>
                     </div>

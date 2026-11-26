@@ -294,6 +294,18 @@ class UiDefaultsTest extends TestCase
         $this->assertStringContainsString('Ganti Kata Sandi', $profil, 'Judul kartu tetap Judul Kapital.');
     }
 
+    public function test_semua_waktu_tampil_menyebut_wib(): void
+    {
+        // Setiap jam yang dibaca pengguna ditulis dalam WIB dan diberi label
+        // zona. Jejak audit sempat menjadi satu-satunya halaman admin yang
+        // mencetak `d/m/Y H:i` tanpa "WIB", padahal semua halaman lain
+        // (pesanan, jadwal, pembatalan, buku kas) menyebutnya.
+        $audit = File::get(resource_path('views/roles/admin/audit/index.blade.php'));
+
+        $this->assertStringContainsString("timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB", $audit);
+        $this->assertStringContainsString('datetime="{{ $log->created_at->toIso8601String() }}"', $audit, 'Waktu mesin harus tetap ISO untuk pembaca layar dan mesin.');
+    }
+
     public function test_no_view_prints_the_word_array(): void
     {
         // Beberapa tes fitur memakai kata "Array" sebagai penanda bahwa suatu

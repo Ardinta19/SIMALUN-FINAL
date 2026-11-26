@@ -1,31 +1,41 @@
+{{--
+    Paginasi bersama untuk semua peran (`$paginator->links('vendor.pagination.token-simple')`).
+
+    Dulu setiap butir membawa `style="..."` dengan token `--brand-*` dan
+    `--surface-*`. Token itu hanya ada di halaman mandiri (`_tokens`), sedangkan
+    panel admin memakai `--adm-*` — di sana tautan halaman kehilangan warna dan
+    latar, dan tingginya cuma ~32 px. Sekarang semuanya kelas
+    `.bk-page-nav*` (berkah-ui-kit.css) dengan varian `.adm-app` di
+    berkah-admin.css, dan tinggi minimumnya 44 px.
+--}}
 @if ($paginator->hasPages())
-<nav role="navigation" aria-label="Halaman" style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;padding:12px 0;">
+<nav class="bk-page-nav" role="navigation" aria-label="Halaman">
     @if ($paginator->onFirstPage())
-        <span style="padding:8px 14px;border-radius:var(--radius-btn);font-size:var(--bk-fs-xs);font-weight:800;color:var(--surface-400);background:var(--surface-100);border:1.5px solid var(--surface-200);cursor:default;">Sebelumnya</span>
+        <span class="bk-page-nav__link bk-page-nav__edge is-disabled" aria-disabled="true">Sebelumnya</span>
     @else
-        <a href="{{ $paginator->previousPageUrl() }}" rel="prev" style="padding:8px 14px;border-radius:var(--radius-btn);font-size:var(--bk-fs-xs);font-weight:800;color:var(--brand-500);background:var(--brand-100);border:1.5px solid var(--brand-100);text-decoration:none;">Sebelumnya</a>
+        <a class="bk-page-nav__link bk-page-nav__edge" href="{{ $paginator->previousPageUrl() }}" rel="prev">Sebelumnya</a>
     @endif
 
     @foreach ($elements as $element)
         @if (is_string($element))
-            <span style="padding:8px 10px;font-size:var(--bk-fs-xs);font-weight:800;color:var(--surface-400);">{{ $element }}</span>
+            <span class="bk-page-nav__gap" aria-hidden="true">{{ $element }}</span>
         @endif
 
         @if (is_array($element))
             @foreach ($element as $page => $url)
                 @if ($page == $paginator->currentPage())
-                    <span aria-current="page" style="padding:8px 12px;border-radius:var(--radius-btn);font-size:var(--bk-fs-xs);font-weight:900;color:var(--surface-raised);background:var(--brand-500);min-width:36px;text-align:center;display:inline-block;">{{ $page }}</span>
+                    <span class="bk-page-nav__current" aria-current="page">{{ $page }}</span>
                 @else
-                    <a href="{{ $url }}" style="padding:8px 12px;border-radius:var(--radius-btn);font-size:var(--bk-fs-xs);font-weight:800;color:var(--brand-900);background:var(--surface-raised);border:1.5px solid var(--surface-200);text-decoration:none;min-width:36px;text-align:center;display:inline-block;">{{ $page }}</a>
+                    <a class="bk-page-nav__link" href="{{ $url }}">{{ $page }}</a>
                 @endif
             @endforeach
         @endif
     @endforeach
 
     @if ($paginator->hasMorePages())
-        <a href="{{ $paginator->nextPageUrl() }}" rel="next" style="padding:8px 14px;border-radius:var(--radius-btn);font-size:var(--bk-fs-xs);font-weight:800;color:var(--brand-500);background:var(--brand-100);border:1.5px solid var(--brand-100);text-decoration:none;">Berikutnya</a>
+        <a class="bk-page-nav__link bk-page-nav__edge" href="{{ $paginator->nextPageUrl() }}" rel="next">Berikutnya</a>
     @else
-        <span style="padding:8px 14px;border-radius:var(--radius-btn);font-size:var(--bk-fs-xs);font-weight:800;color:var(--surface-400);background:var(--surface-100);border:1.5px solid var(--surface-200);cursor:default;">Berikutnya</span>
+        <span class="bk-page-nav__link bk-page-nav__edge is-disabled" aria-disabled="true">Berikutnya</span>
     @endif
 </nav>
 @endif

@@ -1,16 +1,11 @@
-@if ($paginator->hasPages())
-<nav class="bk-pagination" aria-label="Navigasi halaman">
-    @if ($paginator->onFirstPage())<span class="is-disabled" aria-disabled="true">← Sebelumnya</span>@else<a href="{{ $paginator->previousPageUrl() }}" rel="prev">← Sebelumnya</a>@endif
-    <div class="bk-pagination__pages" aria-label="Pilih halaman">
-        @foreach ($elements as $element)
-            @if (is_string($element))<span aria-hidden="true">{{ $element }}</span>@endif
-            @if (is_array($element))
-                @foreach ($element as $page => $url)
-                    @if ($page == $paginator->currentPage())<span class="is-current" aria-current="page" aria-label="Halaman {{ $page }}">{{ $page }}</span>@else<a href="{{ $url }}" aria-label="Halaman {{ $page }}">{{ $page }}</a>@endif
-                @endforeach
-            @endif
-        @endforeach
-    </div>
-    @if ($paginator->hasMorePages())<a href="{{ $paginator->nextPageUrl() }}" rel="next">Berikutnya →</a>@else<span class="is-disabled" aria-disabled="true">Berikutnya →</span>@endif
-</nav>
-@endif
+{{--
+    Alias lama untuk paginasi pelanggan (`rental/index`, `customer/notifications`).
+
+    Sebelumnya berkas ini punya sistem sendiri (`.bk-pagination`), sehingga
+    daftar pelanggan dan daftar admin memakai dua rupa paginasi yang berbeda
+    tinggi dan warnanya. Sekarang keduanya satu: `.bk-page-nav*` di
+    `berkah-ui-kit.css` (44 px per butir, berlaku di tema terang, gelap, dan
+    panel admin). Berkas ini dipertahankan supaya pemanggilan
+    `links('vendor.pagination.berkah')` yang lama tetap bekerja.
+--}}
+@include('vendor.pagination.token-simple')

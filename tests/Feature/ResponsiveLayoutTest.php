@@ -289,25 +289,22 @@ class ResponsiveLayoutTest extends TestCase
 
     /** Nomor halaman tidak boleh terpotong di layar 320 px.
      *
-     *  `.bk-pagination` dulu `width:max-content` tanpa `flex-wrap`; dengan
-     *  tombol 44 px, tujuh tombol sudah lebih lebar dari layar ponsel.
+     *  Dua sistem paginasi dulu hidup berdampingan: `.bk-pagination`
+     *  (pelanggan, `width:max-content` tanpa `flex-wrap`) dan tampilan bawaan
+     *  Laravel (kelas Tailwind, tanpa CSS). Sekarang satu: `.bk-page-nav*`
+     *  dengan `flex-wrap: wrap` dan butir 44 px, dipakai semua peran lewat
+     *  `Paginator::defaultView`.
      */
     public function test_navigasi_halaman_turun_baris_di_layar_sempit(): void
     {
-        $css = preg_replace('/\s+/', ' ', File::get(public_path('css/berkah-experience.css')));
+        $css = preg_replace('/\s+/', ' ', File::get(public_path('css/berkah-ui-kit.css')));
+        $alias = File::get(resource_path('views/vendor/pagination/berkah.blade.php'));
+        $experience = File::get(public_path('css/berkah-experience.css'));
 
-        $this->assertMatchesRegularExpression(
-            '/\.bk-experience \.bk-pagination \{[^}]*flex-wrap: wrap;/',
-            $css,
-            'Paginasi harus boleh turun baris, bukan melebar melewati layar.'
-        );
-        $this->assertMatchesRegularExpression('/\.bk-experience \.bk-pagination \{[^}]*width: auto;/', $css,
-            '`width:max-content` membuat paginasi selalu selebar isinya.');
-        $this->assertMatchesRegularExpression(
-            '/\.bk-experience \.bk-pagination__pages \{[^}]*flex-wrap: wrap;/',
-            $css,
-            'Kelompok nomor halaman juga harus boleh turun baris.'
-        );
+        $this->assertMatchesRegularExpression('/\.bk-page-nav \{[^}]*flex-wrap: wrap;/', $css);
+        $this->assertStringNotContainsString('width: max-content', $css, 'Paginasi tidak boleh selebar isinya.');
+        $this->assertStringContainsString("@include('vendor.pagination.token-simple')", $alias, 'Alih paginasi pelanggan harus memakai tampilan yang sama.');
+        $this->assertStringNotContainsString('.bk-pagination', $experience, 'Aturan paginasi lama harus dicabut.');
     }
 
     public function test_kolom_formulir_admin_sejajar_dari_label(): void
@@ -555,5 +552,87 @@ class ResponsiveLayoutTest extends TestCase
         $this->assertNotEmpty($rule, 'Aturan trigger admin tidak ditemukan.');
         foreach (['#fff', '#fffaf8', '#7a626a', '#eadbd6'] as $katalog)
             $this->assertStringNotContainsString($katalog, $rule[1], 'Trigger admin masih memakai warna katalog: '.$katalog);
+    }
+
+    /** Isian lebar di grid formulir tidak boleh memaksa kolom implisit.
+     *
+     *  `.adm-field-grid` memakai `auto-fit minmax(min(100%,170px),1fr)`: di
+     *  320 px hanya satu kolom. Lima isian pencarian ditulis
+     *  `style="grid-column: span 2"` sehingga grid membuat kolom implisit
+     *  kedua selebar isinya — halaman melebar, kolom terpotong. Sekarang
+     *  semuanya memakai `.adm-field--wide` yang jatuh ke `1 / -1` di ≤700 px.
+     */
+    public function test_isian_lebar_tidak_memaksa_kolom_implisit(): void
+    {
+        $css = File::get(public_path('css/berkah-admin.css'));
+
+        $this->assertStringContainsString('.adm-field--wide {', $css);
+        $this->assertMatchesRegularExpression('/@media \(max-width: 700px\) \{\s*\.adm-field--wide \{ grid-column: 1 \/ -1; \}/s', $css);
+
+        $pelanggaran = [];
+
+        foreach (['rental/admin.blade.php', 'rental/universities.blade.php', 'rental/addons.blade.php'] as $relative) {
+            $html = File::get(resource_path('views/'.$relative));
+
+            if (str_contains($html, 'grid-column: span')) {
+                $pelanggaran[] = $relative.' masih memakai grid-column: span';
+            }
+
+            $this->assertStringContainsString('adm-field--wide', $html, $relative.' belum memakai kelas isian lebar.');
+        }
+
+        $this->assertSame([], $pelanggaran, implode('; ', $pelanggaran));
+    }
+
+    /** Paginasi bersama: 44 px dan tanpa token yang tidak ada.
+     *
+     *  Setiap butir dulu memakai `style="padding:8px 12px"` (tinggi ~32 px)
+     *  dengan `--brand-*`/`--surface-*` yang hanya didefinisikan di halaman
+     *  mandiri. Di panel admin token itu tidak ada: tautan halaman kehilangan
+     *  latar dan warna, dan sasarannya terlalu kecil. Sekarang seluruh gaya
+     *  datang dari `.bk-page-nav*`.
+     */
+    public function test_paginasi_bersama_punya_sasaran_sentuh_44_px(): void
+    {
+        $view = File::get(resource_path('views/vendor/pagination/token-simple.blade.php'));
+        $css = File::get(public_path('css/berkah-ui-kit.css'));
+        $admin = File::get(public_path('css/berkah-admin.css'));
+
+        // Komentar Blade berisi contoh gaya lama; yang diperiksa markupnya.
+        $markup = (string) preg_replace('/\{\{--.*?--\}\}/s', '', $view);
+        $this->assertStringNotContainsString('style="', $markup, 'Paginasi tidak boleh memakai gaya sebaris.');
+        $this->assertStringContainsString('class="bk-page-nav"', $view);
+        $this->assertStringContainsString('aria-current="page"', $view);
+        $this->assertStringContainsString('rel="prev"', $view);
+        $this->assertStringContainsString('rel="next"', $view);
+
+        $this->assertStringContainsString('.bk-page-nav__link,', $css);
+        $this->assertMatchesRegularExpression('/\.bk-page-nav__link,\s*\n\.bk-page-nav__current,\s*\n\.bk-page-nav__gap \{[^}]*min-height: var\(--bk-touch, 44px\);/s', $css);
+        $this->assertStringContainsString('.adm-app .bk-page-nav__current {', $admin);
+        $this->assertStringNotContainsString('var(--surface-', $view);
+        $this->assertStringNotContainsString('var(--brand-', $view);
+    }
+
+    /** `->links()` tanpa argumen tetap memakai paginasi bertema.
+     *
+     *  Laravel memakai tampilan bawaan (kelas Tailwind) kalau provider tidak
+     *  menyetel default. Karena Tailwind tidak dibangun di proyek ini, empat
+     *  halaman (`catalog/index`, `catalog/admin`, `rental/admin`,
+     *  `rental/cashbook`) menampilkan nomor halaman sebagai teks polos.
+     */
+    public function test_paginasi_bawaan_memakai_tampilan_bertema(): void
+    {
+        $provider = File::get(app_path('Providers/AppServiceProvider.php'));
+
+        $this->assertStringContainsString("Paginator::defaultView('vendor.pagination.token-simple')", $provider);
+        $this->assertStringContainsString("Paginator::defaultSimpleView('vendor.pagination.token-simple')", $provider);
+        $this->assertFileExists(resource_path('views/vendor/pagination/token-simple.blade.php'));
+
+        // Tidak boleh ada halaman yang menunjuk tampilan paginasi yang berbeda
+        // rupa (dua sistem paginasi = dua tinggi sasaran sentuh).
+        foreach (['catalog/index.blade.php', 'catalog/admin.blade.php', 'rental/admin.blade.php', 'rental/cashbook.blade.php'] as $relative) {
+            $html = File::get(resource_path('views/'.$relative));
+            $this->assertStringContainsString('->links()', $html, $relative.' tidak lagi memakai paginasi bawaan.');
+        }
     }
 }

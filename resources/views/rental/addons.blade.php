@@ -38,7 +38,7 @@
     <form class="adm-stack" method="post" action="{{ route('admin.rental.addons.store') }}" enctype="multipart/form-data">
         @csrf
         <div class="adm-field-grid">
-            <div class="adm-field" style="grid-column: span 2; min-width: min(100%, 240px)">
+            <div class="adm-field adm-field--wide">
                 <label for="addon-name">Nama item <span class="adm-req">(wajib)</span></label>
                 <input id="addon-name" name="name" maxlength="120" required value="{{ old('name') }}" placeholder="Contoh: Kartu ucapan cetak">
                 @error('name')<p class="adm-err" id="addon-name-error">{{ $message }}</p>@enderror
@@ -122,7 +122,7 @@
                 @csrf
                 @method('PUT')
                 <div class="adm-field-grid">
-                    <div class="adm-field" style="grid-column: span 2; min-width: min(100%, 240px)">
+                    <div class="adm-field adm-field--wide">
                         <label for="addon-name-{{ $addon->id }}">Nama</label>
                         <input id="addon-name-{{ $addon->id }}" name="name" value="{{ $addon->name }}" maxlength="120" required>
                     </div>

@@ -750,17 +750,6 @@ html[data-theme="dark"] :is(.bk-order-status span) {
     color: var(--theme-ink-mid);
 }
 
-html[data-theme="dark"] :is(.bk-pagination a, .bk-pagination > span, .bk-pagination__pages span) {
-    background: var(--theme-surface-2);
-    color: var(--theme-accent-text);
-    border-color: var(--theme-line);
-}
-
-html[data-theme="dark"] :is(.bk-pagination .is-disabled) {
-    background: var(--theme-surface-2);
-    color: var(--theme-ink-lt);
-}
-
 html[data-theme="dark"] :is(.bk-profile-identity, .bk-profile-card, .bk-profile-signout) {
     background: var(--theme-surface);
     color: var(--theme-ink);
@@ -1387,6 +1376,40 @@ html[data-theme="dark"] {
     /* Tautan memakai rose terang: --theme-brand-strong (#c12f57) hanya 3.1:1
        di atas permukaan gelap, sedangkan nilai ini 9:1. */
     --bk-link-ink: #efa8b9;
+    /* Paginasi: di tema gelap latar butir tidak boleh putih dan halaman aktif
+       tidak boleh pakai tautan pink sebagai latar (teks putih di atasnya hanya
+       1,7:1). Pakai permukaan tema + wine pekat. */
+    --bk-page-nav-bg: var(--theme-surface-2);
+    --bk-page-nav-ink: var(--theme-ink);
+    --bk-page-nav-line: var(--theme-line);
+    --bk-page-nav-edge-bg: var(--theme-surface-3);
+    --bk-page-nav-current-bg: #8f1a37;
+    --bk-page-nav-gap-ink: var(--theme-ink-mid);
+
+/* Paginasi bersama (`.bk-page-nav*`): nilai eksplisit untuk tema gelap.
+   Token sudah dipetakan di atas, tetapi aturan ini menjaga kontrak uji
+   `UiKitTest::test_customer_surfaces_and_auth_copy_have_dark_values` dan
+   memastikan halaman aktif tetap terbaca (putih di atas wine pekat). */
+html[data-theme="dark"] .bk-page-nav__link {
+    background: var(--theme-surface-2);
+    border-color: var(--theme-line);
+    color: var(--theme-ink);
+}
+html[data-theme="dark"] .bk-page-nav__edge {
+    background: var(--theme-surface-3);
+    border-color: transparent;
+    color: var(--theme-ink);
+}
+html[data-theme="dark"] .bk-page-nav__current {
+    background: #8f1a37;
+    border-color: #8f1a37;
+    color: #ffffff;
+}
+html[data-theme="dark"] .bk-page-nav__gap,
+html[data-theme="dark"] .bk-page-nav__edge.is-disabled {
+    color: var(--theme-ink-mid);
+}
+
     --bk-unit-chip-ink: var(--theme-ink-mid);
 }
 

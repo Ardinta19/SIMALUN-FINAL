@@ -3096,3 +3096,62 @@ satu `<h1>`; tabel email satu-satunya `<table>` tanpa pembungkus gulir dan itu
 memang benar (HTML surel).
 
 **Hasil:** harness **134 lulus, 0 gagal, 216 dilewati**.
+
+### 9.65 Putaran kelima: paginasi, kolom grid, dan jam yang tidak berlabel
+
+**a. Paginasi: dua rupa, satu di antaranya tanpa CSS sama sekali.**
+Lima halaman memanggil `->links()` **tanpa argumen** (`catalog/index`,
+`catalog/admin`, `rental/admin`, `rental/cashbook`). Tidak ada
+`Paginator::defaultView` di provider mana pun, jadi Laravel memakai tampilan
+bawaan berbasis kelas Tailwind — CSS-nya tidak pernah dibangun di proyek ini.
+Nomor halaman di empat halaman itu tampil sebagai teks polos tanpa kotak,
+tanpa sasaran sentuh 44 px, dengan label berbahasa Inggris. Sementara itu
+halaman pelanggan memakai `.bk-pagination` dan dua halaman admin memakai
+`vendor.pagination.token-simple` dengan gaya sebaris berisi token
+`--brand-*`/`--surface-*` **yang hanya didefinisikan di halaman mandiri** —
+di panel admin token itu tidak ada, sehingga tautan halaman kehilangan warna
+dan latar dan tingginya cuma ~32 px.
+
+Perbaikan:
+
+* `AppServiceProvider::boot()` menyetel
+  `Paginator::defaultView('vendor.pagination.token-simple')` dan
+  `defaultSimpleView` yang sama, jadi setiap `->links()` di aplikasi ini
+  memakai satu tampilan.
+* `token-simple` ditulis ulang: tanpa `style="…"` sama sekali, memakai kelas
+  `.bk-page-nav`, `.bk-page-nav__link`, `__current`, `__edge`, `__gap`, dengan
+  `aria-current="page"`, `rel="prev"`/`rel="next"`, dan teks "Sebelumnya"/
+  "Berikutnya" yang dipertahankan.
+* Gaya di `berkah-ui-kit.css` (dimuat semua peran): butir `min-height`
+  `min-width` **44 px**, radius `--bk-r-control`, fokus
+  `--bk-focus-ring`, token paginasi baru (`--bk-page-nav-*`) dengan pemetaan
+  gelap di `berkah-theme.css`.
+* Varian panel admin di `berkah-admin.css` (`.adm-app .bk-page-nav*`) memakai
+  `--adm-*`; halaman aktif = putih di atas `--adm-solid`.
+* `vendor/pagination/berkah.blade.php` kini alias satu baris ke tampilan yang
+  sama; aturan `.bk-pagination` (terang di `berkah-experience.css`, gelap di
+  `berkah-theme.css`) dicabut seluruhnya sehingga tidak ada dua paginasi.
+
+Dijaga `ResponsiveLayoutTest::test_paginasi_bersama_punya_sasaran_sentuh_44_px`
+dan `test_paginasi_bawaan_memakai_tampilan_bertema`, serta
+`test_navigasi_halaman_turun_baris_di_layar_sempit` yang kini memeriksa
+`.bk-page-nav`.
+
+**b. `grid-column: span 2` di grid satu kolom.** `.adm-field-grid` memakai
+`repeat(auto-fit, minmax(min(100%, 170px), 1fr))`; di 320 px hanya ada **satu**
+kolom. Lima isian pencarian (pesanan, universitas ×2, item tambahan ×2)
+menulis `style="grid-column: span 2"`, sehingga grid membuat kolom implisit
+kedua yang selebar isinya — halaman melebar dan kolom terpotong. Semuanya
+diganti kelas `.adm-field--wide` yang jatuh ke `grid-column: 1 / -1` di
+≤700 px dan tetap `span 2` di layar lebar. Dijaga
+`ResponsiveLayoutTest::test_isian_lebar_tidak_memaksa_kolom_implisit`.
+
+**c. Jejak audit satu-satunya jam tanpa "WIB".** Semua halaman lain menulis
+`d/m/Y H:i` + "WIB" (pesanan, jadwal, pembatalan, penawaran ongkos, waktu
+bayar). Jejak audit mencetak `d/m/Y H:i` tanpa label zona dan tanpa konversi
+eksplisit. Sekarang memakai `timezone('Asia/Jakarta')` + "WIB", dengan
+`datetime` ISO tetap dipertahankan untuk mesin dan pembaca layar. Dijaga
+`UiDefaultsTest::test_semua_waktu_tampil_menyebut_wib`.
+
+**Hasil:** harness **138 lulus, 0 gagal, 216 dilewati**; `blade-scan` 81 view
+0/0; kurung CSS seimbang; `node --check` bersih.

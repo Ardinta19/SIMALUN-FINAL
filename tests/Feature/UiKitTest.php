@@ -273,7 +273,7 @@ class UiKitTest extends TestCase
             '.bk-order-card',
             '.bk-order-status span',
             '.bk-jump a',
-            '.bk-pagination a',
+            '.bk-page-nav__link',
             '.bk-profile-card',
             '.bk-address-card',
             '.bk-help .help-card',

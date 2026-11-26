@@ -1676,3 +1676,50 @@ html[data-theme="dark"] .adm-app {
 .adm-app .fc-trigger.is-placeholder .fc-trigger__text { color: var(--adm-ink-3); }
 .adm-app .fc-trigger svg { flex: none; color: var(--adm-ink-3); }
 .adm-app .fc-error { font-size: var(--adm-fs-2xs); font-weight: 700; color: var(--adm-danger); }
+
+/* ════════════════════════════════════════════════
+   KOLOM LEBAR DI GRID FORMULIR (audit 2026-11-25)
+   `.adm-field-grid` memakai `repeat(auto-fit, minmax(min(100%, 170px), 1fr))` —
+   di 320 px hanya ada SATU kolom. Isian pencarian yang ditulis dengan
+   `style="grid-column: span 2"` memaksa grid membuat kolom implisit kedua
+   yang selebar isinya, sehingga halaman melebar dan kolom terpotong. Di layar
+   sempit isian lebar harus menempati seluruh kolom yang ada (`1 / -1`), bukan
+   "dua kolom" yang tidak ada.
+════════════════════════════════════════════════ */
+.adm-field--wide {
+    grid-column: span 2;
+    min-width: min(100%, 240px);
+}
+
+@media (max-width: 700px) {
+    .adm-field--wide { grid-column: 1 / -1; }
+}
+
+/* Paginasi bersama di panel admin: pakai token admin agar sejajar dengan
+   `.adm-btn` dan `.adm-card` (bukan palet katalog). */
+.adm-app .bk-page-nav__link {
+    color: var(--adm-ink);
+    background: var(--adm-surface-2);
+    border-color: var(--adm-line);
+}
+.adm-app .bk-page-nav__link:hover {
+    color: var(--adm-wine);
+    border-color: var(--adm-line-strong);
+    background: var(--adm-surface-3);
+}
+.adm-app .bk-page-nav__edge {
+    color: var(--adm-wine);
+    background: var(--adm-wine-soft);
+    border-color: transparent;
+}
+.adm-app .bk-page-nav__current {
+    color: #fff;
+    background: var(--adm-solid);
+}
+.adm-app .bk-page-nav__gap,
+.adm-app .bk-page-nav__edge.is-disabled {
+    color: var(--adm-ink-3);
+    background: transparent;
+    border-color: var(--adm-line);
+}
+.adm-app .bk-page-nav__gap { border-color: transparent; }

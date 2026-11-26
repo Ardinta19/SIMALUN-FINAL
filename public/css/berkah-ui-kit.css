@@ -124,6 +124,17 @@
     /* Kendali buka-tutup (summary) yang dipakai lintas peran. */
     --bk-disclosure-hover: #f7edee;
 
+    /* Paginasi bersama (resources/views/vendor/pagination/token-simple).
+       Butir halaman adalah sasaran sentuh: 44 px. Varian gelap dipetakan di
+       berkah-theme.css, varian panel admin di berkah-admin.css. */
+    --bk-page-nav-bg: #fffdfb;
+    --bk-page-nav-ink: #301722;
+    --bk-page-nav-line: #eadbd6;
+    --bk-page-nav-edge-bg: #f6ecec;
+    --bk-page-nav-on: #ffffff;
+    --bk-page-nav-current-bg: #85092d;
+    --bk-page-nav-gap-ink: #6f5a63;
+
     /* Kerangka (skeleton) pratinjau katalog di beranda pelanggan. */
     --bk-skel-card: #ffffff;
     --bk-skel-bg: #f3e7e6;
@@ -1658,4 +1669,78 @@ h1, h2, h3 {
     border-radius: 12px;
     border: 1px solid var(--theme-line, #f0dfe1);
     background: var(--theme-surface-2, #fbf7f8);
+}
+
+/* ================================================================
+   Paginasi bersama — dipakai katalog, halaman pelanggan, dan panel admin.
+   Butir halaman 44 px; sebelumnya 32 px karena padding sebaris.
+   ================================================================ */
+.bk-page-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 0;
+    max-width: 100%;
+}
+
+.bk-page-nav__link,
+.bk-page-nav__current,
+.bk-page-nav__gap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--bk-touch, 44px);
+    min-width: var(--bk-touch, 44px);
+    padding: 8px 14px;
+    border: 1.5px solid transparent;
+    border-radius: var(--bk-r-control, 12px);
+    font-size: var(--bk-fs-xs, .8125rem);
+    font-weight: 800;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.bk-page-nav__link {
+    color: var(--bk-page-nav-ink, #301722);
+    background: var(--bk-page-nav-bg, #fffdfb);
+    border-color: var(--bk-page-nav-line, #eadbd6);
+}
+
+.bk-page-nav__link:hover {
+    color: var(--bk-link-ink, #85092d);
+    border-color: var(--bk-focus-ring, #bc5b75);
+}
+
+.bk-page-nav__link:focus-visible {
+    outline: 3px solid var(--bk-focus-ring, #bc5b75);
+    outline-offset: 2px;
+}
+
+.bk-page-nav__edge {
+    color: var(--bk-link-ink, #85092d);
+    background: var(--bk-page-nav-edge-bg, #f6ecec);
+    border-color: transparent;
+}
+
+.bk-page-nav__current {
+    color: var(--bk-page-nav-on, #ffffff);
+    background: var(--bk-page-nav-current-bg, #85092d);
+    font-weight: 900;
+}
+
+.bk-page-nav__gap {
+    min-width: 0;
+    padding-inline: 4px;
+    color: var(--bk-page-nav-gap-ink, #6f5a63);
+}
+
+.bk-page-nav__edge.is-disabled {
+    color: var(--bk-page-nav-gap-ink, #6f5a63);
+    background: transparent;
+    border-color: var(--bk-page-nav-line, #eadbd6);
+    cursor: default;
 }

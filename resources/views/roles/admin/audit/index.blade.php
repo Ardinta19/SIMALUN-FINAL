@@ -99,7 +99,7 @@
         <article class="adm-timeline__item" style="gap:6px;padding:14px 0;border-bottom:1px solid var(--adm-line)">
             <div class="adm-row adm-row--between" style="gap:8px">
                 <span class="adm-badge adm-badge--info">{{ $log->action }}</span>
-                <time class="adm-timeline__time" datetime="{{ $log->created_at->toIso8601String() }}">{{ $log->created_at->format('d/m/Y H:i') }}</time>
+                <time class="adm-timeline__time" datetime="{{ $log->created_at->toIso8601String() }}">{{ $log->created_at->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB</time>
             </div>
 
             @if($log->summary)
