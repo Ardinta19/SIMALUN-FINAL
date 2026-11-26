@@ -3200,3 +3200,64 @@ sendiri (`.pg*`, butir ~32 px) dan lima aturan tema gelap `.pg-*` di
 menunjuk berkas yang sama, dan paginator sederhana tidak punya `$elements`.
 
 **Hasil:** harness **139 lulus, 0 gagal, 216 dilewati**.
+
+### 9.67 Putaran ketujuh: sasaran sentuh, `hidden`, label validasi, dan sapaan
+
+Sapuan ini memakai pemindai, bukan mata: setiap temuan di bawah datang dari
+pemeriksaan menyeluruh atas semua view/CSS/JS, lalu dijaga tes.
+
+**a. Kendali sentuh yang menyusut.** Empat pelanggaran 44 px yang lolos dari
+tes sebelumnya: (1) bintang penilaian menyusut **40 px** di `@media
+(max-width:420px)` — tepat rentang ponsel; sekarang tetap 44 px, hanya
+hurufnya yang mengecil; (2) chip filter aktif (`Hapus filter`) 36 px dan
+tidak tercakup aturan `pointer: coarse`; (3) tombol "Pilih berkas" 36 px di
+checkout dan di kontrol bersama; (4) ringkasan "Catatan halaman" 30 px di
+panel admin (44 px di perangkat sentuh). Selain itu `.adm-app .pagination a`
+(40 px) **mengalahkan** `.bk-page-nav__link` karena spesifisitasnya lebih
+tinggi — blok paginasi lama dicabut sehingga 44 px benar-benar berlaku.
+
+**b. `hidden` yang tidak menyembunyikan.** `.btn`, `.bk-header-filter`, dan
+`.bk-expand` (kepala ringkas) memberi `display` dengan spesifisitas yang
+mengalahkan gaya bawaan peramban, sehingga tombol bertanda `hidden` — mis.
+"Salin alamat pesanan sebelumnya" dan "Pesan untuk hari yang sama" di
+checkout — tetap tampil sebelum JavaScript siap. Satu aturan
+`[hidden] { display: none !important; }` di `berkah-ui-kit.css` (dimuat
+katalog, pelanggan, admin, dan halaman tamu) mengembalikan perilaku standar.
+
+**c. Label validasi yang bocor ke pengguna.** `lang/id/validation.php` hanya
+memetakan 31 kolom; **22 kolom** lain tampil sebagai kunci mentah, termasuk
+semua kolom checkout bertingkat: pelanggan membaca "units.0.event_on wajib
+diisi." dan admin membaca "entry_date wajib diisi.". Semua kunci
+`validate()`/`validateWithBag()` di `app/` kini punya label Indonesia,
+termasuk `units.*.<field>`, `terms`, `code`, `period`, dan `expected_amount`.
+
+**d. Sapaan yang berganti di tengah halaman.** "kamu" 30 kali, "Anda" 13
+kali, dan tiga berkas mencampur keduanya dalam satu halaman (`rental/unit`,
+`rental/show`: "Anda dapat membayar bertahap" lalu "Kamu masih dapat
+mengirim bukti"). Semua diseragamkan ke "kamu", termasuk halaman verifikasi
+email, konfirmasi sandi, dan dialog konfirmasi.
+
+**e. Atribut `placeholder` ganda.** Tiga halaman isian alamat (buat, ubah,
+profil) menulis `placeholder` dua kali per kolom — "Contoh: Rumah" lalu
+"Rumah, Kantor, Kos, dll.". Peramban memakai yang pertama dan membuang
+sisanya, jadi niat penulis kedua tidak pernah terlihat. Duplikat dibersihkan;
+yang dipertahankan selalu varian berawalan "Contoh:" sesuai aturan petunjuk
+isian.
+
+**f. Rincian kecil yang ikut diperbaiki.**
+`rental/unit` melompat h2 → h4 (dua subjudul kini h3, dan ada tes urutan
+judul untuk seluruh view); `.fc-opt:focus-visible` hanya berbeda latar dari
+hover (kini cincin dalam); `berkah-ui-kit.js` masih mencari
+`#bk-theme-hand-1/2` yang sudah tidak ada (kait mati dicabut, ada tes yang
+memastikan setiap `querySelector('#id')` benar-benar dirender);
+`.adm-drawer` memakai `100vw` (kini `100%`); tabel kas satu-satunya tabel data
+tanpa `<caption>` (kini ada, tersembunyi secara visual); wadah gulir tabel kas
+belum bisa difokus papan ketik (kini `tabindex="0"`, `role="region"`, label,
+dan cincin fokus); `<meta name="theme-color">` baru berubah setelah
+`berkah-ui-kit.js` dimuat — halaman masuk/daftar tidak pernah menyesuaikan
+warna bilah peramban (kini skrip pra-lukis `_theme_head` yang mengatur);
+notifikasi admin satu-satunya waktu berformat `d M Y H:i` di antara
+`d/m/Y H:i` (kini seragam, dengan tes format).
+
+**Hasil:** harness **151 lulus, 0 gagal, 216 dilewati**; `blade-scan` 81 view
+0/0; `node --check` bersih; `.tmp-verify.php` 26 lulus; kurung CSS seimbang.
