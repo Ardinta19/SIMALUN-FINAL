@@ -4507,3 +4507,23 @@ mendapat tes baru `test_tidak_ada_nama_rute_yang_ganda()` yang membaca
 `Route::getRoutes()` dan menggagalkan uji bila ada nama yang muncul lebih
 dari sekali. Tes ini butuh aplikasi hidup, jadi dilewati di harness
 PHP-WASM dan berjalan pada `php artisan test`.
+
+### 9.111 Header HSTS belum pernah dikirim
+
+`SecurityHeaders` sudah memasang `X-Content-Type-Options`, `X-Frame-Options`,
+`Referrer-Policy`, `Permissions-Policy`, dan `X-XSS-Protection: 0`, serta
+`Cache-Control: no-store` untuk pengguna yang sudah masuk. Yang belum ada
+satu pun: `Strict-Transport-Security`. Akibatnya kunjungan pertama lewat
+`http://` masih bisa disadap sebelum dialihkan ke HTTPS — header HSTS
+justru ada untuk menutup jendela itu pada kunjungan berikutnya.
+
+Sekarang middleware mengirim `Strict-Transport-Security: max-age=31536000`
+**hanya bila `$request->isSecure()`**. `includeSubDomains` sengaja tidak
+dipakai: satu subdomain yang masih HTTP (webmail, panel hosting) akan ikut
+terkunci dan tidak bisa dibuka tanpa menghapus cache HSTS di browser
+pengunjung. Masa berlaku satu tahun cukup untuk memberi manfaat tanpa
+mengunci selamanya.
+
+Dijaga `tests/Feature/SecurityHardeningTest.php::test_hsts_hanya_di_respons_https`:
+respons `http://localhost/` tidak boleh punya header itu, sedangkan
+`https://localhost/` harus punya dan tidak boleh memuat `includeSubDomains`.

@@ -26,6 +26,12 @@ use Symfony\Component\HttpFoundation\Response;
  *    microphone, geolocation). Mengurangi attack surface kalau ada
  *    XSS yang lolos.
  *
+ *  - Strict-Transport-Security — hanya dikirim pada respons HTTPS. Tanpa
+ *    HSTS, kunjungan pertama lewat http:// masih bisa disadap sebelum
+ *    dialihkan; header ini menyuruh browser langsung memakai https untuk
+ *    setahun ke depan. `includeSubDomains` sengaja tidak dipakai karena
+ *    subdomain lain (mis. webmail di domain yang sama) belum tentu HTTPS.
+ *
  *  - X-XSS-Protection: 0 — sengaja di-disable. Filter XSS lawas browser
  *    sekarang jadi vektor serangan tambahan (XS-Leaks). Kita andalkan
  *    Blade auto-escape + SanitizeInput middleware + CSP via nginx kalau
@@ -50,6 +56,13 @@ class SecurityHeaders
             : 'strict-origin-when-cross-origin');
         $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
         $response->headers->set('X-XSS-Protection', '0');
+
+        // HSTS hanya bermakna di koneksi HTTPS; browser mengabaikannya kalau
+        // dikirim lewat http, tetapi mengirimnya di http juga membingungkan
+        // saat diperiksa dengan curl. Karena itu syaratnya eksplisit.
+        if ($request->isSecure()) {
+            $response->headers->set('Strict-Transport-Security', 'max-age=31536000');
+        }
 
         // Anti back-button cache untuk halaman terautentikasi.
         // Tanpa ini, setelah logout user bisa menekan tombol "kembali"

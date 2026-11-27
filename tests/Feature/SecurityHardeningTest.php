@@ -103,4 +103,19 @@ class SecurityHardeningTest extends TestCase
 
         $this->assertFileDoesNotExist(app_path('Http/Requests/Auth/LoginRequest.php'));
     }
+
+    /**
+     * HSTS hanya boleh muncul di respons HTTPS: kalau dikirim lewat http,
+     * browser mengabaikannya, tetapi server lokal (dan curl saat memeriksa
+     * header) jadi menampilkan sesuatu yang tidak berlaku.
+     */
+    public function test_hsts_hanya_di_respons_https(): void
+    {
+        $http = $this->get('http://localhost/');
+        $this->assertFalse($http->headers->has('Strict-Transport-Security'));
+
+        $https = $this->get('https://localhost/');
+        $this->assertSame('max-age=31536000', $https->headers->get('Strict-Transport-Security'));
+        $this->assertStringNotContainsString('includeSubDomains', (string) $https->headers->get('Strict-Transport-Security'));
+    }
 }
