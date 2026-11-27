@@ -6494,3 +6494,56 @@ diketik → tidak mengirim; formulir `data-adm-autofilter="off"` → tidak mengi
 4. Ponsel 390 px: bilah atas hanya "Jadwal sewa" (tidak terpotong), antrean
    cepat satu baris bergeser.
 5. Jadwal sewa: tidak ada lagi deretan kartu "Tidak ada unit terjadwal".
+## 9.158 Progres pelanggan: stepper pindah ke halaman pesanan (putaran 42)
+
+**Keluhan:** "sepertinya progres ini lebih baik diletakkan di bagian
+pesanan/keranjang, gak sih?" Tangkapan layar ponsel memperlihatkan kartu
+"Progres pesananmu" di beranda dengan lima lingkaran berlabel, dan garis
+penghubung yang menyilang antar baris.
+
+**Akar masalah**
+
+| Gejala | Sebab |
+| --- | --- |
+| Garis menyilang, urutan langkah tidak terbaca | `@media (max-width: 520px)` memecah `.bk-progress` menjadi `repeat(3, 1fr)`, sehingga langkah 4–5 turun ke baris kedua, sementara `::before` hanya disembunyikan untuk anak ke-1 dan ke-4 |
+| Beranda menjulang dan berisik | Stepper lima langkah dirender **per unit** di dalam kartu dasbor; tiga unit berarti tiga stepper |
+| Progres jauh dari tempat pelanggan mencari pesanan | Halaman Pesanan saya hanya memuat pil agregat ("1 dikerjakan"), sedangkan stepper lengkap justru di beranda |
+| Stepper di detail pesanan terasa pengap | Detail pesanan memakai varian `compact` (nomor dan kalimat penjelas disembunyikan) padahal halaman itu justru tempat membaca tahap |
+
+**Perbaikan**
+
+1. **Beranda**: stepper diganti `rental/_progress_bar.blade.php` — satu baris
+   lima segmen + "Tahap 2 dari 5 · Dalam pengerjaan". Unit batal tertulis
+   "Dibatalkan · sebelumnya …".
+2. **Detail pesanan** (`rental/show`): stepper naik ke varian lengkap (nomor +
+   kalimat "Papan sedang dikerjakan …").
+3. **Halaman unit**: tetap stepper lengkap, tidak berubah.
+4. **Varian `compact` dihapus** dari partial dan CSS: tidak ada view yang
+   memakainya lagi, jadi tidak ada dua bentuk stepper yang harus dijaga.
+5. **Layar ≤520 px**: lima kolom tetap satu baris; titik 26 px, jarak 3 px,
+   label membungkus dua baris. Garis penghubung kembali sejajar karena tidak ada
+   lagi langkah yang pindah baris.
+6. **Pesanan saya (daftar)**: tidak ditambah stepper per pesanan — satu pesanan
+   bisa berisi beberapa papan, sehingga satu bar tahap akan menyesatkan. Pil
+   "1 dikerjakan / N siap diserahkan" tetap, dan tahap per papan ada satu
+   ketukan jauhnya di detail.
+
+**Keranjang** memang tidak memuat progres: isinya belum menjadi pesanan, jadi
+tidak ada tahap yang bisa ditunjukkan. Yang menunggu pelanggan di sana adalah
+"Lanjut ke checkout".
+
+**Tes:** `ProgressPresentationTest` (baru, 4 pemeriksaan statis: stepper lengkap
+hanya di halaman pesanan, ringkasan tahap menyebut nomor/total, blok 520 px
+tidak lagi tiga kolom). `ProgressJourneyTest` diperbarui: detail pesanan harus
+memuat `bk-progress` lengkap + kalimat "Papan sedang dikerjakan" dan **tidak**
+`bk-progress--compact`; beranda memuat `bk-stage` + "Tahap 2 dari 5" tanpa
+`bk-progress__dot`.
+
+**Cara memeriksa sendiri**
+
+1. Beranda pelanggan (ponsel 390 px): tiap papan hanya satu baris tahap; tidak
+   ada lingkaran bernomor.
+2. Buka Pesanan saya → Lihat detail: lima langkah lengkap dengan nomor dan
+   kalimat penjelas, satu baris pada layar ponsel.
+3. Buka satu unit: stepper lengkap tetap seperti sebelumnya.
+

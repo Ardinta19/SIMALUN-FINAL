@@ -10,15 +10,16 @@
 | Tanpa CSS pun tetap terbaca karena ini daftar berurut; tanpa JavaScript
 | pun tidak ada yang perlu dijalankan — semuanya dirender dari data.
 |
-| `compact` dipakai di kartu pesanan: nomor langkah disembunyikan supaya
-| tingginya tidak mendorong tombol "Lihat detail" keluar layar.
+| Putaran 42: hanya dipakai di halaman pesanan (detail pesanan dan halaman
+| unit). Beranda pelanggan memakai `_progress_bar` yang jauh lebih ringkas,
+| jadi mode `compact` dihapus supaya tidak ada dua bentuk stepper.
 --}}
 @php
     $progressStep = \App\Support\RentalLabels::progressStep($unit->progress);
     $progressIndex = $progressStep ?? 0;
     $progressCancelled = $unit->status === 'cancelled';
 @endphp
-<ol class="bk-progress{{ ! empty($compact) ? ' bk-progress--compact' : '' }}" aria-label="Progres unit {{ $unit->product_name }}{{ $unit->variantLabel() }}">
+<ol class="bk-progress" aria-label="Progres unit {{ $unit->product_name }}{{ $unit->variantLabel() }}">
     @foreach(\App\Support\RentalLabels::PROGRESS_STEPS as $i => $step)
         @php
             // Unit batal tidak pernah "selesai": semua langkah ditahan pada
@@ -31,12 +32,10 @@
         </li>
     @endforeach
 </ol>
-@if(empty($compact))
-    <p class="bk-progress__hint">
-        @if($progressCancelled)
-            Unit ini dibatalkan; alur pengerjaan berhenti di langkah tersebut.
-        @else
-            {{ \App\Support\RentalLabels::progressHint($unit->progress) }}
-        @endif
-    </p>
-@endif
+<p class="bk-progress__hint">
+    @if($progressCancelled)
+        Unit ini dibatalkan; alur pengerjaan berhenti di langkah tersebut.
+    @else
+        {{ \App\Support\RentalLabels::progressHint($unit->progress) }}
+    @endif
+</p>

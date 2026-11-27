@@ -1145,27 +1145,6 @@ body.bk-experience {
     line-height: 1.6;
 }
 
-/* Kartu pesanan: versi padat. Nomor/langkah tetap ada agar posisi terbaca,
-   tetapi titiknya lebih kecil sehingga kartu tidak memanjang. */
-.bk-progress--compact {
-    margin-top: 2px;
-    gap: 4px;
-}
-
-.bk-progress--compact .bk-progress__dot {
-    width: 20px;
-    height: 20px;
-    border-width: 1px;
-}
-
-.bk-progress--compact .bk-progress__item + .bk-progress__item::before {
-    top: 14px;
-}
-
-.bk-progress--compact .bk-progress__label {
-    font-size: var(--bk-fs-2xs);
-}
-
 .bk-order-progress {
     display: flex;
     flex-wrap: wrap;
@@ -1182,19 +1161,71 @@ body.bk-experience {
     font-weight: 800;
 }
 
-/* Di layar sempit lima kolom terlalu rapat untuk label panjang; dua baris
-   lebih mudah dibaca daripada memaksa satu baris. */
+/* Di layar sempit lima kolom tetap satu baris — urutan langkah adalah makna
+   utamanya. Dulu grid dipecah menjadi tiga kolom sehingga langkah 4-5 turun ke
+   baris kedua dan garis penghubungnya tampak terputus. Sekarang titiknya
+   dikecilkan dan labelnya dibiarkan membungkus dua baris. */
 @media (max-width: 520px) {
     .bk-progress {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        row-gap: 14px;
+        gap: 3px;
+        margin-top: 10px;
     }
 
-    /* Garis penghubung tidak lagi sejajar saat langkah pindah baris. */
-    .bk-progress__item:nth-child(4)::before,
-    .bk-progress__item:nth-child(1)::before {
-        display: none;
+    .bk-progress__dot {
+        width: 26px;
+        height: 26px;
     }
+
+    .bk-progress__item {
+        gap: 5px;
+    }
+
+    .bk-progress__item + .bk-progress__item::before {
+        top: 17px;
+    }
+
+    .bk-progress__label {
+        font-size: var(--bk-fs-2xs);
+        line-height: 1.3;
+    }
+}
+
+/* Ringkasan tahap di beranda pelanggan: satu baris, lima segmen. */
+.bk-stage {
+    display: grid;
+    gap: 6px;
+    margin: 10px 0 0;
+}
+
+.bk-stage__track {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
+}
+
+.bk-stage__seg {
+    height: 6px;
+    border-radius: 999px;
+    background: #f1e3e6;
+}
+
+.bk-stage__seg[data-state="done"] {
+    background: #d9a9b7;
+}
+
+.bk-stage__seg[data-state="current"] {
+    background: #85092d;
+}
+
+.bk-stage__text {
+    font-size: var(--bk-fs-2xs);
+    font-weight: 700;
+    color: #7c6068;
+}
+
+.bk-stage__text strong {
+    color: #85092d;
+    font-weight: 800;
 }
 
 /* Beranda pelanggan: daftar unit yang sedang berjalan (putaran 35). */

@@ -69,9 +69,14 @@ class ProgressJourneyTest extends TestCase
             ->assertSee('Dalam pengerjaan')
             ->assertSee('Papan sedang dikerjakan');
 
+        // Putaran 42: stepper LENGKAP tinggal di halaman pesanan (detail pesanan
+        // dan halaman unit). Sebelumnya halaman ini memakai versi padat supaya
+        // kartunya pendek, tetapi justru membuat tahap sulit dibaca.
         $this->actingAs($customer)->get(route('rental.orders.show', $order))
             ->assertOk()
-            ->assertSee('bk-progress--compact', false);
+            ->assertSee('bk-progress', false)
+            ->assertDontSee('bk-progress--compact', false)
+            ->assertSee('Papan sedang dikerjakan');
 
         // Kartu pesanan: ringkasan progres tanpa harus membuka unit.
         $this->actingAs($customer)->get(route('rental.orders.index'))
@@ -84,7 +89,12 @@ class ProgressJourneyTest extends TestCase
             ->assertSee('Progres pesananmu')
             ->assertSee('bk-tracking-item', false)
             // Tindakan yang menunggu pelanggan tampil tanpa membuka unit.
-            ->assertSee('Belum lunas');
+            ->assertSee('Belum lunas')
+            // Beranda tidak lagi menjejalkan lima lingkaran per unit: cukup
+            // satu baris tahap, sedangkan stepper lengkap ada di halaman pesanan.
+            ->assertSee('bk-stage', false)
+            ->assertSee('Tahap 2 dari 5')
+            ->assertDontSee('bk-progress__dot', false);
     }
 
     public function test_unit_dibatalkan_tidak_ditandai_selesai_di_stepper(): void

@@ -372,3 +372,21 @@ Berkas: `public/js/berkah-admin.js`, `public/css/berkah-admin.css`,
 
 Pemeriksaan manual: `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.157.
 
+## Babak V — Progres pelanggan pindah ke halaman pesanan (putaran 42)
+
+1. **Beranda pelanggan** tidak lagi memuat stepper lima lingkaran per unit;
+   diganti ringkasan satu baris `bk-stage` ("Tahap 2 dari 5 · Dalam
+   pengerjaan") yang tetap menyebut unit batal.
+2. **Detail pesanan** dan **halaman unit** memakai stepper lengkap; varian
+   `compact` dihapus dari partial dan CSS.
+3. **Layar ≤520 px**: stepper tetap lima kolom satu baris (titik 26 px), tidak
+   lagi pecah tiga kolom yang membuat garis penghubung menyilang.
+
+Berkas: `resources/views/rental/_progress_bar.blade.php` (baru),
+`resources/views/rental/_progress_steps.blade.php`,
+`resources/views/{rental/show,roles/customer/dashboard}.blade.php`,
+`public/css/berkah-experience.css`, `tests/Feature/ProgressPresentationTest.php`
+(baru), `tests/Feature/ProgressJourneyTest.php`.
+
+Pemeriksaan manual: `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.158.
+

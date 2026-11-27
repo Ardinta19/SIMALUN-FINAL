@@ -13,7 +13,7 @@
     @foreach($trackedUnits as $unit)
       <article class="bk-tracking-item">
         <p class="bk-tracking-item__title"><strong>{{ $unit->product_name }}{{ $unit->variantLabel() }}</strong><span class="muted">{{ $unit->order->reference }}</span></p>
-        @include('rental._progress_steps', ['unit' => $unit, 'compact' => true])
+        @include('rental._progress_bar', ['unit' => $unit])
         @php
             // Tindakan yang benar-benar menunggu pelanggan pada unit ini. Dulu
             // semuanya hanya terlihat setelah membuka halaman unit, sehingga
