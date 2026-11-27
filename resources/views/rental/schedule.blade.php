@@ -155,7 +155,10 @@
                         @endif
 
                         <div class="adm-row adm-row--between adm-mt-3">
-                            <span class="adm-help">Tahap: {{ \App\Support\RentalLabels::progress($unit->progress) }}</span>
+                            {{-- Nomor pesanan ikut ditampilkan: admin sering
+                                 memegang daftar pesanan di layar lain dan perlu
+                                 mencocokkan unit tanpa membukanya. --}}
+                            <span class="adm-ref">{{ $unit->order->reference }}</span>
                             <a href="{{ route('admin.rental.orders.show', $unit->order) }}#unit-{{ $unit->id }}">Buka unit</a>
                         </div>
                     </div>

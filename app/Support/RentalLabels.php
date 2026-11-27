@@ -27,6 +27,16 @@ class RentalLabels
         'review' => 'Peninjauan pembayaran',
     ];
 
+    /**
+     * Tiga status yang benar-benar tersimpan di `rental_order_units.status`.
+     *
+     * `UNIT_STATUS` di atas lebih luas: ia juga memuat kata-kata untuk tugas
+     * (bukti bayar menunggu, ongkos belum ditawar, dan seterusnya) supaya
+     * penyaring dan chip memakai kosakata yang sama. Saat kode perlu tahu
+     * "ini status unit atau tugas?", jawabannya ada di sini.
+     */
+    public const REAL_STATUS = ['pending', 'confirmed', 'cancelled'];
+
     /** Subset status yang boleh dipilih pelanggan (lihat RentalOrderController). */
     public const CUSTOMER_STATUS = [
         'pending' => 'Menunggu konfirmasi',

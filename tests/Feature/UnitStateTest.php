@@ -92,6 +92,9 @@ class UnitStateTest extends TestCase
         // Lembar serah terima hanya ditawarkan pada hari yang punya serah terima.
         $this->assertStringContainsString('@if($terima)', $jadwal);
         $this->assertStringContainsString('Lembar serah terima ({{ $terima }} unit)', $jadwal);
+
+        // Nomor pesanan ikut tampil agar unit bisa dicocokkan dengan daftar.
+        $this->assertStringContainsString('adm-ref">{{ $unit->order->reference }}', $jadwal);
     }
 
     public function test_antrean_kerja_urut_alur_dan_punya_angka(): void
@@ -108,9 +111,12 @@ class UnitStateTest extends TestCase
         // Urutan alur kerja dinyatakan di kepala halaman.
         $this->assertStringContainsString('konfirmasi → desain → ongkos → pembayaran → serah terima', $daftar);
 
-        // Definisi antrean ada di satu tempat dan urut sesuai alur.
-        $kunci = array_column(AdminQueues::counts(), 'key');
-        $this->assertSame(['pending', 'design', 'transport', 'payment', 'review', 'return_overdue'], $kunci);
+        // Definisi antrean ada di satu tempat dan urut sesuai alur. Diperiksa
+        // dari berkasnya, bukan dengan memanggil `counts()`: fungsi itu menembak
+        // basis data, sedangkan tes ini harus tetap berjalan tanpa DB.
+        $sumber = (string) file_get_contents(app_path('Support/AdminQueues.php'));
+        preg_match_all("/'key' => '([a-z_]+)'/", $sumber, $cocok);
+        $this->assertSame(['pending', 'design', 'transport', 'payment', 'review', 'return_overdue'], $cocok[1]);
     }
 
     public function test_setiap_nilai_filter_punya_label_manusia(): void
@@ -127,9 +133,17 @@ class UnitStateTest extends TestCase
             $this->assertNotSame($satu, $label[$satu], "Label {$satu} masih berupa kunci basis data.");
         }
 
-        $this->assertTrue(AdminQueues::isUnitStatus('confirmed'));
-        $this->assertFalse(AdminQueues::isUnitStatus('payment_pending'));
+        // Tiga status unit, sisanya tugas.
+        foreach (['pending', 'confirmed', 'cancelled'] as $status) {
+            $this->assertTrue(AdminQueues::isUnitStatus($status), $status.' seharusnya status unit.');
+        }
+        foreach (['payment_pending', 'design_initial', 'transport_quote', 'review', 'return_overdue'] as $tugas) {
+            $this->assertFalse(AdminQueues::isUnitStatus($tugas), $tugas.' seharusnya tugas, bukan status unit.');
+        }
+
+        // Nama antrean menang atas kata status yang lebih panjang.
         $this->assertSame('Bukti pembayaran', AdminQueues::label('payment_pending'));
+        $this->assertSame('Menunggu konfirmasi', AdminQueues::label('pending'));
     }
 
     public function test_chip_filter_memakai_awalan_status_atau_tugas(): void

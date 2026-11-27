@@ -55,9 +55,19 @@ class PurgeRentalOrders extends Command
         ['rental_orders', 'pesanan'],
     ];
 
+    /**
+     * Aturan penjagaan produksi — fungsi murni supaya bisa diuji tanpa mengubah
+     * `APP_ENV` saat tes berjalan (mengubah env di tengah tes pernah membuat
+     * perintah lain ikut berperilaku produksi).
+     */
+    public static function wajibForce(bool $produksi, bool $force): bool
+    {
+        return $produksi && ! $force;
+    }
+
     public function handle(): int
     {
-        if ($this->getLaravel()->isProduction() && ! $this->option('force')) {
+        if (self::wajibForce($this->getLaravel()->isProduction(), (bool) $this->option('force'))) {
             $this->error('Basis data produksi: jalankan dengan --force setelah yakin, dan cadangkan basis data lebih dulu.');
 
             return self::FAILURE;

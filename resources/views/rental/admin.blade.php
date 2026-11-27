@@ -50,7 +50,7 @@
     <div class="adm-field-grid">
         <div class="adm-field adm-field--wide">
             <label for="adm-order-q">Cari referensi, pelanggan, penerima, atau papan</label>
-            <input id="adm-order-q" type="search" autocomplete="off" name="q" maxlength="160" value="{{ $filters['q'] ?? '' }}" data-adm-search placeholder="Contoh: papan mawar / nama penerima">
+            <input id="adm-order-q" type="search" autocomplete="off" name="q" maxlength="160" value="{{ $filters['q'] ?? '' }}" data-adm-search placeholder="Contoh: BK-261127-001 atau nama penerima">
         </div>
         <div class="adm-field">
             <label for="adm-order-status">Status atau tugas</label>
@@ -168,7 +168,7 @@
             <div class="adm-min0">
                 <span class="adm-kicker">Pesanan</span>
                 <h2 id="adm-order-{{ $order->id }}">{{ $order->customer?->name ?? 'Pelanggan tidak tersedia' }}</h2>
-                <p class="muted adm-note-line">Referensi: <strong>{{ $order->reference }}</strong></p>
+                <p class="muted adm-note-line">Nomor pesanan <span class="adm-ref">{{ $order->reference }}</span></p>
             </div>
             <div class="adm-row adm-row--end adm-row--tight">
                 <span class="adm-chip">{{ $unitCount }} unit</span>

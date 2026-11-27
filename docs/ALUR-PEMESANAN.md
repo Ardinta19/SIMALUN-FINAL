@@ -559,3 +559,27 @@ Empat lapis, tidak lebih:
 Dulu lapis 3 dan 4 berukuran sama, sehingga hierarki hanya bergantung pada
 warna. Sekarang `.adm-meta` 13 px dengan `strong` kembali ke warna tinta utama.
 Batas bawah tetap 12 px (`--adm-fs-2xs`) dan dijaga `TypographyScaleTest`.
+
+### 7.5 Nomor pesanan
+
+Nomor pesanan dibuat oleh `App\Support\OrderReference`, bukan UUID:
+
+```
+BK-261127-001
+│  │      └── urutan pesanan pada hari itu (001, 002, …)
+│  └───────── tanggal pesanan dibuat (YYMMDD, WIB)
+└──────────── kode usaha (Berkah Kreatif)
+```
+
+- Panjang 13 karakter, muat di kolom `reference` (36) dan di layar ponsel tanpa
+  terpotong.
+- Unik dan tidak dipakai ulang: urutan dihitung dari jumlah pesanan hari itu,
+  lalu dicek ulang ke basis data supaya celah (pesanan yang dihapus) tidak
+  membuat dua pesanan memakai nomor yang sama. Bila dua checkout benar-benar
+  bersamaan, kolom `reference` yang unik menolak salah satunya dan kontroler
+  mencoba ulang (maksimal lima kali).
+- Pencarian yang sudah ada (`reference LIKE %kata%`) otomatis bisa mencari
+  potongan seperti `261127` atau `001`.
+- Nomor lama berbentuk UUID tetap bisa dibaca: `OrderReference::short()`
+  menampilkan delapan karakter pertamanya, dan `isReadable()` membedakan
+  keduanya tanpa memaksa migrasi data lama.

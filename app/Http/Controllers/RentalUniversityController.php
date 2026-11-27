@@ -58,7 +58,7 @@ class RentalUniversityController extends Controller
     public function destroy(RentalUniversity $university)
     {
         $nama = $university->name;
-        DB::transaction(function () use ($university) {
+        DB::transaction(function () use ($university, $nama) {
             $locked = RentalUniversity::lockForUpdate()->findOrFail($university->id);
             $before = $this->snapshot($locked);
             $locked->delete();

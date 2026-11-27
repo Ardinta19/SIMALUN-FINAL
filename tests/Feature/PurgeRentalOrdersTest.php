@@ -132,15 +132,15 @@ class PurgeRentalOrdersTest extends TestCase
         $this->assertDatabaseCount('finance_entries', 0);
     }
 
-    public function test_produksi_wajib_force(): void
+    public function test_aturan_penjagaan_produksi(): void
     {
-        $this->pesanan();
-        $this->app['env'] = 'production';
+        // Fungsi murni: tidak perlu mengubah APP_ENV saat tes berjalan.
+        $this->assertTrue(\App\Console\Commands\PurgeRentalOrders::wajibForce(true, false));
+        $this->assertFalse(\App\Console\Commands\PurgeRentalOrders::wajibForce(true, true));
+        $this->assertFalse(\App\Console\Commands\PurgeRentalOrders::wajibForce(false, false));
 
-        $this->artisan('rental:purge-orders')->assertFailed();
-        $this->assertDatabaseCount('rental_orders', 1);
-
-        $this->artisan('rental:purge-orders', ['--force' => true])->assertSuccessful();
-        $this->assertDatabaseCount('rental_orders', 0);
+        // Perintah benar-benar memakai aturan itu, bukan salinan logika lain.
+        $perintah = (string) file_get_contents(app_path('Console/Commands/PurgeRentalOrders.php'));
+        $this->assertStringContainsString('self::wajibForce(', $perintah);
     }
 }

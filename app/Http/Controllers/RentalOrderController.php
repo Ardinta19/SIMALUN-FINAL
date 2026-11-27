@@ -195,7 +195,25 @@ class RentalOrderController extends Controller
                         throw ValidationException::withMessages(['cart' => 'Jumlah papan '.($product?->name ?? 'yang dipilih').' tidak tersedia untuk tanggal tersebut. Ubah tanggal atau kurangi unit, lalu coba lagi.']);
                     }
                 }
-                $order = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $request->user()->id, 'confirmation_deadline' => now()->addHours(24), 'checkout_key' => $checkoutKey, 'checkout_payload_hash' => $payloadHash]);
+                // Nomor pesanan yang bisa dibaca: BK-261127-001. `make()` membaca
+                // jumlah baris tanpa kunci, jadi dua checkout bersamaan bisa
+                // memperoleh urutan yang sama; percobaan ulang di bawah menutup
+                // celah itu (kolom `reference` unik di basis data).
+                $order = null;
+                for ($percobaan = 1; $percobaan <= 5; $percobaan++) {
+                    try {
+                        $order = RentalOrder::create([
+                            'reference' => \App\Support\OrderReference::make(),
+                            'customer_id' => $request->user()->id,
+                            'confirmation_deadline' => now()->addHours(24),
+                            'checkout_key' => $checkoutKey,
+                            'checkout_payload_hash' => $payloadHash,
+                        ]);
+                        break;
+                    } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+                        if ($percobaan === 5) throw $e;
+                    }
+                }
                 $plans = [];
                 $addonRowsByKey = [];
                 $unitNumber = 0;

@@ -90,7 +90,10 @@ class AdminQueues
      */
     public static function labels(): array
     {
-        return RentalLabels::UNIT_STATUS + [
+        // Label tugas lebih dulu: untuk kunci yang sama, nama antrean
+        // ("Bukti pembayaran") harus menang atas kata status yang lebih panjang
+        // ("Bukti menunggu pemeriksaan") agar chip dan antrean tidak berbeda.
+        return [
             'design_initial' => 'Perlu desain',
             'design_revision' => 'Revisi desain',
             'design_pending' => 'Menunggu tinjauan pelanggan',
@@ -101,7 +104,7 @@ class AdminQueues
             'return_overdue' => 'Lewat kembali',
             'seller_cancelled' => 'Batal oleh penjual',
             'grace' => 'Masa tenggang DP',
-        ];
+        ] + RentalLabels::UNIT_STATUS;
     }
 
     /** Label satu nilai filter; nilai asing dikembalikan apa adanya. */
@@ -110,10 +113,10 @@ class AdminQueues
         return self::labels()[$status] ?? $status;
     }
 
-    /** True bila nilai filter itu status unit, bukan tugas. */
+    /** True bila nilai filter itu status unit (tiga nilai), bukan tugas. */
     public static function isUnitStatus(string $status): bool
     {
-        return array_key_exists($status, RentalLabels::UNIT_STATUS);
+        return in_array($status, RentalLabels::REAL_STATUS, true);
     }
 
     /** @return int total hal (unit atau pembayaran) yang menunggu tindakan admin */

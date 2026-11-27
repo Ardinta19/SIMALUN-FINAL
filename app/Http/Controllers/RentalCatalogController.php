@@ -321,7 +321,7 @@ class RentalCatalogController extends Controller
         }
 
         $nama = $product->name;
-        $hapus = DB::transaction(function () use ($product) {
+        $hapus = DB::transaction(function () use ($product, $nama) {
             $locked = RentalProduct::lockForUpdate()->findOrFail($product->id);
             $before = $this->productSnapshot($locked);
 
