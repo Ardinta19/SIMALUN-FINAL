@@ -71,7 +71,7 @@
         <div class="adm-field">
             <label for="pay-wa">Nomor WhatsApp untuk metode lain</label>
             <input autocomplete="tel" id="pay-wa" type="tel" name="whatsapp_number" inputmode="numeric" maxlength="15" placeholder="Contoh: 6281234567890" value="{{ $oldText('whatsapp_number', $settings?->whatsapp_number) }}">
-            <span class="adm-help">Awali 62, hanya angka tanpa tanda plus atau spasi. Kosongkan jika belum tersedia.</span>
+            <span class="adm-help">Awali 62, hanya angka tanpa tanda plus atau spasi. Bila dikosongkan, halaman bantuan pelanggan memakai nomor WhatsApp usaha ({{ \App\Support\Laundry::phoneDisplay() }}).</span>
         </div>
     </div>
 

@@ -39,9 +39,9 @@ class WhatsApp
 
     /**
      * Normalisasi nomor HP Indonesia ke format internasional tanpa simbol:
-     *   "0823-7888-6053" → "62823788860 53" → "6282378886053"
-     *   "+62 823 7888 6053" → "6282378886053"
-     *   "8237888..." (tanpa awalan) → tetap pakai 62
+     *   "0895-1405-7305" → "6289514057305"
+     *   "+62 895 1405 7305" → "6289514057305"
+     *   "89514057305" (tanpa awalan) → tetap pakai 62
      *
      * Kalau panjangnya tidak masuk akal (kurang dari 9 atau lebih dari 15 digit)
      * dianggap tidak valid dan dikembalikan null.

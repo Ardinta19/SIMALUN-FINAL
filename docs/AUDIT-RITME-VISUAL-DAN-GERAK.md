@@ -5406,3 +5406,21 @@ Dijaga `tests/Feature/SheetScrollTest.php` (4 tes statis terhadap
 `touch-action: pan-y` + `overscroll-behavior: contain`, urutan `lenis.start()`
 sebelum `lenis.scrollTo()` beserta pemeriksaan ulang `requestAnimationFrame`,
 dan tidak adanya gulir paksa ke atas.
+
+### 9.137 Halaman bantuan tidak lagi menjadi jalan buntu WhatsApp
+
+Halaman bantuan hanya menautkan WhatsApp dari `RentalPaymentSetting`. Selama
+admin belum mengisi nomor itu, pelanggan melihat kalimat "Nomor WhatsApp belum
+diatur oleh admin" — padahal usaha jelas punya nomor WhatsApp
+(0895-1405-7305). Sekarang halaman memakai nomor khusus pembayaran bila ada,
+dan **jatuh ke nomor WhatsApp usaha** bila belum: satu-satunya keadaan yang
+menampilkan "belum diatur" adalah ketika keduanya memang kosong.
+
+Panel admin "Petunjuk pembayaran" menjelaskan perilaku cadangan itu di bawah
+kolom nomor, supaya admin tahu mengapa halaman bantuan tetap punya tombol
+WhatsApp walau kolomnya dikosongkan.
+
+Dijaga `RentalHelpTest`: tanpa isian admin, halaman harus memuat
+`https://wa.me/6289514057305`; setelah admin mengisi `6289876543210`, tautan
+itu yang dipakai. `RentalCustomerNavigationTest` tetap menguji keadaan ketika
+konfigurasi usaha dikosongkan seluruhnya (tidak ada `wa.me/` sama sekali).

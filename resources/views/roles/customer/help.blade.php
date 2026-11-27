@@ -23,7 +23,13 @@
 <details><summary>Bagaimana rating dan suka bekerja?</summary><p>Rating produk 1–5 dapat diberikan sekali untuk unit yang sudah dikembalikan. Rating pesanan tersedia setelah semua unit selesai atau dibatalkan dan setidaknya satu unit kembali. Tombol suka produk dapat ditekan ulang untuk membatalkan. Membagikan suka pesanan bersifat pilihan dan hanya menampilkan jumlah suka, bukan rincian pesanan.</p></details>
 </section>
 <section class="help-card" id="hubungi-admin"><h2>Hubungi admin</h2>
-@if($settings?->whatsapp_number)<p>Untuk pertanyaan atau metode pembayaran lain, hubungi admin melalui WhatsApp.</p><a class="help-button" href="https://wa.me/{{ $settings->whatsapp_number }}?text={{ rawurlencode('Halo Berkah Kreatif, saya ingin bertanya tentang penyewaan papan bunga.') }}" target="_blank" rel="noopener noreferrer">Buka WhatsApp</a>@else<p class="help-muted">Nomor WhatsApp belum diatur oleh admin.</p>@endif
+@php
+    // Nomor khusus pembayaran (RentalPaymentSetting) didahulukan; bila admin
+    // belum mengisinya, nomor WhatsApp usaha dipakai supaya pelanggan tetap
+    // punya kanal yang benar-benar aktif — bukan jalan buntu.
+    $helpWa = $settings?->whatsapp_number ?: \App\Support\Laundry::whatsapp();
+@endphp
+@if($helpWa)<p>Untuk pertanyaan atau metode pembayaran lain, hubungi admin melalui WhatsApp.</p><a class="help-button" href="https://wa.me/{{ $helpWa }}?text={{ rawurlencode('Halo Berkah Kreatif, saya ingin bertanya tentang penyewaan papan bunga.') }}" target="_blank" rel="noopener noreferrer">Buka WhatsApp</a>@else<p class="help-muted">Nomor WhatsApp belum diatur oleh admin.</p>@endif
 @php $bkIg = \App\Support\Laundry::instagram(); $bkTt = \App\Support\Laundry::tiktok(); @endphp
 @if($bkIg || $bkTt)<p>Lihat contoh papan dan kabar terbaru kami:</p><div class="row">@if($bkIg)<a class="help-button" href="{{ $bkIg }}" target="_blank" rel="noopener noreferrer">Instagram @berkahkreatif_</a>@endif @if($bkTt)<a class="help-button" href="{{ $bkTt }}" target="_blank" rel="noopener noreferrer">TikTok @berkahkreatif_</a>@endif</div>@endif
 </section>
