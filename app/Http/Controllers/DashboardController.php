@@ -85,8 +85,28 @@ class DashboardController extends Controller
         $rentalWaitingGraceNearest = $graceUnitNearest ? app(\App\Services\RentalPaymentDeadline::class)->graceDeadline($graceUnitNearest) : null;
         // Tenggat terdekat membuat antrean "perlu tindakan" bisa diurutkan tanpa
         // membuka daftar: konfirmasi yang hampir habis didahulukan.
-        $rentalPendingNearest = RentalOrderUnit::where('status', 'pending')->min('confirmation_deadline');
+        // Tenggat konfirmasi menempel pada PESANAN, bukan unit. Dulu kueri ini
+        // memanggil `RentalOrderUnit::min('confirmation_deadline')` — kolom yang
+        // tidak ada di tabel unit. SQLite memperlakukan pengenal berkutip ganda
+        // yang tidak dikenal sebagai STRING, sehingga nilai baliknya menjadi
+        // teks "confirmation_deadline" dan `Carbon::parse()` meledak (dasbor 500
+        // begitu ada unit berstatus menunggu). Kueri sekarang lewat relasi yang
+        // benar.
+        $rentalPendingNearest = RentalOrder::whereHas('units', fn ($query) => $query->where('status', 'pending'))
+            ->min('confirmation_deadline');
         $paymentPendingOldest = RentalPayment::where('status', 'pending')->min('created_at');
+
+        // Nilai agregat masih berupa teks dari basis data. Diubah ke waktu
+        // Jakarta SEKALI di sini supaya view tidak memanggil `Carbon::parse()`
+        // berulang kali — dulu satu nilai aneh saja (mis. nama kolom yang salah)
+        // membuat seluruh dasbor gagal dirender.
+        $jamJakarta = static fn ($nilai) => $nilai === null
+            ? null
+            : \Illuminate\Support\Carbon::parse($nilai)->timezone('Asia/Jakarta');
+        $rentalPendingNearest = $jamJakarta($rentalPendingNearest);
+        $paymentPendingOldest = $jamJakarta($paymentPendingOldest);
+        $rentalWaitingDesignSince = $jamJakarta($rentalWaitingDesignSince);
+        $rentalWaitingTransportSince = $jamJakarta($rentalWaitingTransportSince);
         $recentRentalOrders = RentalOrder::with('customer')->withCount('units')->latest()->take(5)->get();
 
         return view('roles.admin.dashboard', compact(

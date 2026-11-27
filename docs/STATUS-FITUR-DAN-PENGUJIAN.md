@@ -333,6 +333,12 @@ admin secara keseluruhan?"*: ya.
 5. **Penjaga**: `tests/Feature/AdminSurfaceTest.php` (6 tes) — larangan `style`
    statis, larangan `<style>` di view, judul multi-baris, kelas `adm-*` harus ada,
    kelas kunci tidak boleh hilang, dan batas teks 12 px.
+6. **Bug yang ikut ketahuan** (laporan uji Windows): dasbor admin 500 karena
+   `RentalOrderUnit::min('confirmation_deadline')` membaca kolom milik
+   `rental_orders`. SQLite mengembalikan nama kolom sebagai teks, lalu
+   `Carbon::parse()` gagal. Kueri kini lewat relasi `RentalOrder` dan parsing
+   dipindah ke controller. Dijaga `tests/Feature/QueryColumnTest.php` (2 tes) dan
+   `RentalAdminDashboardTest` (menuntut teks tenggat, menolak nama kolom).
 
 Berkas: 15 view `layouts.admin`, `public/css/berkah-admin.css`,
 `resources/views/catalog/admin.blade.php`, `tests/Feature/AdminSurfaceTest.php`.

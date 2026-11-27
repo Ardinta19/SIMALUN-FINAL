@@ -6365,3 +6365,47 @@ sekarang `clamp(13px, 1.6vw, 17px)`.
    meluber; tombol tetap 44 px.
 4. Ubah `--adm-space-3` di `berkah-admin.css` → semua jarak sejenis ikut berubah.
    Itu tanda tidak ada lagi angka mati di view.
+
+### 9.156 Dasbor 500 di SQLite: tenggat konfirmasi dibaca dari tabel yang salah
+
+Ditemukan saat pemilik usaha menjalankan suite di Windows setelah §9.155. Dua tes
+(`RentalAdminDashboardTest`, `RentalAdminSearchTest`) gagal dengan 500:
+
+```
+Could not parse 'confirmation_deadline':
+Failed to parse time string (confirmation_deadline) at position 0 (c)
+```
+
+**Sebabnya bukan CSS.** `DashboardController` menghitung tenggat terdekat dengan
+`RentalOrderUnit::where('status', 'pending')->min('confirmation_deadline')`,
+padahal kolom `confirmation_deadline` hanya ada di tabel **`rental_orders`**
+(migrasi `2026_11_22_000002`). SQLite memperlakukan pengenal berkutip ganda yang
+tidak dikenal sebagai **string**, jadi kueri tidak melempar galat — ia
+mengembalikan teks `"confirmation_deadline"`. Nilai itu masuk ke
+`Carbon::parse()` di Blade dan seluruh dasbor gagal dirender. Bug ini hanya
+muncul kalau ada unit berstatus `pending`, itulah sebabnya baru terlihat sekarang.
+
+**Perbaikan:**
+
+1. Kueri lewat relasi yang benar —
+   `RentalOrder::whereHas('units', fn ($q) => $q->where('status', 'pending'))->min('confirmation_deadline')`.
+2. **Parsing dipindah ke controller.** Keempat nilai agregat (`rentalPendingNearest`,
+   `paymentPendingOldest`, `rentalWaitingDesignSince`, `rentalWaitingTransportSince`)
+   diubah sekali menjadi waktu Jakarta oleh closure `$jamJakarta`; Blade cukup
+   memanggil `->format('d/m H:i')`. Satu nilai aneh tidak lagi bisa menjatuhkan
+   seluruh halaman.
+3. **Dua penjaga baru** di `tests/Feature/QueryColumnTest.php`:
+   - `test_agregat_hanya_memakai_kolom_yang_benar_benar_ada_di_tabel_model` —
+     membaca migrasi untuk memetakan kolom tiap tabel, memetakan model ke tabel,
+     lalu memeriksa setiap `min/max/sum/avg/increment/decrement/pluck('kolom')`
+     di `app/`. Diuji dengan bug aslinya: pesan yang muncul
+     `RentalOrderUnit -> min(confirmation_deadline) — tidak ada di tabel rental_order_units`.
+   - `test_tenggat_konfirmasi_terdekat_dibaca_dari_pesanan` — menahan bentuk
+     kueri yang benar agar tidak kembali ke tabel unit.
+4. **Tes perilaku diperkuat**: `RentalAdminDashboardTest` kini menuntut teks
+   `batas konfirmasi terdekat <tanggal> WIB` dan menolak kata
+   `confirmation_deadline` muncul di halaman.
+
+**Pelajaran.** SQLite tidak menegur kolom yang salah pada ekspresi agregat; ia
+diam-diam mengembalikan nama kolom. Setiap `min`/`max`/`sum` pada model wajib
+diperiksa tabelnya, bukan hanya "jalannya kueri".

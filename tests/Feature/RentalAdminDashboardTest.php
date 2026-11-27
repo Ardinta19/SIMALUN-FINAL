@@ -22,7 +22,13 @@ class RentalAdminDashboardTest extends TestCase
         $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 1]);
         $order = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $customer->id, 'confirmation_deadline' => now()->addDay()]);
         $order->units()->create(['rental_product_id' => $product->id, 'product_name' => 'Papan', 'unit_price' => 100, 'price_unit' => 'day', 'rental_amount' => 100, 'starts_on' => now()->addDays(3), 'event_on' => now()->addDays(3), 'ends_on' => now()->addDays(3), 'recipient_name' => 'Penerima', 'greeting' => 'Selamat', 'delivery_method' => 'pickup', 'return_method' => 'dropoff']);
-        $this->actingAs($admin)->get(route('dashboard.admin'))->assertOk()->assertSee('Berkah Kreatif')->assertSee($order->reference)->assertSee(route('admin.rental.orders'))->assertSee(route('admin.rental.cashbook.index'))->assertDontSee('Tugaskan Kurir')->assertDontSee('Azka Laundry');
+        // Catatan tenggat di kartu "Perlu tindakanmu" harus berisi WAKTU, bukan
+        // nama kolom. Dulu kuerinya membaca `confirmation_deadline` dari tabel
+        // unit sehingga SQLite mengembalikan teks nama kolom dan halaman 500.
+        $batas = $order->confirmation_deadline->copy()->timezone('Asia/Jakarta')->format('d/m H:i');
+        $this->actingAs($admin)->get(route('dashboard.admin'))->assertOk()->assertSee('Berkah Kreatif')->assertSee($order->reference)->assertSee(route('admin.rental.orders'))->assertSee(route('admin.rental.cashbook.index'))->assertDontSee('Tugaskan Kurir')->assertDontSee('Azka Laundry')
+            ->assertSee('batas konfirmasi terdekat '.$batas.' WIB', false)
+            ->assertDontSee('confirmation_deadline');
         // Akun pelanggan dihapus (soft delete): riwayat pesanan tetap harus
         // menampilkan nama pemiliknya, bukan "Pelanggan tidak tersedia" —
         // relasi customer() memakai withTrashed() (§9.122).

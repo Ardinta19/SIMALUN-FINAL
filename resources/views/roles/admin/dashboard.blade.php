@@ -25,14 +25,14 @@
             'route' => 'admin.rental.orders', 'status' => 'pending', 'icon' => 'orders', 'count' => $rentalPending,
             'text' => 'unit menunggu konfirmasi',
             'note' => $rentalPendingNearest
-                ? 'batas konfirmasi terdekat '.\Carbon\Carbon::parse($rentalPendingNearest)->timezone('Asia/Jakarta')->format('d/m H:i').' WIB'
+                ? 'batas konfirmasi terdekat '.$rentalPendingNearest->format('d/m H:i').' WIB'
                 : null,
         ],
         [
             'route' => 'admin.rental.orders', 'status' => 'payment_pending', 'icon' => 'payment', 'count' => $rentalPaymentPending,
             'text' => 'bukti menunggu pemeriksaan',
             'note' => $paymentPendingOldest
-                ? 'bukti tertua '.\Carbon\Carbon::parse($paymentPendingOldest)->timezone('Asia/Jakarta')->format('d/m H:i').' WIB'
+                ? 'bukti tertua '.$paymentPendingOldest->format('d/m H:i').' WIB'
                 : null,
         ],
         [
@@ -143,13 +143,13 @@
                 <a class="adm-listlink" href="{{ route('admin.rental.orders', ['status' => 'design_pending']) }}">
                     <span class="adm-stat__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'package', 'size' => 18])</span>
                     <span class="adm-min0"><strong>{{ $rentalWaitingDesign }}</strong> unit menunggu persetujuan desain
-                        @if($rentalWaitingDesignSince)· menunggu sejak {{ \Carbon\Carbon::parse($rentalWaitingDesignSince)->timezone('Asia/Jakarta')->format('d/m H:i') }} WIB @endif
+                        @if($rentalWaitingDesignSince)· menunggu sejak {{ $rentalWaitingDesignSince->format('d/m H:i') }} WIB @endif
                     </span>
                 </a>
                 <a class="adm-listlink" href="{{ route('admin.rental.orders', ['status' => 'transport_approval']) }}">
                     <span class="adm-stat__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'location', 'size' => 18])</span>
                     <span class="adm-min0"><strong>{{ $rentalWaitingTransport }}</strong> unit menunggu persetujuan ongkos
-                        @if($rentalWaitingTransportSince)· penawaran tertua {{ \Carbon\Carbon::parse($rentalWaitingTransportSince)->timezone('Asia/Jakarta')->format('d/m H:i') }} WIB @endif
+                        @if($rentalWaitingTransportSince)· penawaran tertua {{ $rentalWaitingTransportSince->format('d/m H:i') }} WIB @endif
                     </span>
                 </a>
                 <a class="adm-listlink" href="{{ route('admin.rental.orders', ['status' => 'grace']) }}">
