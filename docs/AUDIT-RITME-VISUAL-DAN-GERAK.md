@@ -6028,6 +6028,11 @@ hanya satu bagian terbuka, pindah bagian, alamat menjadi wajib saat "diantar",
 kirim dicegah saat ketentuan belum dicentang, progres 100% dan bilah hijau
 setelah lengkap, lalu kirim diizinkan.
 
+Catatan: helper di kelas tes **tidak boleh** bernama `view()` — `TestCase`
+Laravel sudah punya `view()` berstatus protected, dan PHPUnit memuat berkas tes
+sebelum suite berjalan sehingga galatnya berupa *fatal error* tanpa nama tes.
+`tests/Feature/TestHelperNameTest.php` menjaga nama-nama itu.
+
 **Cara memeriksa sendiri:**
 
 1. Keranjang berisi dua papan → "Lanjut ke checkout". Halaman menampilkan dua

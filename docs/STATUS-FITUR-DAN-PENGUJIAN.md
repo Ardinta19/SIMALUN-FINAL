@@ -265,7 +265,9 @@ Permintaan pemilik usaha: halaman checkout terasa penuh dan membingungkan; minta
 
 Berkas utama: `resources/views/rental/checkout.blade.php` (ditulis ulang), `public/js/berkah-checkout.js` (baru), `public/css/berkah-experience.css`, `public/css/berkah-theme.css`, `resources/views/catalog/{index,show,cart}.blade.php`, `public/js/berkah-variants.js`.
 
-Tes penjaga baru: `tests/Feature/CheckoutFlowTest.php` (5). Perilaku skrip diuji di jsdom (`/tmp/wasm-php/checkout-steps-jsdom.cjs`, 27/27). `ProductVariantTest` disesuaikan: kolom total baris tidak lagi ada di katalog. Perkiraan jumlah tes: **±525 lulus**.
+Tes penjaga baru: `tests/Feature/CheckoutFlowTest.php` (5) dan `tests/Feature/TestHelperNameTest.php` (1). Perilaku skrip diuji di jsdom (`/tmp/wasm-php/checkout-steps-jsdom.cjs`, 27/27). `ProductVariantTest` disesuaikan: kolom total baris tidak lagi ada di katalog. Perkiraan jumlah tes: **±526 lulus**.
+
+Catatan galat nyata: helper privat bernama `view()` pada kelas tes membuat PHPUnit berhenti sebelum suite berjalan ("Access level to ...::view() must be protected"). PHPUnit memuat semua berkas tes lebih dulu, jadi galat ini tidak tertangkap `php -l` maupun tes lain. Nama helper diganti `checkoutView()`/`checkoutScript()`, dan `TestHelperNameTest` memeriksa daftar nama metode bawaan `TestCase` (view, get, post, call, json, artisan, seed, actingAs, …) agar tidak terulang.
 
 Pemeriksaan manual:
 

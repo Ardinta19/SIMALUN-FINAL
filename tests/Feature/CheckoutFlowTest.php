@@ -20,19 +20,21 @@ use Tests\TestCase;
  */
 class CheckoutFlowTest extends TestCase
 {
-    private function view(): string
+    /** Nama sengaja tidak `view()`: `Illuminate\Foundation\Testing\TestCase`
+     *  sudah punya `view()` dan menurunkannya akan bentrok saat kelas dimuat. */
+    private function checkoutView(): string
     {
         return (string) file_get_contents(resource_path('views/rental/checkout.blade.php'));
     }
 
-    private function script(): string
+    private function checkoutScript(): string
     {
         return (string) file_get_contents(public_path('js/berkah-checkout.js'));
     }
 
     public function test_checkout_memakai_tahapan_bilah_kemajuan_dan_daftar_kesiapan(): void
     {
-        $view = $this->view();
+        $view = $this->checkoutView();
 
         foreach ([
             'data-bk-co',
@@ -71,8 +73,8 @@ class CheckoutFlowTest extends TestCase
 
     public function test_checkout_tetap_bisa_dipakai_tanpa_javascript(): void
     {
-        $view = $this->view();
-        $script = $this->script();
+        $view = $this->checkoutView();
+        $script = $this->checkoutScript();
         $css = (string) file_get_contents(public_path('css/berkah-experience.css'));
 
         // Panel tidak disembunyikan di server; hanya skrip yang menyembunyikan
@@ -96,7 +98,7 @@ class CheckoutFlowTest extends TestCase
 
     public function test_teks_panjang_diganti_kalimat_pendek_yang_punya_tujuan(): void
     {
-        $view = $this->view();
+        $view = $this->checkoutView();
 
         foreach ([
             'Isi kebutuhan untuk setiap unit',
@@ -133,7 +135,7 @@ class CheckoutFlowTest extends TestCase
 
     public function test_pengesahan_ketentuan_tetap_ada_dan_bertanda_wajib(): void
     {
-        $view = $this->view();
+        $view = $this->checkoutView();
 
         $this->assertStringContainsString('name="terms"', $view);
         $this->assertStringContainsString('required', $view);
