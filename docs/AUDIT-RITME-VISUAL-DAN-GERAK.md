@@ -4108,3 +4108,32 @@ Pemeriksaan sejenis untuk teks Inggris lain di view (kata seperti "Save",
 "Submit", "Cancel", "Loading") hanya menyisakan sisa yang sah: nama atribut
 HTML (`type="date"`), komentar Blade, dan kata serapan yang memang dipakai
 sehari-hari ("Email", "Status", "Total", "No. HP").
+
+### 9.98 Etalase tanpa peta situs
+
+Halaman katalog sudah lengkap bekalnya untuk mesin pencari: judul per
+halaman, deskripsi, `og:*`, `twitter:*`, dan `robots.txt` yang rapi. Yang
+tidak ada justru daftar isinya sendiri — `sitemap.xml`. Akibatnya setiap
+papan baru hanya ditemukan lewat tautan biasa dari beranda, dan papan yang
+lama turun halaman tidak punya jalur lain untuk diketahui perayap.
+
+Ditambahkan `/sitemap.xml` (`RentalCatalogController::sitemap`) yang
+mendaftarkan beranda serta setiap papan **aktif** di kategori **aktif** —
+penyaringnya sama dengan halaman katalog (`is_active` + `whereHas`
+kategori aktif), jadi papan yang disembunyikan admin tidak ikut terdaftar.
+`lastmod` diisi `updated_at` masing-masing papan, respons diberi
+`Cache-Control: public, max-age=3600` agar perayap tidak membebani server,
+dan halaman pesanan/akun/admin sengaja tidak didaftarkan.
+
+Tampilannya di `resources/views/catalog/sitemap.blade.php`. Deklarasi XML
+ditulis lewat `{!! '<?xml … ?>' !!}`, bukan tag mentah: PHP memperlakukan
+`<?xml` sebagai tag pendek sehingga berkas gagal dirender bila ditulis apa
+adanya. Dijaga `tests/Feature/SitemapTest.php` — satu tes statis (rute,
+berkas, nama ruang `urlset`, bentuk deklarasi XML) dan satu tes isi
+(beranda terdaftar, papan aktif terdaftar, papan nonaktif tidak, tidak ada
+jalur `/admin`).
+
+`robots.txt` tidak diubah: berkas itu statis dan tidak tahu domain
+pemasangan, jadi baris `Sitemap:` tidak bisa diisi dengan benar dari sana.
+Pemilik cukup mendaftarkan `https://domain-anda/sitemap.xml` di Google
+Search Console.

@@ -57,6 +57,27 @@ class RentalCatalogController extends Controller
         return view('catalog.index', compact('products', 'categories', 'dates', 'blockedDates'));
     }
 
+    /**
+     * Peta situs XML untuk mesin pencari.
+     *
+     * Hanya halaman yang memang terbuka bagi perayap: etalase dan tiap papan
+     * yang aktif di kategori aktif. Halaman pesanan, akun, dan panel admin
+     * memang tertutup di robots.txt, jadi tidak didaftarkan di sini.
+     */
+    public function sitemap()
+    {
+        $products = RentalProduct::query()
+            ->where('is_active', true)
+            ->whereHas('category', fn ($q) => $q->where('is_active', true))
+            ->orderByDesc('updated_at')
+            ->get(['id', 'updated_at']);
+
+        return response()
+            ->view('catalog.sitemap', compact('products'))
+            ->header('Content-Type', 'application/xml; charset=UTF-8')
+            ->header('Cache-Control', 'public, max-age=3600');
+    }
+
     private function validateRentalPeriod(array $data): void
     {
         $start = CarbonImmutable::createFromFormat('!Y-m-d', $data['starts_on'], 'Asia/Jakarta');
