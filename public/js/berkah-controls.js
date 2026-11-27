@@ -2173,20 +2173,23 @@
 
     function revealField(field) {
         var anchor = cueAnchor(field) || field;
+        /* Trigger bisa berupa pembungkus; fokus pindah ke elemen yang benar-
+           benar dapat difokuskan di dalamnya. */
+        var target = focusableTarget(anchor) || anchor;
 
-        focusQuiet(anchor);
+        focusQuiet(target);
 
         var lenis = window.BkMotion && window.BkMotion.lenis;
         try {
             if (lenis && typeof lenis.scrollTo === 'function') {
-                lenis.scrollTo(anchor, { offset: -96, duration: reducedMotion() ? 0 : 0.45 });
+                lenis.scrollTo(target, { offset: -96, duration: reducedMotion() ? 0 : 0.45 });
                 return;
             }
         } catch (e) { /* jatuh ke scrollIntoView */ }
 
-        if (typeof anchor.scrollIntoView === 'function') {
+        if (typeof target.scrollIntoView === 'function') {
             try {
-                anchor.scrollIntoView({ block: 'center', behavior: reducedMotion() ? 'auto' : 'smooth' });
+                target.scrollIntoView({ block: 'center', behavior: reducedMotion() ? 'auto' : 'smooth' });
             } catch (e) { /* peramban lama */ }
         }
     }

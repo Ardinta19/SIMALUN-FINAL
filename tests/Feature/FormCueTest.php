@@ -99,10 +99,13 @@ class FormCueTest extends TestCase
         $js = $this->js();
 
         $this->assertStringContainsString('window.BkMotion && window.BkMotion.lenis', $js);
-        $this->assertStringContainsString('lenis.scrollTo(anchor', $js);
+        $this->assertStringContainsString('lenis.scrollTo(target', $js);
 
         // Fokus tetap dipindahkan tanpa melompat sendiri (preventScroll).
-        $this->assertStringContainsString('focusQuiet(anchor)', $js);
+        $this->assertStringContainsString('focusQuiet(target)', $js);
+
+        // Trigger pembungkus: fokus pindah ke elemen yang bisa difokuskan.
+        $this->assertStringContainsString('focusableTarget(anchor) || anchor', $js);
         $this->assertStringContainsString('focus({ preventScroll: true })', $js,
             'Fokus tidak boleh memicu lompatan gulir kedua.');
     }
