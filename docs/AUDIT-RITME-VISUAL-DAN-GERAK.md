@@ -4859,7 +4859,9 @@ Aturan itu dihapus (kini sama dengan `RegisterController`, yang sejak awal
 memakai `Rule::unique()` polos dan menampilkan pesan ramah). Pesan galat
 terminal juga diperjelas: menyebut bahwa nomor/email itu bisa milik akun yang
 sudah dihapus, dan menyertakan perintah pemulihannya
-(`php artisan user:restore …`).
+(`php artisan user:restore`). Kalimatnya tetap diakhiri titik — aturan yang
+dipaksakan `UiDefaultsTest::test_pesan_galat_berbentuk_kalimat_utuh` — jadi
+contoh nomor tidak ditaruh di ujung kalimat.
 
 Dijaga `tests/Feature/UserCommandValidationTest.php`:
 
