@@ -140,9 +140,28 @@ class AdminOrderSortTest extends TestCase
     {
         [$a] = $this->duaPesanan();
 
+        // Baris tugas (`adm-tasklist`) hanya dirender bila ada yang benar-benar
+        // menunggu admin. Unit contoh di atas sedang dikerjakan tanpa tunggakan,
+        // jadi kartunya menampilkan kalimat terus terang, bukan daftar kosong.
+        // Supaya yang diuji tetap kartu + baris tugas, unit ini dibuat menunggu
+        // konfirmasi lebih dulu.
+        $a->units()->update(['status' => 'pending']);
+
         $this->actingAs($this->admin)->get(route('admin.rental.orders'))
             ->assertOk()
             ->assertSee($a->reference)
-            ->assertSee('adm-tasklist', false);
+            ->assertSee('Lihat detail pesanan')
+            ->assertSee('adm-tasklist', false)
+            ->assertSee('Konfirmasi Papan '.$a->id);
+    }
+
+    public function test_kartu_tanpa_tunggakan_tidak_memaksa_daftar_tugas_kosong(): void
+    {
+        [$a] = $this->duaPesanan();
+
+        $halaman = $this->actingAs($this->admin)->get(route('admin.rental.orders'))->assertOk();
+        $halaman->assertSee('Tidak ada yang menunggu admin di pesanan ini.');
+        // Satu-satunya penanda kartu: tautan detail tetap ada.
+        $halaman->assertSee('Lihat detail pesanan');
     }
 }
