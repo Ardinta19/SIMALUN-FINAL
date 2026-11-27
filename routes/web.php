@@ -40,7 +40,7 @@ Route::get('/apresiasi/{token}', [RentalFeedbackController::class, 'publicShare'
 Route::get('/keranjang', [RentalCartController::class, 'index'])->name('cart.index');
 Route::post('/keranjang/{product}', [RentalCartController::class, 'store'])->middleware('throttle:30,1')->name('cart.store');
 Route::post('/keranjang/unit/{item}/tambah', [RentalCartController::class, 'duplicate'])->middleware('throttle:30,1')->name('cart.duplicate');
-Route::delete('/keranjang/{item}', [RentalCartController::class, 'destroy'])->name('cart.destroy');
+Route::delete('/keranjang/{item}', [RentalCartController::class, 'destroy'])->middleware('throttle:30,1')->name('cart.destroy');
 
 Route::middleware('guest')->group(function () {
 

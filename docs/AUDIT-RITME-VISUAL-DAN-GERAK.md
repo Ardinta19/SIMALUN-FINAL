@@ -4743,3 +4743,42 @@ hanya menambah indeks, jadi aman dijalankan pada basis data yang sudah berisi.
 Dijaga `tests/Feature/RentalQueueIndexTest.php`: keempat indeks baru harus
 benar-benar ada di skema setelah migrasi, dan indeks ketersediaan yang lama
 tidak boleh hilang.
+
+### 9.121 Rute hapus keranjang tanpa pembatas, dan hasil pindai putaran ini
+
+`DELETE /keranjang/{item}` adalah satu-satunya rute tulis keranjang tanpa
+`throttle`, padahal dua rute tulis lainnya (`cart.store`, `cart.duplicate`)
+sudah dibatasi `throttle:30,1`. Setiap permintaan menulis ulang isi sesi, dan
+sesi disimpan di tabel `sessions` (`SESSION_DRIVER=database`), jadi skrip
+sederhana bisa memaksa penulisan basis data berkali-kali per detik. Rute itu
+kini ikut dibatasi, dijaga `tests/Feature/CartThrottleTest.php`.
+
+Pemeriksaan yang dijalankan pada putaran ini dan hasilnya bersih (tanpa
+perubahan kode):
+
+- `dd()`/`dump()`/`var_dump()`/`console.log()` di `app/`, `resources/views`,
+  `routes/`, `public/js` — **0**.
+- `TODO`/`FIXME`/`XXX` di `app/`, `routes/`, `config/`, `database/`,
+  `resources/views` — **0**.
+- `env()` di luar `config/` — **0**, sehingga `php artisan config:cache` aman.
+- Format uang: seluruh `number_format()` di view memakai pemisah Indonesia
+  (`0, ',', '.'`) — **0** penyimpangan.
+- Controller yang tidak dirujuk `routes/*.php` — hanya kelas dasar
+  `Controller` (bukan rute, memang begitu seharusnya).
+- `uniqid()`/`mt_rand()`/`str_shuffle()` untuk token atau nomor pesanan —
+  **0**; nomor pesanan memakai `Str::uuid()` pada kolom `reference` yang
+  `unique()`.
+- Normalisasi nomor WhatsApp: semua tautan `wa.me` lewat
+  `WhatsApp::link()` → `normalize()`, jadi `LAUNDRY_WA=0823-…` tetap
+  menghasilkan tautan benar.
+- Batas keranjang: 50 unit untuk pengunjung (sesi) — sudah dijaga di `store`
+  dan `duplicate`.
+- `storage/` dan `bootstrap/cache/` tetap punya `.gitignore` sendiri; berkas
+  runtime tidak ikut masuk repo.
+- `RentalUniversityController` tidak punya `destroy()` (hanya `toggle`),
+  sehingga tarif yang sudah dipakai pesanan lama tidak bisa dihapus dan
+  memicu galat kunci asing.
+- `package.json`/`vite.config.js`/`resources/css`/`resources/js` masih ada
+  sebagai rangka untuk migrasi bertahap; README sudah menyatakan Vite tidak
+  dipakai satu view pun, dan `FrontendAssetsTest` menjaga agar
+  `composer setup` tidak memanggil `npm install`/`npm run build`.
