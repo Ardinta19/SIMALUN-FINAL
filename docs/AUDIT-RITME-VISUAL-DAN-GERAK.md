@@ -5424,3 +5424,9 @@ Dijaga `RentalHelpTest`: tanpa isian admin, halaman harus memuat
 `https://wa.me/6289514057305`; setelah admin mengisi `6289876543210`, tautan
 itu yang dipakai. `RentalCustomerNavigationTest` tetap menguji keadaan ketika
 konfigurasi usaha dikosongkan seluruhnya (tidak ada `wa.me/` sama sekali).
+
+Cadangan yang sama dipakai halaman detail unit: tombol "Tanya metode lain via
+WhatsApp" tidak lagi hilang hanya karena `RentalPaymentSetting` kosong —
+nomor usaha yang dipakai, dan tombolnya tetap muncul. Kalimat "belum diatur"
+hanya tampil bila nomor pembayaran **dan** nomor usaha sama-sama kosong.
+Dijaga `BusinessIdentityTest::test_halaman_unit_memakai_nomor_usaha_bila_nomor_pembayaran_kosong()`.

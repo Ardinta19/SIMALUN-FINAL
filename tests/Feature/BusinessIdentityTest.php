@@ -58,6 +58,14 @@ class BusinessIdentityTest extends TestCase
         $this->assertStringContainsString('id="checkout-{{ $unitNumber }}-return-hint"', $checkout);
     }
 
+    public function test_halaman_unit_memakai_nomor_usaha_bila_nomor_pembayaran_kosong(): void
+    {
+        $unit = (string) File::get(resource_path('views/rental/unit.blade.php'));
+
+        $this->assertStringContainsString("?: \\App\\Support\\Laundry::whatsapp()", $unit);
+        $this->assertStringContainsString('https://wa.me/{{ $unitWa }}', $unit);
+    }
+
     public function test_halaman_bantuan_menampilkan_sosial_media(): void
     {
         $customer = \App\Models\User::factory()->create(['role' => 'customer']);
