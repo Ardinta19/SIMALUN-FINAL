@@ -4381,3 +4381,56 @@ tidak diulang:
 **Hasil putaran 17:** harness **197 lulus, 0 gagal, 231 dilewati**;
 `blade-scan.py` 82 view / 0 / 0; `.tmp-verify.php` 26/0; `node --check`
 10 berkas JS lolos (berkurang satu karena `resources/js/splash.js` dihapus).
+
+### 9.106 Masuk dengan Google: email yang sudah terbukti ditandai terverifikasi
+
+`GoogleAuthController` sudah sangat hati-hati — masuk hanya untuk akun yang
+sudah terdaftar, menolak email Google yang belum terverifikasi, menolak
+akun nonaktif, dan menolak menimpa `google_id` yang sudah tertaut ke subjek
+lain. Satu hal terlewat: setelah Google membuktikan bahwa pengguna benar
+pemilik alamat email itu, kolom `email_verified_at` tetap kosong. Padahal
+pendaftaran lokal di aplikasi ini tidak pernah memverifikasi email, jadi
+kolom itu **selalu** kosong untuk semua akun — tidak ada bedanya antara
+"belum pernah dibuktikan" dan "sudah dibuktikan Google".
+
+Saat tautan Google dibuat, `email_verified_at` kini diisi (`now()`) bila
+masih kosong, dalam satu `UPDATE` yang sama dengan `google_id` sehingga
+tetap atomik terhadap callback bersamaan. Dijaga
+`tests/Feature/GoogleLoginTest.php`: akun yang dibuat dengan
+`email_verified_at => null` harus berakhir punya nilai setelah tautan
+Google terbentuk (tes ini sekaligus memanfaatkan perbaikan factory §9.104,
+karena `email_verified_at` sebelumnya diabaikan).
+
+**Risiko sisa yang dicatat, bukan diubah.** Karena aplikasi menautkan akun
+berdasarkan email, ada skenario *pre-hijacking*: seseorang mendaftar lebih
+dulu memakai alamat Gmail orang lain, lalu ketika pemilik asli memakai
+"Masuk dengan Google", ia masuk ke akun yang dibuat penyerang. Dampaknya
+hanya privasi pesanan (bukan eskalasi hak akses: `role` tetap `customer`),
+dan peluangnya kecil karena pendaftaran mewajibkan nomor HP aktif serta
+si penyerang harus menebak email korban lebih dulu. Mengubah alur menjadi
+"wajib masuk dengan kata sandi dulu" akan memutus perpindahan wajar dari
+kata sandi ke Google yang justru sering dipakai pelanggan, jadi alurnya
+dibiarkan; catatan ini yang menjadi rujukan bila nanti verifikasi email
+diaktifkan penuh.
+
+### 9.107 Sisa kecil putaran 18
+
+- **`inspire` dihapus** dari `routes/console.php`. Perintah demo Laravel
+  (kutipan bahasa Inggris acak) muncul di `php artisan list` dan tidak ada
+  hubungannya dengan SIMALUN; satu-satunya perintah yang tersisa di berkas
+  itu adalah empat penjadwal sewa (`rental:expire-confirmations`,
+  `rental:expire-payments`, `rental:remind`, `rental:close-events`).
+- **Pembatasan laju aksi pelanggan** — `design.respond`,
+  `cancel.customer`, `unit.update`, `addresses.*`, dan aksi admin tidak
+  punya `throttle` per rute. Semuanya butuh sesi masuk, memakai penjagaan
+  status di dalam transaksi (mis. "status unit berubah, muat ulang"), dan
+  tidak menulis berkas. Rute yang menulis berkas atau membuka data publik
+  (`pembayaran.store` 10/menit, `checkout.store` 6/menit,
+  `voucher.check` 20/menit, `katalog.availability` 60/menit, tautan
+  apresiasi 60/menit) sudah dibatasi. Tidak diubah.
+- **Paginasi** — semua `paginate()` yang memakai filter sudah memanggil
+  `withQueryString()`; dua pemanggilan tanpa filter (notifikasi pelanggan
+  dan admin) memang tidak membutuhkannya.
+- **Kunci mass assignment & snapshot audit** — dipindai ulang untuk seluruh
+  `create([...])`, `->update([...])`, dan `->only([...])` di `app/`:
+  semuanya cocok dengan `$fillable` model dan kolom hasil migrasi.

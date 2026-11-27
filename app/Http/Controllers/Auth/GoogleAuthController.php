@@ -86,8 +86,16 @@ class GoogleAuthController extends Controller
 
         // Tautkan hanya jika masih kosong. Callback lain tidak boleh menimpa
         // tautan yang dibuat bersamaan oleh subjek Google yang berbeda.
+        // `email_verified_at` ikut diisi: Google sudah membuktikan bahwa akun
+        // itu benar pemilik alamat email tersebut, dan kolom ini sebelumnya
+        // selalu kosong karena pendaftaran lokal tidak memverifikasi email.
         if ($user->google_id === null) {
-            User::whereKey($user->id)->whereNull('google_id')->update(['google_id' => $googleId]);
+            $tautan = ['google_id' => $googleId];
+            if ($user->email_verified_at === null) {
+                $tautan['email_verified_at'] = now();
+            }
+
+            User::whereKey($user->id)->whereNull('google_id')->update($tautan);
             $user->refresh();
             if ($user->google_id !== $googleId || ! $user->is_active) {
                 return redirect()->route('login')->withErrors([

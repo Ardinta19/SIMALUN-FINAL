@@ -34,6 +34,8 @@ class GoogleLoginTest extends TestCase
         $user = User::factory()->create([
             'email' => 'pelanggan@gmail.com',
             'is_active' => true,
+            // Akun hasil pendaftaran lokal: email belum pernah diverifikasi.
+            'email_verified_at' => null,
         ]);
 
         $this->mockGoogleUser('google-abc-123', 'pelanggan@gmail.com');
@@ -43,6 +45,9 @@ class GoogleLoginTest extends TestCase
         $this->assertAuthenticatedAs($user);
         $response->assertRedirect(route('customer.dashboard', absolute: false));
         $this->assertSame('google-abc-123', $user->fresh()->google_id);
+        // Google sudah memverifikasi alamat email itu, jadi akun ditandai
+        // terverifikasi saat tautan dibuat.
+        $this->assertNotNull($user->fresh()->email_verified_at);
     }
 
     public function test_email_belum_terdaftar_ditolak_dan_tidak_membuat_akun(): void
