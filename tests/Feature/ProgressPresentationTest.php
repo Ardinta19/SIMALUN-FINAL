@@ -52,6 +52,16 @@ class ProgressPresentationTest extends TestCase
         $this->assertStringContainsString('Dibatalkan', $partial);
     }
 
+    public function test_jumlah_segmen_ringkasan_sepakat_dengan_daftar_langkah(): void
+    {
+        // `.bk-stage__track` menulis `repeat(5, …)` di CSS. Bila daftar langkah
+        // bertambah tanpa mengubah CSS, segmennya akan berdesakan tanpa galat.
+        $this->assertCount(5, \App\Support\RentalLabels::PROGRESS_STEPS);
+
+        $css = (string) file_get_contents(base_path('public/css/berkah-experience.css'));
+        $this->assertStringContainsString('repeat(5, minmax(0, 1fr))', $css);
+    }
+
     public function test_stepper_layar_sempit_tidak_pecah_menjadi_dua_baris(): void
     {
         $css = (string) file_get_contents(base_path('public/css/berkah-experience.css'));

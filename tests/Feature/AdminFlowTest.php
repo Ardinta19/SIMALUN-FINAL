@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
 /**
@@ -34,15 +35,19 @@ class AdminFlowTest extends TestCase
             'rental/cashbook-fields.blade.php',
         ];
 
-        foreach (glob(resource_path('views/**/*.blade.php')) ?: [] as $jalur) {
-            $relatif = str_replace(resource_path('views').'/', '', str_replace('\\', '/', $jalur));
-            if (str_contains((string) file_get_contents($jalur), "@extends('layouts.admin')")) {
+        // `File::allFiles` mengembalikan jalur relatif yang sudah bebas
+        // pemisah direktori, jadi tetap benar di Windows (`\\`) maupun Linux
+        // (`/`). Menyusun jalur relatif sendiri dengan `str_replace` gagal di
+        // Windows karena `resource_path()` memakai garis miring terbalik.
+        foreach (File::allFiles(resource_path('views')) as $berkasView) {
+            $relatif = str_replace('\\', '/', $berkasView->getRelativePathname());
+            if (str_contains((string) file_get_contents($berkasView->getPathname()), "@extends('layouts.admin')")) {
                 $berkas[] = $relatif;
             }
         }
 
-        foreach (glob(resource_path('views/layouts/component/admin/*.blade.php')) ?: [] as $jalur) {
-            $berkas[] = 'layouts/component/admin/'.basename($jalur);
+        foreach (File::allFiles(resource_path('views/layouts/component/admin')) as $berkasShell) {
+            $berkas[] = 'layouts/component/admin/'.str_replace('\\', '/', $berkasShell->getRelativePathname());
         }
 
         return array_values(array_unique($berkas));
@@ -124,8 +129,10 @@ class AdminFlowTest extends TestCase
         // Kartu menyebut tugas + jangkar bagian terkait, bukan hanya badge status.
         $this->assertStringContainsString('$tugas', $daftar);
         $this->assertStringContainsString('adm-tasklist', $daftar);
-        $this->assertStringContainsString("'pembayaran-'.$unit->id", $daftar);
-        $this->assertStringContainsString("'desain-'.$unit->id", $daftar);
+        // Kutip tunggal: dengan kutip ganda, `$unit` akan disisipkan PHP dan
+        // tesnya gagal karena variabel itu tidak ada di dalam tes.
+        $this->assertStringContainsString('\'pembayaran-\'.$unit->id', $daftar);
+        $this->assertStringContainsString('\'desain-\'.$unit->id', $daftar);
         $this->assertStringContainsString('Tidak ada yang menunggu admin di pesanan ini.', $daftar);
         $this->assertStringContainsString('+{{ $sisaTugas }} tugas lain', $daftar);
 

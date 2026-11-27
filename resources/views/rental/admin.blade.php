@@ -92,6 +92,8 @@
            mana harus pergi. Dulu kartu hanya menampilkan badge status, jadi
            admin harus membuka tiap pesanan untuk tahu mana yang mendesak. */
         $tugas = [];
+        // Tenggat konfirmasi lewat = tugas paling mendesak; beri nada peringatan.
+        $tenggatLewat = $order->confirmation_deadline->isPast();
         foreach ($order->units as $unit) {
             $bukti = $unit->status === 'cancelled' ? 0 : $unit->payments->where('status', 'pending')->count();
             if ($unit->payment_review_hold) {
@@ -101,7 +103,7 @@
                 $tugas[] = [$bukti.' bukti bayar diperiksa', 'pembayaran-'.$unit->id, 'warn'];
             }
             if ($unit->status === 'pending') {
-                $tugas[] = ['Konfirmasi '.$unit->product_name, 'unit-'.$unit->id, 'info'];
+                $tugas[] = ['Konfirmasi '.$unit->product_name, 'unit-'.$unit->id, $tenggatLewat ? 'warn' : 'info'];
             }
             if ($unit->status === 'confirmed' && $unit->progress === 'waiting' && $unit->previews->isEmpty()) {
                 $tugas[] = ['Pratinjau awal '.$unit->product_name, 'desain-'.$unit->id, 'info'];

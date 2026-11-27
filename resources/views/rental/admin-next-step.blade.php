@@ -69,7 +69,11 @@
             @if($bisaLanjut)
                 <p class="adm-help adm-flat">Stok perlu dicek ulang. {{ $unit->status_before_cancel === 'pending' ? 'Unit kembali menunggu konfirmasi.' : 'Unit kembali dikonfirmasi bila pembayaran lunas dan stok tersedia.' }}</p>
             @else
-                <p class="adm-help adm-flat">Alasan: {{ $unit->cancel_reason ?: 'tercatat di riwayat' }}. Batas melanjutkan sudah terlewati, jadi unit tidak bisa dibuka kembali.</p>
+                {{-- Alasan lengkap sudah tercetak di bagian bawah; jangan diulang di sini. --}}
+                <p class="adm-help adm-flat">
+                    Alasan dan tanggung jawab tercatat di bagian bawah halaman.
+                    @if($unit->status_before_cancel) Batas melanjutkan sudah terlewati, jadi unit tidak bisa dibuka kembali. @endif
+                </p>
             @endif
         @elseif($nextStep)
             <p class="adm-next__title">{{ $nextStep }}</p>

@@ -412,4 +412,11 @@ Berkas: `resources/views/rental/admin-next-step.blade.php` (baru),
 `public/css/berkah-admin.css`, `tests/Feature/AdminFlowTest.php` (baru),
 `docs/AUDIT-PANEL-ADMIN-3.md` (baru).
 
-Pemeriksaan manual: `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.159.
+Tambahan setelah uji Windows: dua kegagalan tes (jalur relatif Windows dan
+string berkutip ganda) diperbaiki; enam tes keadaan panel ditambahkan di
+`tests/Feature/AdminNextStepTest.php` (unit menunggu konfirmasi, tertahan desain,
+tertahan pembayaran, batal bisa dilanjutkan, batal lewat batas, daftar dengan
+dan tanpa tugas). Tenggat konfirmasi yang lewat kini diberi nada peringatan pada
+chip tugas.
+
+Pemeriksaan manual: `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.159 dan §9.159b.

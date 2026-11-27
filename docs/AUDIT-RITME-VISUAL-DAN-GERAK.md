@@ -6608,3 +6608,23 @@ tiap kartu memuat sampai tiga tugas konkret ("2 bukti bayar diperiksa",
 lipatan terkait lewat jangkar per unit, diringkas "+N tugas lain" bila lebih.
 Badge "perlu tindakan" dihapus. Relasi `units.payments` dan `units.previews`
 dimuat sekaligus agar hitungannya tidak menjadi kueri per unit.
+
+### 9.159b Dua tes baru yang gagal di Windows — dan mengapa itu berguna
+
+Pemilik menjalankan `php artisan test` di Windows dan mendapat dua kegagalan,
+keduanya di tes baru putaran 43 (bukan di aplikasi):
+
+| Gejala di Windows | Sebab | Perbaikan |
+| --- | --- | --- |
+| `View D:/…/resources/views/D:/…/catalog/admin.blade.php hilang` | Jalur relatif disusun dengan `str_replace(resource_path('views').'/', …)`, padahal `resource_path()` memakai garis miring terbalik di Windows sehingga penggantian tidak pernah cocok | Sapuan memakai `File::allFiles()` + `getRelativePathname()`, lalu pemisahnya disamakan |
+| `Undefined variable $unit` di dalam tes | Potongan kode Blade ditulis dalam string **kutip ganda**, sehingga `$unit` disisipkan PHP saat tes berjalan | Potongan kode memakai kutip tunggal |
+
+Pelajaran yang sekarang dijaga: tes yang membaca berkas harus memakai helper
+jalur Laravel, bukan menyusun jalur relatif sendiri, dan potongan kode view
+tidak boleh ditulis dalam string berkutip ganda.
+
+Selain dua perbaikan itu, enam tes keadaan baru ditambahkan
+(`AdminNextStepTest`) untuk menyerang kasus yang tidak terlihat di tangkapan
+layar: unit menunggu konfirmasi, pengerjaan tertahan desain, serah terima
+tertahan pembayaran, unit batal yang masih bisa dilanjutkan, unit batal yang
+batasnya sudah lewat, serta daftar pesanan dengan dan tanpa tugas.
