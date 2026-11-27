@@ -4264,3 +4264,39 @@ Dua sisa kecil di jalur notifikasi dan perintah artisan:
    `Gender`. Diganti `Peran akun`, `Peran`, dan `Jenis kelamin` supaya
    sejalan dengan istilah yang dipakai di seluruh UI ("peran", "jenis
    kelamin"). Dijaga tes statis di `UserRestoreCommandTest`.
+
+### 9.103 Langkah build untuk aset yang tidak pernah diminta browser
+
+`composer setup` — perintah yang tertulis di README sebagai langkah
+pemasangan — menjalankan `npm install` dan `npm run build`. Hasilnya
+`public/build/manifest.json` beserta bundel Vite. Yang memakainya nol:
+tidak satu pun dari 82 view memanggil `@vite(...)`; semua halaman memuat
+`asset('css/…')` dan `asset('js/…')` dari direktori `public/`. Direktori
+`public/build` bahkan tidak ikut di-commit, jadi setiap pemasangan baru
+membangun ulang sesuatu yang tidak pernah dibaca.
+
+Yang dirapikan:
+
+- `composer setup` berhenti setelah `php artisan storage:link` (tanpa
+  `npm install`/`npm run build`).
+- `composer dev` tidak lagi menjalankan `npm run dev`; kini hanya `artisan
+  serve`, queue listener, dan Pail — tiga proses yang memang dipakai.
+- `resources/js/splash.js` dihapus. Berkas itu satu-satunya pemakai `gsap`,
+  tidak diimpor `app.js`, tidak masuk daftar `input` Vite, dan tidak
+  dirujuk view mana pun (splash login memakai `public/js/berkah-login-splash.js`).
+  Entri `gsap` dan `@tailwindcss/forms` ganda di `package.json` ikut dibuang
+  (yang terakhir sudah ada di `devDependencies`).
+- README bagian *Tech Stack*, *Prasyarat*, dan *Setup* diperbarui: front-end
+  memakai CSS/JS tulis tangan tanpa langkah build; rangka Vite/Tailwind/
+  Alpine tetap disimpan di `resources/` untuk migrasi bertahap.
+
+Dijaga `tests/Feature/FrontendAssetsTest.php` (2 tes). Tes pertama menjaga
+**kedua arah**: selama belum ada view ber-`@vite`, `npm run build` dan
+`npm install` tidak boleh kembali ke `composer setup` dan `npm run dev`
+tidak boleh kembali ke `composer dev`; begitu ada satu view memakai
+`@vite`, build wajib dikembalikan. Tes kedua memastikan setiap berkas di
+`public/css` dan `public/js` (22 berkas) benar-benar dirujuk view, supaya
+aset mati tidak menumpuk lagi.
+
+**Hasil putaran 17:** harness **197 lulus, 0 gagal, 228 dilewati**;
+`blade-scan.py` 82 view / 0 / 0; `.tmp-verify.php` 26/0.

@@ -61,8 +61,10 @@ sistem (termasuk masa tenggang H+1 pukul 12.00 WIB).
 ## Tech Stack
 
 - **Backend** — PHP 8.2+, Laravel 12, MySQL 8 (atau SQLite untuk pengembangan cepat)
-- **Frontend** — Blade, TailwindCSS 3, AlpineJS, GSAP (transisi halaman & micro-interaction)
-- **Build** — Vite 7
+- **Frontend** — Blade + CSS/JS tulis tangan di `public/css` dan `public/js`
+  (tanpa langkah build). Rangka Vite 7 + Tailwind 3 + Alpine tersedia di
+  `resources/` untuk migrasi bertahap, tetapi belum dipakai satu view pun —
+  lihat catatan di bagian *Setup* di bawah.
 - **Tooling** — Laravel Pint, PHPUnit 11, Laravel Pail
 
 ---
@@ -73,7 +75,7 @@ sistem (termasuk masa tenggang H+1 pukul 12.00 WIB).
 
 - PHP 8.2 atau lebih baru beserta ekstensi standar (`mbstring`, `xml`,
   `pdo_mysql` / `pdo_sqlite`, `gd` untuk avatar)
-- Composer 2.x, Node.js 20.x + npm
+- Composer 2.x (Node.js 20.x + npm hanya bila mau memakai rangka Vite di `resources/`)
 - MySQL 8 atau SQLite 3.40+
 
 ### Langkah Singkat
@@ -82,7 +84,7 @@ sistem (termasuk masa tenggang H+1 pukul 12.00 WIB).
 git clone https://github.com/Ardinta19/SIMALUN-FINAL.git
 cd SIMALUN-FINAL
 
-# install composer + copy .env + key:generate + migrate + npm install + build
+# install composer + copy .env + key:generate + migrate + storage:link
 composer setup
 
 # Data awal: akun demo customer & admin
@@ -90,11 +92,18 @@ php artisan db:seed
 ```
 
 Untuk dev sehari-hari pakai shortcut yang sudah disediakan — menjalankan
-`php artisan serve`, queue listener, log viewer, dan Vite secara paralel:
+`php artisan serve`, queue listener, dan log viewer (Pail) secara paralel:
 
 ```bash
 composer dev
 ```
+
+Tidak ada langkah `npm install`/`npm run build` yang wajib: seluruh halaman
+memuat berkas CSS dan JS dari `public/` (`asset('css/…')`, `asset('js/…')`),
+bukan dari `public/build`. `composer setup` karena itu berhenti di
+`storage:link`. Kalau nanti ada halaman yang dipindah ke Vite (`@vite`),
+jalankan `npm install && npm run build` dan kembalikan langkah itu ke
+`composer setup`.
 
 `composer setup` sudah menjalankan `php artisan storage:link`, jadi gambar
 produk, item tambahan, dan avatar yang diunggah lewat panel admin langsung
