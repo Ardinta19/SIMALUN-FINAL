@@ -741,7 +741,10 @@ class UiDefaultsTest extends TestCase
 
         // robots.txt menutup area akun dan panel admin.
         $robots = File::get(public_path('robots.txt'));
-        foreach (['/admin', '/dashboard', '/customer', '/keranjang', '/checkout'] as $path) {
+        // Tautan berbagi `/apresiasi/{token}` bisa dibuka tanpa masuk, jadi ia
+        // harus ditutup juga supaya nama penerima dan foto acara tidak masuk
+        // hasil pencarian.
+        foreach (['/admin', '/dashboard', '/customer', '/keranjang', '/checkout', '/sewa', '/ringkasan-sewa', '/pembayaran-sewa', '/preview-desain', '/referensi-pesanan', '/apresiasi', '/masuk', '/daftar'] as $path) {
             $this->assertStringContainsString('Disallow: '.$path, $robots, 'robots.txt harus menutup '.$path.'.');
         }
         $this->assertStringContainsString('Allow: /', $robots);

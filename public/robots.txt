@@ -1,18 +1,42 @@
 # Berkah Kreatif — SIMALUN
-# Etalase (katalog) terbuka untuk mesin pencari; area akun dan panel admin
-# memuat data pelanggan dan tidak boleh dirayapi.
+# Etalase (katalog) terbuka untuk mesin pencari; area akun, halaman pesanan,
+# dan panel admin memuat data pelanggan sehingga tidak boleh dirayapi.
+#
+# Tautan berbagi `/apresiasi/{token}` bisa dibuka tanpa masuk, jadi tautan itu
+# wajib ditutup juga: bila terindeks, nama penerima dan foto acara pelanggan
+# akan muncul di hasil pencarian.
 
 User-agent: *
+Allow: /
+
+# Panel admin dan area akun
 Disallow: /admin
 Disallow: /dashboard
 Disallow: /customer
-Disallow: /keranjang
-Disallow: /checkout
-Disallow: /pesanan
 Disallow: /profile
 Disallow: /addresses
 Disallow: /notifications
 Disallow: /pengaturan-pembayaran-sewa
-Allow: /
+
+# Alur pemesanan dan berkas pribadi pesanan
+Disallow: /keranjang
+Disallow: /checkout
+Disallow: /pesanan
+Disallow: /sewa
+Disallow: /ringkasan-sewa
+Disallow: /pembayaran-sewa
+Disallow: /preview-desain
+Disallow: /referensi-pesanan
+Disallow: /apresiasi
+
+# Halaman autentikasi
+Disallow: /login
+Disallow: /masuk
+Disallow: /register
+Disallow: /daftar
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /confirm-password
+Disallow: /verify-email
 
 # Sitemap belum dibuat otomatis; tambahkan di sini setelah tersedia.

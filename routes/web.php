@@ -41,6 +41,11 @@ Route::delete('/keranjang/{item}', [RentalCartController::class, 'destroy'])->na
 
 Route::middleware('guest')->group(function () {
 
+    // Alias pendek berbahasa Indonesia. Pengguna sering mengetik /masuk atau
+    // /daftar; tanpa rute ini keduanya berakhir 404 padahal halamannya ada.
+    Route::redirect('/masuk', '/login')->name('login.alias');
+    Route::redirect('/daftar', '/register')->name('register.alias');
+
     Route::get('/login', fn () => view('auth.login'))->name('login');
     Route::post('/login', [LoginController::class, 'authenticate'])
         ->middleware('throttle:5,1')

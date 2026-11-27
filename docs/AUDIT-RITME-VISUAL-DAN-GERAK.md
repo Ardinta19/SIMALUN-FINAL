@@ -3895,3 +3895,32 @@ filter `method="get"`), dan seluruh kurawal `public/css/*.css` seimbang.
 
 **Hasil:** harness **183 lulus, 0 gagal, 223 dilewati**; `blade-scan.py`
 81 view / 0 / 0; `.tmp-verify.php` 26/0; `node --check` 11 berkas JS lolos.
+
+### 9.90 `robots.txt` menutup tautan berbagi, dan alias `/masuk` serta `/daftar`
+
+`public/robots.txt` hanya menutup lima jalur (`/admin`, `/dashboard`,
+`/customer`, `/keranjang`, `/checkout`). Yang terlewat justru yang paling
+pribadi:
+
+- `/apresiasi/{token}` — halaman berbagi yang **bisa dibuka tanpa masuk**;
+  isinya nama penerima dan foto acara. Bila terindeks, data itu muncul di
+  hasil pencarian meski tautannya tidak pernah dibagikan ke mesin pencari.
+- `/sewa`, `/ringkasan-sewa`, `/pembayaran-sewa`, `/preview-desain`,
+  `/referensi-pesanan` — pesanan, struk, bukti bayar, dan berkas desain.
+- `/forgot-password`, `/reset-password`, `/confirm-password`, `/verify-email`
+  — halaman autentikasi yang sebenarnya sudah ber-`noindex`, kini ditutup juga
+  di tingkat perayapan.
+
+Berkasnya disusun ulang dengan komentar per kelompok, dan
+`UiDefaultsTest` memperluas daftar jalur yang wajib tertutup dari 5 menjadi
+13 jalur.
+
+Sekalian ditemukan bahwa `/daftar` dan `/masuk` — bentuk yang paling wajar
+diketik pengguna berbahasa Indonesia — tidak punya rute dan berakhir 404.
+Ditambahkan dua alias pengalihan di dalam grup `guest`
+(`Route::redirect('/masuk', '/login')`, `Route::redirect('/daftar',
+'/register')`), sejalan dengan alias `/profile` yang sudah ada, dan keduanya
+ikut ditutup di `robots.txt`. Dijaga `tests/Feature/RouteAliasTest.php`.
+
+**Hasil:** harness **183 lulus, 0 gagal, 224 dilewati**; `blade-scan.py`
+81 view / 0 / 0; `.tmp-verify.php` 26/0; `node --check` 11 berkas JS lolos.
