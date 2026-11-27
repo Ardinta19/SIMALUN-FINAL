@@ -96,6 +96,7 @@
                 <label for="checkout-{{ $unitNumber }}-recipient_name">Nama penerima <span class="bk-req">(wajib)</span><input autocomplete="off" id="checkout-{{ $unitNumber }}-recipient_name" name="units[{{ $key }}][recipient_name]" @error('units.'.$key.'.recipient_name') aria-invalid="true" aria-describedby="checkout-errors-{{ $unitNumber }}" @enderror value="{{ $oldUnit('recipient_name', $entry['recipient_name'] ?? '') }}" maxlength="160" placeholder="Contoh: Ibu Sari" required></label>
                 <label for="checkout-{{ $unitNumber }}-greeting">Ucapan <span class="bk-req">(wajib)</span><textarea id="checkout-{{ $unitNumber }}-greeting" name="units[{{ $key }}][greeting]" @error('units.'.$key.'.greeting') aria-invalid="true" aria-describedby="checkout-errors-{{ $unitNumber }}" @enderror maxlength="1000" placeholder="Contoh: Selamat atas wisudamu, semoga sukses selalu." required rows="3">{{ $oldUnit('greeting', $entry['greeting'] ?? '') }}</textarea></label>
                 <label for="checkout-{{ $unitNumber }}-design_notes">Permintaan desain <span class="bk-muted-mark">(opsional)</span><textarea id="checkout-{{ $unitNumber }}-design_notes" name="units[{{ $key }}][design_notes]" @error('units.'.$key.'.design_notes') aria-invalid="true" aria-describedby="checkout-errors-{{ $unitNumber }}" @enderror maxlength="2000" placeholder="Contoh: Nuansa putih dan merah muda, tambahkan nama penerima." rows="3">{{ $oldUnit('design_notes', $entry['design_notes'] ?? '') }}</textarea></label>
+                <p class="bk-co-panel__hint">Punya contoh gambar? <a class="bk-co-link" href="#checkout-references">Unggah foto referensi</a> — satu unggahan untuk semua papan.</p>
                 @if($addons->isNotEmpty())
                 <h3 class="bk-co-subhead">Item tambahan <span class="bk-muted-mark">(opsional)</span></h3>
                 <ul class="bk-addon-list">
@@ -151,30 +152,31 @@
         </section>
         @endforeach
 
-        <details class="bk-co-card bk-co-more" id="checkout-references" @if($errors->hasAny(['reference_images', 'reference_images.*'])) open @endif>
-            <summary>Foto referensi desain</summary>
-            <div class="bk-co-more__body">
-                <p class="bk-co-panel__hint">Berlaku untuk seluruh pesanan, bukan per papan.</p>
-                @php
-                    // Batas server bisa lebih kecil dari batas aplikasi (25 MB); beri tahu
-                    // pelanggan sebelum mereka memilih berkas yang akan ditolak PHP.
-                    $serverUploadMb = \App\Support\UploadLimit::effectiveMegabytes();
-                    $serverUploadTight = $serverUploadMb > 0 && $serverUploadMb < 25;
-                @endphp
-                <label for="reference-images">Foto contoh<span id="reference-images" type="file" name="reference_images[]" accept="image/jpeg,image/png,image/webp" multiple aria-describedby="reference-images-hint{{ $serverUploadTight ? ' reference-images-server-hint' : '' }}"></label>
-                <p class="muted" id="reference-images-hint">JPG, PNG, atau WebP. Maksimal 5 foto, 25 MB per foto. Hanya dikirim ke admin.</p>
-                @if($serverUploadTight)
-                <p class="muted" id="reference-images-server-hint">Server ini membatasi unggahan sekitar {{ $serverUploadMb }} MB per berkas. Perkecil dulu bila lebih besar.</p>
-                @endif
-                @error('reference_images')<p class="bk-field-error" id="reference-images-error" role="alert">{{ $message }}</p>@enderror
-                @error('reference_images.*')<p class="bk-field-error" id="reference-images-item-error" role="alert">{{ $message }}</p>@enderror
-            </div>
-        </details>
+        {{-- Unggah referensi sengaja tampil terbuka, bukan dilipat: pelanggan yang
+             mencari "tempat unggah desain" tidak menemukannya bila disembunyikan
+             di dalam <details>. Satu kartu berlaku untuk semua papan. --}}
+        <section class="bk-co-card bk-co-refs" id="checkout-references" aria-labelledby="checkout-refs-title">
+            <h2 id="checkout-refs-title">Foto referensi desain <span class="bk-muted-mark">(opsional)</span></h2>
+            <p class="bk-co-panel__hint">Satu kartu untuk semua papan. Tidak punya foto? Tulis saja keinginanmu di “Permintaan desain”.</p>
+            @php
+                // Batas server bisa lebih kecil dari batas aplikasi (25 MB); beri tahu
+                // pelanggan sebelum mereka memilih berkas yang akan ditolak PHP.
+                $serverUploadMb = \App\Support\UploadLimit::effectiveMegabytes();
+                $serverUploadTight = $serverUploadMb > 0 && $serverUploadMb < 25;
+            @endphp
+            <label for="reference-images">Pilih foto<input id="reference-images" type="file" name="reference_images[]" accept="image/jpeg,image/png,image/webp" multiple aria-describedby="reference-images-hint{{ $serverUploadTight ? ' reference-images-server-hint' : '' }}"></label>
+            <p class="muted" id="reference-images-hint">JPG, PNG, atau WebP. Maksimal 5 foto, 25 MB per foto, total 60 MB. Hanya admin yang melihat.</p>
+            @if($serverUploadTight)
+            <p class="muted" id="reference-images-server-hint">Server ini membatasi unggahan sekitar {{ $serverUploadMb }} MB per berkas. Perkecil dulu bila lebih besar.</p>
+            @endif
+            @error('reference_images')<p class="bk-field-error" id="reference-images-error" role="alert">{{ $message }}</p>@enderror
+            @error('reference_images.*')<p class="bk-field-error" id="reference-images-item-error" role="alert">{{ $message }}</p>@enderror
+        </section>
 
         <details class="bk-co-card bk-co-more" id="checkout-voucher" @if($errors->has('voucher_code')) open @endif>
             <summary>Kode voucher</summary>
             <div class="bk-co-more__body">
-                <label for="voucher_code">Kode voucher<span id="voucher_code" name="voucher_code" maxlength="40" autocomplete="off" autocapitalize="characters" spellcheck="false" value="{{ is_scalar(old('voucher_code')) ? old('voucher_code') : '' }}" @error('voucher_code') aria-invalid="true" aria-describedby="voucher-error" @enderror placeholder="Contoh: WISUDA10"></label>
+                <label for="voucher_code">Kode voucher<input id="voucher_code" name="voucher_code" maxlength="40" autocomplete="off" autocapitalize="characters" spellcheck="false" value="{{ is_scalar(old('voucher_code')) ? old('voucher_code') : '' }}" @error('voucher_code') aria-invalid="true" aria-describedby="voucher-error" @enderror placeholder="Contoh: WISUDA10"></label>
                 @error('voucher_code')<p class="bk-field-error" id="voucher-error" role="alert">{{ $message }}</p>@enderror
                 <p><button type="button" class="btn secondary" data-voucher-check>Cek kode</button></p>
                 <p class="muted" role="status" aria-live="polite" data-voucher-status>Kode diperiksa ulang saat pesanan dikirim.</p>

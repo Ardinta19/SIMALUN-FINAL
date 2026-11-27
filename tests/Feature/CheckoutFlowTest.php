@@ -133,6 +133,57 @@ class CheckoutFlowTest extends TestCase
         $this->assertStringNotContainsString('updateTotal', $script);
     }
 
+    /**
+     * Unggah foto desain sempat terlipat di dalam <details> sehingga pelanggan
+     * tidak menemukan tempatnya. Kartu ini harus tetap terbuka di halaman.
+     */
+    public function test_kartu_unggah_referensi_tampil_terbuka_dan_menyebut_batas_ukuran(): void
+    {
+        $view = $this->checkoutView();
+
+        $this->assertStringNotContainsString('<details class="bk-co-card bk-co-more" id="checkout-references"', $view);
+        $this->assertStringContainsString('<section class="bk-co-card bk-co-refs" id="checkout-references"', $view);
+
+        foreach ([
+            'type="file" name="reference_images[]"',
+            'accept="image/jpeg,image/png,image/webp"',
+            'Maksimal 5 foto',
+            '25 MB per foto',
+            'total 60 MB',
+            'href="#checkout-references"',
+        ] as $needle) {
+            $this->assertStringContainsString($needle, $view, 'Kartu unggah referensi kehilangan: '.$needle);
+        }
+
+        // Batas 25 MB per foto = aturan validasi `max:25600` (KB) di controller.
+        $controller = (string) file_get_contents(app_path('Http/Controllers/RentalOrderController.php'));
+        $this->assertStringContainsString("'max:25600'", $controller);
+        $this->assertStringContainsString('60 * 1024 * 1024', $controller);
+    }
+
+    /**
+     * Setiap `for="…"` harus benar-benar menunjuk `<input|select|textarea>`
+     * dengan id itu. Penjaga ini lahir dari kesalahan nyata: saat memangkas
+     * teks "(opsional)", tag `<input` ikut terhapus dan label menunjuk `<span>`
+     * — halaman tetap tampak wajar, tetapi berkas tidak bisa dipilih.
+     */
+    public function test_setiap_label_menunjuk_kendali_yang_ada(): void
+    {
+        $view = $this->checkoutView();
+        preg_match_all('/for="([^"]+)"/', $view, $cocok);
+        $this->assertNotEmpty($cocok[1], 'Halaman checkout harus punya label ber-for.');
+
+        $salah = [];
+        foreach (array_unique($cocok[1]) as $id) {
+            $pola = '/<(input|select|textarea)\b[^>]*\bid="'.preg_quote($id, '/').'"/';
+            if (preg_match($pola, $view) !== 1) {
+                $salah[] = $id;
+            }
+        }
+
+        $this->assertSame([], $salah, 'Label tanpa kendali: '.implode(', ', $salah));
+    }
+
     public function test_pengesahan_ketentuan_tetap_ada_dan_bertanda_wajib(): void
     {
         $view = $this->checkoutView();

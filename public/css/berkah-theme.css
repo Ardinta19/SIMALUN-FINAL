@@ -1727,3 +1727,8 @@ html[data-theme="dark"] :is(.bk-co-note) {
 html[data-theme="dark"] :is(.bk-co-terms__more ul) {
     color: var(--theme-ink-mid);
 }
+
+/* Kartu unggah referensi di checkout: garis kiri memakai warna aksen tema. */
+html[data-theme="dark"] .bk-co-refs {
+    border-left-color: rgba(255, 196, 214, .45);
+}

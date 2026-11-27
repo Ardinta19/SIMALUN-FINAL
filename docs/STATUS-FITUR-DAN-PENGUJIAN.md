@@ -262,10 +262,11 @@ Permintaan pemilik usaha: halaman checkout terasa penuh dan membingungkan; minta
 6. **Kolom total beranimasi dicabut** dari kartu & detail katalog beserta penghitungnya di `berkah-variants.js`; harga satuan tetap dari server.
 7. **Foto referensi, voucher, dan salin unit** pindah ke kartu lipat; id/nama field tidak berubah sehingga draf checkout di sesi tetap hidup. Salin unit memakai modal bersama dan melaporkan jumlah isian yang disalin.
 8. **Tema gelap** untuk seluruh permukaan baru.
+9. **Foto referensi desain tampil terbuka** (bukan lagi di dalam `<details>`) di bawah kartu papan, dengan tautan pintas dari tab "Ucapan & desain". Batas tetap 5 foto × 25 MB, total 60 MB. `CheckoutFlowTest` juga menjaga setiap `for="…"` punya kendali dengan id yang sama — galat nyata di mana tag `<input` tertelan saat memangkas teks label.
 
 Berkas utama: `resources/views/rental/checkout.blade.php` (ditulis ulang), `public/js/berkah-checkout.js` (baru), `public/css/berkah-experience.css`, `public/css/berkah-theme.css`, `resources/views/catalog/{index,show,cart}.blade.php`, `public/js/berkah-variants.js`.
 
-Tes penjaga baru: `tests/Feature/CheckoutFlowTest.php` (5) dan `tests/Feature/TestHelperNameTest.php` (1). Perilaku skrip diuji di jsdom (`/tmp/wasm-php/checkout-steps-jsdom.cjs`, 27/27). `ProductVariantTest` disesuaikan: kolom total baris tidak lagi ada di katalog. Perkiraan jumlah tes: **±526 lulus**.
+Tes penjaga baru: `tests/Feature/CheckoutFlowTest.php` (7) dan `tests/Feature/TestHelperNameTest.php` (1). Perilaku skrip diuji di jsdom (`/tmp/wasm-php/checkout-steps-jsdom.cjs`, 27/27). `ProductVariantTest` disesuaikan: kolom total baris tidak lagi ada di katalog. Perkiraan jumlah tes: **±526 lulus**.
 
 Catatan galat nyata: helper privat bernama `view()` pada kelas tes membuat PHPUnit berhenti sebelum suite berjalan ("Access level to ...::view() must be protected"). PHPUnit memuat semua berkas tes lebih dulu, jadi galat ini tidak tertangkap `php -l` maupun tes lain. Nama helper diganti `checkoutView()`/`checkoutScript()`, dan `TestHelperNameTest` memeriksa daftar nama metode bawaan `TestCase` (view, get, post, call, json, artisan, seed, actingAs, …) agar tidak terulang.
 

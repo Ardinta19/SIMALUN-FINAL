@@ -6056,3 +6056,38 @@ sebelum suite berjalan sehingga galatnya berupa *fatal error* tanpa nama tes.
    tetap terbaca. Mode `?gerak=mati` mematikan animasi bagian.
 8. Katalog: tidak ada lagi baris "Total …" di kartu/detail; yang tampil hanya
    "Rp … / hari" dan jumlah unit tidak mengubah angka itu.
+
+### 9.149 Foto referensi dikeluarkan dari lipatan + penjaga label
+
+Dua temuan setelah pemilik usaha bertanya *"dimana tempat untuk upload preferensi
+design?"*:
+
+1. Kartu **Foto referensi desain** pada putaran 36 ikut dilipat ke `<details>`
+   bersama voucher. Akibatnya fitur yang paling dicari di checkout tidak terlihat
+   sampai lipatan dibuka. Kartu itu sekarang `<section class="bk-co-refs">`
+   yang **selalu terbuka** di bawah kartu papan (voucher tetap dilipat), diberi
+   garis kiri sebagai penanda langkah opsional. Tab "Ucapan & desain" memuat
+   tautan "Unggah foto referensi" yang melompat ke kartu tersebut, karena di
+   situlah pelanggan mulai memikirkan desain.
+2. Saat memangkas teks "(opsional)" pada label, tag `<input` ikut terhapus
+   sehingga `<label for="reference-images">` menunjuk `<span>` dan berkas tidak
+   bisa dipilih sama sekali — halaman tetap tampak wajar. Sudah diperbaiki, dan
+   `CheckoutFlowTest::test_setiap_label_menunjuk_kendali_yang_ada` memeriksa
+   setiap `for="…"` di halaman checkout harus punya `<input|select|textarea>`
+   dengan id yang sama.
+
+Batas unggah tidak berubah: **5 foto, 25 MB per foto (`max:25600`), 60 MB
+total**, format JPG/PNG/WebP. Jadi foto 20 MB diterima aplikasi. Yang menentukan
+adalah `php.ini`: pada Windows `.user.ini` tidak dibaca, sehingga
+`upload_max_filesize` harus dinaikkan (lihat `docs/kl/deployment.md` §2b dan
+`docs/FITUR-ITEM-TAMBAHAN-DAN-FOTO-REFERENSI.md`).
+
+**Cara memeriksa sendiri:**
+
+1. Checkout → di bawah kartu papan terlihat kartu "Foto referensi desain" tanpa
+   perlu mengklik apa pun; pilih satu foto 20 MB → tidak ada galat.
+2. Tab "Ucapan & desain" → klik "Unggah foto referensi" → halaman melompat ke
+   kartu unggah.
+3. Kirim pesanan → foto muncul di halaman pesanan (khusus pelanggan dan admin).
+4. Bila muncul galat 413/500 saat mengunggah: naikkan `upload_max_filesize` di
+   `php.ini`, mulai ulang Apache, lalu coba lagi.

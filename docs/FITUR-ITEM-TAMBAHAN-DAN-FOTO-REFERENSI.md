@@ -104,6 +104,14 @@ berada di `lang/id/validation.php` (`custom` + `attributes`), sehingga tidak ada
 lagi teks bawaan berbahasa Inggris atau nama kunci mentah di layar pelanggan.
 Petunjuk batas juga ditulis di halaman checkout.
 
+**Tempat unggah (putaran 36).** Foto referensi berada di kartu **"Foto referensi
+desain"** pada halaman checkout, satu kartu untuk seluruh pesanan, dan **tampil
+terbuka** — bukan di dalam `<details>`. Sebelumnya kartu ini terlipat sehingga
+pelanggan yang mencari tempat unggah desain tidak menemukannya. Tab
+"Ucapan & desain" pada tiap papan juga memuat tautan "Unggah foto referensi" yang
+melompat ke kartu itu. Preferensi desain berbentuk tulisan tetap di isian
+**"Permintaan desain"** (per papan, opsional, 2000 karakter).
+
 **Batas PHP.** Laravel hanya bisa menilai berkas yang berhasil masuk; bila
 `upload_max_filesize`/`post_max_size` di `php.ini` lebih kecil, PHP membuang
 berkasnya lebih dulu. Karena itu `App\Support\UploadLimit` membaca kedua nilai
@@ -111,6 +119,21 @@ itu (termasuk singkatan `2M`/`512K`/`1G`), dan checkout menampilkan peringatan
 bila batas server masih di bawah 25 MB. `public/.user.ini` menyetel 30 MB per
 berkas dan 80 MB per permintaan; pada Apache `mod_php` berkas itu diabaikan,
 jadi nilai yang sama perlu diatur di `php.ini` (lihat `docs/kl/deployment.md`).
+
+Di Windows (XAMPP/Laragon, dipakai saat menguji) `.user.ini` juga **tidak**
+dibaca. Periksa dan naikkan langsung di `php.ini`:
+
+```ini
+upload_max_filesize = 30M
+post_max_size = 80M
+max_file_uploads = 10
+```
+
+Lalu mulai ulang Apache (`XAMPP Control Panel → Stop → Start`). Cek hasilnya
+dengan `php -i | findstr upload_max_filesize` (PowerShell) atau lewat
+`http://localhost/dashboard/phpinfo.php`. Tanpa itu, foto 20 MB akan ditolak
+PHP sebelum validasi Laravel berjalan — gejalanya galat 413/500, bukan pesan
+"Ukuran tiap foto maksimal 25 MB".
 
 ### Tulisan baku item tambahan
 

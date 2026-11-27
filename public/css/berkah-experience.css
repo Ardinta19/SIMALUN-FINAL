@@ -1948,3 +1948,22 @@ body.bk-experience {
 .bk-co__top .bk-back {
     justify-self: start;
 }
+
+/* Kartu unggah referensi: tampil terbuka, jadi diberi tanda visual sendiri
+   supaya terbaca sebagai langkah opsional, bukan bagian isian wajib. */
+.bk-co-refs {
+    border-left: 3px solid rgba(109, 10, 38, .3);
+}
+
+.bk-co-refs h2 {
+    margin: 0 0 6px;
+}
+
+.bk-co-refs input[type="file"] {
+    margin-top: 4px;
+}
+
+.bk-co-refs .muted {
+    margin: 8px 0 0;
+    font-size: var(--bk-fs-xs);
+}
