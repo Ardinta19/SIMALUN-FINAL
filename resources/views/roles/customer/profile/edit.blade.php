@@ -302,7 +302,7 @@ $oldText = function (string $key, $fallback = '') {
                          src="{{ $user->avatar ? asset('storage/'.$user->avatar) : asset('images/logo-104.png') }}"
                          alt="Foto profil">
                     <label class="avatar-action">
-                        Ubah Foto
+                        Ubah foto
                         <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp" id="avatar-input">
                     </label>
                     <div class="field-hint">Maksimal 2 MB · format JPG, PNG, atau WebP</div>
@@ -315,7 +315,7 @@ $oldText = function (string $key, $fallback = '') {
                 @endif
 
                 <div>
-                    <label class="field-label" for="profile-name">Nama Lengkap <span class="req">*</span></label>
+                    <label class="field-label" for="profile-name">Nama lengkap <span class="req">*</span></label>
                     <input placeholder="Contoh: Sari Wulandari" autocomplete="name" type="text" id="profile-name" name="name"
                            class="field-input {{ $errors->has('name') ? 'is-error' : '' }}"
                            value="{{ $oldText('name', $user->name) }}" required>
@@ -362,7 +362,7 @@ $oldText = function (string $key, $fallback = '') {
                 </div>
 
                 <div>
-                    <label class="field-label" for="profile-address-recipient">Nama Penerima <span class="req">*</span></label>
+                    <label class="field-label" for="profile-address-recipient">Nama penerima <span class="req">*</span></label>
                     <input placeholder="Contoh: Ibu Sari Wulandari" type="text" id="profile-address-recipient" name="recipient_name"
                            class="field-input {{ $errors->has('recipient_name') ? 'is-error' : '' }}"
                            value="{{ $oldText('recipient_name', $primaryAddress->recipient_name ?? $user->name) }}"
@@ -370,14 +370,14 @@ $oldText = function (string $key, $fallback = '') {
                 </div>
 
                 <div>
-                    <label class="field-label" for="profile-address-phone">No. HP Penerima</label>
+                    <label class="field-label" for="profile-address-phone">No. HP penerima</label>
                     <input placeholder="Contoh: 0812 3456 7890" autocomplete="tel" type="tel" inputmode="tel" id="profile-address-phone" name="phone"
                            class="field-input"
                            value="{{ $oldText('phone', $primaryAddress->phone ?? $user->phone) }}">
                 </div>
 
                 <div>
-                    <label class="field-label" for="profile-address-full">Alamat Lengkap <span class="req">*</span></label>
+                    <label class="field-label" for="profile-address-full">Alamat lengkap <span class="req">*</span></label>
                     <textarea placeholder="Contoh: Jl. Merdeka No. 12, RT 03, Palembang" id="profile-address-full" name="full_address"
                               class="field-input {{ $errors->has('full_address') ? 'is-error' : '' }}"
                               required autocomplete="street-address" rows="4">{{ $oldText('full_address', $primaryAddress->full_address ?? '') }}</textarea>
@@ -443,7 +443,7 @@ $oldText = function (string $key, $fallback = '') {
                     @csrf
                     @method('delete')
                     <div>
-                        <label class="field-label" for="profile-delete-password">Konfirmasi Kata Sandi <span class="req">*</span></label>
+                        <label class="field-label" for="profile-delete-password">Konfirmasi kata sandi <span class="req">*</span></label>
                         <input autocomplete="current-password" type="password" id="profile-delete-password" name="password" class="field-input" required placeholder="Masukkan kata sandi kamu">
                         @error('password') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                     </div>

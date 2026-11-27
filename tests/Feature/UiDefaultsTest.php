@@ -949,4 +949,108 @@ class UiDefaultsTest extends TestCase
 
         $this->assertSame([], array_values(array_unique($pelanggaran)), implode(' | ', array_values(array_unique($pelanggaran))));
     }
+
+    /** Semua label isian memakai kalimat biasa, bukan Judul Kapital.
+     *
+     *  Aturan ini sudah dijaga untuk profil dan konfirmasi sandi, tetapi
+     *  formulir alamat, pendaftaran, dan masuk masih memakai "Nama Lengkap",
+     *  "Alamat Lengkap", dan "Konfirmasi Kata Sandi" — satu formulir bisa
+     *  punya dua gaya label. Nama merek, akronim, dan satuan tetap huruf
+     *  besar (Berkah Kreatif, JPG, MB).
+     */
+    public function test_semua_label_isian_memakai_huruf_kecil_kalimat(): void
+    {
+        $sah = ['SIMALUN', 'Berkah', 'Kreatif', 'Jambi', 'WhatsApp', 'Instagram', 'Facebook', 'Google', 'Maps', 'QRIS', 'PDF', 'MB', 'KB', 'HP', 'RT', 'RW', 'QR', 'ID', 'JPG', 'JPEG', 'PNG', 'WebP', 'GIF', 'WIB'];
+        $pelanggaran = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            $relative = str_replace('\\', '/', $file->getRelativePathname());
+            $html = (string) File::get($file->getPathname());
+
+            preg_match_all('/<label\b[^>]*>(.*?)<\/label>/s', $html, $found, PREG_SET_ORDER);
+
+            foreach ($found as $item) {
+                $teks = trim(preg_replace('/\s+/u', ' ', strip_tags(html_entity_decode($item[1], ENT_QUOTES))));
+
+                if ($teks === '' || str_contains($teks, '{{') || str_contains($teks, '@')) {
+                    continue;
+                }
+
+                $kata = array_values(array_filter(preg_split('/[\s\/·]+/u', $teks), fn ($k) => preg_match('/[A-Za-z]/', (string) $k)));
+
+                if (count($kata) < 2) {
+                    continue;
+                }
+
+                $biasa = array_values(array_filter($kata, fn ($k) => ! in_array(trim($k, '().,:'), $sah, true) && ! ctype_upper($k) && mb_strlen($k) > 2));
+
+                if (count($biasa) >= 2 && collect($biasa)->every(fn ($k) => ctype_upper(mb_substr($k, 0, 1)))) {
+                    $pelanggaran[] = $relative.' → "'.$teks.'"';
+                }
+            }
+        }
+
+        $this->assertSame([], array_values(array_unique($pelanggaran)), implode(' | ', array_values(array_unique($pelanggaran))));
+    }
+
+    /** Teks kapital ditulis kalimat biasa; kapital datang dari CSS.
+     *
+     *  Label kecil di atas judul ("RUANG PELANGGAN", "DATA PRIBADI") ditulis
+     *  huruf besar langsung di markup. Pembaca layar kadang mengejanya
+     *  huruf per huruf, dan teks itu tidak bisa dicari dengan huruf kecil.
+     *  Sekarang markup memakai kalimat biasa dan `text-transform` di CSS yang
+     *  membuatnya tampak kapital — tampilan sama, makna lebih benar.
+     */
+    public function test_teks_kapital_dibuat_oleh_css_bukan_markup(): void
+    {
+        $pelanggaran = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            $relative = str_replace('\\', '/', $file->getRelativePathname());
+            $html = (string) File::get($file->getPathname());
+            $html = (string) preg_replace('/\{\{--.*?--\}\}/s', '', $html);
+
+            preg_match_all('/>([^<>{}]+)</u', $html, $found);
+
+            foreach ($found[1] as $teks) {
+                $teks = trim(preg_replace('/\s+/u', ' ', html_entity_decode($teks, ENT_QUOTES)));
+
+                if ($teks === '' || ! preg_match('/[A-Z]{2,}/', $teks)) {
+                    continue;
+                }
+
+                $huruf = preg_split('//u', preg_replace('/[^A-Za-z]/', '', $teks), -1, PREG_SPLIT_NO_EMPTY);
+
+                if (count($huruf) < 3 || array_filter($huruf, fn ($c) => ctype_lower($c))) {
+                    continue;
+                }
+
+                // Merek dan satuan boleh kapital seluruhnya.
+                // Merek dan satuan boleh kapital seluruhnya ("SIMALUN", "· WIB").
+                if (count($kata) === 1 && in_array(trim($teks, " ·.:•"), ['SIMALUN', 'WIB', 'PDF', 'QRIS', 'ID'], true)) {
+                    continue;
+                }
+
+                $pelanggaran[] = $relative.' → "'.$teks.'"';
+            }
+        }
+
+        foreach (['public/css/berkah-experience.css' => ['bk-kicker', 'bk-atelier-label', 'bk-order-card__label'], 'public/css/berkah-auth.css' => ['auth-eyebrow']] as $berkas => $kelas) {
+            $css = (string) File::get(base_path($berkas));
+
+            foreach ($kelas as $nama) {
+                $this->assertMatchesRegularExpression('/\.'.preg_quote($nama, '/').'\{[^}]*text-transform:\s*uppercase/', $css, $berkas.' tidak mengapitalkan .'.$nama);
+            }
+        }
+
+        $this->assertSame([], array_values(array_unique($pelanggaran)), implode(' | ', array_values(array_unique($pelanggaran))));
+    }
 }

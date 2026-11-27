@@ -4,7 +4,7 @@
 <div class="bk-addresses">
     <a data-smart-back class="bk-back" href="{{ route('customer.profile') }}">← Kembali ke profil</a>
     @if(session('error'))<div class="notice" role="alert">{{ session('error') }}</div>@endif
-    <div class="bk-page-heading"><div><span class="bk-kicker">SERAH TERIMA</span><h1>Alamat saya</h1><p class="muted">Simpan alamat agar lebih mudah dipilih saat mengisi detail sewa.</p></div><a class="btn" href="{{ route('customer.addresses.create') }}">Tambah alamat <span aria-hidden="true">＋</span></a></div>
+    <div class="bk-page-heading"><div><span class="bk-kicker">Serah terima</span><h1>Alamat saya</h1><p class="muted">Simpan alamat agar lebih mudah dipilih saat mengisi detail sewa.</p></div><a class="btn" href="{{ route('customer.addresses.create') }}">Tambah alamat <span aria-hidden="true">＋</span></a></div>
     @if(isset($alamat) && $alamat->count() > 0)
     <div class="bk-address-grid">
         @foreach($alamat as $address)

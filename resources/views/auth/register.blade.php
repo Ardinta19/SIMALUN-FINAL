@@ -370,7 +370,7 @@ $oldText = function (string $key, $fallback = '') {
       <img id="brand-logo" src="{{ asset('images/logo-104.png') }}" width="104" height="57" alt="Logo Berkah Kreatif" style="width:100%;height:100%;object-fit:contain;border-radius:50%;background:white">
     </div>
     <div class="wm-name">Berkah Kreatif</div>
-    <div class="wm-sub">PAPAN BUNGA&nbsp;&nbsp;•&nbsp;&nbsp;BERKAH KREATIF</div>
+    <div class="wm-sub">Papan bunga&nbsp;&nbsp;•&nbsp;&nbsp;Berkah Kreatif</div>
     <div class="wm-bar"></div>
   </div>
 
@@ -399,7 +399,7 @@ $oldText = function (string $key, $fallback = '') {
       <!-- ══ STEP 1: Data Diri ══ -->
       <div class="form-step active" id="step-1">
         <div class="form-group">
-          <label class="form-label" for="name">Nama Lengkap</label>
+          <label class="form-label" for="name">Nama lengkap</label>
           <div class="input-wrap">
             <span class="input-icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'user', 'size' => 20])</span>
             <input class="form-input @error('name') error @enderror"
@@ -514,7 +514,7 @@ $oldText = function (string $key, $fallback = '') {
       <!-- ══ STEP 3: Alamat & Konfirmasi ══ -->
       <div class="form-step" id="step-3">
         <div class="form-group">
-          <label class="form-label" for="address">Alamat Lengkap</label>
+          <label class="form-label" for="address">Alamat lengkap</label>
           <div class="input-wrap">
             <span class="input-icon" style="top:14px;transform:none;" aria-hidden="true">@include('layouts.component._icon', ['name' => 'home', 'size' => 20])</span>
             <textarea class="form-input" id="address" name="address" aria-describedby="err-address"
@@ -526,7 +526,7 @@ $oldText = function (string $key, $fallback = '') {
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="address_note">Catatan Alamat (Opsional)</label>
+          <label class="form-label" for="address_note">Catatan alamat (opsional)</label>
           <div class="input-wrap">
             <span class="input-icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'file-text', 'size' => 20])</span>
             <input class="form-input" type="text" id="address_note" name="address_note"

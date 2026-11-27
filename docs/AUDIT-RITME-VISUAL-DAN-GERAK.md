@@ -3395,3 +3395,40 @@ pesan: kunci field biasa berasal dari `name="…"` di formulir yang sama, sedang
 Pemeriksaan ini pernah menandai kunci `units.` di checkout, tetapi itu kunci
 dinamis (`@error('units.'.$key.'.…')`) — bukan temuan.
 
+
+### 9.71 Putaran kesepuluh: label Judul Kapital dan teks kapital di markup
+
+**a. Label isian yang masih Judul Kapital.** Aturan "label isian huruf kecil
+kalimat" (§9.62) baru dijaga untuk profil dan konfirmasi sandi, jadi formulir
+alamat, pendaftaran, dan masuk masih memakai **"Nama Lengkap"**, **"Alamat
+Lengkap"**, **"Label Alamat"**, **"Nama Penerima"**, **"Catatan Tambahan"**,
+**"Ubah Foto"**, **"Konfirmasi Kata Sandi"**, dan **"Email / No. HP"**. Satu
+pelanggan bisa melihat dua gaya label dalam satu alur checkout → alamat.
+Semua kini kalimat biasa, dan judul dokumen `confirm-password` ikut dirapikan
+("Konfirmasi kata sandi"). Dijaga
+`test_semua_label_isian_memakai_huruf_kecil_kalimat`.
+
+**b. Teks kapital ditulis langsung di markup.** Enam belas label kecil
+("RUANG PELANGGAN", "DATA PRIBADI", "KABAR UNTUKMU", "PILIHANMU", "SERAH
+TERIMA", "DETAIL PESANAN", "APRESIASI", "Papan bunga · Berkah Kreatif", dst.)
+ditulis huruf besar di markup. Pembaca layar kadang mengejanya huruf per huruf
+dan teks itu tidak bisa dicari sebagai huruf biasa. Markup kini kalimat biasa;
+kapital datang dari `text-transform:uppercase` pada `.bk-kicker`,
+`.bk-atelier-label`, `.bk-order-card__label`, `.auth-eyebrow`, dan `.wm-sub`
+(dua halaman splash). **Tampilan tidak berubah.** Dijaga
+`test_teks_kapital_dibuat_oleh_css_bukan_markup`.
+
+**c. Pemeriksaan keamanan & alas hak yang terbukti aman** (jangan diulang):
+setiap aksi pelanggan memeriksa pemilik — `abort_unless($unit->order->customer_id
+=== $request->user()->id)`, `abort_if($address->customer_id !== Auth::id())`,
+`Auth::user()->notifications()->findOrFail($id)`; berkas pribadi (bukti bayar,
+pratinjau desain, gambar referensi, ringkasan sewa) memakai pola
+`admin || (customer && pemilik)` + `Cache-Control: private, no-store` +
+`nosniff`; grup rute `role:admin`/`role:customer` menutup aksi admin; tidak ada
+pengecualian CSRF; semua model punya `$fillable` eksplisit dan `User` sengaja
+tidak memuat `role`; tidak ada `{!! !!}` berisi data pengguna, tidak ada
+`whereRaw`/`selectRaw` bersisipan variabel, tidak ada `console.log`/`dd()`.
+Header keamanan (`nosniff`, `DENY`, `Referrer-Policy`, `Permissions-Policy`,
+`no-store` untuk sesi masuk) terpasang lewat middleware.
+
+**Hasil:** harness **166 lulus, 0 gagal, 218 dilewati**.

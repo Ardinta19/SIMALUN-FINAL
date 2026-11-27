@@ -161,7 +161,7 @@ $oldText = function (string $key, $fallback = '') {
       <img id="brand-logo" src="{{ asset('images/logo-104.png') }}" width="104" height="57" alt="Logo Berkah Kreatif" style="width:100%;height:100%;object-fit:contain;border-radius:50%;background:white">
     </div>
     <div class="wm-name">Berkah Kreatif</div>
-    <div class="wm-sub">PAPAN BUNGA&nbsp;&nbsp;•&nbsp;&nbsp;BERKAH KREATIF</div>
+    <div class="wm-sub">Papan bunga&nbsp;&nbsp;•&nbsp;&nbsp;Berkah Kreatif</div>
     <div class="wm-bar"></div>
   </div>
 
@@ -183,7 +183,7 @@ $oldText = function (string $key, $fallback = '') {
       
       {{-- Identifier: Email or Phone --}}
       <div class="form-group">
-        <label class="form-label" for="identifier">Email / No. HP</label>
+        <label class="form-label" for="identifier">Email / no. HP</label>
         <div class="input-wrap">
           <span class="input-icon" id="identifier-icon" aria-hidden="true"><span data-identifier-glyph="email">@include('layouts.component._icon', ['name' => 'mail', 'size' => 20])</span><span data-identifier-glyph="phone" hidden>@include('layouts.component._icon', ['name' => 'phone', 'size' => 20])</span></span>
           <input

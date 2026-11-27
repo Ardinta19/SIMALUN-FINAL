@@ -1,4 +1,4 @@
-<x-guest-layout :title="__('Konfirmasi Kata Sandi')">
+<x-guest-layout :title="__('Konfirmasi kata sandi')">
     <h1>{{ __('Konfirmasi kata sandi') }}</h1>
 
     <p>

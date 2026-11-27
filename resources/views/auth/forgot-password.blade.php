@@ -18,13 +18,13 @@ $oldText = function (string $key, $fallback = '') {
 };
 @endphp
 <main class="auth-shell" id="main-content" tabindex="-1">
-    <section class="auth-intro"><a href="{{ route('welcome') }}" class="auth-brand"><img src="{{ asset('images/logo-104.png') }}" width="104" height="57" alt=""><span>Berkah Kreatif<small>Papan bunga untuk setiap cerita</small></span></a><div class="auth-intro-copy"><span class="auth-eyebrow">RUANG PELANGGAN</span><h1>Satu langkah kembali ke akunmu.</h1><p>Jaga akses ke pesanan dan kabar untuk momen istimewamu.</p></div><span class="auth-flower bk-i" aria-hidden="true">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span></section>
+    <section class="auth-intro"><a href="{{ route('welcome') }}" class="auth-brand"><img src="{{ asset('images/logo-104.png') }}" width="104" height="57" alt=""><span>Berkah Kreatif<small>Papan bunga untuk setiap cerita</small></span></a><div class="auth-intro-copy"><span class="auth-eyebrow">Ruang pelanggan</span><h1>Satu langkah kembali ke akunmu.</h1><p>Jaga akses ke pesanan dan kabar untuk momen istimewamu.</p></div><span class="auth-flower bk-i" aria-hidden="true">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span></section>
     <section class="auth-main" aria-labelledby="auth-title"><div class="auth-card">
         <a class="auth-back" href="{{ route('login') }}">@include('layouts.component._icon', ['name' => 'arrow-left', 'size' => 20])<span>Kembali ke masuk</span></a>
         @if(session('password_reset_success'))
-            <span class="auth-eyebrow">SELESAI</span><h2 id="auth-title">Kata sandi berhasil diubah</h2><p>Kamu dapat masuk menggunakan kata sandi yang baru.</p><a class="auth-button" href="{{ route('login') }}">Masuk ke akun</a>
+            <span class="auth-eyebrow">Selesai</span><h2 id="auth-title">Kata sandi berhasil diubah</h2><p>Kamu dapat masuk menggunakan kata sandi yang baru.</p><a class="auth-button" href="{{ route('login') }}">Masuk ke akun</a>
         @elseif(isset($token))
-            <span class="auth-eyebrow">PEMULIHAN AKUN</span><h2 id="auth-title">Buat kata sandi baru</h2><p>Isi email akunmu dan pilih kata sandi yang baru.</p>
+            <span class="auth-eyebrow">Pemulihan akun</span><h2 id="auth-title">Buat kata sandi baru</h2><p>Isi email akunmu dan pilih kata sandi yang baru.</p>
             @if($errors->any())<div class="auth-alert is-error" role="alert">Periksa kembali isian di bawah.</div>@endif
             <form method="post" action="{{ route('password.update.reset') }}" class="auth-form">@csrf<input type="hidden" name="token" value="{{ $token }}">
                 <label for="reset-email">Email akun</label><input placeholder="Contoh: nama@email.com" id="reset-email" type="email" name="email" value="{{ $oldText('email', $email ?? '') }}" autocomplete="email" required @error('email') aria-invalid="true" aria-describedby="reset-email-error" @enderror>@error('email')<p class="auth-error" role="alert" id="reset-email-error">{{ $message }}</p>@enderror
@@ -33,7 +33,7 @@ $oldText = function (string $key, $fallback = '') {
                 <button class="auth-button" type="submit">Simpan kata sandi</button>
             </form>
         @else
-            <span class="auth-eyebrow">PEMULIHAN AKUN</span><h2 id="auth-title">Lupa kata sandi?</h2><p>Masukkan email yang digunakan untuk akunmu. Jika terdaftar, kami akan mengirim tautan pemulihan.</p>
+            <span class="auth-eyebrow">Pemulihan akun</span><h2 id="auth-title">Lupa kata sandi?</h2><p>Masukkan email yang digunakan untuk akunmu. Jika terdaftar, kami akan mengirim tautan pemulihan.</p>
             @if(session('status'))<div class="auth-alert" role="status">Jika email terdaftar, tautan pemulihan telah dikirim. Periksa kotak masuk dan folder spam.</div>@endif
             @if(session('error'))<div class="auth-alert is-error" role="alert">{{ session('error') }}</div>@endif
             <form method="post" action="{{ route('password.email') }}" class="auth-form">@csrf

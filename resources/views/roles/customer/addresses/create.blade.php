@@ -245,7 +245,7 @@ $oldText = function (string $key, $fallback = '') {
         </a>
         <div>
             <h1 class="header-title">Tambah alamat</h1>
-            <div class="header-sub">ALAMAT PENYERAHAN</div>
+            <div class="header-sub">Alamat penyerahan</div>
         </div>
     </div>
 </header>
@@ -270,14 +270,14 @@ $oldText = function (string $key, $fallback = '') {
             </div>
             <div class="section-body">
                 <div>
-                    <label class="field-label" for="address-label">Label Alamat <span class="required">*</span></label>
+                    <label class="field-label" for="address-label">Label alamat <span class="required">*</span></label>
                     <input placeholder="Contoh: Rumah" type="text" name="label" id="address-label" class="field-input {{ $errors->has('label') ? 'is-error' : '' }}"
                         value="{{ $oldText('label', 'Rumah') }}" required autocomplete="off">
                     @error('label') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
 
                 <div>
-                    <label class="field-label" for="address-recipient_name">Nama Penerima <span class="required">*</span></label>
+                    <label class="field-label" for="address-recipient_name">Nama penerima <span class="required">*</span></label>
                     <input placeholder="Contoh: Ibu Sari Wulandari" type="text" name="recipient_name" id="address-recipient_name" class="field-input {{ $errors->has('recipient_name') ? 'is-error' : '' }}"
                         value="{{ $oldText('recipient_name', auth()->user()->name) }}" required autocomplete="name">
                     @error('recipient_name') <div class="field-error" role="alert">{{ $message }}</div> @enderror
@@ -311,14 +311,14 @@ $oldText = function (string $key, $fallback = '') {
                 </div>
 
                 <div>
-                    <label class="field-label" for="address-full_address">Alamat Lengkap <span class="required">*</span></label>
+                    <label class="field-label" for="address-full_address">Alamat lengkap <span class="required">*</span></label>
                     <textarea placeholder="Contoh: Jl. Merdeka No. 12, RT 03, Palembang" name="full_address" id="address-full_address" class="field-input {{ $errors->has('full_address') ? 'is-error' : '' }}"
                         required autocomplete="street-address" rows="4">{{ $oldText('full_address') }}</textarea>
                     @error('full_address') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
 
                 <div>
-                    <label class="field-label" for="address-notes">Catatan Tambahan</label>
+                    <label class="field-label" for="address-notes">Catatan tambahan</label>
                     <input type="text" name="notes" id="address-notes" class="field-input"
                         placeholder="Contoh: Pagar hijau, titip di pos keamanan."
                         value="{{ $oldText('notes') }}" autocomplete="off">

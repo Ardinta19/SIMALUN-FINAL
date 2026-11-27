@@ -3,7 +3,7 @@
 @section('content')
 <div class="bk-inbox">
     <a data-smart-back class="bk-back" href="{{ route('customer.dashboard') }}">← Kembali ke beranda</a>
-    <div class="bk-page-heading"><div><span class="bk-kicker">KABAR UNTUKMU</span><h1>Notifikasi</h1><p class="muted">Pembaruan pesanan dan informasi akun ada di sini.</p></div>
+    <div class="bk-page-heading"><div><span class="bk-kicker">Kabar untukmu</span><h1>Notifikasi</h1><p class="muted">Pembaruan pesanan dan informasi akun ada di sini.</p></div>
         @if($notifications->count() > 0)<form method="post" action="{{ route('customer.notifications.read-all') }}">@csrf<button class="btn secondary" type="submit">Tandai semua dibaca</button></form>@endif
     </div>
     @if($notifications->count() > 0)
