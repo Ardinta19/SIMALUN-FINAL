@@ -2239,6 +2239,14 @@
         /* Lingkungan tanpa MutationObserver: formulir yang ada sudah siap. */
     }
 
+    /* Jaring pengaman: bila skrip dimuat sebelum <body> selesai diurai, ulangi
+       sekali setelah dokumen siap. */
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () {
+            each(document, 'form', prepareForm);
+        });
+    }
+
     document.addEventListener('submit', function (event) {
         var form = event.target;
         if (!form || form.nodeName !== 'FORM') return;
