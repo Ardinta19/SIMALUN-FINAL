@@ -4137,3 +4137,43 @@ jalur `/admin`).
 pemasangan, jadi baris `Sitemap:` tidak bisa diisi dengan benar dari sana.
 Pemilik cukup mendaftarkan `https://domain-anda/sitemap.xml` di Google
 Search Console.
+
+### 9.99 Apa yang ternyata sudah tercatat sendiri
+
+Sempat muncul dugaan bahwa `Audit::log()` terlalu sempit: hanya katalog,
+voucher, buku kas, item tambahan, universitas, dan pengaturan pembayaran.
+Aksi pesanan — konfirmasi, pembatalan, verifikasi pembayaran, koreksi,
+pengembalian dana, ubah progres — tidak masuk tabel `audit_logs`.
+
+Setelah ditelusuri, aksi-aksi itu **sudah punya catatan sendiri yang lebih
+tepat**, dan menyalinnya ke `audit_logs` hanya akan menduplikasi:
+
+| Aksi | Tempat tercatatnya |
+| --- | --- |
+| Konfirmasi pesanan | `rental_orders.confirmed_at` |
+| Pembatalan | `rental_order_units.cancel_reason`, `cancel_code`, `cancel_responsibility`, `cancelled_at` |
+| Verifikasi / tolak bukti | `rental_payments.status`, `verified_at`, `verified_by`, `admin_note` |
+| Koreksi nominal | tabel `rental_payment_corrections` (nominal lama, baru, alasan, pelaku) |
+| Pengembalian dana | tabel `rental_payment_refunds` (nominal, alasan, `request_key`, pelaku) + `finance_entries` |
+| Perubahan progres | tabel `rental_progress_events` (progres, pelaku, catatan, waktu) |
+| Pratinjau desain | versi desain + status persetujuan + waktu |
+
+`audit_logs` karena itu tetap dipakai untuk perubahan **konfigurasi dan
+data induk** (katalog, harga, stok, voucher, kas manual, pengaturan
+pembayaran, universitas) — di situlah tidak ada tabel riwayat lain.
+Kesimpulannya: bukan celah, dan tidak ada kode yang diubah.
+
+Dua hal lain yang diperiksa di putaran ini dan dinyatakan wajar:
+
+- **Bukti pembayaran tanpa `request_key`.** Pengembalian dana dan koreksi
+  memakai kunci idempotensi UUID, sedangkan unggah bukti pembayaran tidak.
+  Klik ganda hanya menghasilkan dua baris `pending`; uang tidak bisa
+  tercatat dua kali karena `verify()` menolak bila
+  `verifiedNet() + amount > payableAmount()`, dan `store()` sudah menolak
+  nominal yang melebihi sisa tagihan termasuk bukti yang masih menunggu.
+  Yang tersisa hanya kerapian antrean admin, bukan risiko keuangan.
+- **`last_used_at` pada `customer_addresses`** dibahas di §9.95; kolomnya
+  dibiarkan ada agar tidak ada operasi destruktif pada basis data berjalan.
+
+**Hasil putaran 16 (lanjutan):** harness **190 lulus, 0 gagal, 227
+dilewati**; `blade-scan.py` 82 view / 0 / 0; `.tmp-verify.php` 26/0.
