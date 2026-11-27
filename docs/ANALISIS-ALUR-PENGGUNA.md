@@ -135,8 +135,8 @@ Temuan dan tindakan:
 
 | Prioritas | Pekerjaan | Alasan |
 |---|---|---|
-| P1 | Tautan notifikasi langsung ke unit + jangkar yang relevan (bayar/desain/ongkir) | Menghapus satu ketukan pada alur yang paling sering dipakai pelanggan |
-| P1 | Ringkasan "perlu tindakanmu" di dasbor pelanggan — **dikerjakan sebagian**: chip per unit (setujui ongkos, tinjau desain, bukti ditolak, belum lunas) sudah tampil di dasbor; yang belum: satu baris total di atas halaman | Pertanyaan yang paling sering masuk ke WhatsApp |
+| P1 | ~~Tautan notifikasi langsung ke unit + jangkar yang relevan (bayar/desain/ongkir)~~ | **Selesai putaran 37**: `rental_order_unit_id` di muatan notifikasi; pelanggan → halaman unit, admin → `#unit-<id>` |
+| P1 | Ringkasan "perlu tindakanmu" — **selesai putaran 37 untuk admin**: kartu di atas dasbor, hanya baris > 0, urut tenggat. Untuk pelanggan tetap memakai chip per unit | Pertanyaan yang paling sering masuk ke WhatsApp |
 | P2 | Tombol "Bayar" langsung di kartu unit yang belum lunas | Jalur terpendek ke pemasukan |
 | P2 | Admin: aksi massal "verifikasi beberapa bukti" setelah diperiksa satu per satu | Mengurangi pengulangan saat ramai |
 | P3 | Simpan filter katalog di sesi (bukan hanya URL) agar "Kembali" selalu membawa filter yang sama | Keranjang dan detail papan sudah membawa `q`/`category`/tanggal |

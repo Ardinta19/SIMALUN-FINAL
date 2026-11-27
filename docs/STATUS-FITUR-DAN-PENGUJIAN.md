@@ -276,3 +276,16 @@ Pemeriksaan manual:
 1. `php artisan optimize:clear`, buka keranjang → checkout.
 2. Ikuti langkah 1–8 pada bagian "Cara memeriksa sendiri" di `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.148.
 3. Khusus ponsel: tab bagian bisa digeser mendatar, kolom kesiapan pindah ke bawah kartu, dan tombol kirim tetap terlihat setelah semua bagian lengkap.
+
+### Babak P — notifikasi ke unit + ringkasan tindakan di dasbor (`statis, belum diuji di Windows`)
+
+P1 dari `docs/ANALISIS-ALUR-PENGGUNA.md`:
+
+1. **Notifikasi membuka papan yang berubah.** `RentalUpdate` menyimpan `rental_order_unit_id` (hanya bila ada), `RentalNotifications` mendapat `customerForUnit()`/`adminsForUnit()` (35 pemanggilan per unit dipindahkan), dan `markAndRedirect()` mengarah ke `rental.orders.unit` (pelanggan) atau `admin.rental.orders.show#unit-<id>` (admin).
+2. **"Perlu tindakanmu" di atas dasbor admin**: hanya baris berangka > 0, urut tenggat, dua baris teratas membawa catatan waktu (batas konfirmasi terdekat, bukti tertua), dan keadaan kosong berupa satu kalimat.
+
+Berkas: `app/Notifications/RentalUpdate.php`, `app/Services/RentalNotifications.php`, `app/Http/Controllers/NotificationController.php`, `app/Http/Controllers/DashboardController.php`, `resources/views/roles/admin/dashboard.blade.php`, `public/css/berkah-admin.css`.
+
+Tes: `tests/Feature/NotificationPayloadTest.php` (3, satu di antaranya pemeriksaan berkas yang berjalan di sandbox), `RentalNotificationTest` diperbarui (notifikasi unit kini membuka halaman unit; tes baru untuk jangkar admin), `RentalAdminSearchTest` memakai judul "Perlu tindakanmu".
+
+Pemeriksaan manual ada di `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.151.

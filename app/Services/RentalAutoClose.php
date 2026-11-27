@@ -62,13 +62,13 @@ class RentalAutoClose
 
                     if (! $didClose) continue;
 
-                    app(RentalNotifications::class)->customer(
-                        $unit->order,
+                    app(RentalNotifications::class)->customerForUnit(
+                        $unit,
                         'Unit ditutup otomatis',
                         'Unit '.$unit->product_name.' otomatis ditandai sudah dikembalikan karena belum ditandai admin. Hubungi admin bila papan sebenarnya belum kembali.'
                     );
-                    app(RentalNotifications::class)->admins(
-                        $unit->order,
+                    app(RentalNotifications::class)->adminsForUnit(
+                        $unit,
                         'Unit ditutup otomatis',
                         'Unit '.$unit->product_name.' melewati '.self::GRACE_DAYS.' hari dari tanggal kembali tanpa penandaan. Sistem menandainya sudah dikembalikan; periksa bila papan belum diterima.'
                     );

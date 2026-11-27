@@ -1754,3 +1754,25 @@ html[data-theme="dark"] .adm-app {
 .adm-app :is(#main-content, [id^="unit-"]) {
     scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 72px);
 }
+
+/* --------------------------------------------------------------------------
+   "Perlu tindakanmu" — ringkasan tugas paling atas dasbor.
+   Hanya baris yang berangka > 0 yang tampil; catatan tenggat memakai huruf
+   kecil agar baris tetap satu-dua baris di ponsel.
+   -------------------------------------------------------------------------- */
+.adm-attention {
+    border-color: var(--adm-line-strong);
+}
+
+.adm-attention__text {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    display: grid;
+    gap: 2px;
+}
+
+.adm-attention__text small {
+    color: var(--adm-ink-3);
+    font-size: var(--adm-fs-xs, .78rem);
+    line-height: 1.35;
+}

@@ -17,15 +17,46 @@
     $sapaan = $jam < 11 ? 'Selamat pagi' : ($jam < 15 ? 'Selamat siang' : ($jam < 19 ? 'Selamat sore' : 'Selamat malam'));
     $tanggal = now('Asia/Jakarta')->locale('id')->isoFormat('dddd, D MMMM YYYY');
 
-    $attention = [
-        ['route' => 'admin.rental.orders', 'status' => 'pending', 'icon' => 'orders', 'count' => $rentalPending, 'text' => 'unit menunggu konfirmasi'],
-        ['route' => 'admin.rental.orders', 'status' => 'payment_pending', 'icon' => 'payment', 'count' => $rentalPaymentPending, 'text' => 'bukti menunggu pemeriksaan'],
-        ['route' => 'admin.rental.orders', 'status' => 'transport_quote', 'icon' => 'location', 'count' => $rentalQuoteNeeded, 'text' => 'unit memerlukan penawaran ongkos'],
-        ['route' => 'admin.rental.orders', 'status' => 'design_initial', 'icon' => 'package', 'count' => $rentalDesignNeeded, 'text' => 'unit memerlukan pratinjau awal'],
-        ['route' => 'admin.rental.orders', 'status' => 'review', 'icon' => 'search', 'count' => $rentalReview, 'text' => 'unit dalam peninjauan manual'],
-        ['route' => 'admin.rental.orders', 'status' => 'return_overdue', 'icon' => 'clock', 'count' => $rentalReturnOverdue, 'text' => 'unit sudah lewat tanggal kembali · tandai sudah dikembalikan'],
-        ['route' => 'admin.rental.orders', 'status' => 'seller_cancelled', 'icon' => 'arrow-left', 'count' => $rentalSellerCancelled, 'text' => 'unit dibatalkan karena penjual · periksa tindak lanjut'],
-    ];
+    /* Baris yang angkanya nol tidak ditampilkan: daftar "perlu tindakan" yang
+       penuh baris kosong membuat admin memindai tujuh baris untuk menemukan dua
+       tugas. Urutan mengikuti tenggat — konfirmasi paling mendesak lebih dulu. */
+    $attention = array_values(array_filter([
+        [
+            'route' => 'admin.rental.orders', 'status' => 'pending', 'icon' => 'orders', 'count' => $rentalPending,
+            'text' => 'unit menunggu konfirmasi',
+            'note' => $rentalPendingNearest
+                ? 'batas konfirmasi terdekat '.\Carbon\Carbon::parse($rentalPendingNearest)->timezone('Asia/Jakarta')->format('d/m H:i').' WIB'
+                : null,
+        ],
+        [
+            'route' => 'admin.rental.orders', 'status' => 'payment_pending', 'icon' => 'payment', 'count' => $rentalPaymentPending,
+            'text' => 'bukti menunggu pemeriksaan',
+            'note' => $paymentPendingOldest
+                ? 'bukti tertua '.\Carbon\Carbon::parse($paymentPendingOldest)->timezone('Asia/Jakarta')->format('d/m H:i').' WIB'
+                : null,
+        ],
+        [
+            'route' => 'admin.rental.orders', 'status' => 'return_overdue', 'icon' => 'clock', 'count' => $rentalReturnOverdue,
+            'text' => 'unit sudah lewat tanggal kembali · tandai sudah dikembalikan', 'note' => null,
+        ],
+        [
+            'route' => 'admin.rental.orders', 'status' => 'review', 'icon' => 'search', 'count' => $rentalReview,
+            'text' => 'unit dalam peninjauan manual', 'note' => null,
+        ],
+        [
+            'route' => 'admin.rental.orders', 'status' => 'transport_quote', 'icon' => 'location', 'count' => $rentalQuoteNeeded,
+            'text' => 'unit memerlukan penawaran ongkos', 'note' => null,
+        ],
+        [
+            'route' => 'admin.rental.orders', 'status' => 'design_initial', 'icon' => 'package', 'count' => $rentalDesignNeeded,
+            'text' => 'unit memerlukan pratinjau awal', 'note' => null,
+        ],
+        [
+            'route' => 'admin.rental.orders', 'status' => 'seller_cancelled', 'icon' => 'arrow-left', 'count' => $rentalSellerCancelled,
+            'text' => 'unit dibatalkan karena penjual · periksa tindak lanjut', 'note' => null,
+        ],
+    ], fn (array $item) => $item['count'] > 0));
+    $attentionTotal = array_sum(array_column($attention, 'count'));
 @endphp
 
 <div class="adm-page-head" data-adm-reveal="head">
@@ -41,6 +72,29 @@
         </a>
     </div>
 </div>
+
+<section class="adm-card adm-attention" data-adm-reveal="attention" aria-labelledby="adm-attention-title" style="margin-bottom:var(--adm-gap)">
+    <div class="adm-card__head">
+        <h2 id="adm-attention-title">Perlu tindakanmu</h2>
+        <span class="adm-chip">{{ $attentionTotal }} tugas</span>
+    </div>
+    @if($attention === [])
+        <p class="adm-help" style="margin:0">Tidak ada yang menunggu tindakan. Semua pesanan sudah ditangani.</p>
+    @else
+        <div class="adm-stack" style="gap:8px">
+            @foreach($attention as $item)
+                <a class="adm-listlink" href="{{ route($item['route'], ['status' => $item['status']]) }}">
+                    <span class="adm-stat__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => $item['icon'], 'size' => 18])</span>
+                    <span class="adm-attention__text"><strong>{{ $item['count'] }}</strong> {{ $item['text'] }}
+                        @if($item['note'])<small>{{ $item['note'] }}</small>@endif
+                    </span>
+                    <span style="margin-left:auto;flex:none;color:var(--adm-ink-3)" aria-hidden="true">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>
+                </a>
+            @endforeach
+        </div>
+    @endif
+    <p class="adm-help" style="margin:10px 0 0">Pembatalan karena penjual mencakup seluruh riwayat, termasuk yang sudah ditindaklanjuti.</p>
+</section>
 
 <div class="adm-stats" data-adm-reveal="stats" style="margin-bottom:var(--adm-gap)">
     <a class="adm-stat" href="{{ route('admin.rental.orders') }}">
@@ -79,23 +133,6 @@
 </section>
 
 <div class="adm-grid adm-grid--split" style="margin-bottom:var(--adm-gap)">
-    <section class="adm-card" data-adm-reveal="attention" aria-labelledby="adm-attention-title">
-        <div class="adm-card__head">
-            <h2 id="adm-attention-title">Perlu perhatian</h2>
-            <span class="adm-chip">Tugas admin</span>
-        </div>
-        <div class="adm-stack" style="gap:8px">
-            @foreach($attention as $item)
-                <a class="adm-listlink" href="{{ route($item['route'], ['status' => $item['status']]) }}">
-                    <span class="adm-stat__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => $item['icon'], 'size' => 18])</span>
-                    <span style="min-width:0;overflow-wrap:anywhere"><strong>{{ $item['count'] }}</strong> {{ $item['text'] }}</span>
-                    <span style="margin-left:auto;flex:none;color:var(--adm-ink-3)" aria-hidden="true">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>
-                </a>
-            @endforeach
-        </div>
-        <p class="adm-help" style="margin:10px 0 0">Pembatalan karena penjual mencakup seluruh riwayat, termasuk yang sudah ditindaklanjuti.</p>
-    </section>
-
     <div class="adm-grid">
         <section class="adm-card" data-adm-reveal="waiting" aria-labelledby="adm-waiting-title">
             <div class="adm-card__head">

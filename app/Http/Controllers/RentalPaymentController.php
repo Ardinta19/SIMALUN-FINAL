@@ -38,7 +38,7 @@ class RentalPaymentController extends Controller
                 $allocated = $unit->allocatedNet();
                 if ($allocated + $data['amount'] > $total) throw ValidationException::withMessages(['amount' => 'Nominal melebihi sisa tagihan, termasuk bukti yang menunggu verifikasi.']);
                 $unit->payments()->create(['amount' => $data['amount'], 'proof_path' => $path, 'submitted_at' => $submittedAt]);
-                app(RentalNotifications::class)->admins($unit->order, 'Bukti pembayaran baru', 'Bukti pembayaran unit '.$unit->product_name.' menunggu pemeriksaan.');
+                app(RentalNotifications::class)->adminsForUnit($unit, 'Bukti pembayaran baru', 'Bukti pembayaran unit '.$unit->product_name.' menunggu pemeriksaan.');
             });
         } catch (\Throwable $e) {
             Storage::disk('local')->delete($path);
@@ -73,7 +73,7 @@ class RentalPaymentController extends Controller
             if ($unit->payment_review_hold && $unit->payableAmount() !== null && $unit->verifiedNet() >= $unit->payableAmount()) {
                 $unit->update(['payment_review_hold' => false, 'payment_review_resolved' => true]);
             }
-            app(RentalNotifications::class)->customer($unit->order, 'Pembayaran diverifikasi', 'Pembayaran unit '.$unit->product_name.' telah diverifikasi.');
+            app(RentalNotifications::class)->customerForUnit($unit, 'Pembayaran diverifikasi', 'Pembayaran unit '.$unit->product_name.' telah diverifikasi.');
         });
         return back()->with('success', 'Pembayaran diverifikasi dan dicatat dalam buku kas.');
     }
@@ -99,7 +99,7 @@ class RentalPaymentController extends Controller
             $payment->corrections()->create(['old_amount' => $payment->amount, 'new_amount' => $new, 'reason' => $data['reason'], 'recorded_by' => $request->user()->id]);
             $payment->update(['amount' => $new]);
             $entry->update(['amount' => $new]);
-            app(RentalNotifications::class)->customer($unit->order, 'Nominal pembayaran dikoreksi', 'Admin mengoreksi nominal pembayaran unit '.$unit->product_name.'. Periksa detail dan alasan koreksi.');
+            app(RentalNotifications::class)->customerForUnit($unit, 'Nominal pembayaran dikoreksi', 'Admin mengoreksi nominal pembayaran unit '.$unit->product_name.'. Periksa detail dan alasan koreksi.');
         }, 3);
         return back()->with('success', 'Nominal pembayaran dan catatan kas terkait diperbaiki.');
     }
@@ -122,7 +122,7 @@ class RentalPaymentController extends Controller
             $refund = $payment->refunds()->create(['amount' => $data['amount'], 'reason' => $data['reason'], 'request_key' => $data['request_key'], 'refunded_at' => $time, 'recorded_by' => $request->user()->id]);
             $entry = FinanceEntry::create(['entry_date' => $time->toDateString(), 'period_key' => $time->format('Y-m'), 'entry_type' => 'expense', 'category' => 'pengembalian', 'amount' => $refund->amount, 'source_type' => 'rental_refund', 'source_id' => $refund->id, 'notes' => 'Pengembalian pembayaran #'.$payment->id.': '.$refund->reason, 'created_by' => $request->user()->id]);
             $refund->update(['finance_entry_id' => $entry->id]);
-            app(RentalNotifications::class)->customer($unit->order, 'Pengembalian dana dicatat', 'Admin mencatat pengembalian dana unit '.$unit->product_name.'. Periksa rincian pada pesanan.');
+            app(RentalNotifications::class)->customerForUnit($unit, 'Pengembalian dana dicatat', 'Admin mencatat pengembalian dana unit '.$unit->product_name.'. Periksa rincian pada pesanan.');
         }, 3);
         return back()->with('success', 'Pengembalian dicatat dalam buku kas.');
     }
@@ -150,7 +150,7 @@ class RentalPaymentController extends Controller
                 $unit->update(['payment_review_hold' => true, 'payment_review_resolved' => false]);
             }
             $payment->update(['status' => 'rejected', 'verified_at' => now(), 'verified_by' => $request->user()->id, 'admin_note' => $data['reason']]);
-            app(RentalNotifications::class)->customer($unit->order, 'Bukti perlu diperbaiki', 'Periksa alasan penolakan bukti pembayaran unit '.$unit->product_name.'.');
+            app(RentalNotifications::class)->customerForUnit($unit, 'Bukti perlu diperbaiki', 'Periksa alasan penolakan bukti pembayaran unit '.$unit->product_name.'.');
         });
         return back()->with('success', 'Bukti pembayaran ditolak dengan alasan.');
     }

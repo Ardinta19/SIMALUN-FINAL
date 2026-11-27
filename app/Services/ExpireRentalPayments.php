@@ -22,7 +22,7 @@ class ExpireRentalPayments
                         // DP hangus dan unit tidak dapat dilanjutkan lagi.
                         if ($unit->status === 'cancelled' && $unit->cancel_code === 'payment_timeout' && ! $unit->deposit_forfeited_at && ! $policy->withinGrace($unit)) {
                             $unit->update(['deposit_forfeited_at' => now()]);
-                            app(RentalNotifications::class)->customer($unit->order, 'Masa kelanjutan berakhir', 'Unit '.$unit->product_name.' tidak dilanjutkan sampai H+1 pukul 12.00 WIB. Periksa rincian dan ketentuan DP pada pesanan.');
+                            app(RentalNotifications::class)->customerForUnit($unit, 'Masa kelanjutan berakhir', 'Unit '.$unit->product_name.' tidak dilanjutkan sampai H+1 pukul 12.00 WIB. Periksa rincian dan ketentuan DP pada pesanan.');
                             return 'forfeited';
                         }
                         if ($unit->status !== 'confirmed' || ! $policy->isDue($unit) || in_array($unit->progress, ['handed_over', 'returned'], true)) return null;
@@ -31,7 +31,7 @@ class ExpireRentalPayments
                         if ($unit->payableAmount() === null || (! $unit->payment_review_resolved && $unit->special_confirmation && $unit->confirmed_at && $unit->confirmed_at->greaterThanOrEqualTo($policy->cutoff($unit)))) {
                             if (! $unit->payment_review_hold) {
                                 $unit->update(['payment_review_hold' => true]);
-                                app(RentalNotifications::class)->admins($unit->order, 'Peninjauan pembayaran diperlukan', 'Unit '.$unit->product_name.' memerlukan penanganan manual untuk ongkos atau jadwal khusus.');
+                                app(RentalNotifications::class)->adminsForUnit($unit, 'Peninjauan pembayaran diperlukan', 'Unit '.$unit->product_name.' memerlukan penanganan manual untuk ongkos atau jadwal khusus.');
                             }
                             return null;
                         }
@@ -42,7 +42,7 @@ class ExpireRentalPayments
                         $message = $unit->deposit_forfeited_at
                             ? 'Unit '.$unit->product_name.' dibatalkan dan masa kelanjutannya telah berakhir. Periksa rincian dan ketentuan DP.'
                             : 'Unit '.$unit->product_name.' dibatalkan. Kirim bukti dan minta verifikasi paling lambat '.$policy->graceDeadline($unit)->format('d/m/Y H:i').' WIB agar unit dapat dilanjutkan.';
-                        app(RentalNotifications::class)->customer($unit->order, 'Tenggat pelunasan terlewati', $message);
+                        app(RentalNotifications::class)->customerForUnit($unit, 'Tenggat pelunasan terlewati', $message);
                         return 'cancelled';
                     }, 3);
                     if ($change) $result[$change]++;

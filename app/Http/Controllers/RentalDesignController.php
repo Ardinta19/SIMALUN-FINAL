@@ -31,7 +31,7 @@ class RentalDesignController extends Controller
                 $unit->previews()->create(['version' => $version, 'image_path' => $path, 'admin_note' => $data['admin_note'] ?? null, 'created_by' => $request->user()->id]);
                 // Versi baru selalu memerlukan persetujuan sendiri.
                 if ($unit->design_override_at !== null) $unit->update(['design_override_at' => null, 'design_override_by' => null, 'design_override_version' => null, 'design_override_note' => null]);
-                app(RentalNotifications::class)->customer($unit->order, 'Pratinjau desain tersedia', 'Pratinjau desain unit '.$unit->product_name.' menunggu responsmu.');
+                app(RentalNotifications::class)->customerForUnit($unit, 'Pratinjau desain tersedia', 'Pratinjau desain unit '.$unit->product_name.' menunggu responsmu.');
             });
         } catch (\Throwable $e) {
             Storage::disk('local')->delete($path);
@@ -60,7 +60,7 @@ class RentalDesignController extends Controller
             $preview->update(['status' => $data['decision'], 'customer_note' => $data['note'] ?? null, 'responded_at' => now()]);
             // Pelanggan sudah merespons: keputusan admin tanpa persetujuan tidak berlaku lagi.
             if ($unit->design_override_at !== null) $unit->update(['design_override_at' => null, 'design_override_by' => null, 'design_override_version' => null, 'design_override_note' => null]);
-            app(RentalNotifications::class)->admins($unit->order, 'Respons desain', 'Pelanggan '.($data['decision'] === 'approved' ? 'menyetujui desain' : 'meminta revisi').' unit '.$unit->product_name.'.');
+            app(RentalNotifications::class)->adminsForUnit($unit, 'Respons desain', 'Pelanggan '.($data['decision'] === 'approved' ? 'menyetujui desain' : 'meminta revisi').' unit '.$unit->product_name.'.');
         });
         return back()->with('success', $data['decision'] === 'approved' ? 'Desain disetujui.' : 'Permintaan revisi dikirim.');
     }
@@ -85,7 +85,7 @@ class RentalDesignController extends Controller
             if (! $deadlines->reached($unit)) throw ValidationException::withMessages(['design' => 'Tenggat respons desain belum tercapai. Tunggu sampai batas atau hubungi pelanggan.']);
             $unit->update(['design_override_at' => now(), 'design_override_by' => $request->user()->id, 'design_override_version' => $latest->version, 'design_override_note' => $data['note']]);
             $unit->progressEvents()->create(['progress' => $unit->progress, 'recorded_by' => $request->user()->id, 'note' => 'Desain versi '.$latest->version.' dilanjutkan tanpa persetujuan pelanggan. Alasan: '.$data['note']]);
-            app(RentalNotifications::class)->customer($unit->order, 'Pengerjaan dimulai', 'Admin memulai pengerjaan unit '.$unit->product_name.' dengan pratinjau versi '.$latest->version.' karena batas respons terlewati. Hubungi admin bila perlu perubahan.');
+            app(RentalNotifications::class)->customerForUnit($unit, 'Pengerjaan dimulai', 'Admin memulai pengerjaan unit '.$unit->product_name.' dengan pratinjau versi '.$latest->version.' karena batas respons terlewati. Hubungi admin bila perlu perubahan.');
         }, 3);
         return back()->with('success', 'Pengerjaan dilanjutkan tanpa persetujuan pelanggan. Keputusan tercatat di riwayat unit.');
     }

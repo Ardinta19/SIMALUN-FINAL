@@ -6124,3 +6124,50 @@ adalah `php.ini`: pada Windows `.user.ini` tidak dibaca, sehingga
 3. Bila hanya persetujuan yang kurang: pesan status berbunyi "Unit 1 lengkap.
    Centang persetujuan ketentuan untuk mengirim." dan balon muncul di kotak
    centang.
+
+### 9.151 Notifikasi menuju unitnya sendiri + "Perlu tindakanmu" di atas dasbor
+
+Dua butir P1 dari `docs/ANALISIS-ALUR-PENGGUNA.md`.
+
+**1. Notifikasi membuka papan yang berubah.** Sebelumnya muatan notifikasi hanya
+membawa `rental_order_id`, sehingga notifikasi "Progres: Siap diambil" untuk
+papan kedua tetap membuka halaman pesanan berisi semua papan — pelanggan
+menggulir, admin mencari. Sekarang:
+
+- `RentalUpdate` menerima `?int $unitId` dan menulis `rental_order_unit_id`
+  **hanya bila ada** (notifikasi tingkat pesanan seperti "Pesanan sewa baru"
+  tetap seperti dulu, jadi tautan lama tidak berubah);
+- `RentalNotifications::customerForUnit()` / `adminsForUnit()` menjadi pintasan;
+  seluruh 35 pemanggilan yang memang menyangkut satu unit dipindahkan ke
+  pintasan itu, sedangkan pemanggilan tingkat pesanan dibiarkan;
+- `NotificationController::markAndRedirect()` mengarahkan pelanggan ke
+  `rental.orders.unit` dan admin ke `admin.rental.orders.show#unit-<id>`
+  (halaman detail admin memang sudah punya jangkar `id="unit-<id>"` per papan).
+  Bila unitnya hilang atau bukan milik pelanggan, tautan jatuh kembali ke
+  halaman pesanan seperti sebelumnya.
+
+**2. "Perlu tindakanmu" di paling atas dasbor.** Kartu "Perlu perhatian" lama
+berada di tengah halaman, selalu menampilkan tujuh baris termasuk yang bernilai
+nol. Sekarang:
+
+- kartu dipindah ke **atas**, tepat setelah kepala halaman;
+- hanya baris dengan angka > 0 yang ditampilkan, diurutkan menurut tenggat:
+  konfirmasi → bukti pembayaran → unit lewat tanggal kembali → peninjauan
+  manual → penawaran ongkos → pratinjau desain → pembatalan penjual;
+- dua baris teratas membawa catatan waktu: "batas konfirmasi terdekat dd/mm
+  HH:ii WIB" dan "bukti tertua dd/mm HH:ii WIB";
+- bila tidak ada tugas, kartu menampilkan satu kalimat tenang
+  ("Tidak ada yang menunggu tindakan. Semua pesanan sudah ditangani.") alih-alih
+  tujuh baris nol.
+
+**Cara memeriksa sendiri:**
+
+1. Masuk sebagai pelanggan dengan dua papan dalam satu pesanan; minta admin
+   menekan "Perbarui perkembangan" pada papan **kedua**, lalu buka notifikasi
+   dari ikon lonceng → yang terbuka adalah halaman papan kedua, bukan pesanan.
+2. Masuk sebagai admin, buka notifikasi "Bukti pembayaran baru" → halaman detail
+   pesanan terbuka dan langsung menggulung ke papan yang bersangkutan.
+3. Dasbor admin: kartu "Perlu tindakanmu" ada di atas; bila semua antrean nol,
+   hanya satu kalimat yang tampil. Saat ada dua unit menunggu konfirmasi, baris
+   pertama menyebut batas konfirmasi terdekat dan menuju daftar berfilter
+   `pending`.

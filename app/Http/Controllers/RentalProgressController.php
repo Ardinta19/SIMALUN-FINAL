@@ -40,8 +40,8 @@ class RentalProgressController extends Controller
             // bertanya "sudah sampai mana?".
             $hint = RentalLabels::progressHint($next);
             $note = trim((string) ($data['note'] ?? ''));
-            app(RentalNotifications::class)->customer(
-                $unit->order,
+            app(RentalNotifications::class)->customerForUnit(
+                $unit,
                 'Progres: '.RentalLabels::progress($next),
                 'Unit '.$unit->product_name.$unit->variantLabel().': '.$hint.($note !== '' ? ' Catatan admin: '.rtrim($note, ' .').'.' : '')
             );

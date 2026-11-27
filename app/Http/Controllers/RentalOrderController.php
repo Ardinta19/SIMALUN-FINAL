@@ -458,7 +458,7 @@ class RentalOrderController extends Controller
             app(RentalAvailability::class)->assertAvailable($product, $unit);
             $needsReview = $special && app(RentalPaymentDeadline::class)->isDue($unit);
             $unit->update(['status' => 'confirmed', 'confirmed_at' => now(), 'special_confirmation' => $special, 'payment_review_hold' => $needsReview]);
-            app(RentalNotifications::class)->customer($unit->order, 'Unit dikonfirmasi', 'Unit '.$unit->product_name.' telah dikonfirmasi; tanggalnya tetap ditahan.');
+            app(RentalNotifications::class)->customerForUnit($unit, 'Unit dikonfirmasi', 'Unit '.$unit->product_name.' telah dikonfirmasi; tanggalnya tetap ditahan.');
         });
         return back()->with('success', 'Unit dikonfirmasi dan tanggal tetap ditahan.');
     }
@@ -490,9 +490,9 @@ class RentalOrderController extends Controller
                 // Voucher ongkos ikut dihitung ulang supaya potongannya tidak
                 // menggantung pada biaya yang tidak pernah ditagih.
                 app(RentalVouchers::class)->redistribute($unit->order()->first());
-                app(RentalNotifications::class)->customer($unit->order, 'Ongkos gratis', 'Pengantaran unit '.$unit->product_name.' tanpa biaya tambahan. Pembayaran bisa dilanjutkan kapan saja.');
+                app(RentalNotifications::class)->customerForUnit($unit, 'Ongkos gratis', 'Pengantaran unit '.$unit->product_name.' tanpa biaya tambahan. Pembayaran bisa dilanjutkan kapan saja.');
             } else {
-                app(RentalNotifications::class)->customer($unit->order, 'Penawaran ongkos', 'Ongkos untuk unit '.$unit->product_name.' siap diperiksa. Setujui atau ajukan keberatan dengan alasan.');
+                app(RentalNotifications::class)->customerForUnit($unit, 'Penawaran ongkos', 'Ongkos untuk unit '.$unit->product_name.' siap diperiksa. Setujui atau ajukan keberatan dengan alasan.');
             }
         });
         return back()->with('success', $free ? 'Ongkos gratis dicatat; pelanggan bisa langsung membayar.' : 'Penawaran ongkos dikirim kepada pelanggan.');
@@ -513,7 +513,7 @@ class RentalOrderController extends Controller
             // Voucher yang mencakup ongkos dihitung ulang setelah ongkos
             // disetujui, supaya potongan mengikuti tagihan yang sebenarnya.
             app(RentalVouchers::class)->redistribute($unit->order()->first());
-            app(RentalNotifications::class)->admins($unit->order, 'Ongkos disetujui', 'Pelanggan menyetujui ongkos unit '.$unit->product_name.'.');
+            app(RentalNotifications::class)->adminsForUnit($unit, 'Ongkos disetujui', 'Pelanggan menyetujui ongkos unit '.$unit->product_name.'.');
         });
         return back()->with('success', 'Ongkos disetujui.');
     }
@@ -530,7 +530,7 @@ class RentalOrderController extends Controller
             }
             $unit->transportQuoteEvents()->create(['action' => 'reject', 'version' => $unit->transport_quote_version, 'amount' => (int) $unit->transport_quote, 'note' => $data['note'], 'recorded_by' => $request->user()->id]);
             $unit->update(['transport_quote' => null, 'transport_quote_note' => null, 'transport_approved_at' => null]);
-            app(RentalNotifications::class)->admins($unit->order, 'Ongkos ditolak pelanggan', 'Pelanggan menolak ongkos unit '.$unit->product_name.'. Alasan: '.rtrim((string) $data['note'], ' .').'.');
+            app(RentalNotifications::class)->adminsForUnit($unit, 'Ongkos ditolak pelanggan', 'Pelanggan menolak ongkos unit '.$unit->product_name.'. Alasan: '.rtrim((string) $data['note'], ' .').'.');
         }, 3);
         return back()->with('success', 'Penawaran ongkos ditolak. Admin akan mengirim penawaran baru.');
     }
@@ -548,8 +548,8 @@ class RentalOrderController extends Controller
             }
             $unit->cancellationEvents()->create(['action' => 'cancel', 'previous_status' => $unit->status, 'new_status' => 'cancelled', 'note' => $data['reason'], 'responsibility' => 'customer', 'recorded_by' => $request->user()->id]);
             $unit->update(['status_before_cancel' => $unit->status, 'status' => 'cancelled', 'cancel_code' => 'customer_request', 'cancel_reason' => $data['reason'], 'cancel_responsibility' => 'customer', 'cancelled_at' => now(), 'cancelled_by' => $request->user()->id]);
-            app(RentalNotifications::class)->customer($unit->order, 'Unit dibatalkan', 'Unit '.$unit->product_name.' dibatalkan atas permintaanmu. Admin akan menindaklanjuti pembayaran yang sudah masuk.');
-            app(RentalNotifications::class)->admins($unit->order, 'Pembatalan oleh pelanggan', 'Pelanggan membatalkan unit '.$unit->product_name.'. Alasan: '.rtrim((string) $data['reason'], ' .').'. Periksa pembayaran dan pengembalian dana.');
+            app(RentalNotifications::class)->customerForUnit($unit, 'Unit dibatalkan', 'Unit '.$unit->product_name.' dibatalkan atas permintaanmu. Admin akan menindaklanjuti pembayaran yang sudah masuk.');
+            app(RentalNotifications::class)->adminsForUnit($unit, 'Pembatalan oleh pelanggan', 'Pelanggan membatalkan unit '.$unit->product_name.'. Alasan: '.rtrim((string) $data['reason'], ' .').'. Periksa pembayaran dan pengembalian dana.');
         }, 3);
         return back()->with('success', 'Unit dibatalkan. DP mengikuti ketentuan; hubungi admin untuk pengembalian dana bila sudah membayar.');
     }
@@ -586,7 +586,7 @@ class RentalOrderController extends Controller
             $unit->update($changes);
             $changed = implode(', ', array_map(fn ($field) => $labels[$field], array_keys($changes)));
             $unit->progressEvents()->create(['progress' => $unit->progress, 'recorded_by' => $request->user()->id, 'note' => 'Pelanggan memperbarui '.$changed.'.']);
-            app(RentalNotifications::class)->admins($unit->order, 'Data unit diperbarui pelanggan', 'Pelanggan memperbarui '.$changed.' pada unit '.$unit->product_name.'.');
+            app(RentalNotifications::class)->adminsForUnit($unit, 'Data unit diperbarui pelanggan', 'Pelanggan memperbarui '.$changed.' pada unit '.$unit->product_name.'.');
         }, 3);
         return back()->with('success', 'Data unit diperbarui dan dicatat di riwayat.');
     }
@@ -640,7 +640,7 @@ class RentalOrderController extends Controller
             if ($unit->progress === 'handed_over') throw ValidationException::withMessages(['unit' => 'Papan sudah diserahkan. Tandai pengembalian lebih dulu sebelum membatalkan unit; pembatalan dapat dilakukan setelah unit tercatat kembali.']);
             $unit->cancellationEvents()->create(['action' => 'cancel', 'previous_status' => $unit->status, 'new_status' => 'cancelled', 'note' => $data['reason'], 'responsibility' => $data['responsibility'], 'recorded_by' => $request->user()->id]);
             $unit->update(['status_before_cancel' => $unit->status, 'cancel_code' => 'manual', 'status' => 'cancelled', 'cancel_reason' => $data['reason'], 'cancel_responsibility' => $data['responsibility'], 'cancelled_at' => now(), 'cancelled_by' => $request->user()->id]);
-            app(RentalNotifications::class)->customer($unit->order, 'Unit dibatalkan', 'Unit '.$unit->product_name.' dibatalkan. Lihat detail pesanan.');
+            app(RentalNotifications::class)->customerForUnit($unit, 'Unit dibatalkan', 'Unit '.$unit->product_name.' dibatalkan. Lihat detail pesanan.');
         });
         return back()->with('success', 'Unit dibatalkan dan reservasi dilepas. Tindak lanjuti pembayaran dan kewajiban pengembalian jika ada.');
     }
@@ -677,7 +677,7 @@ class RentalOrderController extends Controller
             $lateResumedAt = $unit->cancel_code === 'payment_timeout' ? now() : $unit->payment_late_resumed_at;
             $unit->cancellationEvents()->create(['action' => 'resume', 'previous_status' => 'cancelled', 'new_status' => $next, 'note' => $data['reason'], 'recorded_by' => $request->user()->id]);
             $unit->update(['status' => $next, 'payment_late_resumed_at' => $lateResumedAt, 'status_before_cancel' => null, 'cancel_code' => null, 'cancel_reason' => null, 'cancel_responsibility' => null, 'cancelled_at' => null, 'cancelled_by' => null]);
-            app(RentalNotifications::class)->customer($unit->order, 'Unit dilanjutkan', 'Unit '.$unit->product_name.' telah dilanjutkan. Lihat detail pesanan.');
+            app(RentalNotifications::class)->customerForUnit($unit, 'Unit dilanjutkan', 'Unit '.$unit->product_name.' telah dilanjutkan. Lihat detail pesanan.');
         }, 3);
         return back()->with('success', 'Unit dilanjutkan. Untuk unit terkonfirmasi, stok telah diperiksa kembali.');
     }

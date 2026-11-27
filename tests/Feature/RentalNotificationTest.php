@@ -28,10 +28,13 @@ class RentalNotificationTest extends TestCase
         $this->actingAs($admin)->post(route('admin.rental.confirm', $unit))->assertSessionHasNoErrors();
         $notification = $customer->notifications()->firstOrFail();
         $this->assertSame($order->id, $notification->data['rental_order_id']);
+        // Notifikasi menyangkut satu papan: id unitnya ikut tersimpan agar
+        // tautan dapat membuka papan itu, bukan hanya pesanan induknya.
+        $this->assertSame($unit->id, $notification->data['rental_order_unit_id']);
         $this->actingAs($other)->get(route('customer.notifications.open', $notification->id))->assertNotFound();
         $this->actingAs($customer)->get(route('customer.notifications'))->assertOk()->assertSee('Unit dikonfirmasi')
             ->assertSee('Belum dibaca')->assertSee('Tandai semua dibaca')->assertSee(route('customer.notifications.open', $notification->id));
-        $this->get(route('customer.notifications.open', $notification->id))->assertRedirect(route('rental.orders.show', $order));
+        $this->get(route('customer.notifications.open', $notification->id))->assertRedirect(route('rental.orders.unit', [$order, $unit]));
         $this->assertNotNull($notification->fresh()->read_at);
         $this->get(route('customer.notifications'))->assertOk()->assertDontSee('Belum dibaca');
         $this->actingAs($admin)->get(route('admin.notifications'))->assertOk();
@@ -52,6 +55,35 @@ class RentalNotificationTest extends TestCase
         $this->assertSame(1, $admin->unreadNotifications()->count());
         $this->post(route('admin.notifications.read-all'))->assertSessionHasNoErrors();
         $this->assertSame(0, $admin->unreadNotifications()->count());
+    }
+
+    /**
+     * Halaman detail admin menampilkan semua papan dalam satu gulungan, jadi
+     * notifikasi admin harus membuka jangkar unit terkait, bukan puncak halaman.
+     */
+    public function test_notifikasi_admin_membuka_jangkar_unit_yang_bersangkutan(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $customer = User::factory()->create(['role' => 'customer']);
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 1]);
+        $order = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $customer->id, 'confirmation_deadline' => now()->addDay()]);
+        $unit = $order->units()->create(['rental_product_id' => $product->id, 'product_name' => 'Papan', 'unit_price' => 100, 'price_unit' => 'day', 'rental_amount' => 100, 'starts_on' => now()->addDays(3), 'event_on' => now()->addDays(3), 'ends_on' => now()->addDays(3), 'recipient_name' => 'Penerima', 'greeting' => 'Selamat', 'delivery_method' => 'delivery', 'return_method' => 'collection']);
+
+        app(RentalNotifications::class)->adminsForUnit($unit, 'Bukti baru', 'Periksa bukti pembayaran.');
+        $notification = $admin->notifications()->firstOrFail();
+        $this->assertSame($unit->id, $notification->data['rental_order_unit_id']);
+
+        $this->actingAs($admin)
+            ->get(route('admin.notifications.open', $notification->id))
+            ->assertRedirect(route('admin.rental.orders.show', $order).'#unit-'.$unit->id);
+
+        // Notifikasi yang tidak membawa unit tetap membuka daftar pesanan.
+        $admin->notify(new RentalUpdate($order->id, 'Pesanan baru', 'Periksa pesanan.'));
+        $tanpaUnit = $admin->notifications()->where('id', '!=', $notification->id)->firstOrFail();
+        $this->actingAs($admin)
+            ->get(route('admin.notifications.open', $tanpaUnit->id))
+            ->assertRedirect(route('admin.rental.orders', ['q' => $order->reference]));
     }
 
     public function test_tidak_ada_rute_tandai_dibaca_yang_tidak_dipakai(): void

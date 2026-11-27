@@ -83,12 +83,17 @@ class DashboardController extends Controller
         $graceUnitNearest = RentalOrderUnit::where('status', 'cancelled')->where('cancel_code', 'payment_timeout')
             ->whereNull('deposit_forfeited_at')->orderBy('starts_on')->first();
         $rentalWaitingGraceNearest = $graceUnitNearest ? app(\App\Services\RentalPaymentDeadline::class)->graceDeadline($graceUnitNearest) : null;
+        // Tenggat terdekat membuat antrean "perlu tindakan" bisa diurutkan tanpa
+        // membuka daftar: konfirmasi yang hampir habis didahulukan.
+        $rentalPendingNearest = RentalOrderUnit::where('status', 'pending')->min('confirmation_deadline');
+        $paymentPendingOldest = RentalPayment::where('status', 'pending')->min('created_at');
         $recentRentalOrders = RentalOrder::with('customer')->withCount('units')->latest()->take(5)->get();
 
         return view('roles.admin.dashboard', compact(
             'rentalPending', 'rentalActive', 'rentalPaymentPending', 'rentalReview', 'rentalQuoteNeeded', 'rentalDesignNeeded', 'rentalSellerCancelled',
             'rentalWaitingDesign', 'rentalWaitingTransport', 'rentalWaitingGrace', 'rentalReturnOverdue',
             'rentalWaitingDesignSince', 'rentalWaitingTransportSince', 'rentalWaitingGraceNearest', 'recentRentalOrders',
+            'rentalPendingNearest', 'paymentPendingOldest',
             'pemasukanHari',
             'pemasukanBulan',
             'voucherAktif',

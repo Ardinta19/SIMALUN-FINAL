@@ -63,6 +63,6 @@ class RentalAdminSearchTest extends TestCase
         $cancelled->units()->create($base + ['status' => 'cancelled', 'cancel_responsibility' => 'seller', 'cancel_reason' => 'Penjual']);
         $this->actingAs($admin)->get(route('admin.rental.orders', ['status' => 'pending']))->assertOk()->assertSeeInOrder([$urgent->reference, $later->reference])->assertDontSee($cancelled->reference);
         $this->get(route('admin.rental.orders', ['status' => 'seller_cancelled']))->assertOk()->assertSee($cancelled->reference)->assertDontSee($urgent->reference);
-        $this->get(route('dashboard.admin'))->assertOk()->assertSee('Perlu perhatian')->assertSee('<strong>2</strong> unit menunggu konfirmasi', false)->assertSee('<strong>1</strong> unit dibatalkan karena penjual', false)->assertSee('termasuk yang sudah ditindaklanjuti');
+        $this->get(route('dashboard.admin'))->assertOk()->assertSee('Perlu tindakanmu')->assertSee('<strong>2</strong> unit menunggu konfirmasi', false)->assertSee('<strong>1</strong> unit dibatalkan karena penjual', false)->assertSee('termasuk yang sudah ditindaklanjuti');
     }
 }

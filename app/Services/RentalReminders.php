@@ -73,8 +73,8 @@ class RentalReminders
                 ->chunkById(200, function ($units) use (&$counts, $waitHours) {
                     foreach ($units as $unit) {
                         if (! $this->claim($unit, 'transport_quote_needed', 'admins')) continue;
-                        app(RentalNotifications::class)->admins(
-                            $unit->order,
+                        app(RentalNotifications::class)->adminsForUnit(
+                            $unit,
                             'Ongkos belum ditawarkan',
                             'Unit '.$unit->product_name.' memakai antar/jemput tetapi belum ada penawaran ongkos lebih dari '.$waitHours.' jam. Pelanggan belum dapat membayar sebelum ongkos disetujui.'
                         );
@@ -93,8 +93,8 @@ class RentalReminders
                     $quote = $unit->transportQuoteEvents()->where('action', 'quote')->latest('id')->first();
                     if (! $quote || $quote->created_at->greaterThan($now->subHours($waitHours))) continue;
                     if (! $this->claim($unit, 'transport_approval', 'customer')) continue;
-                    app(RentalNotifications::class)->customer(
-                        $unit->order,
+                    app(RentalNotifications::class)->customerForUnit(
+                        $unit,
                         'Ongkos menunggu persetujuan',
                         'Penawaran ongkos unit '.$unit->product_name.' sudah dikirim lebih dari '.$waitHours.' jam. Setujui atau tolak dengan alasan agar pesanan dapat diproses.'
                     );
@@ -118,8 +118,8 @@ class RentalReminders
             ->chunkById(200, function ($units) use (&$counts) {
                 foreach ($units as $unit) {
                     if (! $this->claim($unit, 'event_overdue', 'admins')) continue;
-                    app(RentalNotifications::class)->admins(
-                        $unit->order,
+                    app(RentalNotifications::class)->adminsForUnit(
+                        $unit,
                         'Tanggal acara sudah lewat',
                         'Unit '.$unit->product_name.' masih berstatus "'.\App\Support\RentalLabels::progress($unit->progress).'" padahal tanggal acaranya sudah lewat. Periksa unit, lalu lanjutkan, tutup, atau batalkan dengan alasan.'
                     );
@@ -144,8 +144,8 @@ class RentalReminders
             ->chunkById(200, function ($units) use (&$counts) {
                 foreach ($units as $unit) {
                     if (! $this->claim($unit, 'return_pending', 'admins')) continue;
-                    app(RentalNotifications::class)->admins(
-                        $unit->order,
+                    app(RentalNotifications::class)->adminsForUnit(
+                        $unit,
                         'Unit belum ditandai kembali',
                         'Unit '.$unit->product_name.' sudah lewat '.self::RETURN_GRACE_DAYS.' hari dari tanggal kembali tetapi belum ditandai dikembalikan. Tandai agar pelanggan dapat memberi rating.'
                     );
@@ -175,16 +175,16 @@ class RentalReminders
                     $deadline = $policy->graceDeadline($unit)->format('d/m/Y H:i');
                     $proofWaiting = $unit->payments->contains(fn ($payment) => $payment->status === 'pending');
                     if ($proofWaiting && $adminsReachable && $this->claim($unit, 'payment_grace_admin', 'admins')) {
-                        app(RentalNotifications::class)->admins(
-                            $unit->order,
+                        app(RentalNotifications::class)->adminsForUnit(
+                            $unit,
                             'Bukti terlambat menunggu verifikasi',
                             'Bukti unit '.$unit->product_name.' harus diverifikasi paling lambat '.$deadline.' WIB agar unit dapat dilanjutkan.'
                         );
                         $counts['grace_admin']++;
                     }
                     if ($this->customerReachable($unit) && $this->claim($unit, 'payment_grace', 'customer')) {
-                        app(RentalNotifications::class)->customer(
-                            $unit->order,
+                        app(RentalNotifications::class)->customerForUnit(
+                            $unit,
                             'Batas melanjutkan unit',
                             'Unit '.$unit->product_name.' dibatalkan karena tenggat. Kirim bukti dan minta verifikasi paling lambat '
                                 .$deadline.' WIB agar unit dapat dilanjutkan; sesudah itu DP hangus.'
@@ -208,8 +208,8 @@ class RentalReminders
                     $unit = $payment->unit;
                     if (! $unit || ! $unit->order) continue;
                     if (! $this->claim($unit, 'payment_proof_pending', 'admins')) continue;
-                    app(RentalNotifications::class)->admins(
-                        $unit->order,
+                    app(RentalNotifications::class)->adminsForUnit(
+                        $unit,
                         'Bukti menunggu verifikasi',
                         'Bukti Rp '.number_format((int) $payment->amount, 0, ',', '.').' untuk unit '.$unit->product_name
                             .' sudah menunggu lebih dari '.self::PROOF_WAITING_HOURS.' jam. Verifikasi agar serah terima tidak tertahan.'
@@ -238,8 +238,8 @@ class RentalReminders
                     $covered = $policy->timelyCoverage($unit);
                     if ($covered >= $payable) continue;
                     if (! $this->claim($unit, 'payment_due', 'customer')) continue;
-                    app(RentalNotifications::class)->customer(
-                        $unit->order,
+                    app(RentalNotifications::class)->customerForUnit(
+                        $unit,
                         'Pelunasan jatuh tempo malam ini',
                         'Sisa Rp '.number_format(max(0, $payable - $covered), 0, ',', '.').' untuk unit '.$unit->product_name
                             .' harus dibayar sebelum pukul 23.59 WIB hari ini agar jadwal tidak dibatalkan otomatis.'
@@ -272,8 +272,8 @@ class RentalReminders
                     if (! $latest || $latest->status !== 'pending' || $latest->created_at->greaterThan($customerThreshold)) continue;
 
                     if ($this->customerReachable($unit) && $this->claim($unit, 'design_response', 'customer')) {
-                        app(RentalNotifications::class)->customer(
-                            $unit->order,
+                        app(RentalNotifications::class)->customerForUnit(
+                            $unit,
                             'Pratinjau desain menunggu',
                             'Pratinjau desain unit '.$unit->product_name.' masih menunggu persetujuanmu. '
                                 .'Pengerjaan belum bisa dimulai sebelum desain disetujui.'
@@ -282,8 +282,8 @@ class RentalReminders
                     }
 
                     if ($adminsReachable && $deadlines->reached($unit) && $this->claim($unit, 'design_escalation', 'admins')) {
-                        app(RentalNotifications::class)->admins(
-                            $unit->order,
+                        app(RentalNotifications::class)->adminsForUnit(
+                            $unit,
                             'Pelanggan belum merespons desain',
                             'Pratinjau unit '.$unit->product_name.' belum direspons pelanggan. Hubungi pelanggan atau putuskan langkah berikutnya.'
                         );
