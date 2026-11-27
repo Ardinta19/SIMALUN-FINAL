@@ -74,8 +74,13 @@
             </div>
             <div class="adm-row adm-row--end adm-row--tight">
                 <span class="adm-badge {{ $unitTone }}">{{ $unitStatusLabels[$unit->status] ?? $unit->status }}</span>
-                @php $tahapUnit = \App\Support\RentalLabels::progressStep($unit->progress); @endphp
-                <span class="adm-chip adm-chip--stage">Tahap {{ ($tahapUnit ?? 0) + 1 }}/{{ count(\App\Support\RentalLabels::PROGRESS_STEPS) }} · {{ \App\Support\RentalLabels::progress($unit->progress) }}</span>
+                @php
+                    // Data impor lama bisa punya `progress` kosong; pakai langkah
+                    // pertama supaya pil tahap tidak berakhir dengan label hampa.
+                    $tahapKunci = $unit->progress ?: 'waiting';
+                    $tahapUnit = \App\Support\RentalLabels::progressStep($tahapKunci);
+                @endphp
+                <span class="adm-chip adm-chip--stage">Tahap {{ ($tahapUnit ?? 0) + 1 }}/{{ count(\App\Support\RentalLabels::PROGRESS_STEPS) }} · {{ \App\Support\RentalLabels::progress($tahapKunci) }}</span>
             </div>
         </div>
 

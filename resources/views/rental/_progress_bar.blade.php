@@ -11,11 +11,14 @@
 | segmen. Tahap lengkap tetap satu ketukan jauhnya lewat "Buka unit".
 --}}
 @php
-    $stageStep = \App\Support\RentalLabels::progressStep($unit->progress);
-    $stageIndex = $stageStep ?? 0;
     $stageTotal = count(\App\Support\RentalLabels::PROGRESS_STEPS);
     $stageCancelled = $unit->status === 'cancelled';
-    $stageLabel = $stageCancelled ? 'Dibatalkan' : \App\Support\RentalLabels::progress($unit->progress);
+    // `progress` punya nilai bawaan di basis data, tetapi data impor lama bisa
+    // kosong; label hampa akan menghasilkan "Tahap 1 dari 5 · ".
+    $stageProgress = $unit->progress ?: 'waiting';
+    $stageStep = \App\Support\RentalLabels::progressStep($stageProgress);
+    $stageIndex = $stageStep ?? 0;
+    $stageLabel = $stageCancelled ? 'Dibatalkan' : \App\Support\RentalLabels::progress($stageProgress);
     $stageNumber = $stageCancelled ? $stageIndex : $stageIndex + 1;
 @endphp
 <p class="bk-stage">
@@ -31,7 +34,7 @@
     </span>
     <span class="bk-stage__text">
         @if($stageCancelled)
-            <strong>Dibatalkan</strong> · sebelumnya {{ \App\Support\RentalLabels::progress($unit->progress) }}
+            <strong>Dibatalkan</strong> · sebelumnya {{ \App\Support\RentalLabels::progress($stageProgress) }}
         @else
             <strong>Tahap {{ $stageNumber }} dari {{ $stageTotal }}</strong> · {{ $stageLabel }}
         @endif
