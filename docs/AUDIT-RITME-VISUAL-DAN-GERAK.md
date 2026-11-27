@@ -4368,7 +4368,7 @@ tidak diulang:
   `->only([...])` pada `Audit::log` juga dicocokkan dengan kolom tabel
   hasil migrasi: tidak ada nama kolom yang salah tulis.
 - **Aset** — 11 berkas JS dan 12 berkas CSS di `public/` semuanya dirujuk
-  view (dijaga `FrontendAssetsTest`), 22 nama rute dan 332 pemanggilan
+  view (dijaga `FrontendAssetsTest`), 117 nama rute dan 334 pemanggilan
   `route()` tetap utuh (`RouteReferenceTest`).
 - **Pelunasan dan toleransi** — teks "23.59 WIB", "H+1 pukul 12.00 WIB",
   dan "24 jam" konsisten di view, pesan validasi, dan service penjadwal.
