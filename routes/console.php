@@ -45,3 +45,8 @@ Artisan::command('rental:close-events', function (\App\Services\RentalAutoClose 
 })->purpose('Tutup unit yang tidak ditandai kembali setelah masa tenggang');
 
 \Illuminate\Support\Facades\Schedule::command('rental:close-events')->dailyAt('02:00')->timezone('Asia/Jakarta')->withoutOverlapping(30)->onOneServer();
+
+// Pemberitahuan lama: hanya yang sudah dibaca dan lebih tua dari 90 hari.
+// Perintahnya kelas biasa di `app/Console/Commands`, jadi didaftarkan otomatis
+// oleh Laravel (tidak perlu dibungkus Artisan::command di sini).
+\Illuminate\Support\Facades\Schedule::command('rental:prune-notifications')->dailyAt('03:10')->timezone('Asia/Jakarta')->withoutOverlapping(30)->onOneServer();

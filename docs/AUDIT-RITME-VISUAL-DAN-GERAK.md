@@ -4890,3 +4890,30 @@ bila pemiliknya harus bisa masuk."
 Dijaga `UserRestoreCommandTest::test_pemulihan_akun_nonaktif_memberi_peringatan()`
 — akun nonaktif dihapus, dipulihkan, lalu keluarannya harus memuat
 "masih berstatus nonaktif" dan `is_active` tetap `false`.
+
+### 9.126 Tabel `notifications` tumbuh tanpa pembersih
+
+Setiap perubahan status pesanan menulis satu baris `notifications` untuk
+pelanggan dan satu untuk tiap admin — konfirmasi, pembayaran, desain, progres,
+pengingat penjadwal (`Expire*`, `Reminders`, `AutoClose`). Layar notifikasi
+hanya menampilkan 20 baris terakhir, jadi tidak ada yang melihat sisanya,
+tetapi barisnya terus bertambah dan ikut tersalin setiap kali basis data
+di-backup.
+
+Perintah baru `rental:prune-notifications` menghapus pemberitahuan yang
+**sudah dibaca** dan lebih tua dari 90 hari (bisa diatur lewat
+`--days=`); pemberitahuan yang belum dibaca tidak pernah disentuh sekalipun
+berumur setahun, dan `--days` di bawah 30 ditolak supaya riwayat terbaru tidak
+ikut hilang. Dijadwalkan harian pukul 03.10 WIB dengan
+`withoutOverlapping(30)` dan `onOneServer()`.
+
+Perintah ini ditulis sebagai kelas di `app/Console/Commands` (didaftarkan
+otomatis oleh Laravel), berbeda dari empat perintah lain yang masih berupa
+closure di `routes/console.php`. `ScheduleGuardTest` diperbarui: sekarang
+memeriksa **lima** tugas terjadwal, dan tes "perintah didefinisikan"
+menerima dua bentuk (closure maupun kelas ber-`$signature`).
+
+Dijaga `tests/Feature/PruneNotificationsCommandTest.php`: pemberitahuan
+terbaca 120 hari terhapus, terbaca 3 hari tetap ada, belum dibaca 200 hari
+tetap ada, dan `--days=5` keluar dengan kode 1 beserta pesan penjelasan.
+README juga diperbarui dari "empat perintah" menjadi "lima perintah".

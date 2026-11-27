@@ -207,11 +207,12 @@ php artisan user:create      # akun admin pertama
 
 ### Penjadwal WAJIB berjalan
 
-Empat perintah terjadwal (`rental:expire-confirmations`, `rental:expire-payments`,
-`rental:remind`, `rental:close-events`) membatalkan unit yang lewat batas
-konfirmasi, menghanguskan DP yang telat dibayar, mengirim pengingat, dan
-menutup unit yang tidak ditandai kembali. Tanpa penjadwal, aplikasi tetap
-tampak normal tetapi tenggat tidak pernah ditegakkan.
+Lima perintah terjadwal (`rental:expire-confirmations`, `rental:expire-payments`,
+`rental:remind`, `rental:close-events`, `rental:prune-notifications`)
+membatalkan unit yang lewat batas konfirmasi, menghanguskan DP yang telat
+dibayar, mengirim pengingat, menutup unit yang tidak ditandai kembali, dan
+membersihkan pemberitahuan lama yang sudah dibaca. Tanpa penjadwal, aplikasi
+tetap tampak normal tetapi tenggat tidak pernah ditegakkan.
 
 Linux/cPanel (crontab):
 

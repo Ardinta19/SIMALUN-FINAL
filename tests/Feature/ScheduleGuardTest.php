@@ -18,17 +18,24 @@ class ScheduleGuardTest extends TestCase
         return File::get(base_path('routes/console.php'));
     }
 
-    public function test_empat_tugas_terjadwal_dengan_pengaman_overlap(): void
+    /** @return array<int, string> */
+    private function barisJadwal(): array
     {
         $baris = [];
-
         foreach (explode("\n", $this->sumber()) as $isi) {
             if (str_contains($isi, 'Schedule::command(')) {
                 $baris[] = trim($isi);
             }
         }
 
-        $this->assertCount(4, $baris, 'Jumlah tugas terjadwal berubah tanpa sengaja.');
+        return $baris;
+    }
+
+    public function test_semua_tugas_terjadwal_punya_pengaman_overlap(): void
+    {
+        $baris = $this->barisJadwal();
+
+        $this->assertCount(5, $baris, 'Jumlah tugas terjadwal berubah tanpa sengaja.');
 
         foreach ($baris as $isi) {
             $this->assertMatchesRegularExpression(
@@ -44,13 +51,31 @@ class ScheduleGuardTest extends TestCase
     {
         $sumber = $this->sumber();
 
-        preg_match_all("/Artisan::command\\('rental:([a-z-]+)'/", $sumber, $definisi);
-        preg_match_all("/Schedule::command\\('rental:([a-z-]+)'/", $sumber, $jadwal);
+        // Perintah gaya lama didefinisikan sebagai closure di routes/console.php,
+        // sedangkan perintah baru berupa kelas di app/Console/Commands.
+        $closure = [];
+        preg_match_all("/Artisan::command\('([a-z:-]+)'/", $sumber, $definisi);
+        foreach ($definisi[1] as $nama) {
+            $closure[] = $nama;
+        }
 
-        $this->assertSame(
-            $definisi[1],
-            $jadwal[1],
-            'Nama perintah yang dijadwalkan harus sama dengan yang didefinisikan, termasuk urutannya.'
-        );
+        $kelas = [];
+        foreach (glob(app_path('Console/Commands/*.php')) ?: [] as $berkas) {
+            $isi = (string) file_get_contents($berkas);
+            if (preg_match('/protected \$signature = \'([a-z:-]+)/', $isi, $cocok)) {
+                $kelas[] = $cocok[1];
+            }
+        }
+
+        preg_match_all("/Schedule::command\('([a-z:-]+)'/", $sumber, $jadwal);
+
+        $this->assertNotEmpty($jadwal[1], 'Tidak ada tugas terjadwal yang terbaca.');
+
+        foreach ($jadwal[1] as $nama) {
+            $this->assertTrue(
+                in_array($nama, $closure, true) || in_array($nama, $kelas, true),
+                'Perintah terjadwal tidak didefinisikan: '.$nama
+            );
+        }
     }
 }
