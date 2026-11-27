@@ -131,7 +131,7 @@ kenyamanan.
    diubah dari "Azka Laundry" menjadi "Berkah Kreatif". Tidak ada lagi
    "Azka Laundry" di berkas view.
 4. **Nomor WhatsApp kurir** memakai `Laundry::waLink()` sehingga mengikuti
-   `LAUNDRY_WA`, bukan angka contoh.
+   `BUSINESS_WA` (dulu `LAUNDRY_WA`), bukan angka contoh.
 5. **Landmark `main`** ditambahkan pada 9 halaman peran yang belum punya,
    sehingga pembaca layar bisa melompat ke konten.
 6. **`rel="noopener"`** ditambahkan pada seluruh tautan `target="_blank"` yang

@@ -83,6 +83,8 @@ class User extends Authenticatable
      */
     public function dapatMenerimaNotifikasi(): bool
     {
-        return (bool) $this->is_active && $this->deleted_at === null;
+        // Model yang baru dibuat belum memuat kolom yang diisi basis data
+        // (default `is_active` = 1), jadi nilai kosong dianggap aktif.
+        return ($this->is_active ?? true) !== false && $this->deleted_at === null;
     }
 }

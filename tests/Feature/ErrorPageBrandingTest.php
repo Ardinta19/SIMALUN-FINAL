@@ -14,7 +14,7 @@ class ErrorPageBrandingTest extends TestCase
     public function test_error_pages_use_berkah_branding_with_accessible_actions(): void
     {
         $this->get('/halaman-yang-tidak-ada')->assertNotFound()
-            ->assertSee('Berkah Kreatif')->assertSee('berkah-kreatif-logo.jpeg')
+            ->assertSee('Berkah Kreatif')->assertSee('logo-104.png')
             ->assertSee('name="robots"', false)->assertSee('noindex', false)
             ->assertSee('Kembali ke Beranda')->assertDontSee('Azka Laundry');
 

@@ -75,7 +75,7 @@ Langkah pemeriksaan yang disarankan:
 
 ### Merek pada email dan konfigurasi
 
-Email transaksi (termasuk reset kata sandi) mengambil nama usaha dari `Laundry::name()` yang membaca `LAUNDRY_NAME` di `.env`. Nilai bawaan kode, `config/laundry.php`, dan `.env.example` sekarang "Berkah Kreatif" (sebelumnya "Azka Laundry"). Bila `.env` Anda masih berisi `LAUNDRY_NAME="Azka Laundry"` dari salinan lama, ubah juga di sana karena nilai `.env` menang atas nilai bawaan. Ubah nilai berikut pada `.env` produksi sebelum dipakai pelanggan: `APP_NAME`, `LAUNDRY_NAME="Berkah Kreatif"`, `LAUNDRY_TAGLINE`, `LAUNDRY_ADDRESS`, `LAUNDRY_PHONE`, `LAUNDRY_PHONE_DISPLAY`, `LAUNDRY_WA`, serta `MAIL_FROM_ADDRESS`. Ini perubahan konfigurasi, bukan kode; nilai alamat dan nomor harus berasal dari pemilik usaha, jangan dikarang.
+Email transaksi (termasuk reset kata sandi) mengambil nama usaha dari `Laundry::name()` yang membaca `BUSINESS_NAME` di `.env` (kunci `LAUNDRY_*` lama sudah tidak dibaca — lihat §9.130). Nilai bawaan kode, `config/laundry.php`, dan `.env.example` adalah "Berkah Kreatif". Ubah nilai berikut pada `.env` produksi sebelum dipakai pelanggan: `APP_NAME`, `BUSINESS_NAME="Berkah Kreatif"`, `BUSINESS_TAGLINE`, `BUSINESS_ADDRESS`, `BUSINESS_GMAPS`, `BUSINESS_PHONE_DISPLAY`, `BUSINESS_WA`, serta `MAIL_FROM_ADDRESS`. Ini perubahan konfigurasi, bukan kode; nilai alamat dan nomor harus berasal dari pemilik usaha, jangan dikarang.
 
 ### Pemeriksaan form pemesanan (belum dijalankan)
 

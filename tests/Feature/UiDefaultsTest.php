@@ -1051,9 +1051,11 @@ class UiDefaultsTest extends TestCase
                     continue;
                 }
 
-                // Merek dan satuan boleh kapital seluruhnya.
                 // Merek dan satuan boleh kapital seluruhnya ("SIMALUN", "· WIB").
-                if (count($kata) === 1 && in_array(trim($teks, " ·.:•"), ['SIMALUN', 'WIB', 'PDF', 'QRIS', 'ID'], true)) {
+                // Dulu syarat ini memakai `$kata` yang tidak pernah didefinisikan,
+                // sehingga seluruh berkas view gagal diperiksa dengan
+                // "Undefined variable" alih-alih melaporkan pelanggaran.
+                if (in_array(trim($teks, " ·.:•"), ['SIMALUN', 'WIB', 'PDF', 'QRIS', 'ID'], true)) {
                     continue;
                 }
 

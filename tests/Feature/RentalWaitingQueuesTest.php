@@ -48,8 +48,8 @@ class RentalWaitingQueuesTest extends TestCase
         $this->actingAs($admin)->get(route('dashboard.admin'))
             ->assertOk()
             ->assertSee('Menunggu pelanggan')
-            ->assertSee('1 unit menunggu persetujuan desain')
-            ->assertSee('1 unit menunggu persetujuan ongkos')
+            ->assertSee('<strong>1</strong> unit menunggu persetujuan desain', false)
+            ->assertSee('<strong>1</strong> unit menunggu persetujuan ongkos', false)
             ->assertSee('unit dalam toleransi pembayaran')
             ->assertSee('menunggu sejak');
     }

@@ -32,7 +32,10 @@ class UserSeederTest extends TestCase
     {
         $this->app['env'] = 'production';
 
-        $this->seed(UserSeeder::class);
+        // `db:seed` di lingkungan production meminta konfirmasi interaktif
+        // (ConfirmableTrait). Tes menjalankannya dengan --force agar tidak
+        // memanggil prompt Mockery yang tidak punya ekspektasi.
+        $this->artisan('db:seed', ['--class' => UserSeeder::class, '--force' => true])->assertExitCode(0);
 
         $this->assertDatabaseMissing('users', ['email' => 'admin@test.com']);
         $this->assertDatabaseMissing('users', ['email' => 'customer@test.com']);

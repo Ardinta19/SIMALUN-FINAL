@@ -11,12 +11,12 @@ class RentalAuthPresentationTest extends TestCase
 
     public function test_login_and_registration_use_brand_without_required_animation_cdn(): void
     {
-        $this->get(route('login'))->assertOk()->assertSee('Berkah Kreatif')->assertSee('berkah-kreatif-logo.jpeg')->assertDontSee('cdnjs.cloudflare.com')->assertDontSee('Azka Laundry');
-        $this->get(route('register'))->assertOk()->assertSee('Berkah Kreatif')->assertSee('berkah-kreatif-logo.jpeg')->assertSee('Notifikasi pesanan tersedia di dalam aplikasi')->assertDontSee('cdnjs.cloudflare.com')->assertDontSee('Azka Laundry');
+        $this->get(route('login'))->assertOk()->assertSee('Berkah Kreatif')->assertSee('logo-104.png')->assertDontSee('cdnjs.cloudflare.com')->assertDontSee('Azka Laundry');
+        $this->get(route('register'))->assertOk()->assertSee('Berkah Kreatif')->assertSee('logo-104.png')->assertSee('Notifikasi pesanan tersedia di dalam aplikasi')->assertDontSee('cdnjs.cloudflare.com')->assertDontSee('Azka Laundry');
     }
     public function test_login_is_accessible_and_does_not_require_javascript_to_submit(): void
     {
-        $this->get(route('login'))->assertOk()->assertSee('<main id="page">', false)
+        $this->get(route('login'))->assertOk()->assertSee('<main id="page"', false)
             ->assertSee('name="identifier"', false)->assertSee('id="pw-toggle" hidden', false)
             ->assertSee('aria-live="polite"', false)->assertDontSee('Masuk ke akun SIMALUN kamu');
         $this->from(route('login'))->post(route('login.post'), ['identifier' => 'invalid@example.test', 'password' => 'invalid'])

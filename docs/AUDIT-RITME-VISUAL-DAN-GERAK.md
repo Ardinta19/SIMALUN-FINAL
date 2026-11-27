@@ -5060,3 +5060,116 @@ php artisan optimize:clear
 php artisan migrate
 php artisan test
 ```
+
+### 9.130 Kolom DATE disimpan sebagai tanggal — akar 12 kegagalan tes pemilik proyek
+
+Keluaran `php artisan test` di komputer pemilik proyek (Windows,
+`D:\download\berkah-preview`) berhenti di **28 gagal / 436 lulus**. Setelah
+ditelusuri satu per satu, kesimpulannya: **satu cacat penyimpanan tanggal**
+menjelaskan hampir separuh kegagalan, dan **`.env` lama** menjelaskan
+kelompok kedua. Keduanya tidak terlihat dari harness PHP-WASM karena
+harness tidak membuka basis data dan tidak memuat `.env` pemilik proyek.
+
+### 1. Akar masalah: cast `date` menulis `Y-m-d H:i:s`
+
+`Model::$dateFormat` bawaan adalah `Y-m-d H:i:s`, dan cast `date` menulis
+lewat jalur yang sama dengan `datetime`. Di MySQL kolom `DATE` memotong
+bagian jam sehingga semuanya tampak benar, tetapi **SQLite** (basis data
+`phpunit.xml`, `DB_DATABASE=:memory:`) menyimpan `2026-11-30 00:00:00`.
+Perbandingan pun berubah arti:
+
+```php
+// tersimpan: 2026-11-30 00:00:00
+FinanceEntry::where('entry_date', '<=', '2026-11-30'); // false → hari terakhir hilang
+RentalOrderUnit::where('starts_on', '2026-11-30');      // false → lembar harian kosong
+```
+
+Akibatnya, di mesin pengujian saja:
+
+- buku kas periode `day` 2026-11-30 kosong (`RentalCashBookTest:36`);
+- filter tanggal admin tidak menemukan papan (`DateQueryIndexTest:136`);
+- lembar harian 0 unit (`RentalScheduleTest:64`);
+- `rental:expire-payments` tidak menyentuh unit hari itu (`RentalLatePaymentGraceTest:50`);
+- `rental:remind` tidak mengirim apa pun (`RentalReminderTest`, `RentalWaitingQueuesTest:51,90`);
+- deteksi bentrok menganggap tanggal kosong → `cart`/`unit` error muncul (`RentalDateFilteringTest:233`, `RentalResumptionTest:32`);
+- tenggat pembayaran mundur (`RentalPaymentDeadlineTest:37,76,93`).
+
+Ini juga menjelaskan mengapa §9.127 (mengganti `whereDate()` menjadi
+`where()` supaya indeks terpakai) justru memunculkan kegagalan: query-nya
+benar untuk MySQL, tetapi nilai tersimpannya salah untuk SQLite.
+
+**Perbaikan.** Cast baru `app/Casts/DateOnly.php` menyimpan `Y-m-d` apa
+adanya dan mengembalikan `CarbonImmutable` awal hari, lalu dipakai pada
+seluruh model berkolom DATE:
+
+| Model | Kolom |
+| --- | --- |
+| `FinanceEntry` | `entry_date` |
+| `Voucher` | `valid_from`, `valid_until` |
+| `RentalOrderUnit` | `starts_on`, `event_on`, `ends_on` |
+| `RentalUnitReminder` | `sent_on` |
+
+Tidak ada migrasi data: MySQL sudah berisi `Y-m-d`. Perbandingan
+`where()`, `whereIn()`, dan `=` tetap memakai indeks karena kolom tidak
+dibungkus fungsi. Zona waktu mengikuti `app.timezone`, sama seperti cast
+`date` sebelumnya, jadi `toDateString()` tidak berubah.
+
+Dijaga `tests/Feature/DateColumnStorageTest.php` (3 tes): nilai mentah di
+basis data harus `Y-m-d`; rentang `>= 2026-11-30` dan `<= 2026-11-30` harus
+memuat hari terakhir; keempat model wajib memakai cast `DateOnly`.
+
+### 2. `is_active` kosong pada model yang baru dibuat
+
+`User::dapatMenerimaNotifikasi()` memakai `(bool) $this->is_active`. Model
+hasil `User::factory()->create()` tidak memuat kolom yang diisi default
+basis data, sehingga `is_active` bernilai `null` → **false** → notifikasi
+pesanan tidak pernah terkirim (`RentalNotificationTest:102`). Sekarang
+`null` diperlakukan sebagai aktif (`($this->is_active ?? true) !== false`),
+sementara akun yang dinonaktifkan eksplisit tetap ditolak.
+
+### 3. Merek "Azka Laundry" bangkit dari `.env` lama
+
+`config/laundry.php` membaca `LAUNDRY_*`. Laravel memuat `.env` pengembang
+saat tes berjalan, jadi `.env` salinan lama (`LAUNDRY_NAME="Azka Laundry"`,
+alamat dan nomor laundry) menang atas nilai bawaan dan muncul di footer
+serta halaman bantuan (`RentalCustomerDashboardTest:28`,
+`RentalCustomerNavigationTest:168`, `RentalHelpTest:18`). Perbaikannya dua
+lapis:
+
+1. Kunci konfigurasi diganti menjadi `BUSINESS_NAME`, `BUSINESS_TAGLINE`,
+   `BUSINESS_ADDRESS`, `BUSINESS_GMAPS`, `BUSINESS_PHONE_DISPLAY`,
+   `BUSINESS_WA`. Kunci `LAUNDRY_*` **tidak dibaca lagi**, sehingga sisa
+   konfigurasi aplikasi laundry tidak bisa muncul kembali. `.env.example`
+   ikut diperbarui.
+2. `phpunit.xml` memaku keenam nilai itu, sehingga hasil tes tidak lagi
+   bergantung pada `.env` siapa pun.
+
+Halaman bantuan pelanggan tetap hanya menampilkan nomor dari
+`RentalPaymentSetting`; `RentalCustomerNavigationTest` kini mengosongkan
+kontak toko lebih dulu agar yang diuji benar-benar bagian bantuan.
+
+### 4. Kegagalan yang ternyata ekspektasi tes usang
+
+| Tes | Sebab | Keputusan |
+| --- | --- | --- |
+| `ErrorPageBrandingTest:17`, `RentalAuthPresentationTest:14,19` | tes menuntut `berkah-kreatif-logo.jpeg`, sedangkan seluruh halaman memakai `images/logo-104.png` | tes disesuaikan ke berkas yang benar-benar dipakai |
+| `RentalAuthPresentationTest` (`<main id="page">`) | markup nyata `<main id="page" tabindex="-1">` | potongan atribut yang diperiksa diperbaiki |
+| `RentalAddonsTest:274` | halaman 413 memakai kalimat biasa ("Unggahan terlalu besar", "Kembali ke keranjang") sesuai aturan §9.106, tes menuntut Kapital Setiap Kata | tes disesuaikan |
+| `RentalAdminSearchTest:66`, `RentalWaitingQueuesTest:51,90` | angka hitungan dibungkus `<strong>` — data benar, `assertSee` kalimat utuh gagal | tes memeriksa markup `<strong>N</strong> …` |
+| `RentalAdminDashboardTest:27` | relasi `customer()` memakai `withTrashed()` (§9.122) sehingga nama pelanggan terhapus tetap tampil | tes memastikan nama tetap tampil; perilakunya lebih baik daripada "Pelanggan tidak tersedia" |
+| `UserSeederTest` | `db:seed` di `production` meminta konfirmasi (`ConfirmableTrait`) → Mockery tanpa ekspektasi | tes memakai `artisan db:seed --force` |
+| `UiDefaultsTest:968` | view memakai "Kirim Ulang Email Verifikasi" (melanggar aturan kalimat biasa) | view diubah menjadi "Kirim ulang email verifikasi" |
+| `UiDefaultsTest:1056` | tes saya sendiri memakai `$kata` yang tidak pernah didefinisikan | diperbaiki menjadi pemeriksaan daftar merek/satuan; pemeriksaannya tidak dihapus |
+
+### Cara memverifikasi ulang
+
+```bash
+git pull
+php artisan optimize:clear
+php artisan migrate
+php artisan test
+```
+
+Bila `.env` masih memuat `LAUNDRY_*`, baris itu boleh dihapus — sekarang
+tidak berpengaruh — lalu ganti dengan `BUSINESS_*` bila alamat/nomor toko
+perlu diubah.

@@ -20,7 +20,7 @@ class FinanceEntry extends Model
     ];
 
     protected $casts = [
-        'entry_date' => 'date',
+        'entry_date' => \App\Casts\DateOnly::class,
     ];
 
     public function creator(): BelongsTo

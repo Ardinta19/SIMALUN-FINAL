@@ -31,8 +31,8 @@ class Voucher extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
-        'valid_from' => 'date',
-        'valid_until' => 'date',
+        'valid_from' => \App\Casts\DateOnly::class,
+        'valid_until' => \App\Casts\DateOnly::class,
         'per_customer_limit' => 'integer',
     ];
 

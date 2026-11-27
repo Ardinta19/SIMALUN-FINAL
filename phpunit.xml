@@ -21,6 +21,18 @@
         <env name="APP_ENV" value="testing"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
+        <!--
+            Identitas usaha dipaku di sini supaya hasil tes tidak bergantung
+            pada `.env` pengembang. Sebelumnya `.env` lama (merek "Azka
+            Laundry" beserta nomor WhatsApp-nya) ikut terbaca dan membuat
+            tes footer/galat gagal hanya di mesin tertentu.
+        -->
+        <env name="BUSINESS_NAME" value="Berkah Kreatif"/>
+        <env name="BUSINESS_TAGLINE" value="Papan bunga untuk setiap cerita"/>
+        <env name="BUSINESS_ADDRESS" value="Mayang Mangurai, Kota Baru, Jambi City, Jambi"/>
+        <env name="BUSINESS_GMAPS" value="https://maps.app.goo.gl/gArdhsRxYnPkRwDq8"/>
+        <env name="BUSINESS_PHONE_DISPLAY" value="0823-7888-6053"/>
+        <env name="BUSINESS_WA" value="6282378886053"/>
         <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="CACHE_STORE" value="array"/>
         <env name="DB_CONNECTION" value="sqlite"/>

@@ -271,9 +271,9 @@ class RentalAddonsTest extends TestCase
         // Dipakai ketika PHP membuang unggahan karena post_max_size. Tanpa
         // halaman ini pelanggan melihat galat bawaan tanpa petunjuk apa pun.
         $this->view('errors.413')
-            ->assertSee('Unggahan Terlalu Besar')
+            ->assertSee('Unggahan terlalu besar')
             ->assertSee('Perkecil foto')
-            ->assertSee('Kembali ke Keranjang');
+            ->assertSee('Kembali ke keranjang');
     }
 
     public function test_baris_item_tambahan_tampil_di_halaman_unit_tanpa_voucher(): void
