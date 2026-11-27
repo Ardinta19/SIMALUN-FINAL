@@ -4342,3 +4342,42 @@ dihormati, dan `User::create()` tetap menolak `role` dari mass assignment.
 
 **Hasil putaran 17 (lanjutan):** harness **197 lulus, 0 gagal, 231
 dilewati**; `blade-scan.py` 82 view / 0 / 0; `.tmp-verify.php` 26/0.
+
+### 9.105 Yang diperiksa di putaran 17 dan dinyatakan bersih
+
+Pemeriksaan tambahan yang tidak menghasilkan perubahan kode, dicatat agar
+tidak diulang:
+
+- **Gambar tanpa teks alternatif** — 82 view dipindai dengan pencocokan tag
+  `<img>` yang benar (operator `->` di dalam `{{ }}` sempat membuat
+  pencocokan naif berhenti di tengah tag dan memberi 10 "temuan" palsu).
+  Hasil akhir: **0** gambar tanpa `alt`. Foto dekoratif di kartu katalog
+  memakai `alt=""` karena namanya sudah ada di tautan sebelahnya.
+- **Tombol tanpa nama aksesibel** — 0. Setiap tombol ikon punya
+  `aria-label` atau teks tersembunyi.
+- **Tautan ikon tanpa nama** — 3 kandidat, semuanya ternyata berisi `<img>`
+  ber-`alt` (logo header, dua daftar foto referensi), jadi nama
+  aksesibelnya ada.
+- **`aria-current="page"`** — dipakai di navigasi admin atas, navigasi bawah,
+  navigasi pelanggan, dan menu radial.
+- **CSRF** — setiap `<form method="post">` di seluruh view punya `@csrf`;
+  tidak ada formulir yang tertinggal.
+- **Mass assignment** — seluruh `Model::create([...])` dan `->update([...])`
+  dengan kunci literal di `app/` dicocokkan dengan `$fillable` masing-masing
+  model: **0** kunci yang akan dibuang diam-diam. Kunci snapshot
+  `->only([...])` pada `Audit::log` juga dicocokkan dengan kolom tabel
+  hasil migrasi: tidak ada nama kolom yang salah tulis.
+- **Aset** — 11 berkas JS dan 12 berkas CSS di `public/` semuanya dirujuk
+  view (dijaga `FrontendAssetsTest`), 22 nama rute dan 332 pemanggilan
+  `route()` tetap utuh (`RouteReferenceTest`).
+- **Pelunasan dan toleransi** — teks "23.59 WIB", "H+1 pukul 12.00 WIB",
+  dan "24 jam" konsisten di view, pesan validasi, dan service penjadwal.
+- **Notifikasi** — 18 titik pemanggilan untuk perubahan status pesanan
+  (konfirmasi, ongkos, pembatalan dua arah, desain, pembayaran, progres)
+  plus 10 titik di penjadwal; setiap aksi yang mengubah status punya
+  pemberitahuan untuk pihak yang berkepentingan. Isi pesan memakai kalimat
+  Indonesia dan diakhiri titik.
+
+**Hasil putaran 17:** harness **197 lulus, 0 gagal, 231 dilewati**;
+`blade-scan.py` 82 view / 0 / 0; `.tmp-verify.php` 26/0; `node --check`
+10 berkas JS lolos (berkurang satu karena `resources/js/splash.js` dihapus).
