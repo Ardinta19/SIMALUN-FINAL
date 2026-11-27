@@ -96,6 +96,15 @@ Untuk dev sehari-hari pakai shortcut yang sudah disediakan — menjalankan
 composer dev
 ```
 
+`composer setup` sudah menjalankan `php artisan storage:link`, jadi gambar
+produk, item tambahan, dan avatar yang diunggah lewat panel admin langsung
+tampil. Kalau folder `public/storage` hilang (misalnya setelah zip ulang atau
+deploy baru), jalankan sekali:
+
+```bash
+php artisan storage:link
+```
+
 Buka `http://localhost:8000`.
 
 ### Pakai SQLite (tanpa MySQL)

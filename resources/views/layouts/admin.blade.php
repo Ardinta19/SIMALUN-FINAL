@@ -80,7 +80,8 @@
     @if(session('status'))
         <div class="adm-toast adm-toast--warn" data-adm-toast data-adm-life="7000" role="status">
             <span class="adm-toast__icon" aria-hidden="true">i</span>
-            <div class="adm-toast__body"><strong class="adm-toast__title">Informasi</strong>{{ session('status') }}</div>
+            @php $statusKey = (string) session('status'); @endphp
+            <div class="adm-toast__body"><strong class="adm-toast__title">Informasi</strong>{{ \Illuminate\Support\Facades\Lang::has('status.'.$statusKey) ? __('status.'.$statusKey) : $statusKey }}</div>
             <button type="button" class="adm-toast__close" data-adm-toast-close aria-label="Tutup pemberitahuan">&times;</button>
             <span class="adm-toast__bar" aria-hidden="true"></span>
         </div>

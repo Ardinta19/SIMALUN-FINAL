@@ -3518,3 +3518,42 @@ WhatsApp siap kirim sengaja tidak memuat nominal atau alamat lengkap, dan
 potongan statusnya ditulis huruf kecil supaya menyambung kalimat.
 
 **Hasil:** harness **171 lulus, 0 gagal, 218 dilewati**.
+
+### 9.74 Putaran kesebelas (lanjutan): pratinjau tautan dan tautan folder unggahan
+
+**a. Tautan yang dibagikan tampil kosong.** Tidak ada satu pun tag Open Graph
+di aplikasi. Pelanggan membagikan tautan katalog dan halaman apresiasi lewat
+WhatsApp — yang muncul hanya kotak kosong tanpa judul dan gambar. Kini:
+
+- `catalog/layout.blade.php` memuat `og:type/site_name/locale/title/description/url/image`
+  dan pasangan `twitter:*`;
+- halaman produk memakai **foto papannya sendiri** sebagai gambar pratinjau
+  (`@section('og_image')`) dan deskripsi produk sebagai ringkasan (dipotong
+  155 karakter);
+- halaman apresiasi (`rental/public-like`) ikut punya tag meski tetap
+  `noindex`;
+- kartu bawaan baru `public/images/og-default.jpg` (1200×630, 45 KB): monogram
+  di kiri, nama toko, tagline, dan kota. Dibuat dari logo yang sudah ada
+  (watermark kecil di sudut logo dihapus dengan mengisi putih).
+
+Dijaga `test_pratinjau_tautan_punya_open_graph` (termasuk batas 300 KB supaya
+pratinjau WhatsApp tidak putus).
+
+**b. Foto unggahan tidak tampil setelah pemasangan baru.** Foto produk dan item
+tambahan disimpan di disk `public` dan ditautkan ke `public/storage`; tautan
+itu tidak ikut Git dan **`composer setup` tidak membuatnya**, jadi semua foto
+tampil rusak tanpa pesan apa pun. Sekarang: `composer setup` menjalankan
+`php artisan storage:link`, README menjelaskan langkah itu, dan panel katalog
+menampilkan pemberitahuan berisi perintahnya bila tautan belum ada. Dijaga
+`test_unggahan_publik_punya_tautan_storage`.
+
+**c. Sisa konfigurasi laundry yang mati.** `config/laundry.php` masih memuat
+`driver_assignment_strategy` (strategi penugasan kurir era modul laundry) yang
+tidak dibaca kode mana pun — dibuang. Bagian `social` tetap disimpan karena
+akan dipakai saat tautan Instagram/Facebook diisi.
+
+**d. Alamat pengirim email.** `.env.example` memakai `hello@example.com` tanpa
+penjelasan; email pemulihan kata sandi dari alamat contoh masuk folder spam
+atau ditolak. Ditambahkan catatan agar diganti dengan alamat domain sendiri.
+
+**Hasil:** harness **174 lulus, 0 gagal, 218 dilewati**.

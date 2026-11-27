@@ -1,5 +1,11 @@
 @extends('catalog.layout')
 @section('title', $product->name)
+@section('og_type', 'product')
+@php
+    $ogRingkas = \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/u', ' ', strip_tags((string) $product->description))), 155);
+@endphp
+@section('description', $ogRingkas !== '' ? $ogRingkas : 'Papan bunga '.$product->name.' dari Berkah Kreatif. Pilih tanggal, lalu pesan langsung dari katalog.')
+@section('og_image', $product->image_path ? asset('storage/'.$product->image_path) : '')
 @section('content')
 @php
     $dateValue = fn ($key) => is_scalar(old($key, request($key))) ? (string) old($key, request($key)) : '';

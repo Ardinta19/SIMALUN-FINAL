@@ -1272,4 +1272,79 @@ class UiDefaultsTest extends TestCase
         $this->assertStringContainsString("'Pratinjau menunggu respons'", $labels, 'Label pratinjau harus memakai kata "Pratinjau", bukan "Preview".');
         $this->assertStringNotContainsString("'Preview ", $labels);
     }
+
+    /** Kunci `status` di session selalu punya kalimat Indonesia.
+     *
+     *  Toast kerangka admin mencetak isi `session('status')` langsung ke layar.
+     *  Controller mengirim kunci pendek ("profile-updated"), jadi tanpa
+     *  terjemahan admin melihat tulisan teknis itu, bukan kalimat. Setiap kunci
+     *  yang dikirim harus ada di `lang/id/status.php`.
+     */
+    public function test_kunci_status_punya_kalimat_indonesia(): void
+    {
+        $kamus = (string) File::get(base_path('lang/id/status.php'));
+        $hilang = [];
+
+        foreach (array_merge(File::allFiles(app_path()), []) as $file) {
+            if ($file->getExtension() !== 'php') {
+                continue;
+            }
+
+            $src = (string) File::get($file->getPathname());
+
+            preg_match_all("/with\(\s*'status'\s*,\s*'([a-z0-9-]+)'\s*\)/", $src, $cocok);
+
+            foreach (array_unique($cocok[1]) as $kunci) {
+                if (! str_contains($kamus, "'".$kunci."' =>")) {
+                    $hilang[] = str_replace(base_path().'/', '', $file->getPathname()).' → '.$kunci;
+                }
+            }
+        }
+
+        $this->assertSame([], array_values(array_unique($hilang)), implode(' | ', array_values(array_unique($hilang))));
+    }
+
+    /** Tautan yang dibagikan tampil sebagai pratinjau, bukan kotak kosong.
+     *
+     *  Pelanggan membagikan tautan katalog dan halaman apresiasi lewat
+     *  WhatsApp. Tanpa tag Open Graph, pratinjaunya kosong: tanpa judul,
+     *  tanpa gambar. Kartu bawaan `og-default.jpg` dipakai kalau halaman
+     *  tidak punya gambar sendiri; halaman produk memakai foto papannya.
+     */
+    public function test_pratinjau_tautan_punya_open_graph(): void
+    {
+        $layout = (string) File::get(resource_path('views/catalog/layout.blade.php'));
+        $produk = (string) File::get(resource_path('views/catalog/show.blade.php'));
+        $apresiasi = (string) File::get(resource_path('views/rental/public-like.blade.php'));
+
+        foreach (['og:title', 'og:description', 'og:image', 'og:url', 'og:site_name', 'twitter:card'] as $tag) {
+            $this->assertStringContainsString($tag, $layout, 'Tag '.$tag.' hilang dari tata letak katalog.');
+        }
+
+        $this->assertStringContainsString("@section('og_image'", $produk, 'Halaman produk harus memakai foto papannya sebagai gambar pratinjau.');
+        $this->assertStringContainsString('og:title', $apresiasi, 'Halaman apresiasi ikut dibagikan, jadi butuh tag pratinjau.');
+        $this->assertStringContainsString('og-default.jpg', $layout);
+
+        $kartu = public_path('images/og-default.jpg');
+        $this->assertFileExists($kartu, 'Kartu pratinjau bawaan tidak ada.');
+        $this->assertLessThan(300 * 1024, filesize($kartu), 'Kartu pratinjau terlalu berat untuk pratinjau WhatsApp (batas praktis ~300 KB).');
+    }
+
+    /** Unggahan admin tampil setelah `storage:link`, dan dijelaskan bila belum.
+     *
+     *  Foto produk dan item tambahan disimpan di disk `public` lalu ditautkan
+     *  ke `public/storage`. Tautan itu tidak ikut Git, dan `composer setup`
+     *  dulu tidak membuatnya — akibatnya semua foto tampil rusak tanpa pesan
+     *  apa pun setelah pemasangan baru.
+     */
+    public function test_unggahan_publik_punya_tautan_storage(): void
+    {
+        $composer = (string) File::get(base_path('composer.json'));
+        $readme = (string) File::get(base_path('README.md'));
+        $admin = (string) File::get(resource_path('views/catalog/admin.blade.php'));
+
+        $this->assertStringContainsString('artisan storage:link', $composer, '`composer setup` harus membuat tautan storage.');
+        $this->assertStringContainsString('php artisan storage:link', $readme, 'README harus menyebut storage:link untuk pemasangan baru.');
+        $this->assertStringContainsString("file_exists(public_path('storage'))", $admin, 'Panel katalog perlu memberi tahu admin bila tautan storage belum ada.');
+    }
 }

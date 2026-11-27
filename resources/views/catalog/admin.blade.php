@@ -10,6 +10,11 @@
 </style>
 @endpush
 @section('content')
+@unless(file_exists(public_path('storage')))
+    {{-- Tautan folder unggahan belum dibuat: semua foto produk tampil rusak
+         tanpa pesan apa pun. Beri tahu admin langkah satu baris ini. --}}
+    <div class="notice" role="status">Foto unggahan belum tertaut ke folder publik. Jalankan <code>php artisan storage:link</code> sekali di server, lalu muat ulang halaman ini.</div>
+@endunless
 <div class="adm-page-head" data-adm-reveal="head">
     <div class="adm-page-head__text">
         <span class="adm-kicker">Katalog &amp; penawaran</span>
