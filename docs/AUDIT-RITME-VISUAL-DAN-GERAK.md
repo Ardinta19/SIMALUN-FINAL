@@ -5173,3 +5173,37 @@ php artisan test
 Bila `.env` masih memuat `LAUNDRY_*`, baris itu boleh dihapus — sekarang
 tidak berpengaruh — lalu ganti dengan `BUSINESS_*` bila alamat/nomor toko
 perlu diubah.
+
+### 9.131 Contoh konfigurasi produksi masih berbau aplikasi laundry
+
+Setelah kunci identitas usaha berganti ke `BUSINESS_*` (§9.130), berkas
+`.env.production.example` ternyata masih memuat sisa aplikasi lama:
+
+- `APP_NAME="Azka Laundry SIMALUN"`, `MAIL_FROM_NAME="Azka Laundry SIMALUN"`,
+  `APP_URL=https://azkalaundry.store`;
+- tujuh kunci `LAUNDRY_*` (termasuk `LAUNDRY_PHONE` yang tidak pernah dibaca
+  kode rental);
+- `DRIVER_REALTIME_MODE` dan `DRIVER_ASSIGNMENT_STRATEGY` — sisa aplikasi
+  kurir laundry. Pemindaian `grep -r "env('…')" config app` menunjukkan
+  keduanya **tidak dipakai sama sekali**, jadi baris itu hanya menyesatkan
+  orang yang menyiapkan server.
+
+Berkas itu kini memakai `APP_NAME="Berkah Kreatif SIMALUN"`,
+`MAIL_FROM_NAME="${APP_NAME}"`, `APP_URL=https://__DOMAIN_PRODUKSI__`,
+enam kunci `BUSINESS_*`, dan dua kunci driver dihapus. Petunjuk
+`docs/kl/deployment-hostinger.md` disamakan (judul, contoh `.env`, dan satu
+kalimat yang masih menyebut nama laundry).
+
+Dijaga `tests/Feature/EnvExampleTest.php` (2 tes baru):
+
+- `test_contoh_produksi_tidak_lagi_membawa_identitas_laundry()` — keenam
+  kunci `BUSINESS_*` wajib ada; `LAUNDRY_`, `DRIVER_REALTIME_MODE`,
+  `DRIVER_ASSIGNMENT_STRATEGY`, dan kata "Azka" tidak boleh muncul.
+- `test_kedua_contoh_memakai_nama_kunci_usaha_yang_sama()` — `.env.example`
+  dan `.env.production.example` harus memakai nama kunci identitas yang
+  sama, dan `.env.example` bebas sisa kunci laundry.
+
+**Catatan untuk pemilik proyek.** Periksa juga `.env` di server: baris
+`MAIL_FROM_NAME` dan `APP_NAME` di sana tidak dibaca dari repositori. Ganti
+keduanya bila masih bertuliskan nama laundry lama; baris `LAUNDRY_*` boleh
+dihapus karena sudah tidak berpengaruh.

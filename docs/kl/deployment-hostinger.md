@@ -1,4 +1,4 @@
-# Deployment ke Hostinger — Azka Laundry (SIMALUN)
+# Deployment ke Hostinger — Berkah Kreatif (SIMALUN)
 
 Panduan langkah-demi-langkah deploy aplikasi ini ke **Hostinger**.
 Dokumen ini khusus Hostinger; untuk konsep umum / VPS lihat
@@ -100,11 +100,19 @@ nano .env
 ```
 Isi minimal:
 ```env
-APP_NAME="Azka Laundry SIMALUN"
+APP_NAME="Berkah Kreatif SIMALUN"
 APP_ENV=production
 APP_DEBUG=false
-APP_URL=https://azkalaundry.com
+APP_URL=https://__DOMAIN_PRODUKSI__
 APP_TIMEZONE=Asia/Jakarta
+
+# Identitas usaha. Kunci LAUNDRY_* dari aplikasi lama sudah tidak dibaca.
+BUSINESS_NAME="Berkah Kreatif"
+BUSINESS_TAGLINE="Papan bunga untuk setiap cerita"
+BUSINESS_ADDRESS="__ALAMAT_TOKO__"
+BUSINESS_GMAPS="__TAUTAN_GOOGLE_MAPS__"
+BUSINESS_PHONE_DISPLAY="__NOMOR_TAMPIL__"
+BUSINESS_WA="__NOMOR_WHATSAPP_62__"
 
 DB_CONNECTION=mysql
 DB_HOST=localhost
@@ -200,7 +208,7 @@ hPanel → **Advanced → Cron Jobs** → tambah:
 ```
 `--stop-when-empty` membuat worker berhenti setelah antrian habis;
 `--max-time=55` memastikan ia tidak menumpuk antar-menit. Latensi
-notifikasi jadi maksimal ~1 menit (wajar untuk skala Azka).
+notifikasi jadi maksimal ~1 menit (wajar untuk skala usaha ini).
 
 > **Alternatif paling sederhana:** kalau tidak mau pusing queue, set
 > `QUEUE_CONNECTION=sync` di `.env`. Notifikasi dikirim langsung saat
