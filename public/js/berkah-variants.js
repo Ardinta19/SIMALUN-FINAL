@@ -1,29 +1,20 @@
 /* ══════════════════════════════════════════════════════════════════════════
    Berkah Kreatif — varian warna & total baris yang langsung berubah
    ──────────────────────────────────────────────────────────────────────────
-   Dua tugas, keduanya tanpa memuat ulang halaman:
-
-   1. Pemilih warna ([data-bk-variants]). Klik satu swatch → cincin aktif,
-      nilai `input[name="variant_id"]` di formulir keranjang, label "Warna: …",
-      pratinjau foto (bila varian punya foto) atau latar contoh, dan batas
-      jumlah unit ikut berganti. Tanpa JavaScript semuanya sudah diisi server,
-      jadi formulir tetap bisa dikirim.
-
-   2. Total baris ([data-bk-line-total]). Setiap kali jumlah unit berubah —
-      tombol −/+, mengetik, atau memakai pemintal bawaan — total dihitung dari
-      harga satuan yang ditulis server, bukan dari angka di peramban.
+   Satu tugas: pemilih warna ([data-bk-variants]). Klik satu swatch → cincin
+   aktif, nilai `input[name="variant_id"]` di formulir keranjang, label
+   "Warna: …", pratinjau foto (bila varian punya foto) atau latar contoh, dan
+   batas jumlah unit ikut berganti. Tanpa JavaScript semuanya sudah diisi
+   server, jadi formulir tetap bisa dikirim.
 
    Harga TIDAK berubah antarvarians (keputusan pemilik usaha): varian hanya
-   menentukan warna, stok, dan foto.
+   menentukan warna, stok, dan foto. Kolom "Total" yang berubah setiap kali
+   jumlah disentuh sudah dicabut pada putaran 36 — harga satuan ditulis sekali
+   oleh server dan tidak beranimasi; hitungan uang terjadi di keranjang dan di
+   halaman pesanan.
    ══════════════════════════════════════════════════════════════════════════ */
 (function () {
     'use strict';
-
-    function rupiah(value) {
-        var number = Math.max(0, Math.round(Number(value) || 0));
-
-        return 'Rp ' + number.toLocaleString('id-ID');
-    }
 
     /** Wadah yang memuat satu pemilih warna beserta formulir & pratinjaunya. */
     function scopeOf(picker) {
@@ -37,17 +28,6 @@
         var wrap = scope.querySelector('[data-bk-qty]');
 
         return wrap ? wrap.querySelector('input[type="number"]') : null;
-    }
-
-    function updateTotal(scope) {
-        var box = scope.querySelector('[data-bk-line-total]');
-        var input = qtyInput(scope);
-        if (!box || !input) return;
-
-        var unit = Number(box.getAttribute('data-unit-price')) || 0;
-        var qty = Math.max(1, Math.round(Number(input.value) || 1));
-        var target = box.querySelector('[data-bk-line-value]');
-        if (target) target.textContent = rupiah(unit * qty);
     }
 
     function setStockLimit(scope, stock) {
@@ -101,7 +81,6 @@
             if (placeholder) placeholder.style.setProperty('--bk-swatch', color);
 
             setStockLimit(scope, stock);
-            updateTotal(scope);
         }
 
         picker.addEventListener('click', function (event) {
@@ -126,19 +105,8 @@
         if (active) select(active);
     }
 
-    function presence(scope) {
-        if (!scope || scope.getAttribute('data-bk-line-ready') === '1') return;
-        scope.setAttribute('data-bk-line-ready', '1');
-        scope.addEventListener('input', function () { updateTotal(scope); });
-        scope.addEventListener('change', function () { updateTotal(scope); });
-        updateTotal(scope);
-    }
-
     function initAll() {
         Array.prototype.forEach.call(document.querySelectorAll('[data-bk-variants]'), initPicker);
-        Array.prototype.forEach.call(document.querySelectorAll('[data-bk-line-total]'), function (box) {
-            presence(box.closest('[data-bk-product]') || box.closest('.bk-product-detail') || box.parentNode);
-        });
     }
 
     if (document.readyState === 'loading') {

@@ -29,6 +29,8 @@ layar tempat orang itu biasanya berada**, dan **tidak ada halaman perantara**.
 | Publik | Cek harga & ketersediaan satu papan | Beranda / Instagram | 2 (buka papan → periksa tanggal) | ≤ 2 | tercapai |
 | Publik | Masukkan papan ke keranjang | Halaman papan | 2 (isi tanggal → tambah) | ≤ 2 | tercapai |
 | Publik | Selesaikan pesanan | Keranjang | 2 (checkout → kirim) + isi formulir | ≤ 2 | tercapai |
+| Publik | Tahu seberapa jauh pengisian checkout | Halaman checkout | 0 (bilah + sisa isian selalu tampil) | 0 | **baru** |
+| Publik | Pindah antar bagian pengisian | Tab bagian per papan | 1 (tab atau Lanjut) | 1 | **baru** |
 | Publik | Tanya stok tanpa keluar dari situs | Halaman papan | 1 (tombol WhatsApp terisi) | 1 | **baru** |
 | Pelanggan | Tahu pesanannya sampai mana | Dasbor | 0 (stepper sudah tampil) | 0–1 | **baru** |
 | Pelanggan | Tahu pesanannya sampai mana | Daftar pesanan | 0 (ringkasan progres di kartu) | 0–1 | **baru** |
@@ -67,12 +69,16 @@ Temuan dan tindakan:
 3. **Ketersediaan hanya perkiraan.** Tetap begitu secara desain: tanggal baru
    ditahan setelah pesanan dikirim. Pesan di layar sudah menyebut ini, jadi
    tidak ada janji palsu yang membuat orang menunggu.
-4. **Formulir checkout punya enam bagian di satu halaman.** Dipertahankan —
-   memecahnya menjadi beberapa langkah akan menambah halaman perantara.
-   Unit kedua dan seterusnya bisa mengisi "Salin detail dari unit sebelumnya".
-5. **Keranjang tidak menahan stok.** Sudah dijelaskan di halaman keranjang dan
-   checkout; ini pilihan sadar agar tidak ada stok "hantu" dari keranjang
-   terbengkalai.
+4. **Formulir checkout punya enam bagian di satu halaman dan terasa penuh.**
+   Diperbaiki pada putaran 36: satu papan = satu kartu dengan tiga tab
+   (Jadwal → Ucapan & desain → Serah terima), bilah kemajuan "N dari M isian
+   wajib", kolom kesiapan yang menempel, dan tombol kirim yang baru berdenyut
+   setelah semuanya lengkap. Tetap satu halaman — tidak ada halaman perantara
+   yang ditambahkan. Unit kedua dan seterusnya bisa mengisi "Salin detail dari
+   unit sebelumnya".
+5. **Keranjang tidak menahan stok.** Dijelaskan dalam satu kalimat pendek di
+   keranjang dan checkout; ini pilihan sadar agar tidak ada stok "hantu" dari
+   keranjang terbengkalai.
 
 ## 4. Alur pelanggan (sudah masuk)
 

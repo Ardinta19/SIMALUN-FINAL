@@ -4,7 +4,7 @@
 <div class="cart-page">
 <a data-smart-back class="bk-back" href="{{ route('welcome') }}">← Kembali ke katalog</a>
 <div class="bk-cart-heading" data-bk-reveal="hero"><span class="bk-kicker">Pilihanmu</span><h1>Keranjang</h1></div>
-<p class="muted">Atur jumlah tiap papan dengan tombol <strong>−</strong> dan <strong>+</strong>. Papan dengan warna atau tanggal berbeda tampil sebagai baris tersendiri karena tiap unit punya jadwal dan desain sendiri. Angka unit dan harga berubah langsung tanpa memuat ulang halaman. Menambah papan belum menahan stok.</p>
+<p class="muted">Atur jumlah dengan <strong>−</strong> dan <strong>+</strong>; angka berubah langsung tanpa memuat ulang. Papan dengan warna atau tanggal berbeda menjadi baris tersendiri. Keranjang belum menahan tanggal.</p>
 @if(count($cart))<div class="bk-cart-count"><strong data-cart-total-count>{{ count($cart) }} unit</strong><span>di keranjang</span><a href="#cart-next">Ke langkah berikutnya ↓</a></div>@endif
 <div class="items" data-bk-reveal-group="cart-items" data-bk-reveal-stagger="0.05">
 @forelse($groups as $group)

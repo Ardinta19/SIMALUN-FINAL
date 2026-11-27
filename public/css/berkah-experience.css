@@ -1004,18 +1004,6 @@ body.bk-experience {
     font-size: var(--bk-fs-2xs);
 }
 
-/* Total baris yang ikut berubah saat jumlah unit diubah (kartu & detail). */
-.bk-line-total {
-    margin: 10px 0 0;
-    font-size: var(--bk-fs-sm);
-    color: #5c2a3a;
-}
-
-.bk-line-total strong {
-    font-size: 1.05em;
-    color: #6d0a26;
-}
-
 /* Pratinjau tanpa foto varian: latar contoh diwarnai warna pilihan. */
 .photo.placeholder[data-bk-preview-placeholder] {
     background: color-mix(in srgb, var(--bk-swatch, #f8e9ed) 22%, #fffaf7);
@@ -1296,4 +1284,667 @@ body.bk-experience {
 /* Jalur chat cepat di detail papan: tombol sekunder setelah tombol utama. */
 .bk-wa-quick {
     margin: 10px 0 0;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Checkout bertahap (putaran 36)
+   ──────────────────────────────────────────────────────────────────────────
+   Tujuan tampilan ini: satu keputusan per layar, satu tombol utama, dan
+   kemajuan yang selalu terlihat. Palet tetap anggur–gading milik merek; yang
+   ditambah hanya bidang gelap di kepala halaman, garis rambut, dan angka
+   langkah yang lebih tenang agar terasa seperti dokumen pesanan, bukan
+   formulir panjang.
+
+   `.bk-checkout-steps li` sengaja dipertahankan: warna tema gelap dan tes
+   kontras sudah memakai selektor itu sejak checkout satu halaman.
+   ══════════════════════════════════════════════════════════════════════════ */
+.bk-co {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding-bottom: 32px;
+}
+
+.bk-co__top {
+    display: grid;
+    gap: 16px;
+    margin: 6px 0 20px;
+}
+
+.bk-co__intro {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(22px, 4vw, 36px);
+    border-radius: 26px;
+    background: linear-gradient(148deg, #4d0420 0%, #7a0a28 58%, #8d1434 100%);
+    color: #fff;
+    box-shadow: 0 26px 60px -44px rgba(60, 4, 24, .8);
+}
+
+/* Satu ornamen garis tipis: cukup untuk terasa "dirancang", tidak menutupi teks. */
+.bk-co__intro::after {
+    content: "";
+    position: absolute;
+    right: -70px;
+    bottom: -90px;
+    width: 260px;
+    height: 260px;
+    border: 1px solid rgba(232, 199, 168, .32);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.bk-co__intro .bk-kicker {
+    color: #f3cfd6;
+    letter-spacing: .22em;
+}
+
+.bk-co__intro h1 {
+    margin: 8px 0 10px;
+    font-size: clamp(1.75rem, 3.8vw, 2.55rem);
+    letter-spacing: -.012em;
+    line-height: 1.15;
+}
+
+.bk-co__lead {
+    max-width: 54ch;
+    margin: 0;
+    color: #f7e3e7;
+    line-height: 1.65;
+}
+
+.bk-co__trust {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 18px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.bk-co__trust li {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 38px;
+    padding: 7px 13px;
+    border: 1px solid rgba(255, 255, 255, .2);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .08);
+    font-size: var(--bk-fs-2xs);
+    font-weight: 700;
+    letter-spacing: .01em;
+}
+
+.bk-co__progress {
+    padding: 15px 18px 6px;
+    border: 1px solid #ecdcd6;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 16px 40px -38px rgba(84, 5, 31, .55);
+}
+
+.bk-co__progress-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: var(--bk-fs-sm);
+    color: #4f3940;
+}
+
+.bk-co__progress-pct {
+    font-weight: 800;
+    color: #85092d;
+    font-variant-numeric: tabular-nums;
+}
+
+.bk-co__bar {
+    height: 8px;
+    margin: 10px 0 14px;
+    border-radius: 99px;
+    background: #f3e6e5;
+    overflow: hidden;
+}
+
+.bk-co__bar span {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #85092d, #c0627c);
+    transition: width .35s ease;
+}
+
+/* Penanda "siap": warna hijau tenang hanya muncul saat semua isian lengkap,
+   jadi tidak dipakai untuk hiasan. */
+.bk-co__bar.is-complete span {
+    background: linear-gradient(90deg, #2f7d5b, #5aa77f);
+}
+
+.bk-co .bk-checkout-steps {
+    margin: 0 0 12px;
+}
+
+.bk-co .bk-checkout-steps li {
+    flex: 1 1 140px;
+    min-height: 46px;
+    padding: 8px 12px;
+    border-color: #efe1dc;
+    background: #fffaf8;
+    font-size: var(--bk-fs-2xs);
+    color: #7c5a62;
+}
+
+.bk-co .bk-checkout-steps li[data-state="active"] {
+    border-color: #d8b3bd;
+    background: #fff3f6;
+    color: #85092d;
+}
+
+.bk-co .bk-checkout-steps li[data-state="done"] {
+    border-color: #c9e2d3;
+    background: #f2f9f5;
+    color: #2c6b4f;
+}
+
+.bk-co .bk-checkout-steps li[data-state="done"] span {
+    background: #dcefe3;
+    color: #2c6b4f;
+}
+
+.bk-co__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 336px;
+    gap: 20px;
+    align-items: start;
+}
+
+.bk-co__main {
+    min-width: 0;
+}
+
+/* ── Kartu unit ─────────────────────────────────────────────────────────── */
+.bk-co-unit {
+    margin-bottom: 16px;
+    padding: clamp(16px, 2.6vw, 24px);
+    border: 1px solid #ecdcd6;
+    border-radius: 24px;
+    background: #fff;
+    box-shadow: 0 18px 44px -40px rgba(84, 5, 31, .6);
+}
+
+.bk-co-unit__head {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+}
+
+.bk-co-unit__num {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 38px;
+    height: 38px;
+    border: 1px solid #e7cfd3;
+    border-radius: 12px;
+    background: #fffaf8;
+    color: #85092d;
+    font-size: var(--bk-fs-xs);
+    font-weight: 800;
+    letter-spacing: .04em;
+}
+
+.bk-co-unit__id {
+    min-width: 0;
+}
+
+.bk-co-unit__id h2 {
+    margin: 0;
+    font-size: 1.05rem;
+    letter-spacing: -.01em;
+    overflow-wrap: anywhere;
+}
+
+.bk-co-unit__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 6px 0 0;
+    font-size: var(--bk-fs-xs);
+    color: #7a5c64;
+}
+
+.bk-co-unit__meta .price {
+    font-weight: 800;
+    color: #85092d;
+}
+
+.bk-co-unit__state {
+    margin-left: auto;
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: #fdf2f5;
+    color: #85092d;
+    font-size: var(--bk-fs-2xs);
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.bk-co-unit__state[data-complete="1"] {
+    background: #eaf5ee;
+    color: #276749;
+}
+
+.bk-co-unit__tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    margin: 12px 0 2px;
+}
+
+.bk-co-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 6px 0;
+    border: 0;
+    background: none;
+    color: #85092d;
+    font: inherit;
+    font-size: var(--bk-fs-xs);
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.bk-co-link--button {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.bk-co-link:focus-visible,
+.bk-co-tab:focus-visible,
+.bk-co-more summary:focus-visible,
+.bk-co-terms__more summary:focus-visible {
+    outline: 3px solid #bc5b75;
+    outline-offset: 3px;
+}
+
+.bk-co-unit__note {
+    margin: 2px 0 0;
+    font-size: var(--bk-fs-2xs);
+    color: #7a5c64;
+    line-height: 1.6;
+}
+
+/* ── Tab bagian ─────────────────────────────────────────────────────────── */
+.bk-co-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 14px 0 0;
+    border-bottom: 1px solid #f1e5e1;
+}
+
+.bk-co-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    margin-bottom: -1px;
+    padding: 9px 12px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: #856169;
+    font: inherit;
+    font-size: var(--bk-fs-xs);
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.bk-co-tab span {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #f4e8e6;
+    color: #856169;
+    font-size: var(--bk-fs-2xs);
+    font-weight: 800;
+}
+
+.bk-co-tab[aria-selected="true"] {
+    color: #85092d;
+    border-bottom-color: #85092d;
+}
+
+.bk-co-tab[aria-selected="true"] span {
+    background: #85092d;
+    color: #fff;
+}
+
+.bk-co-tab[data-complete="1"] span {
+    background: #e3f1e9;
+    color: #2c6b4f;
+}
+
+.bk-co-panel {
+    padding: 16px 0 4px;
+    animation: bk-co-panel-in .22s ease both;
+}
+
+@keyframes bk-co-panel-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
+}
+
+/* Tanpa JavaScript tidak ada atribut data-co-ready, jadi semua bagian tetap
+   terbuka dan formulir tetap bisa dikirim seperti checkout satu halaman. */
+.bk-co[data-co-ready] .bk-co-panel:not([data-co-active]) {
+    display: none;
+}
+
+.bk-co-panel__hint {
+    margin: 0 0 10px;
+    font-size: var(--bk-fs-xs);
+    line-height: 1.6;
+    color: #7a5c64;
+}
+
+.bk-co-subhead {
+    margin: 18px 0 6px;
+    font-size: var(--bk-fs-sm);
+    color: #54051f;
+}
+
+.bk-co-unit__nav {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #f3e7e3;
+}
+
+.bk-co-unit__nav .btn {
+    min-height: 46px;
+}
+
+/* ── Kartu tambahan & ketentuan ─────────────────────────────────────────── */
+.bk-co-card {
+    margin-bottom: 14px;
+    padding: 18px 20px;
+    border: 1px solid #ecdcd6;
+    border-radius: 22px;
+    background: #fff;
+}
+
+.bk-co-card h2 {
+    margin: 0 0 10px;
+    font-size: 1.02rem;
+}
+
+.bk-co-more summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 44px;
+    color: #54051f;
+    font-weight: 800;
+    list-style: none;
+    cursor: pointer;
+}
+
+.bk-co-more summary::-webkit-details-marker {
+    display: none;
+}
+
+.bk-co-more summary::after {
+    content: "+";
+    color: #85092d;
+    font-size: 1.15rem;
+}
+
+.bk-co-more[open] summary::after {
+    content: "−";
+}
+
+.bk-co-more__body {
+    margin-top: 10px;
+    padding-top: 12px;
+    border-top: 1px solid #f3e7e3;
+}
+
+.bk-co-terms__summary {
+    margin: 0 0 10px;
+    font-size: var(--bk-fs-sm);
+    line-height: 1.7;
+    color: #5f4850;
+}
+
+.bk-co-terms__more summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    color: #85092d;
+    font-weight: 800;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+}
+
+.bk-co-terms__more ul {
+    margin: 6px 0 0 18px;
+}
+
+.bk-co-terms__more li {
+    margin-top: 10px;
+    font-size: var(--bk-fs-sm);
+    line-height: 1.7;
+    color: #5f4850;
+}
+
+/* ── Kolom kesiapan ─────────────────────────────────────────────────────── */
+.bk-co__aside {
+    position: sticky;
+    top: 92px;
+}
+
+.bk-co-ready {
+    padding: 20px;
+}
+
+.bk-co-checklist {
+    display: grid;
+    gap: 12px;
+    margin: 0 0 14px;
+    padding: 0;
+    list-style: none;
+}
+
+.bk-co-checklist li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.bk-co-check__mark {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border: 1px solid #e4cfd2;
+    border-radius: 50%;
+    background: #fff;
+    color: transparent;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.bk-co-checklist li[data-complete="1"] .bk-co-check__mark {
+    border-color: #bfe0cb;
+    background: #e6f2ea;
+    color: #2c6b4f;
+}
+
+.bk-co-checklist li[data-complete="1"] .bk-co-check__mark::after {
+    content: "✓";
+}
+
+.bk-co-check__text strong {
+    display: block;
+    font-size: var(--bk-fs-sm);
+    color: #40272f;
+}
+
+.bk-co-check__text small {
+    display: block;
+    margin-top: 2px;
+    font-size: var(--bk-fs-2xs);
+    color: #7a5c64;
+}
+
+.bk-co-ready__note {
+    margin: 0 0 14px;
+    font-size: var(--bk-fs-2xs);
+    line-height: 1.6;
+    color: #7a5c64;
+}
+
+.bk-co-ready .bk-consent {
+    margin: 0;
+    font-size: var(--bk-fs-xs);
+}
+
+.bk-co-note {
+    margin: 12px 0 0;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #fff6ee;
+    color: #6c4425;
+    font-size: var(--bk-fs-2xs);
+    line-height: 1.5;
+}
+
+.bk-co-submit {
+    width: 100%;
+    min-height: 50px;
+    margin-top: 12px;
+}
+
+.bk-co-submit.is-ready {
+    box-shadow: 0 12px 26px -14px rgba(133, 9, 45, .7);
+}
+
+.bk-co-ready [data-checkout-status] {
+    margin: 10px 0 0;
+    font-size: var(--bk-fs-2xs);
+    line-height: 1.5;
+}
+
+@media (max-width: 960px) {
+    .bk-co__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bk-co__aside {
+        position: static;
+    }
+}
+
+@media (max-width: 560px) {
+    .bk-co__intro {
+        border-radius: 22px;
+    }
+
+    .bk-co-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .bk-co-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .bk-co-tab {
+        flex: none;
+    }
+
+    .bk-co-unit__head {
+        flex-wrap: wrap;
+    }
+
+    .bk-co-unit__state {
+        margin-left: 0;
+        order: 3;
+    }
+}
+
+/* Aturan checkout lama menempelkan garis atas 4 px pada setiap unit. Di sini
+   unit tampil sebagai kartu utuh, jadi garis itu dilepas dan jarak label
+   dirapatkan agar tiap bagian terasa satu blok, bukan daftar panjang. */
+.checkout-form [data-checkout-unit].bk-co-unit {
+    border: 1px solid #ecdcd6;
+    border-top: 1px solid #ecdcd6;
+}
+
+.bk-co .checkout-form label {
+    margin: 13px 0 6px;
+}
+
+.bk-co .checkout-form h3 {
+    margin: 16px 0 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bk-co-panel {
+        animation: none;
+    }
+
+    .bk-co__bar span {
+        transition: none;
+    }
+}
+
+/* Kalimat pengganti catatan panjang di katalog (putaran 36): satu janji merek
+   yang singkat, bukan tiga baris penjelasan. */
+.bk-catalog-hook {
+    margin: 6px 0 0;
+    font-size: var(--bk-fs-2xs);
+    line-height: 1.6;
+    color: #7a5c64;
+}
+
+.bk-catalog-hook strong {
+    color: #85092d;
+}
+
+.bk-product-assurance {
+    display: grid;
+    gap: 4px;
+    margin: 14px 0;
+    padding: 14px 16px;
+    border: 1px solid #eeddd8;
+    border-left: 3px solid #85092d;
+    border-radius: 14px;
+    background: #fffaf8;
+    font-size: var(--bk-fs-xs);
+    line-height: 1.6;
+    color: #5f4850;
+}
+
+.bk-product-assurance strong {
+    color: #54051f;
+}
+
+/* Tautan kembali di kepala checkout bertahap tidak lagi memakai wadah lama. */
+.bk-co__top .bk-back {
+    justify-self: start;
 }

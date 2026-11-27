@@ -249,3 +249,26 @@ Pemeriksaan manual:
 4. Pesan papan dengan "Diambil sendiri": bagian ongkos tidak muncul dan tidak ada penundaan pembayaran.
 5. Admin kirim penawaran 0 → pelanggan menerima "Ongkos gratis" dan bisa membayar.
 6. Admin naikkan progres → notifikasi `Progres: …` berisi arahan; dasbor pelanggan menampilkan "Progres pesananmu"; kartu pesanan menampilkan ringkasan progres.
+
+### Babak O — checkout bertahap & pembersihan teks (`statis, belum diuji di Windows`)
+
+Permintaan pemilik usaha: halaman checkout terasa penuh dan membingungkan; minta versi yang jelas, tidak bertele-tele, dan memuaskan; tambahkan progres pengisian; teks katalog terlalu panjang dan tanpa hook; kolom total harga yang beranimasi tidak diperlukan; keseluruhan terasa lebih "branded".
+
+1. **Checkout tiga lapis.** Kepala bidang anggur dengan satu janji + tiga bukti (tanggal ditahan 24 jam, admin mengonfirmasi, bukti bayar privat); bilah kemajuan berisi "N dari M isian wajib", persentase, dan tiga tahap; kolom kesiapan menempel berisi daftar per papan, hitungan sisa isian, persetujuan, dan tombol kirim.
+2. **Tiga bagian per papan.** Tab Jadwal → Ucapan & desain → Serah terima, tombol Lanjut memeriksa bagian yang terbuka, Kembali muncul mulai bagian kedua, tab lengkap bertanda centang, kartu menampilkan "N isian lagi"/"Lengkap".
+3. **Validasi diambil alih skrip** (`novalidate` hanya saat JS jalan) supaya isian kosong di bagian tertutup tidak membuat formulir diam; pesan Indonesia UI kit tetap dipakai lewat `reportValidity()`.
+4. **Tanpa JavaScript tetap bekerja**: semua bagian terbuka di server; CSS menyembunyikan bagian tidak aktif hanya setelah `data-co-ready`.
+5. **Teks dipendekkan**: kartu katalog memakai hook "Dirangkai ulang untukmu."; detail papan memakai pita jaminan dua baris; keranjang dua kalimat; lima poin ketentuan dilipat (teks tetap ada).
+6. **Kolom total beranimasi dicabut** dari kartu & detail katalog beserta penghitungnya di `berkah-variants.js`; harga satuan tetap dari server.
+7. **Foto referensi, voucher, dan salin unit** pindah ke kartu lipat; id/nama field tidak berubah sehingga draf checkout di sesi tetap hidup. Salin unit memakai modal bersama dan melaporkan jumlah isian yang disalin.
+8. **Tema gelap** untuk seluruh permukaan baru.
+
+Berkas utama: `resources/views/rental/checkout.blade.php` (ditulis ulang), `public/js/berkah-checkout.js` (baru), `public/css/berkah-experience.css`, `public/css/berkah-theme.css`, `resources/views/catalog/{index,show,cart}.blade.php`, `public/js/berkah-variants.js`.
+
+Tes penjaga baru: `tests/Feature/CheckoutFlowTest.php` (5). Perilaku skrip diuji di jsdom (`/tmp/wasm-php/checkout-steps-jsdom.cjs`, 27/27). `ProductVariantTest` disesuaikan: kolom total baris tidak lagi ada di katalog. Perkiraan jumlah tes: **±525 lulus**.
+
+Pemeriksaan manual:
+
+1. `php artisan optimize:clear`, buka keranjang → checkout.
+2. Ikuti langkah 1–8 pada bagian "Cara memeriksa sendiri" di `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.148.
+3. Khusus ponsel: tab bagian bisa digeser mendatar, kolom kesiapan pindah ke bawah kartu, dan tombol kirim tetap terlihat setelah semua bagian lengkap.

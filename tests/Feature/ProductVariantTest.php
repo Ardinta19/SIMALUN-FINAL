@@ -75,7 +75,7 @@ class ProductVariantTest extends TestCase
         $this->assertStringContainsString('fits((int) $product->stock', $service);
     }
 
-    public function test_katalog_menampilkan_pemilih_warna_dan_total_baris(): void
+    public function test_katalog_menampilkan_pemilih_warna_tanpa_kolom_total_beranimasi(): void
     {
         $index = File::get(resource_path('views/catalog/index.blade.php'));
         $show = File::get(resource_path('views/catalog/show.blade.php'));
@@ -84,8 +84,11 @@ class ProductVariantTest extends TestCase
         foreach ([$index, $show] as $view) {
             $this->assertStringContainsString("@include('catalog._variant_picker'", $view);
             $this->assertStringContainsString('name="variant_id"', $view);
-            $this->assertStringContainsString('data-bk-line-total', $view);
-            $this->assertStringContainsString('data-bk-line-value', $view);
+            // Putaran 36: pemilik usaha meminta kolom "Total" yang berubah
+            // setiap kali jumlah disentuh dicabut. Harga satuan tetap ditulis
+            // server, dan hitungan uang terjadi di keranjang & halaman pesanan.
+            $this->assertStringContainsString('class="price"', $view);
+            $this->assertStringNotContainsString('data-bk-line-total', $view);
         }
 
         // Pemilih: satu tombol per warna, cincin lewat variabel CSS (bukan
@@ -122,10 +125,9 @@ class ProductVariantTest extends TestCase
     {
         $variants = File::get(public_path('js/berkah-variants.js'));
         $this->assertStringContainsString('input[name="variant_id"]', $variants);
-        $this->assertStringContainsString('data-unit-price', $variants);
         $this->assertStringContainsString('input.setAttribute(\'max\'', $variants);
-        // Total dihitung dari harga satuan server, bukan dari teks di layar.
-        $this->assertStringContainsString('rupiah(unit * qty)', $variants);
+        // Kolom total baris tidak lagi diperbarui dari sisi peramban.
+        $this->assertStringNotContainsString('data-bk-line-total', $variants);
 
         $live = File::get(public_path('js/berkah-cart-live.js'));
         $this->assertStringContainsString("Accept: 'application/json'", $live);

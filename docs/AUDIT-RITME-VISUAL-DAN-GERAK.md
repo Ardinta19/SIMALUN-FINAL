@@ -5946,3 +5946,108 @@ perlu mengetik ulang rincian.
    berwarna. Minta admin menekan "Mulai kerjakan": notifikasi pelanggan berjudul
    "Progres: Dalam pengerjaan" dengan arahan, dan beranda pelanggan menampilkan
    bagian "Progres pesananmu".
+
+### 9.148 Checkout bertahap: satu keputusan per layar, kemajuan yang selalu terlihat
+
+Permintaan pemilik usaha: *"kita unslop halaman checkout … sangat user friendly,
+jelas, tidak bertele-bertele, dan sangat satisfying … tambahin progres pengisian
+checkout agar user tahu sudah di tahap mana dan tahap apa yang belum selesai …
+teks ini terlalu panjang dan tidak ada fungsi hook … tidak perlu ada kolom total
+harga langsung berubah dengan animasi pada harga/hari … buat project ini terlihat
+sangat branded high class."*
+
+**1. Struktur baru.** Satu formulir panjang (enam bagian, paragraf penjelasan di
+antara isian) diganti tiga lapis:
+
+- **Kepala**: bidang anggur penuh dengan kicker, satu judul, satu kalimat janji
+  ("Isi empat hal untuk tiap papan. Tanggal langsung ditahan 24 jam dan admin
+  mengonfirmasi — tanpa perlu chat"), dan tiga bukti berbentuk pil: tanggal
+  ditahan 24 jam, admin mengonfirmasi jadwal, bukti bayar hanya untuk admin.
+  Ornamennya satu lingkaran garis rambut; tidak ada ilustrasi tambahan.
+- **Bilah kemajuan**: "N dari M isian wajib", persentase, bilah yang terisi, dan
+  tiga tahap (`Detail papan → Ketentuan → Kirim`). Bilah berubah hijau tenang
+  hanya ketika semua isian lengkap — warna itu satu-satunya penanda "siap".
+- **Kolom kesiapan** yang menempel di samping: daftar per papan ("Unit 1 ·
+  Jadwal, ucapan, serah terima") dengan hitungan sisa isian, baris ketentuan,
+  centang persetujuan, catatan mode uji, dan tombol kirim.
+
+Tiap papan menjadi kartu bernomor dengan tiga **tab**: Jadwal → Ucapan & desain
+→ Serah terima. Tab yang bagiannya sudah lengkap diberi tanda centang, dan kartu
+menampilkan status "N isian lagi" / "Lengkap". Tombol "Lanjut" memeriksa bagian
+yang sedang terbuka sebelum berpindah; tombol "Kembali" muncul mulai bagian
+kedua.
+
+**2. Validasi diambil alih skrip.** `public/js/berkah-checkout.js` memasang
+`novalidate` hanya saat JavaScript berjalan. Alasannya konkret: validasi bawaan
+peramban berhenti pada kendali di bagian yang sedang tertutup, sehingga
+formulir terasa "tidak bereaksi" saat ada isian kosong di tab lain. Skrip
+memeriksa isian wajib sendiri, membuka bagian yang bermasalah lebih dulu, lalu
+memanggil `reportValidity()` agar pesan Indonesia dari UI kit tetap dipakai.
+Tanpa JavaScript, atribut itu tidak pernah dipasang dan validasi bawaan tetap
+berlaku.
+
+**3. Tanpa JavaScript tetap utuh.** Semua bagian dirender terbuka di server
+(tidak ada atribut `hidden`), dan CSS baru menyembunyikan bagian yang tidak
+aktif setelah wadah ditandai `data-co-ready`. Formulir, ketentuan, dan tombol
+kirim bekerja seperti checkout satu halaman sebelumnya.
+
+**4. Teks dipendekkan, bukan dihapus.** Yang hilang hanya kalimat yang tidak
+mengubah keputusan: "Isi kebutuhan untuk setiap unit…", "Harga sewa dihitung
+berdasarkan tanggal atau paket…", "Tanggal acara sekaligus menjadi tanggal papan
+diterima…", dan catatan tiga baris di kartu katalog. Penggantinya:
+
+- kartu katalog: **"Dirangkai ulang untukmu."** + satu baris tindakan ("pilih
+  tanggal untuk melihat sisa unit");
+- detail papan: pita jaminan dua baris ("Foto contoh — desainnya dibuat khusus
+  untukmu" + "tanggal ditahan 24 jam");
+- keranjang: dua kalimat (tombol −/+ dan "keranjang belum menahan tanggal");
+- checkout: satu kalimat per bagian, lima poin hukum dilipat di balik
+  "Baca lima poin lengkap" (teksnya tetap ada di halaman dan tetap terbaca
+  pembaca layar saat dibuka).
+
+**5. Kolom total yang berubah dicabut.** `data-bk-line-total` di kartu katalog
+dan detail papan dihapus, begitu pula penghitungnya di `berkah-variants.js`.
+Harga satuan ("Rp 125.000 / hari") tetap ditulis server sekali; hitungan uang
+terjadi di keranjang dan di halaman pesanan. Ini membalik bagian putaran 34 yang
+meminta total baris bergerak mengikuti jumlah — permintaan terbaru pemilik usaha
+lebih diutamakan.
+
+**6. Voucher, foto referensi, dan salin unit tidak hilang.** Ketiganya pindah ke
+kartu lipat (`<details>`) agar tidak mendominasi layar, tetapi id, nama field,
+dan alur server tidak berubah — termasuk draf checkout di sesi. "Salin detail
+dari unit sebelumnya" kini memakai modal konfirmasi bersama (`showConfirmModal`)
+alih-alih balon peramban, dan melaporkan berapa isian yang disalin.
+
+**7. Tema gelap.** Seluruh permukaan baru (kartu, bilah, tab, daftar kesiapan,
+catatan) mendapat nilai tema gelap di `berkah-theme.css`; kepala halaman tetap
+bidang anggur di kedua tema.
+
+Dijaga `tests/Feature/CheckoutFlowTest.php` (5 tes struktural). Perilaku runtime
+diuji di jsdom lewat `/tmp/wasm-php/checkout-steps-jsdom.cjs` — **27/27 lulus**:
+hanya satu bagian terbuka, pindah bagian, alamat menjadi wajib saat "diantar",
+kirim dicegah saat ketentuan belum dicentang, progres 100% dan bilah hijau
+setelah lengkap, lalu kirim diizinkan.
+
+**Cara memeriksa sendiri:**
+
+1. Keranjang berisi dua papan → "Lanjut ke checkout". Halaman menampilkan dua
+   kartu papan, masing-masing tiga tab, dan bilah kemajuan "0 dari … isian
+   wajib" di atas.
+2. Isi jadwal kartu pertama lalu "Lanjut": tab kedua terbuka dan tab pertama
+   mendapat tanda centang. Kosongkan satu isian dan tekan "Lanjut" lagi — bagian
+   itu tidak berpindah dan pesan menyebut jumlah isian yang kurang.
+3. Pilih "Diantar penjual": kolom alamat muncul, ikut dihitung sebagai isian
+   wajib, dan bilah kemajuan bertambah. Pilih "Diambil sendiri": kolom alamat
+   hilang dan tidak lagi dihitung.
+4. Tekan "Kirim pesanan" saat masih ada isian kosong: halaman membuka sendiri
+   bagian yang belum lengkap dan memfokuskan isian pertama (bukan diam saja).
+5. Lengkapi semua + centang persetujuan: bilah menjadi hijau penuh, tahap ketiga
+   aktif, lalu kirim. Halaman pesanan menampilkan pesan bahwa tanggal sudah
+   ditahan.
+6. Matikan JavaScript (DevTools → Settings → Debugger → Disable JavaScript):
+   semua bagian tampil terbuka, validasi bawaan peramban bekerja, dan pesanan
+   tetap bisa dikirim.
+7. Tema gelap: kartu, tab, dan daftar kesiapan memakai permukaan gelap; teks
+   tetap terbaca. Mode `?gerak=mati` mematikan animasi bagian.
+8. Katalog: tidak ada lagi baris "Total …" di kartu/detail; yang tampil hanya
+   "Rp … / hari" dan jumlah unit tidak mengubah angka itu.
