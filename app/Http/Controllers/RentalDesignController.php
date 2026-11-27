@@ -21,7 +21,7 @@ class RentalDesignController extends Controller
             'admin_note' => ['nullable', 'string', 'max:2000'],
         ]);
         $path = $request->file('image')->store('rental-designs', 'local');
-        if (! $path) throw ValidationException::withMessages(['image' => 'Gambar tidak dapat disimpan.']);
+        if (! $path) throw ValidationException::withMessages(['image' => 'Gambar tidak dapat disimpan. Silakan coba lagi.']);
         try {
             DB::transaction(function () use ($request, $unit, $data, $path) {
                 $unit = RentalOrderUnit::lockForUpdate()->findOrFail($unit->id);

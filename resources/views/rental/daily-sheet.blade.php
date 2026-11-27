@@ -14,7 +14,7 @@
 <div class="unit"><strong>{{ $unit->product_name }} · unit #{{ $unit->id }}</strong><p>Referensi: {{ $unit->order->reference }}<br>Pelanggan: {{ $unit->order->customer?->name ?? 'Pelanggan tidak tersedia' }}<br>Penerima: {{ $unit->recipient_name }}</p>
 @if($heading === 'Penerimaan')<p>Metode: {{ $unit->delivery_method === 'delivery' ? 'Diantar penjual' : 'Diambil di outlet' }}@if($unit->delivery_method === 'delivery')<br>Alamat: {{ $unit->delivery_address }}@endif</p>
 @else<p>Metode: {{ $unit->return_method === 'collection' ? 'Diambil kembali penjual' : 'Dikembalikan ke outlet' }}@if($unit->return_method === 'collection')<br>Alamat: {{ $unit->return_address }}@endif</p>@endif
-<p>Perkembangan tercatat: {{ ['waiting'=>'Menunggu pengerjaan', 'production'=>'Dalam pengerjaan', 'ready'=>'Siap diserahkan', 'handed_over'=>'Sudah diserahkan', 'returned'=>'Sudah dikembalikan'][$unit->progress] ?? $unit->progress }}</p></div>
+<p>Perkembangan tercatat: {{ \App\Support\RentalLabels::progress($unit->progress) }}</p></div>
 @empty<p>Tidak ada unit terkonfirmasi untuk kegiatan ini.</p>@endforelse
 </section>
 @endforeach

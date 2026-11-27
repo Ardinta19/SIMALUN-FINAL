@@ -79,8 +79,8 @@ class CreateUser extends Command
             'gender' => ['nullable', 'in:L,P'],
             'password' => ['required', 'confirmed', Password::min(8)],
         ], [
-            'phone.regex' => 'Format No. HP tidak valid (setelah normalisasi harus seperti 81234567890).',
-            'phone.unique' => 'No. HP sudah terdaftar.',
+            'phone.regex' => 'Format nomor HP tidak valid (setelah normalisasi harus seperti 81234567890).',
+            'phone.unique' => 'Nomor HP sudah terdaftar.',
             'email.unique' => 'Email sudah terdaftar.',
         ]);
 

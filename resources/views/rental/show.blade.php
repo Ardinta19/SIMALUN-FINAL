@@ -39,7 +39,7 @@
 @forelse($order->units as $unit)
 <article class="card body">
     <h2>Unit {{ $loop->iteration }} · {{ $unit->product_name }}</h2>
-    <p><strong>{{ ['pending'=>'Menunggu konfirmasi', 'confirmed'=>'Dikonfirmasi', 'cancelled'=>'Dibatalkan'][$unit->status] ?? $unit->status }}</strong></p>
+    <p><strong>{{ \App\Support\RentalLabels::unitStatus($unit->status) }}</strong></p>
     <p>@if($unit->starts_on->isSameDay($unit->event_on)) Acara dan penerimaan: {{ $unit->event_on->format('d/m/Y') }} @else Penerimaan: {{ $unit->starts_on->format('d/m/Y') }} · Acara: {{ $unit->event_on->format('d/m/Y') }} @endif · Pengembalian: {{ $unit->ends_on->format('d/m/Y') }}</p>
     <p class="muted">Penerima: {{ $unit->recipient_name }}</p>
     @if($unit->addons->isNotEmpty())<p class="muted">Item tambahan: {{ $unit->addons->map(fn ($addon) => $addon->label())->implode(', ') }} · Rp {{ number_format((int) $unit->addon_amount, 0, ',', '.') }}</p>@endif

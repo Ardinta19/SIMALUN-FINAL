@@ -7,7 +7,6 @@
 @php
     $prevMonth = $month->copy()->subMonth()->format('Y-m');
     $nextMonth = $month->copy()->addMonth()->format('Y-m');
-    $progressLabels = ['waiting'=>'Menunggu pengerjaan', 'production'=>'Dalam pengerjaan', 'ready'=>'Siap diserahkan', 'handed_over'=>'Sudah diserahkan', 'returned'=>'Sudah dikembalikan'];
 @endphp
 
 <div class="adm-page-head" data-adm-reveal="head">
@@ -35,7 +34,7 @@
             <label for="adm-schedule-status">Status unit</label>
             <select id="adm-schedule-status" name="status">
                 <option value="">Semua status aktif</option>
-                @foreach(['pending' => 'Menunggu konfirmasi', 'confirmed' => 'Dikonfirmasi'] as $value => $label)
+                @foreach(\App\Support\RentalLabels::SCHEDULE_STATUS as $value => $label)
                     <option value="{{ $value }}" @selected(($input['status'] ?? '') === $value)>{{ $label }}</option>
                 @endforeach
             </select>
@@ -98,7 +97,7 @@
                         <p style="margin:4px 0 0">Pengembalian hari ini: {{ $unit->return_method === 'collection' ? 'Diambil kembali penjual · '.$unit->return_address : 'Dikembalikan ke outlet' }}</p>
                     @endif
                     <div class="adm-row" style="justify-content:space-between;margin-top:6px">
-                        <span class="adm-chip">{{ $progressLabels[$unit->progress] ?? $unit->progress }}</span>
+                        <span class="adm-chip">{{ \App\Support\RentalLabels::progress($unit->progress) }}</span>
                         <a href="{{ route('admin.rental.orders.show', $unit->order) }}">Buka pesanan</a>
                     </div>
                 </div>

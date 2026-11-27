@@ -61,7 +61,7 @@ class ProfileController extends Controller
             'avatar' => ['nullable', 'image', 'mimetypes:image/jpeg,image/png,image/webp', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ], [
             'phone.required' => 'Nomor HP wajib diisi.',
-            'phone.regex' => 'Format nomor HP tidak valid (contoh: 081234567890).',
+            'phone.regex' => 'Format nomor HP tidak valid (contoh: 0812 3456 7890).',
             'phone.unique' => 'Nomor HP sudah dipakai akun lain.',
         ]);
 

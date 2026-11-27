@@ -702,7 +702,7 @@ class UiDefaultsTest extends TestCase
 
         // Pesan bawaan login ikut memakai istilah aplikasi ini.
         $login = File::get(app_path('Http/Controllers/Auth/LoginController.php'));
-        $this->assertStringContainsString("'Kata sandi wajib diisi'", $login);
+        $this->assertStringContainsString("'Kata sandi wajib diisi.'", $login);
         $this->assertStringNotContainsString("'Password wajib diisi'", $login);
     }
 
@@ -1145,5 +1145,131 @@ class UiDefaultsTest extends TestCase
         }
 
         $this->assertSame([], array_values(array_unique($masalah)), implode(' | ', array_values(array_unique($masalah))));
+    }
+
+    /** Pesan galat ditulis sebagai kalimat utuh dan memakai istilah yang sama.
+     *
+     *  Pesan galat adalah satu-satunya "pemandu" saat pengguna gagal. Sebelum
+     *  ini ada pesan tanpa titik ("Kata sandi wajib diisi"), kata "password"
+     *  di tengah kalimat berbahasa Indonesia, "No. HP" bercampur "Nomor HP",
+     *  dan pesan yang menyebut kunci teknis ("Kunci pencatatan sudah
+     *  digunakan…"). Pemeriksaan ini menjaga bentuknya tetap seragam.
+     */
+    public function test_pesan_galat_berbentuk_kalimat_utuh(): void
+    {
+        $masalah = [];
+        $berkas = array_merge(
+            File::allFiles(app_path()),
+            [new \SplFileInfo(app_path('Http/Controllers/RentalPaymentController.php'))]
+        );
+
+        foreach ($berkas as $file) {
+            if ($file->getExtension() !== 'php') {
+                continue;
+            }
+
+            $relative = str_replace(base_path().'/', '', $file->getPathname());
+            $src = (string) File::get($file->getPathname());
+            $pesan = [];
+
+            // Pesan kedua di dalam array validasi: 'phone.regex' => '…'
+            preg_match_all("/'(\w+(?:\.\w+)*)'\s*=>\s*'([^']{10,300})'/", $src, $cocok, PREG_SET_ORDER);
+
+            foreach ($cocok as $item) {
+                if (preg_match('/\.(required|regex|unique|image|mimes|max|min|in|date|after|before|accepted|numeric|array|file|boolean|string|email|confirmed|exists)\b/', $item[1])) {
+                    $pesan[] = [$item[1], $item[2]];
+                }
+            }
+
+            // withMessages([...]) dan withErrors([...])
+            preg_match_all('/(?:withMessages|withErrors)\(\s*\[(.*?)\]\s*\)/s', $src, $blok, PREG_SET_ORDER);
+
+            foreach ($blok as $item) {
+                preg_match_all("/'([^']+)'\s*=>\s*'([^']{6,400})'/", $item[1], $dalam, PREG_SET_ORDER);
+
+                foreach ($dalam as $isi) {
+                    $pesan[] = [$isi[1], $isi[2]];
+                }
+            }
+
+            foreach ($pesan as [$kunci, $teks]) {
+                $mentah = $teks;
+                $teks = trim($teks);
+
+                // Pesan yang disambung variabel ("… lebih dari '.$hari.' hari")
+                // terpotong oleh pemindai ini — dikenali dari literal yang
+                // berakhir spasi atau memuat variabel. Bentuk akhirnya
+                // diperiksa manual.
+                if ($teks === '' || preg_match('/\s$/u', $mentah) || str_contains($teks, '$')) {
+                    continue;
+                }
+
+                $cacat = [];
+
+                if (! preg_match('/[.!?]$/u', $teks)) {
+                    $cacat[] = 'tanpa titik akhir';
+                }
+
+                if (mb_strtoupper(mb_substr($teks, 0, 1)) !== mb_substr($teks, 0, 1)) {
+                    $cacat[] = 'awal huruf kecil';
+                }
+
+                if (str_contains($teks, 'Anda')) {
+                    $cacat[] = 'menyapa "Anda"';
+                }
+
+                if (preg_match('/\bpassword\b/i', $teks)) {
+                    $cacat[] = 'memakai kata "password"';
+                }
+
+                if (preg_match('/\bNo\. HP\b/', $teks)) {
+                    $cacat[] = 'memakai "No. HP"';
+                }
+
+                if (str_contains($teks, '  ')) {
+                    $cacat[] = 'spasi ganda';
+                }
+
+                if ($cacat !== []) {
+                    $masalah[] = $relative.' ['.$kunci.'] '.implode(', ', $cacat).' → "'.$teks.'"';
+                }
+            }
+        }
+
+        $masalah = array_values(array_unique($masalah));
+        $this->assertSame([], $masalah, implode(' | ', $masalah));
+    }
+
+    /** Label status/progres hanya ditulis sekali, di `RentalLabels`.
+     *
+     *  Peta label sempat ditulis ulang di tujuh view dengan ejaan berbeda
+     *  ("Preview menunggu respons" di satu tempat, "Pratinjau" di tempat
+     *  lain), dan notifikasi otomatis menampilkan nilai mentah seperti
+     *  `masih berstatus "waiting"`. Sekarang satu sumber; pemindai ini
+     *  menolak peta label baru yang ditulis langsung di view.
+     */
+    public function test_label_status_dan_progres_hanya_di_satu_tempat(): void
+    {
+        $pelanggaran = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            $html = (string) File::get($file->getPathname());
+
+            foreach (['Menunggu konfirmasi', 'Menunggu pengerjaan', 'Menunggu verifikasi', 'Menunggu respons', 'Siap diserahkan'] as $label) {
+                if (preg_match('/\[\s*\x27\w+\x27\s*=>\s*\x27'.preg_quote($label, '/').'\x27/', $html)) {
+                    $pelanggaran[] = str_replace('\\', '/', $file->getRelativePathname()).' → '.$label;
+                }
+            }
+        }
+
+        $this->assertSame([], array_values(array_unique($pelanggaran)), implode(' | ', array_values(array_unique($pelanggaran))));
+
+        $labels = (string) File::get(app_path('Support/RentalLabels.php'));
+        $this->assertStringContainsString("'Pratinjau menunggu respons'", $labels, 'Label pratinjau harus memakai kata "Pratinjau", bukan "Preview".');
+        $this->assertStringNotContainsString("'Preview ", $labels);
     }
 }

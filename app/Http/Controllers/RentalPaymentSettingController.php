@@ -30,7 +30,7 @@ class RentalPaymentSettingController extends Controller
         $path = null;
         if ($request->hasFile('qris')) {
             $path = $request->file('qris')->store('rental-qris', 'local');
-            if (! $path) throw ValidationException::withMessages(['qris' => 'Gambar QRIS tidak dapat disimpan.']);
+            if (! $path) throw ValidationException::withMessages(['qris' => 'Gambar QRIS tidak dapat disimpan. Silakan coba lagi.']);
         }
         try {
             $oldPath = DB::transaction(function () use ($data, $path, $request) {

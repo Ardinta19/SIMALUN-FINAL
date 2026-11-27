@@ -21,7 +21,7 @@ class RentalPaymentController extends Controller
         $submittedAt = now();
         $data = $request->validate(['amount' => ['required', 'integer', 'min:1', 'max:100000000'], 'proof' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120']]);
         $path = $request->file('proof')->store('rental-payment-proofs', 'local');
-        if (! $path) throw ValidationException::withMessages(['proof' => 'Bukti tidak dapat disimpan.']);
+        if (! $path) throw ValidationException::withMessages(['proof' => 'Bukti tidak dapat disimpan. Silakan coba lagi.']);
         try {
             DB::transaction(function () use ($unit, $data, $path, $submittedAt) {
                 $unit = RentalOrderUnit::lockForUpdate()->findOrFail($unit->id);
@@ -89,7 +89,7 @@ class RentalPaymentController extends Controller
             }
             $entry = FinanceEntry::lockForUpdate()->findOrFail($payment->finance_entry_id);
             if ($entry->source_type !== 'rental_payment' || (int) $entry->source_id !== $payment->id || $entry->entry_type !== 'income' || (int) $entry->amount !== (int) $payment->amount) {
-                throw ValidationException::withMessages(['payment' => 'Catatan kas tidak cocok. Perlu pemeriksaan manual.']);
+                throw ValidationException::withMessages(['payment' => 'Catatan kas tidak cocok dengan pembayaran ini. Periksa buku kas sebelum mencoba lagi.']);
             }
             $new = (int) $data['amount'];
             if ($new < $payment->refunds()->sum('amount')) throw ValidationException::withMessages(['payment' => 'Nominal tidak boleh kurang dari jumlah yang telah dikembalikan.']);
@@ -112,7 +112,7 @@ class RentalPaymentController extends Controller
             $payment = RentalPayment::lockForUpdate()->findOrFail($payment->id);
             $existing = RentalPaymentRefund::where('request_key', $data['request_key'])->first();
             if ($existing) {
-                if ($existing->rental_payment_id !== $payment->id || (int) $existing->amount !== (int) $data['amount'] || $existing->reason !== $data['reason']) throw ValidationException::withMessages(['refund' => 'Kunci pencatatan sudah digunakan untuk pengembalian lain.']);
+                if ($existing->rental_payment_id !== $payment->id || (int) $existing->amount !== (int) $data['amount'] || $existing->reason !== $data['reason']) throw ValidationException::withMessages(['refund' => 'Catatan pengembalian ini sudah dipakai dengan nominal atau alasan berbeda. Muat ulang halaman lalu coba lagi.']);
                 return;
             }
             if ($payment->status !== 'verified') throw ValidationException::withMessages(['refund' => 'Hanya pembayaran terverifikasi yang dapat dikembalikan.']);

@@ -1,12 +1,11 @@
 @php
-    $progressLabels = ['waiting' => 'Menunggu pengerjaan', 'production' => 'Dalam pengerjaan', 'ready' => 'Siap diserahkan', 'handed_over' => 'Sudah diserahkan', 'returned' => 'Sudah dikembalikan'];
     $nextLabels = ['waiting' => 'Mulai pengerjaan', 'production' => 'Tandai siap diserahkan', 'ready' => 'Tandai sudah diserahkan', 'handed_over' => 'Tandai sudah dikembalikan'];
     $progressOrder = ['waiting', 'production', 'ready', 'handed_over', 'returned'];
     $currentIndex = array_search($unit->progress, $progressOrder, true);
 @endphp
 <h3>Perkembangan unit</h3>
 <p style="margin:0 0 12px">
-    <span class="adm-badge adm-badge--info adm-badge--live">{{ $progressLabels[$unit->progress] ?? $unit->progress }}</span>
+    <span class="adm-badge adm-badge--info adm-badge--live">{{ \App\Support\RentalLabels::progress($unit->progress) }}</span>
 </p>
 
 <ol class="adm-timeline" aria-label="Tahapan perkembangan unit">
@@ -15,7 +14,7 @@
             $state = $currentIndex === false ? 'todo' : ($stepIndex < $currentIndex ? 'done' : ($stepIndex === $currentIndex ? 'current' : 'todo'));
         @endphp
         <li class="adm-timeline__item {{ $state === 'done' ? 'is-done' : ($state === 'current' ? 'is-current' : '') }}">
-            <span class="adm-timeline__title">{{ $progressLabels[$step] }}</span>
+            <span class="adm-timeline__title">{{ \App\Support\RentalLabels::progress($step) }}</span>
             <span class="adm-timeline__note">{{ $state === 'done' ? 'Selesai' : ($state === 'current' ? 'Tahap sekarang' : 'Belum dimulai') }}</span>
         </li>
     @endforeach
@@ -27,7 +26,7 @@
         @foreach($unit->progressEvents as $event)
             <li class="adm-timeline__item is-done">
                 <span class="adm-timeline__time">{{ $event->created_at->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB @if($admin) · {{ $event->recorder?->name ?? 'Sistem' }} @endif</span>
-                <span class="adm-timeline__title">{{ $progressLabels[$event->progress] ?? $event->progress }}</span>
+                <span class="adm-timeline__title">{{ \App\Support\RentalLabels::progress($event->progress) }}</span>
                 @if($event->note)<span class="adm-timeline__note">{{ $event->note }}</span>@endif
             </li>
         @endforeach

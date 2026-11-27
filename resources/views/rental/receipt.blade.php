@@ -16,7 +16,7 @@
   $total = $unit->payableAmount();
 @endphp
 <section class="unit"><h2>Unit {{ $loop->iteration }} · {{ $unit->product_name }}</h2>
-<p><strong>Status:</strong> {{ ['pending'=>'Menunggu konfirmasi', 'confirmed'=>'Dikonfirmasi', 'cancelled'=>'Dibatalkan'][$unit->status] ?? $unit->status }}<br>@if($unit->starts_on->isSameDay($unit->event_on))<strong>Acara dan penerimaan:</strong> {{ $unit->event_on->format('d/m/Y') }}@else<strong>Penerimaan:</strong> {{ $unit->starts_on->format('d/m/Y') }}<br><strong>Acara:</strong> {{ $unit->event_on->format('d/m/Y') }}@endif<br><strong>Pengembalian:</strong> {{ $unit->ends_on->format('d/m/Y') }}</p>
+<p><strong>Status:</strong> {{ \App\Support\RentalLabels::unitStatus($unit->status) }}<br>@if($unit->starts_on->isSameDay($unit->event_on))<strong>Acara dan penerimaan:</strong> {{ $unit->event_on->format('d/m/Y') }}@else<strong>Penerimaan:</strong> {{ $unit->starts_on->format('d/m/Y') }}<br><strong>Acara:</strong> {{ $unit->event_on->format('d/m/Y') }}@endif<br><strong>Pengembalian:</strong> {{ $unit->ends_on->format('d/m/Y') }}</p>
 <p><strong>Penerima:</strong> {{ $unit->recipient_name }}<br><strong>Ucapan:</strong> {{ $unit->greeting }}<br><strong>Permintaan desain:</strong> {{ $unit->design_notes ?: '-' }}</p>
 <p><strong>Penerimaan:</strong> {{ $unit->delivery_method === 'delivery' ? 'Diantar penjual · '.$unit->delivery_address : 'Diambil di outlet' }}<br><strong>Pengembalian:</strong> {{ $unit->return_method === 'collection' ? 'Diambil kembali penjual · '.$unit->return_address : 'Dikembalikan ke outlet' }}</p>
 @if($unit->package_name)<p><strong>Paket:</strong> {{ $unit->package_name }} · {{ $unit->package_days }} hari</p>@endif

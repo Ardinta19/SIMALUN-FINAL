@@ -23,7 +23,7 @@ class LoginController extends Controller
             'email' => ['nullable', 'string'],
             'password' => ['required', 'string'],
         ], [
-            'password.required' => 'Kata sandi wajib diisi',
+            'password.required' => 'Kata sandi wajib diisi.',
         ]);
 
         $identifier = trim($credentials['identifier'] ?? $credentials['email'] ?? '');
@@ -31,7 +31,7 @@ class LoginController extends Controller
 
         if (! $identifier) {
             return back()->withErrors([
-                'identifier' => 'Email atau No. HP wajib diisi',
+                'identifier' => 'Email atau nomor HP wajib diisi.',
             ])->onlyInput('identifier');
         }
 
@@ -66,7 +66,7 @@ class LoginController extends Controller
         }
 
         return back()->withErrors([
-            'identifier' => 'Email/No. HP atau password yang kamu masukkan salah.',
+            'identifier' => 'Email atau nomor HP atau kata sandi yang kamu masukkan salah.',
         ])->onlyInput('identifier');
     }
 

@@ -116,8 +116,8 @@ class EditUser extends Command
         }
 
         $validator = Validator::make($payload, $rules, [
-            'phone.regex' => 'Format No. HP tidak valid (setelah normalisasi harus seperti 81234567890).',
-            'phone.unique' => 'No. HP sudah dipakai akun lain.',
+            'phone.regex' => 'Format nomor HP tidak valid (setelah normalisasi harus seperti 81234567890).',
+            'phone.unique' => 'Nomor HP sudah dipakai akun lain.',
             'email.unique' => 'Email sudah dipakai akun lain.',
         ]);
 

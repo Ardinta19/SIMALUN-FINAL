@@ -41,7 +41,7 @@
             <label for="adm-order-status">Status atau tugas</label>
             <select id="adm-order-status" name="status">
                 <option value="">Semua</option>
-                @foreach(['pending'=>'Menunggu konfirmasi', 'confirmed'=>'Dikonfirmasi', 'cancelled'=>'Dibatalkan', 'seller_cancelled'=>'Dibatalkan karena penjual', 'payment_pending'=>'Bukti menunggu pemeriksaan', 'design_pending'=>'Preview menunggu respons', 'design_initial'=>'Perlu preview awal', 'design_revision'=>'Revisi desain diminta', 'transport_quote'=>'Perlu penawaran ongkos', 'transport_approval'=>'Ongkos menunggu persetujuan', 'review'=>'Peninjauan pembayaran'] as $value => $label)
+                @foreach(\App\Support\RentalLabels::UNIT_STATUS as $value => $label)
                     <option value="{{ $value }}" @selected(($filters['status'] ?? '') === $value)>{{ $label }}</option>
                 @endforeach
             </select>

@@ -64,7 +64,7 @@ class RentalFeedbackController extends Controller
             $settled = fn ($u) => $u->status === 'cancelled'
                 || ($u->status === 'confirmed' && $u->progress === 'returned')
                 || ($u->status === 'confirmed' && $u->event_on !== null && $u->event_on->lessThanOrEqualTo($grace));
-            if (! $units->contains(fn ($u) => $u->status !== 'cancelled') || ! $units->every($settled)) throw ValidationException::withMessages(['rating' => 'Rating pesanan tersedia setelah seluruh unit selesai atau dibatalkan, atau setelah tanggal acara lewat lebih dari '.RentalAutoClose::GRACE_DAYS.' hari; minimal satu unit tidak dibatalkan.']);
+            if (! $units->contains(fn ($u) => $u->status !== 'cancelled') || ! $units->every($settled)) throw ValidationException::withMessages(['rating' => 'Rating pesanan tersedia setelah seluruh unit selesai atau dibatalkan, atau setelah tanggal acara lewat lebih dari '.RentalAutoClose::GRACE_DAYS.' hari, dengan minimal satu unit yang tidak dibatalkan.']);
             if (DB::table('rental_order_reviews')->where('rental_order_id', $order->id)->exists()) throw ValidationException::withMessages(['rating' => 'Pesanan ini sudah diberi rating.']);
             DB::table('rental_order_reviews')->insert(['rental_order_id' => $order->id, 'user_id' => $request->user()->id, 'rating' => $data['rating'], 'created_at' => now(), 'updated_at' => now()]);
         }, 3);

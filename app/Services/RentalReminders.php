@@ -121,7 +121,7 @@ class RentalReminders
                     app(RentalNotifications::class)->admins(
                         $unit->order,
                         'Tanggal acara sudah lewat',
-                        'Unit '.$unit->product_name.' masih berstatus "'.$unit->progress.'" padahal tanggal acaranya sudah lewat. Periksa unit, lalu lanjutkan, tutup, atau batalkan dengan alasan.'
+                        'Unit '.$unit->product_name.' masih berstatus "'.\App\Support\RentalLabels::progress($unit->progress).'" padahal tanggal acaranya sudah lewat. Periksa unit, lalu lanjutkan, tutup, atau batalkan dengan alasan.'
                     );
                     $counts['event_overdue']++;
                 }

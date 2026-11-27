@@ -65,7 +65,7 @@ class RegisterController extends Controller
             'terms' => ['accepted'],
         ], [
             'phone.required' => 'Nomor HP wajib diisi.',
-            'phone.regex' => 'Format nomor HP tidak valid (contoh: 81234567890).',
+            'phone.regex' => 'Format nomor HP tidak valid (contoh: 0812 3456 7890).',
             'phone.unique' => 'Nomor HP tidak tersedia. Silakan masuk atau hubungi admin jika memerlukan bantuan akun.',
             'email.unique' => 'Email tidak tersedia. Silakan gunakan email lain atau hubungi admin.',
             'terms.accepted' => 'Kamu harus menyetujui syarat & ketentuan.',

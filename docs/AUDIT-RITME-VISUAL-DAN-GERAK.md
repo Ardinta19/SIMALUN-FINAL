@@ -3486,3 +3486,35 @@ Kelas `js-card` yang tidak dirujuk skrip mana pun dibuang dari tiga kartu di
 formulir alamat. Sisa kelas tanpa definisi hanyalah `registration-progress`
 (digayai lewat `#registration-progress`), `bk-rating-total` dan
 `bk-share-link` (mewarisi gaya wadahnya) — semuanya bukan temuan.
+
+### 9.73 Putaran kesebelas: bahasa pesan galat dan satu sumber label status
+
+**a. Pesan galat kini kalimat utuh dan seistilah.** Sebelumnya ada pesan tanpa
+titik ("Kata sandi wajib diisi"), kata **"Password"** di tengah kalimat
+berbahasa Indonesia ("Email/No. HP atau password yang kamu masukkan salah"),
+**"No. HP"** bercampur "Nomor HP" di layar yang sama, dan pesan yang membocorkan
+istilah teknis ("Kunci pencatatan sudah digunakan untuk pengembalian lain").
+Semua dirapikan — termasuk contoh nomor HP yang kini seragam
+(`0812 3456 7890`, sesuai placeholder formulir) dan pesan "Catatan kas tidak
+cocok" yang kini menyebut langkah berikutnya. Pesan yang terpotong karena
+disambung variabel ("… lebih dari 7 hari; minimal satu unit tidak dibatalkan")
+ditulis ulang jadi satu kalimat utuh. Dijaga
+`test_pesan_galat_berbentuk_kalimat_utuh`.
+
+**b. Satu sumber label status.** Peta label status unit, progres pengerjaan,
+status bukti pembayaran, dan status pratinjau desain ditulis ulang di delapan
+view dengan ejaan berbeda — **"Preview menunggu respons"** di filter admin,
+"Pratinjau" di halaman pelanggan. Notifikasi pengingat bahkan menampilkan nilai
+mentah basis data: `masih berstatus "waiting"`. Semua kini memakai
+`app/Support/RentalLabels.php`; ejaan diseragamkan ke "Pratinjau", dan
+notifikasi menampilkan label manusia. Daftar filter tetap dibatasi sesuai
+validasi controllernya: 3 status untuk pesanan pelanggan, 2 status untuk papan
+jadwal, 11 status untuk pesanan admin. Dijaga
+`test_label_status_dan_progres_hanya_di_satu_tempat`.
+
+**c. Yang diperiksa dan aman.** Seluruh 110 pesan galat kustom di controller,
+perintah artisan, dan layanan sudah menyapa "kamu" (0 "Anda"); teks tautan
+WhatsApp siap kirim sengaja tidak memuat nominal atau alamat lengkap, dan
+potongan statusnya ditulis huruf kecil supaya menyambung kalimat.
+
+**Hasil:** harness **171 lulus, 0 gagal, 218 dilewati**.
