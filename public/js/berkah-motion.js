@@ -7,13 +7,19 @@
 
    Pembagian tugas — masing-masing dipakai sesuai fungsinya:
 
-   · Lenis   → gulir halus berbobot untuk roda mouse dan trackpad. Gulir
-               sentuh sengaja TIDAK diambil alih (syncTouch: false): gestur
-               jari cepat atau miring paling halus bila ditangani peramban
-               sendiri, dan Lenis yang memegang sentuh pernah membuat halaman
-               terasa patah sampai membeku saat mesinnya berhenti sesaat.
+   · Lenis   → gulir halus berbobot untuk roda mouse, trackpad, DAN sentuh
+               (`syncTouch: true`). Gulir sentuh ikut dihaluskan supaya ponsel
+               terasa sama nyamannya dengan desktop — sebelumnya jari memakai
+               momentum bawaan peramban sehingga tidak ada animasi sama sekali.
+               Dua pengaman menjaga agar ini tidak merepotkan:
+                 · `prevent` mengembalikan sentuhan pada kolom isian, area
+                   bertanda [data-lenis-prevent], sheet, dan dialog — kursor
+                   teks serta isi sheet tetap memakai gulir asli.
+                 · `syncTouchLerp` rendah (0.075) membuat gerak mengikuti jari
+                   tanpa ekor panjang; hentakan mendadak tidak "menyusul" jauh.
                Otomatis berhenti saat sheet/dialog mengunci gulir (kelas
-               .fc-scroll-lock atau .bk-scroll-frozen). Halaman yang ingin
+               .fc-scroll-lock atau .bk-scroll-frozen) dan saat pengguna meminta
+               gerak dikurangi atau memakai mode hemat data. Halaman yang ingin
                gulir asli cukup menandai <html data-bk-no-smooth>.
    · GSAP + ScrollTrigger
              → kemunculan bertahap elemen ([data-bk-reveal],
@@ -120,16 +126,19 @@
                 lerp: 0.1,
                 smoothWheel: true,
                 wheelMultiplier: 1,
-                /* Sentuh: biarkan peramban. Bila Lenis ikut memegang gestur
-                   jari (opsi syncTouch), ia mem-preventDefault touchmove lalu
-                   menggulir sendiri memakai selisih jari; saat frame tersendat
-                   (foto besar, animasi masuk) atau saat Lenis dihentikan
-                   sesaat, gestur cepat dan miring jadi terasa patah — dan
-                   karena vendor lenis.css memberi `.lenis-stopped {
-                   overflow: clip }` pada <html>, gulir bisa berhenti sama
-                   sekali. Gulir asli juga menjaga momentum, pantulan, dan
-                   cubit-zoom tetap milik peramban. */
-                syncTouch: false,
+                /* Sentuh ikut dihaluskan: di ponsel, gulir tanpa animasi
+                   terasa kaku dan membuat halaman bergerak seolah "melompat".
+                   Lerp rendah menjaga respons tetap menempel pada jari, dan
+                   `prevent` di bawah menyerahkan kembali sentuhan pada kolom
+                   isian serta daerah yang punya gulir sendiri (sheet, tabel,
+                   sidebar) supaya tidak ada yang terasa tertahan. */
+                syncTouch: true,
+                syncTouchLerp: 0.075,
+                touchInertiaMultiplier: 22,
+                prevent: function (node) {
+                    if (!node || !node.closest) return false;
+                    return !!node.closest('[data-lenis-prevent], input, textarea, select, [contenteditable="true"], .fc-sheet, .bk-dialog, .adm-sheet');
+                },
                 autoRaf: false
             });
             state.lenis = lenis;
@@ -270,6 +279,51 @@
             }
         });
         gsap.from(el, tween);
+    }
+
+    /* ── 2b. Masuk halaman ──────────────────────────────────────────────────
+       Halaman yang belum punya koreografi sendiri mendapat satu tarikan
+       napas: blok-blok utama isi halaman naik 12 px sambil memudar masuk,
+       berurutan 60 ms. Tanpa ini, halaman terasa "berkedip" muncul begitu
+       saja — terutama di ponsel, tempat tidak ada efek kursor yang menutupi.
+
+       Batasnya sengaja ketat supaya tidak ada halaman yang jadi rusak:
+         · hanya empat anak pertama <main> (bukan seluruh pohon),
+         · elemen berposisi fixed/sticky dilewati (transform pada induknya
+           bisa mengubah titik acuan),
+         · halaman yang sudah punya [data-bk-reveal] dilewati — jangan dua
+           koreografi pada satu layar,
+         · transform dibersihkan setelah selesai (clearProps), jadi tidak
+           ada sisa containing block,
+         · <html data-bk-no-page-enter> mematikannya, dan gerak dikurangi /
+           mode hemat data mematikannya lebih dulu. */
+
+    function initPageEnter() {
+        if (!motionOn() || saveData || !window.gsap) return;
+        if (root.hasAttribute('data-bk-no-page-enter')) return;
+
+        var page = document.getElementById('page') || document.querySelector('main');
+        if (!page) return;
+        if (page.querySelector('[data-bk-reveal], [data-bk-reveal-group]')) return;
+
+        var blocks = Array.prototype.filter.call(page.children, function (el) {
+            if (!el || el.nodeType !== 1) return false;
+            if (el.hasAttribute('data-bk-no-enter')) return false;
+            var style = window.getComputedStyle ? window.getComputedStyle(el) : null;
+            if (!style) return true;
+            return style.position !== 'fixed' && style.position !== 'sticky';
+        }).slice(0, 4);
+
+        if (!blocks.length) return;
+
+        window.gsap.from(blocks, {
+            opacity: 0,
+            y: 12,
+            duration: 0.5,
+            stagger: 0.06,
+            ease: 'power2.out',
+            clearProps: 'opacity,transform'
+        });
     }
 
     /* ── 3. Parallax halus ───────────────────────────────────────────────────
@@ -414,6 +468,7 @@
             window.gsap.defaults({ ease: 'power3.out' });
             initLenis();
             revealTargets();
+            initPageEnter();
             initParallax();
             initTilt();
             initCounters();

@@ -139,3 +139,24 @@ Laporan lengkap: `docs/DESAIN-PANEL-ADMIN.md`.
 8. **Belum diuji**: render Blade, kontras visual, dan animasi di peramban belum pernah dijalankan (sandbox tanpa `vendor/`). Perintah tes untuk Windows ada di bagian 10 `docs/DESAIN-PANEL-ADMIN.md`; yang paling perlu dicurigai: `RentalCatalogTest`, `RentalScheduleTest`, `RentalCashBookTest`.
 
 **Hasil verifikasi Windows (23 November 2026, commit `8ad9d38`)** — `php artisan test`: **346 lulus, 2.773 asersi, 12,35 detik**. Dua kegagalan yang muncul pada percobaan pertama sudah diperbaiki: `class="bk-back"` yang hilang dari lima view rental, dan tautan Panduan admin di dasbor. Pelajaran operasional: setelah menarik berkas baru, **selalu** jalankan `php artisan view:clear` (atau `optimize:clear`) sebelum menguji — berkas hasil sinkronisasi dapat membawa mtime lama sehingga Blade terus memakai view terkompilasi versi lama, dan gejalanya menyesatkan (kode di disk benar, hasil render lama).
+
+### Babak J — validasi mikro, tombol kembali jujur, gulir sentuh halus (`statis, belum diuji di Windows`)
+
+Putaran 31 memperbaiki empat keluhan langsung dari pemakaian:
+
+1. **Balon "Bagian ini wajib diisi." hilang.** `berkah-controls.js` kini menyetel `form.noValidate`, memeriksa semua kolom ber-kendala (termasuk kolom yang sudah menjadi sheet lewat trigger-nya), lalu menampilkan satu kalimat kecil di bawah kolom — "Nama lengkap belum diisi." — dengan `role="alert"`, `aria-describedby`, dan fokus tanpa lompatan gulir. Detail: `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.138.
+2. **Tombol "Kembali ke keranjang" tidak lagi salah tujuan.** `berkah-smart-back.js` hanya memakai `history.back()` bila jalur halaman asal sama dengan jalur pada href tombol; bila berbeda, href yang diikuti. `/checkout` juga masuk daftar jalur yang tidak pernah dituju lewat riwayat. Detail: §9.139.
+3. **Gulir ponsel dihaluskan.** `syncTouch: true` dengan `syncTouchLerp: 0.075`, ditambah opsi `prevent` yang mengembalikan sentuhan pada kolom isian, sheet, dialog, dan `[data-lenis-prevent]`. Jaring pengaman `reviveIfStuck` dan `lagSmoothing` tetap berlaku. Detail: §9.140.
+4. **Setiap halaman punya animasi masuk.** `initPageEnter()` menganimasikan maksimal empat anak langsung `<main>` (naik 12 px + memudar, stagger 60 ms) dengan `clearProps`, melewati elemen `fixed`/`sticky` dan halaman yang sudah memakai `[data-bk-reveal]`. Dua jalan keluar: `<html data-bk-no-page-enter>` dan `data-bk-no-enter`.
+
+Tes penjaga baru: `tests/Feature/SmartBackTest.php` (3), `tests/Feature/FormCueTest.php` (7), dan satu tes tambahan di `tests/Feature/MotionAssetsTest.php`. `MotionAssetsTest::test_gulir_sentuh_tetap_milik_peramban` diganti nama dan isinya menjadi `test_gulir_sentuh_dihaluskan_dengan_pengaman` karena keputusan §9.55 dibalik oleh §9.140 — penjelasan perubahan ada di dokumen audit, bukan sekadar asersi yang dilonggarkan.
+
+Perkiraan jumlah tes setelah putaran 30 dan 31: **±493 lulus** (469 pada `1ea281d` + 13 tes putaran 30 + 11 tes putaran 31). Belum dijalankan di Windows.
+
+Pemeriksaan manual yang perlu dilakukan:
+
+1. `php artisan optimize:clear` lalu `php artisan test`; catat jumlah lulus/gagal.
+2. Checkout: kosongkan nama dan nomor, tekan Kirim — hanya baris kecil di bawah kolom, tanpa balon oranye; isi kolomnya, pesan langsung hilang.
+3. Dari katalog, tekan "Pesan langsung" pada satu papan sampai checkout, lalu "Kembali ke keranjang" — harus terbuka halaman keranjang, bukan detail papan.
+4. Di ponsel: gulir beranda dan katalog — harus meluncur halus; buka sheet filter lalu gulir isinya — isi sheet yang bergerak, bukan halaman di belakangnya.
+5. Muat ulang halaman keranjang dan halaman bantuan — isi masuk dengan lembut, tidak berkedip.

@@ -93,18 +93,55 @@ class MotionAssetsTest extends TestCase
         }
     }
 
-    /** Gulir sentuh adalah milik peramban; Lenis hanya untuk roda/trackpad.
-     *
-     *  `syncTouch: true` membuat Lenis mem-preventDefault touchmove dan
-     *  menggulir sendiri. Akibatnya gestur cepat/miring terasa patah, dan saat
-     *  Lenis dihentikan sesaat vendor lenis.css memasang `overflow: clip` pada
-     *  <html> sehingga halaman tidak bisa digulir sama sekali. */
-    public function test_gulir_sentuh_tetap_milik_peramban(): void
+    /** Setiap halaman mendapat animasi masuk yang aman. */
+    public function test_masuk_halaman_dibatasi_agar_tidak_merusak_tata_letak(): void
     {
         $js = $this->source('js/berkah-motion.js');
 
-        $this->assertStringContainsString('syncTouch: false', $js, 'Gulir sentuh tidak boleh diambil alih Lenis.');
-        $this->assertStringNotContainsString('syncTouch: true', $js);
+        $this->assertStringContainsString('function initPageEnter()', $js);
+        $this->assertStringContainsString('initPageEnter();', $js);
+
+        // Jangan menganimasikan elemen fixed/sticky atau seluruh pohon main.
+        $this->assertStringContainsString("style.position !== 'fixed' && style.position !== 'sticky'", $js);
+        $this->assertStringContainsString('.slice(0, 4)', $js);
+
+        // Halaman yang sudah punya koreografi sendiri tidak dianimasikan dua kali.
+        $this->assertStringContainsString("page.querySelector('[data-bk-reveal], [data-bk-reveal-group]')", $js);
+
+        // Tidak ada sisa transform/containing block setelah animasi selesai.
+        $this->assertStringContainsString("clearProps: 'opacity,transform'", $js);
+
+        // Dua jalan keluar: penanda html dan elemen per blok.
+        $this->assertStringContainsString('data-bk-no-page-enter', $js);
+        $this->assertStringContainsString('data-bk-no-enter', $js);
+    }
+
+    /** Gulir sentuh ikut dihaluskan, dengan pengaman yang jelas.
+     *
+     *  Keputusan §9.140 membalik pengaturan lama (`syncTouch: false`): di
+     *  ponsel tidak ada animasi gulir sama sekali sehingga halaman terasa
+     *  kaku dan "melompat". Sekarang Lenis memegang sentuh dengan lerp rendah
+     *  (0.075) supaya gerak menempel pada jari, sementara opsi `prevent`
+     *  mengembalikan sentuhan pada kolom isian dan daerah bergulir sendiri
+     *  (sheet, dialog, [data-lenis-prevent]) agar tidak ada yang tertahan.
+     *  Pengaman lain tetap: Lenis berhenti saat gulir dikunci dan tidak pernah
+     *  dinyalakan bila pengguna meminta gerak dikurangi atau hemat data. */
+    public function test_gulir_sentuh_dihaluskan_dengan_pengaman(): void
+    {
+        $js = $this->source('js/berkah-motion.js');
+
+        $this->assertStringContainsString('syncTouch: true', $js, 'Gulir sentuh harus ikut dihaluskan.');
+        $this->assertStringNotContainsString('syncTouch: false', $js);
+        $this->assertStringContainsString('syncTouchLerp: 0.075', $js, 'Lerp sentuh harus rendah agar gerak menempel pada jari.');
+
+        // Kolom isian dan daerah bergulir sendiri memakai gulir asli.
+        $this->assertStringContainsString('prevent: function (node)', $js);
+        $this->assertStringContainsString('[data-lenis-prevent], input, textarea, select', $js);
+        $this->assertStringContainsString('.fc-sheet', $js);
+
+        // Gerak tetap dimatikan untuk pengguna yang memintanya.
+        $this->assertStringContainsString('saveData', $js);
+        $this->assertStringContainsString('prefers-reduced-motion', $js);
 
         // Satu frame panjang tidak boleh menggeser posisi gulir sekaligus.
         $this->assertStringNotContainsString('lagSmoothing(0)', $js, 'Delta frame harus dibatasi, bukan dibiarkan apa adanya.');

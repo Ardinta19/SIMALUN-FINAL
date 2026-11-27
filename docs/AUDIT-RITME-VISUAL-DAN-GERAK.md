@@ -90,7 +90,7 @@ antara Lenis, GSAP, dan ScrollTrigger, plus **area sentuh 44 px**.
 
 | Pustaka | Berkas | Tugas | Alasan |
 |---|---|---|---|
-| **Lenis 1.3.11** | `public/vendor/lenis/lenis.min.js` + `lenis.css` | Gulir halus berbobot di mouse dan trackpad; disinkronkan ke ScrollTrigger; berhenti otomatis saat sheet mengunci gulir. **Gulir sentuh sengaja tidak diambil alih** (`syncTouch: false`). | Gulir adalah interaksi paling sering di semua perangkat, tetapi gestur jari paling halus bila ditangani peramban: momentum, pantulan, dan cubit-zoom tetap asli, dan halaman tidak bisa membeku ketika mesin gerak berhenti sesaat. Lihat §9.55. |
+| **Lenis 1.3.11** | `public/vendor/lenis/lenis.min.js` + `lenis.css` | Gulir halus berbobot di mouse, trackpad, **dan sentuh**; disinkronkan ke ScrollTrigger; berhenti otomatis saat sheet mengunci gulir. Opsi `prevent` menyerahkan sentuhan pada kolom isian, sheet, dan daerah bergulir sendiri. | Di ponsel, gulir tanpa animasi terasa kaku dan halaman seolah melompat. Lerp rendah (0.075) menjaga gerak menempel pada jari, sementara pengaman §9.140 mencegah keempat masalah yang dulu membuat sentuh dimatikan (§9.55). |
 | **GSAP 3.15.0** | `public/vendor/gsap/gsap.min.js` | Tween, timeline splash, hitung angka, tekanan tombol berpegas, kemiringan kartu. | Sudah dipakai; tetap mesin utama. |
 | **ScrollTrigger 3.15.0** | `public/vendor/gsap/ScrollTrigger.min.js` | Kemunculan berbasis posisi gulir (`once`), parallax `scrub`, pemicu hitungan. | Satu-satunya cara hemat: hanya elemen yang terlihat yang beranimasi. |
 | **Micro-interaction** | `public/js/berkah-motion.js` | `data-bk-press` (tekanan berpegas), `data-bk-tilt` (kartu katalog), `data-bk-count` (angka), `data-bk-reveal`/`-group` (kemunculan), `data-bk-parallax`. | Perlu, tapi harus punya fungsi: mengarahkan mata, bukan menghibur. |
@@ -2312,6 +2312,13 @@ di desktop, reveal/parallax berbasis ScrollTrigger, dan seluruh jalur
 `prefers-reduced-motion` serta `saveData`.
 
 Dijaga `MotionAssetsTest::test_gulir_sentuh_tetap_milik_peramban`.
+
+> **Revisi §9.140 (putaran 31).** Keputusan mematikan `syncTouch` dibalik:
+> gulir ponsel yang tidak dianimasikan terasa kaku. `syncTouch: true` dipakai
+> kembali dengan `syncTouchLerp: 0.075` dan opsi `prevent` yang menyerahkan
+> sentuhan pada kolom isian serta daerah bergulir sendiri, sehingga keempat
+> sebab di atas tetap tertutup. Tesnya kini bernama
+> `test_gulir_sentuh_dihaluskan_dengan_pengaman`.
 
 Cara memeriksa di ponsel (Chrome/Safari):
 
@@ -5430,3 +5437,130 @@ WhatsApp" tidak lagi hilang hanya karena `RentalPaymentSetting` kosong —
 nomor usaha yang dipakai, dan tombolnya tetap muncul. Kalimat "belum diatur"
 hanya tampil bila nomor pembayaran **dan** nomor usaha sama-sama kosong.
 Dijaga `BusinessIdentityTest::test_halaman_unit_memakai_nomor_usaha_bila_nomor_pembayaran_kosong()`.
+### 9.138 Balon "Bagian ini wajib diisi." diganti petunjuk mikro
+
+Laporan: setiap kali formulir dikirim dengan kolom kosong, peramban
+menampilkan balon oranye "Bagian ini wajib diisi." yang menempel pada elemen —
+dan pada checkout balon itu muncul di tempat yang membingungkan, karena kolom
+yang ditunjuk sudah ditingkatkan menjadi sheet/trigger sehingga posisinya di
+tepi atas halaman. Balon itu juga tidak bisa digayakan, berbeda di setiap
+peramban, dan hilang dalam 3 detik — tidak cukup untuk memberi tahu **apa**
+yang harus diisi.
+
+Penggantinya satu lapisan kecil di `berkah-controls.js`. Satu temuan penting
+lebih dulu: **validasi bawaan peramban berjalan sebelum event `submit`
+dikirim**, jadi handler `submit` tidak bisa mencegah balon itu — yang bisa
+mencegahnya hanya atribut `novalidate`. Karena itu `prepareForm()` memasang
+`noValidate` pada setiap formulir **saat halaman dimuat**, ditambah
+MutationObserver (`childList` + `subtree`) untuk formulir yang disisipkan
+belakangan (mis. baris baru di katalog admin). Formulir yang penulisnya sendiri
+sudah memakai `novalidate` ditandai `data-bk-cue-off` dan tidak diawasi, dan
+tombol dengan `formnovalidate` (mis. "Lewati") tetap boleh mengirim.
+
+Selanjutnya:
+
+- Balon bawaan tidak pernah muncul lagi karena `novalidate` sudah terpasang
+  sebelum peramban sempat memeriksa isian.
+- `constraintFields()` memeriksa **semua** kolom ber-`required`/ber-kendala,
+  bukan hanya yang pertama. Kolom yang disembunyikan lapisan kontrol diwakili
+  oleh trigger-nya (`cueAnchor()`), supaya formulir tidak lolos ke server hanya
+  karena kolomnya tidak terlihat.
+- `showCue()` menaruh satu kalimat tenang tepat di bawah kolom — "Nama lengkap
+  belum diisi.", "Nomor WhatsApp belum diisi." — dengan titik kecil sebagai
+  penanda, animasi masuk 180 ms, satu denyut cincin tipis pada kolomnya, dan
+  `role="alert"` + `aria-describedby` + `aria-invalid` untuk pembaca layar.
+  Maksimal lima pesan sekaligus supaya halaman tidak dipenuhi teks.
+- `revealField()` menggulir ke kolom pertama yang bermasalah lewat Lenis bila
+  mesin gerak aktif (`lenis.scrollTo(anchor, { offset: -96 })`), dengan fokus
+  dipindahkan memakai `focus({ preventScroll: true })` agar tidak ada dua
+  mekanisme gulir yang berebut.
+- Pesan dibersihkan begitu isian diperbaiki (`input`/`change`), dan seluruh
+  sisa pesan dibuang saat halaman kembali dari cache riwayat (`pageshow`).
+- Atribut `aria-invalid` hanya dilepas bila memang kita yang memasangnya
+  (penanda `data-bk-cue`), jadi status milik lapisan kontrol tidak terhapus.
+
+Tanpa JavaScript, `required` tetap bekerja seperti biasa — tidak ada yang
+kehilangan pengaman. Kolom wajib yang benar-benar tak terlihat dan tanpa
+trigger (mis. di dalam `<details>` tertutup) tidak bisa diberi petunjuk di
+tempatnya; kiriman seperti itu lolos ke server dan ditolak validasi Laravel
+yang pesannya sudah tampil di atas formulir. Ini disengaja: lebih baik satu
+pesan server daripada balon yang menunjuk elemen tak terlihat.
+
+Dijaga `tests/Feature/FormCueTest.php` (7 tes): `form.noValidate` yang dipasang saat halaman dimuat, tidak adanya
+`window.alert(`/`reportValidity()`, kalimat Indonesia, hubungan `aria-*`,
+perwakilan kolom tersembunyi lewat `__fcTrigger`, gulir lewat Lenis dengan
+`preventScroll`, serta gaya `.bk-cue` + `.bk-cue--in` + `@keyframes
+bk-cue-pulse` dan blok `prefers-reduced-motion` yang mematikan animasinya.
+
+**Cara memeriksa sendiri:** buka checkout, kosongkan nama lalu tekan Kirim.
+Yang muncul hanya satu baris kecil di bawah kolom nama dan kolom nomor —
+tidak ada balon oranye. Isi kolomnya, pesan langsung hilang.
+
+### 9.139 Tombol "Kembali ke keranjang" tidak lagi membuka halaman lain
+
+Laporan: di halaman checkout, tombol berlabel "Kembali ke keranjang" kadang
+membuka halaman papan bunga, bukan keranjang.
+
+Sebabnya `berkah-smart-back.js`: selama referrer berada di situs yang sama,
+tombol memakai `history.back()`. Padahal checkout bisa dibuka dari halaman
+detail papan ("Pesan langsung"), jadi riwayat sebelumnya adalah halaman papan —
+sementara label tombol menjanjikan keranjang. Label dan tujuan berbeda.
+
+Perbaikan: `history.back()` hanya dipakai bila **jalur halaman asal sama
+dengan jalur pada href tombol** (`samePath(referrer.pathname,
+href.pathname)`). Bila berbeda, href yang diikuti — label jadi jujur. Selain
+itu `/checkout` masuk `skipPaths`, sehingga riwayat tidak pernah dipakai untuk
+kembali ke halaman checkout.
+
+Dijaga `tests/Feature/SmartBackTest.php` (3 tes): pemeriksaan `samePath` +
+normalisasi garis miring di ujung, daftar `skipPaths`, dan pemindaian seluruh
+`resources/views` — 21 tombol `data-smart-back` harus punya `href` yang tidak
+kosong dan bukan `#`, supaya tombol tetap bekerja tanpa JavaScript.
+
+**Cara memeriksa sendiri:** dari katalog, tekan "Pesan langsung" pada satu
+papan sampai masuk checkout, lalu tekan "Kembali ke keranjang" — yang terbuka
+halaman keranjang. Dari keranjang, tekan tombol kembali — riwayat tetap dipakai
+sehingga filter dan posisi gulir katalog kembali seperti semula.
+
+### 9.140 Gulir ponsel ikut dihaluskan, dan setiap halaman punya animasi masuk
+
+Laporan: di ponsel gulir terasa kaku — "tidak ada animasi scroll" — sedangkan
+di desktop halus. Sebabnya `berkah-motion.js` memakai `syncTouch: false`:
+Lenis hanya memegang roda dan trackpad, jari memakai momentum bawaan peramban.
+
+Keputusan §9.55 (mematikan `syncTouch`) dibalik dengan pengaman yang menjawab
+keempat sebab yang dulu ditemukan:
+
+- **Gestur pindah ke Lenis, tetapi tidak semua.** `syncTouch: true` dengan
+  `syncTouchLerp: 0.075` (rendah, jadi gerak menempel pada jari) dan
+  `touchInertiaMultiplier: 22` (hentakan tidak meluncur jauh).
+- **Kolom isian dan daerah bergulir sendiri memakai gulir asli.** Opsi
+  `prevent` mengembalikan `true` untuk `[data-lenis-prevent]`, `input`,
+  `textarea`, `select`, `[contenteditable]`, `.fc-sheet`, `.bk-dialog`, dan
+  `.adm-sheet` — memilih teks di kolom isian, menggulir isi sheet, dan menggulir
+  tabel lebar tidak pernah tertahan.
+- **Halaman tidak bisa membeku.** Jaring pengaman `reviveIfStuck` (§9.55) tetap
+  ada: sentuhan atau klik berikutnya menyalakan kembali Lenis bila ia tertinggal
+  dalam keadaan berhenti padahal tidak ada kunci gulir.
+- **Frame panjang tetap dibatasi** oleh `lagSmoothing(500, 33)`, dan gerak
+  dimatikan total untuk `prefers-reduced-motion` maupun mode hemat data.
+
+Selain gulir, halaman yang belum punya koreografi sendiri kini punya animasi
+masuk: `initPageEnter()` menaikkan empat blok pertama `<main>` 12 px sambil
+memudar masuk (stagger 60 ms). Batasnya ketat supaya tidak ada halaman rusak —
+hanya anak langsung `<main>` (bukan seluruh pohon), elemen `fixed`/`sticky`
+dilewati, halaman yang sudah memakai `[data-bk-reveal]` dilewati, dan
+`clearProps` membersihkan transform setelah selesai sehingga tidak ada
+containing block yang tertinggal. Dua jalan keluar disediakan:
+`<html data-bk-no-page-enter>` dan `data-bk-no-enter` per blok.
+
+Dijaga `tests/Feature/MotionAssetsTest.php`: tes
+`test_gulir_sentuh_dihaluskan_dengan_pengaman` (menggantikan
+`test_gulir_sentuh_tetap_milik_peramban` yang mengunci keputusan lama) dan
+`test_masuk_halaman_dibatasi_agar_tidak_merusak_tata_letak`.
+
+**Cara memeriksa sendiri:** di ponsel, gulir beranda dan katalog — gerakannya
+meluncur dan berhenti lembut, bukan melompat. Buka sheet filter dan gulir
+isinya: isi sheet yang bergerak, bukan halaman di belakangnya. Muat ulang
+halaman keranjang: isinya masuk dengan lembut, tidak "berkedip" muncul.
+
