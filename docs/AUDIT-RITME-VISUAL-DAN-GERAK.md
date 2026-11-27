@@ -4023,8 +4023,8 @@ akal — hosting menerminasi TLS di proxy mereka, dan tanpa mempercayai
 proxy, Laravel mengira koneksi masih HTTP (muncul "Mixed Content" atau
 redirect berulang saat HTTPS dipaksa). Tetapi `*` juga berarti siapa pun
 yang menghubungi server langsung boleh mengaku sebagai IP apa saja, dan IP
-itu dipakai untuk kunci pembatasan percobaan masuk (5 kali per email+IP,
-`LoginRequest::throttleKey()`) serta kolom `ip` pada catatan audit.
+itu dipakai untuk kunci pembatasan percobaan masuk (rute `/login` memakai
+`throttle:5,1` yang dihitung per IP) serta kolom `ip` pada catatan audit.
 
 Nilai itu sekarang bisa diatur tanpa menyentuh kode:
 `App\Support\TrustedProxies::parse()` membaca `TRUSTED_PROXIES`
@@ -4434,3 +4434,28 @@ diaktifkan penuh.
 - **Kunci mass assignment & snapshot audit** — dipindai ulang untuk seluruh
   `create([...])`, `->update([...])`, dan `->only([...])` di `app/`:
   semuanya cocok dengan `$fillable` model dan kolom hasil migrasi.
+
+### 9.108 `LoginRequest` yang tidak pernah dipakai
+
+`app/Http/Requests/Auth/LoginRequest.php` adalah sisa Breeze: satu-satunya
+tempat di proyek yang memakai `RateLimiter` manual dengan kunci
+`email|ip` dan memanggil `trans('auth.throttle')`. Setelah login ditulis
+ulang (`LoginController@authenticate` menerima email **atau** nomor HP),
+kelas itu tidak dirujuk siapa pun — `grep` di `app/`, `routes/`, `tests/`,
+dan `config/` hanya menemukan deklarasi kelasnya sendiri.
+
+Dua mekanisme pembatasan yang salah satunya mati justru berbahaya saat
+diaudit nanti: orang bisa mengira login dibatasi per email+IP oleh
+`LoginRequest`, padahal yang benar-benar berjalan adalah middleware
+`throttle:5,1` pada rute `/login`. Kelas itu dihapus; `lang/id/auth.php`
+tetap memuat kunci `throttle` karena `UiDefaultsTest` memastikan terjemahan
+kerangka Laravel tersedia.
+
+Dijaga `tests/Feature/SecurityHardeningTest.php` (tes baru): rute
+`/login` harus memuat `throttle:5,1`, tidak boleh merujuk `LoginRequest`,
+dan berkas `LoginRequest.php` tidak boleh ada lagi.
+
+Sekalian diverifikasi: `app/Http/Controllers/Auth/ForgotPasswordController`
+tidak membocorkan keberadaan akun (selalu membalas `passwords.sent`),
+`ResetPasswordController` mengikuti token broker, dan `PasswordController`
+mewajibkan kata sandi saat ini.

@@ -85,4 +85,22 @@ class SecurityHardeningTest extends TestCase
 
         $response->assertStatus(429);
     }
+
+    /**
+     * Login dibatasi di tingkat rute, dan kelas `LoginRequest` bawaan Breeze
+     * (yang tidak pernah dipakai controller mana pun) sudah dihapus supaya
+     * tidak ada dua mekanisme pembatasan yang salah satunya mati.
+     */
+    public function test_login_dibatasi_di_tingkat_rute(): void
+    {
+        $rute = (string) file_get_contents(base_path('routes/web.php'));
+        $awal = strpos($rute, "Route::post('/login'");
+        $this->assertNotFalse($awal, 'Rute login tidak ditemukan.');
+
+        $potongan = substr($rute, $awal, 400);
+        $this->assertStringContainsString("throttle:5,1", $potongan, 'Rute login harus dibatasi 5 percobaan per menit.');
+        $this->assertStringNotContainsString('LoginRequest::class', $potongan);
+
+        $this->assertFileDoesNotExist(app_path('Http/Requests/Auth/LoginRequest.php'));
+    }
 }
