@@ -130,6 +130,10 @@ Setelah `db:seed`:
 
 > Ganti password demo sebelum deploy. Akun admin tambahan dibuat lewat
 > `php artisan user:create` (tidak ada pendaftaran admin publik).
+>
+> Pelanggan yang akunnya pernah dihapus tidak dapat mendaftar ulang dengan
+> nomor HP/email yang sama (penghapusan menyimpan riwayat pesanan). Pulihkan
+> akunnya dengan `php artisan user:restore`, lalu masukkan nomor HP atau email.
 
 ---
 

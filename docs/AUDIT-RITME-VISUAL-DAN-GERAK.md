@@ -3705,3 +3705,114 @@ janji potongan pasti.
 
 **Hasil:** harness **175 lulus, 0 gagal, 218 dilewati**; `blade-scan.py`
 81 view / 0 / 0; `node --check` 11 berkas JS lolos; `.tmp-verify.php` 26/0.
+
+### 9.82 Pembersih masukan memotong kalimat biasa
+
+`app/Http/Middleware/SanitizeInput.php` membersihkan kolom teks bebas sebelum
+validasi: `address`, `notes`, `label`, `recipient_name`, `name`, dan kawan-
+kawan. Masalahnya, semua nilai dilewatkan **tiga** pembersih HTML sekaligus —
+`strip_tags()`, pembersih atribut `on…=`, dan pembersih protokol `href/src` —
+tanpa memeriksa apakah nilainya memang memuat tag. Diukur dengan menjalankan
+metode aslinya:
+
+| Masukan | Sebelum | Sesudah |
+| --- | --- | --- |
+| `Papan Bunga <3 untuk Ibu Sari` | `Papan Bunga` | utuh |
+| `ongkir=25000 ditanggung toko` | `ditanggung toko` | utuh |
+| `Kakak <Budi> yang mengambil papan` | `Kakak` | utuh |
+| `Halo <b>dunia</b> ongkir=25000` | `Halo dunia` | `Halo dunia ongkir=25000` |
+
+Dua kerusakan nyata: `<3` dianggap tag sehingga sisa kalimat hilang, dan kata
+berawalan `on` yang diikuti `=` (ongkir, ongkos, online) dianggap penangan
+event. Untuk nama penerima atau catatan kas, ini kehilangan data yang tidak
+bisa dipulihkan.
+
+Logika dipindah ke `App\Support\InputSanitizer` dengan jalur cepat: nilai yang
+tidak memuat tag yang dikenal browser dikembalikan apa adanya (hanya byte nol
+dibuang dan spasi tepi dipangkas). Daftar tag sengaja eksplisit
+(`a|b|div|script|img|iframe|…`), bukan "<" diikuti huruf apa pun, supaya nama
+`Kakak <Budi>` tidak dianggap markup. Untuk nilai bertag, urutannya kini:
+buang `<script>…</script>` beserta isinya, buang `<iframe|object|embed|link|
+meta …>`, lalu `strip_tags()` membuang seluruh tag **bersama atributnya** —
+pembersih atribut terpisah tidak diperlukan lagi, dan justru dialah yang dulu
+mencacat teks biasa. Middleware tinggal memanggil `InputSanitizer::clean()`.
+
+Dijaga `tests/Feature/InputSanitizerTest.php` (4 tes, 13 pemeriksaan): teks biasa
+utuh, spasi tepi dipangkas, byte nol dibuang, `<script>`/`<img onerror>`/
+`<iframe>`/`href="javascript:"` tetap bersih, dan spasi sisa tag dirapikan.
+Tes ini berjalan di harness karena `InputSanitizer` tidak bergantung pada
+aplikasi.
+
+### 9.83 "No. HP" masih tertinggal di empat layar dan di perintah terminal
+
+Aturan istilah sudah "nomor HP", tetapi pemeriksa lama
+(`UiDefaultsTest::test_pesan_galat_berbentuk_kalimat_utuh`) hanya memindai
+**controller** (`withMessages`/`withErrors`). Berkas Blade dan perintah
+terminal tidak tersentuh, sehingga empat teks masih lolos:
+
+- `resources/views/auth/login.blade.php:322` — pesan JS "Email atau No. HP
+  wajib diisi" saat kolom identitas kosong;
+- `resources/views/roles/customer/addresses/create.blade.php:288` dan
+  `edit.blade.php:167` — label "No. HP / WhatsApp";
+- `resources/views/roles/customer/profile/edit.blade.php:374` — label "No. HP
+  penerima".
+
+Semua diganti menjadi "nomor HP"/"Nomor HP". Perintah terminal ikut
+diseragamkan (`CreateUser`, `EditUser`): prompt "Nomor HP (contoh: …)", judul
+tabel "Nomor HP", serta "Password"/"password" pada teks yang terlihat menjadi
+"kata sandi" (nama variabel dan kunci validasi tidak diubah).
+
+Celahnya ditutup `tests/Feature/ViewCopyTest.php`: menelusuri rekursif seluruh
+`resources/views/**/*.blade.php` (termasuk `roles/admin/audit/…` yang lebih
+dalam), `app/Console/Commands/*.php`, dan `lang/id/*.php` untuk tiga bentuk
+terlarang — `No. HP`, sapaan `Anda`, dan ejaan `Silahkan`. Tes ini
+dibuktikan gagal saat satu baris "No. HP" disisipkan sementara ke sebuah view,
+lalu lulus setelah berkas uji itu dihapus.
+
+### 9.84 Akun yang sudah dihapus: pesan menyesatkan dan jalan pulang yang hilang
+
+Penghapusan akun memakai *soft delete* (`app/Models/User.php:16`), sehingga
+baris pengguna tetap ada dan nomor HP serta emailnya **masih menempati aturan
+unik**. Pelanggan yang pernah menghapus akun lalu ingin kembali akan ditolak
+saat mendaftar dengan pesan lama: *"Nomor HP tidak tersedia. Silakan masuk
+atau hubungi admin…"* — menyuruh masuk ke akun yang justru sudah tidak bisa
+dipakai. Admin pun tidak punya jalan untuk memulihkannya: belum ada halaman
+kelola pengguna, dan `user:edit` hanya mencari akun aktif.
+
+Dua perbaikan:
+
+- `RegisterController::store()` memeriksa `User::onlyTrashed()` untuk nomor HP
+  dan email yang dipakai. Bila cocok, pesannya menjadi *"Nomor HP ini tercatat
+  pada akun yang sudah dihapus. Hubungi admin untuk memulihkan akunmu."*
+  (begitu pula untuk email).
+- Perintah baru `php artisan user:restore {identifier?}` mencari akun terhapus
+  lewat email, nomor HP (dinormalkan seperti pendaftaran: `+62`/`62`/`0`
+  dibuang), atau ID; menampilkan tabel nama/email/nomor/role/waktu dihapus;
+  lalu meminta konfirmasi sebelum memulihkan. Bila data yang dicari justru
+  milik akun aktif, perintah berhenti dengan penjelasan, bukan memulihkan
+  akun yang salah. `README.md` menyebut perintah ini di bagian akun demo.
+
+Dijaga `tests/Feature/UserRestoreCommandTest.php` (pulih lewat nomor HP dengan
+format `08…`, akun aktif ditolak) dan pemeriksaan pesan baru di
+`tests/Feature/Auth/RegistrationTest.php`.
+
+### 9.85 `orWhere` tanpa grup melepas scope soft delete
+
+Dua perintah terminal mencari pengguna dengan rantai
+`where('email', …)->orWhere('phone', …)->orWhere('id', …)`. Scope soft delete
+menambahkan `deleted_at is null` sebagai syarat pertama, sehingga SQL-nya
+menjadi `(deleted_at is null AND email = ?) OR phone = ?` — cabang `phone`
+**tidak** lagi mensyaratkan akun aktif. Akibatnya `user:edit` bisa menemukan
+akun yang sudah dihapus, lalu validasi uniknya (`whereNull('deleted_at')`)
+mengizinkan nomor HP yang sama dengan baris terhapus itu, dan penyimpanan
+berakhir dengan pelanggaran indeks unik.
+
+Pencarian di `EditUser` dan `RestoreUser` kini dibungkus satu closure, jadi
+syarat aktif/terhapus berlaku untuk ketiga cabang. Di seluruh controller pola
+sejenis sudah dibungkus dengan benar (`DashboardController:56`,
+`RentalOrderController:371`, `RentalScheduleController:51`,
+`RentalReminders:69`), sehingga tidak ada yang perlu diubah.
+
+**Hasil:** harness **181 lulus, 0 gagal, 223 dilewati**; `blade-scan.py`
+81 view / 0 / 0; `.tmp-verify.php` 26/0; `php -l` bersih untuk semua berkas
+yang disentuh.

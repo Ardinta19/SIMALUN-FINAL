@@ -44,6 +44,14 @@ class RegisterController extends Controller
         $email = is_scalar($emailInput) ? trim((string) $emailInput) : '';
         $request->merge(['email' => $email !== '' ? strtolower($email) : null]);
 
+        // Akun yang sudah dihapus memakai soft delete, jadi barisnya masih
+        // menempati aturan unik nomor HP dan email. Tanpa pemeriksaan ini
+        // pelanggan hanya melihat "Silakan masuk" padahal akun itu tidak bisa
+        // dipakai lagi. Akun dapat dipulihkan admin lewat `php artisan
+        // user:restore`.
+        $phoneTerhapus = User::onlyTrashed()->where('phone', $phoneRaw)->exists();
+        $emailTerhapus = $email !== '' && User::onlyTrashed()->where('email', strtolower($email))->exists();
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'min:3', 'max:255'],
             'gender' => ['required', 'in:L,P'],
@@ -66,8 +74,12 @@ class RegisterController extends Controller
         ], [
             'phone.required' => 'Nomor HP wajib diisi.',
             'phone.regex' => 'Format nomor HP tidak valid (contoh: 0812 3456 7890).',
-            'phone.unique' => 'Nomor HP tidak tersedia. Silakan masuk atau hubungi admin jika memerlukan bantuan akun.',
-            'email.unique' => 'Email tidak tersedia. Silakan gunakan email lain atau hubungi admin.',
+            'phone.unique' => $phoneTerhapus
+                ? 'Nomor HP ini tercatat pada akun yang sudah dihapus. Hubungi admin untuk memulihkan akunmu.'
+                : 'Nomor HP tidak tersedia. Silakan masuk atau hubungi admin jika memerlukan bantuan akun.',
+            'email.unique' => $emailTerhapus
+                ? 'Email ini tercatat pada akun yang sudah dihapus. Hubungi admin untuk memulihkan akunmu.'
+                : 'Email tidak tersedia. Silakan gunakan email lain atau hubungi admin.',
             'terms.accepted' => 'Kamu harus menyetujui syarat & ketentuan.',
         ]);
 

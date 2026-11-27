@@ -319,7 +319,7 @@ document.addEventListener('DOMContentLoaded', function () {
     pwInput.classList.remove('error');
 
     if(!ident){
-      showErr(errIdent, 'Email atau No. HP wajib diisi'); identEl.classList.add('error'); identEl.setAttribute('aria-invalid', 'true'); valid=false;
+      showErr(errIdent, 'Email atau nomor HP wajib diisi'); identEl.classList.add('error'); identEl.setAttribute('aria-invalid', 'true'); valid=false;
     }
 
     if(!pw){

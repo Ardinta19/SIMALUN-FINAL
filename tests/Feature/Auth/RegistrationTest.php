@@ -63,7 +63,12 @@ class RegistrationTest extends TestCase
             'name' => 'Pengguna Tes', 'gender' => 'L', 'phone' => '081234567890',
             'email' => 'old@example.com', 'password' => 'rahasia12345', 'password_confirmation' => 'rahasia12345',
             'address' => 'Jl. Mawar No. 7, Jambi', 'terms' => true,
-        ])->assertRedirect('/register')->assertSessionHasErrors(['phone', 'email']);
+        ])->assertRedirect('/register')->assertSessionHasErrors([
+            // Pesan harus menyebut akun yang dihapus, bukan menyuruh masuk ke
+            // akun yang sudah tidak bisa dipakai.
+            'phone' => 'Nomor HP ini tercatat pada akun yang sudah dihapus. Hubungi admin untuk memulihkan akunmu.',
+            'email' => 'Email ini tercatat pada akun yang sudah dihapus. Hubungi admin untuk memulihkan akunmu.',
+        ]);
         $this->assertGuest();
     }
 }

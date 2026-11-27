@@ -39,7 +39,7 @@ class CreateUser extends Command
 
         // Normalisasi HP ke format kanonik DB: 8xxxxxxxxxx (sama seperti
         // RegisterController & LoginController).
-        $phoneRaw = (string) $this->ask('No. HP (contoh: 081234567890)');
+        $phoneRaw = (string) $this->ask('Nomor HP (contoh: 081234567890)');
         $phone = preg_replace('/[\s\-\.]/', '', $phoneRaw);
         $phone = preg_replace('/^(\+?62|0)/', '', $phone);
 
@@ -48,8 +48,8 @@ class CreateUser extends Command
         $gender = $this->choice('Jenis kelamin', ['L', 'P', '(lewati)'], '(lewati)');
         $gender = $gender === '(lewati)' ? null : $gender;
 
-        $password = (string) $this->secret('Password (min. 8 karakter)');
-        $passwordConfirm = (string) $this->secret('Ulangi password');
+        $password = (string) $this->secret('Kata sandi (min. 8 karakter)');
+        $passwordConfirm = (string) $this->secret('Ulangi kata sandi');
 
         $data = [
             'name' => $name,
@@ -109,7 +109,7 @@ class CreateUser extends Command
         $this->newLine();
         $this->info('Akun berhasil dibuat:');
         $this->table(
-            ['ID', 'Nama', 'Email', 'No. HP', 'Role', 'Aktif'],
+            ['ID', 'Nama', 'Email', 'Nomor HP', 'Role', 'Aktif'],
             [[$user->id, $user->name, $user->email ?? '-', $user->phone, $user->role, $user->is_active ? 'ya' : 'tidak']]
         );
 

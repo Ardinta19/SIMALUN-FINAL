@@ -10,8 +10,8 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 /**
- * Edit data pengguna yang sudah ada (No. HP, nama, email, role, gender,
- * status aktif, password) secara interaktif dari terminal.
+ * Edit data pengguna yang sudah ada (nomor HP, nama, email, role, gender,
+ * status aktif, kata sandi) secara interaktif dari terminal.
  *
  * Pelengkap `user:create` — berguna untuk memperbaiki akun admin
  * (mis. salah ketik saat dibuat) tanpa harus utak-atik database langsung.
@@ -23,13 +23,13 @@ class EditUser extends Command
 {
     protected $signature = 'user:edit';
 
-    protected $description = 'Edit data pengguna yang sudah ada (No. HP, email, role, dll) secara interaktif';
+    protected $description = 'Edit data pengguna yang sudah ada (nomor HP, email, role, dll) secara interaktif';
 
     public function handle(): int
     {
         $this->info('=== Edit Akun Pengguna — ' . \App\Support\Laundry::name() . ' ===');
 
-        $key = trim((string) $this->ask('Cari akun berdasarkan email / No. HP / ID'));
+        $key = trim((string) $this->ask('Cari akun berdasarkan email / nomor HP / ID'));
         if ($key === '') {
             $this->error('Input pencarian tidak boleh kosong.');
 
@@ -40,10 +40,15 @@ class EditUser extends Command
         $phoneKey = preg_replace('/[\s\-\.]/', '', $key);
         $phoneKey = preg_replace('/^(\+?62|0)/', '', $phoneKey);
 
-        $user = User::where('email', strtolower($key))
-            ->orWhere('phone', $phoneKey)
-            ->orWhere('id', is_numeric($key) ? (int) $key : 0)
-            ->first();
+        // Syarat pencarian dikelompokkan supaya scope soft delete tetap
+        // berlaku untuk semua cabang. Tanpa grup, SQL-nya menjadi
+        // "(deleted_at is null AND email = ?) OR phone = ?" sehingga akun
+        // yang sudah dihapus ikut cocok lewat nomor HP.
+        $user = User::where(function ($query) use ($key, $phoneKey) {
+            $query->where('email', strtolower($key))
+                ->orWhere('phone', $phoneKey)
+                ->orWhere('id', is_numeric($key) ? (int) $key : 0);
+        })->first();
 
         if (! $user) {
             $this->error('Akun tidak ditemukan untuk: '.$key);
@@ -54,7 +59,7 @@ class EditUser extends Command
         $this->newLine();
         $this->info('Akun ditemukan:');
         $this->table(
-            ['ID', 'Nama', 'Email', 'No. HP', 'Role', 'Gender', 'Aktif'],
+            ['ID', 'Nama', 'Email', 'Nomor HP', 'Role', 'Gender', 'Aktif'],
             [[$user->id, $user->name, $user->email ?? '-', $user->phone, $user->role, $user->gender ?? '-', $user->is_active ? 'ya' : 'tidak']]
         );
         $this->line('Tekan ENTER untuk mempertahankan nilai saat ini.');
@@ -66,7 +71,7 @@ class EditUser extends Command
         $emailInput = trim((string) $this->ask('Email', $user->email ?? ''));
         $email = $emailInput !== '' ? strtolower($emailInput) : null;
 
-        $phoneInput = (string) $this->ask('No. HP', $user->phone);
+        $phoneInput = (string) $this->ask('Nomor HP', $user->phone);
         $phone = preg_replace('/[\s\-\.]/', '', $phoneInput);
         $phone = preg_replace('/^(\+?62|0)/', '', $phone);
 
@@ -80,11 +85,11 @@ class EditUser extends Command
 
         // Password opsional — hanya diubah kalau diminta.
         $newPassword = null;
-        if ($this->confirm('Ganti password?', false)) {
+        if ($this->confirm('Ganti kata sandi?', false)) {
             $newPassword = (string) $this->secret('Password baru (min. 8 karakter)');
-            $confirm = (string) $this->secret('Ulangi password baru');
+            $confirm = (string) $this->secret('Ulangi kata sandi baru');
             if ($newPassword !== $confirm) {
-                $this->error('Konfirmasi password tidak cocok.');
+                $this->error('Konfirmasi kata sandi tidak cocok.');
 
                 return self::FAILURE;
             }
@@ -148,7 +153,7 @@ class EditUser extends Command
         $this->newLine();
         $this->info('Perubahan tersimpan:');
         $this->table(
-            ['ID', 'Nama', 'Email', 'No. HP', 'Role', 'Gender', 'Aktif'],
+            ['ID', 'Nama', 'Email', 'Nomor HP', 'Role', 'Gender', 'Aktif'],
             [[$user->id, $user->name, $user->email ?? '-', $user->phone, $user->role, $user->gender ?? '-', $user->is_active ? 'ya' : 'tidak']]
         );
 

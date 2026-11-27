@@ -164,7 +164,7 @@ $oldText = function (string $key, $fallback = '') {
                     @error('recipient_name') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
                 <div>
-                    <label class="field-label" for="address-phone">No. HP / WhatsApp</label>
+                    <label class="field-label" for="address-phone">Nomor HP / WhatsApp</label>
                     <input placeholder="Contoh: 0812 3456 7890" autocomplete="tel" type="tel" inputmode="tel" name="phone" id="address-phone" class="field-input"
                         value="{{ $oldText('phone', $address->phone) }}">
                 </div>

@@ -371,7 +371,7 @@ $oldText = function (string $key, $fallback = '') {
                 </div>
 
                 <div>
-                    <label class="field-label" for="profile-address-phone">No. HP penerima</label>
+                    <label class="field-label" for="profile-address-phone">Nomor HP penerima</label>
                     <input placeholder="Contoh: 0812 3456 7890" autocomplete="tel" type="tel" inputmode="tel" id="profile-address-phone" name="phone"
                            class="field-input"
                            value="{{ $oldText('phone', $primaryAddress->phone ?? $user->phone) }}" @error('phone') aria-invalid="true" @enderror>
