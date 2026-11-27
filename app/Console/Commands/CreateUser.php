@@ -83,8 +83,8 @@ class CreateUser extends Command
             'password' => ['required', 'confirmed', Password::min(8)],
         ], [
             'phone.regex' => 'Format nomor HP tidak valid (setelah normalisasi harus seperti 81234567890).',
-            'phone.unique' => 'Nomor HP sudah dipakai — termasuk oleh akun yang sudah dihapus. Pulihkan dengan: php artisan user:restore 81234567890',
-            'email.unique' => 'Email sudah dipakai — termasuk oleh akun yang sudah dihapus. Pulihkan dengan: php artisan user:restore alamat@email.com',
+            'phone.unique' => 'Nomor HP sudah dipakai, termasuk oleh akun yang sudah dihapus. Pulihkan akunnya lewat php artisan user:restore, lalu coba lagi.',
+            'email.unique' => 'Email sudah dipakai, termasuk oleh akun yang sudah dihapus. Pulihkan akunnya lewat php artisan user:restore, lalu coba lagi.',
         ]);
 
         if ($validator->fails()) {
