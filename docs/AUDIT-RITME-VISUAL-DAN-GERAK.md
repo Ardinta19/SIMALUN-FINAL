@@ -3816,3 +3816,51 @@ sejenis sudah dibungkus dengan benar (`DashboardController:56`,
 **Hasil:** harness **181 lulus, 0 gagal, 223 dilewati**; `blade-scan.py`
 81 view / 0 / 0; `.tmp-verify.php` 26/0; `php -l` bersih untuk semua berkas
 yang disentuh.
+
+### 9.86 Contoh isian seragam di semua formulir
+
+Satu medan yang sama ditampilkan dengan contoh berbeda-beda, sehingga
+pelanggan harus menebak format mana yang diterima:
+
+| Medan | Sebelum | Sesudah |
+| --- | --- | --- |
+| Nomor HP | `0812 3456 7890` (3 layar) dan `081234567890` (2 layar, termasuk kolom identitas di halaman masuk) | `0812 3456 7890` di semua layar |
+| Email opsional (daftar) | `Contoh: sari@email.com (opsional)` | `Contoh: nama@email.com (opsional)` |
+| Panjang kata sandi | `Min. 8 karakter` dan `Minimal 8 karakter` | `Minimal 8 karakter` |
+
+Contoh di prompt perintah `user:create` ikut diseragamkan, dan contoh pemakaian
+`user:restore` memakai nomor ber-spasi: `php artisan user:restore "0812 3456
+7890"`. `ViewCopyTest` menambahkan satu pola penjaga: bentuk tanpa spasi
+`081234567890` tidak boleh muncul lagi di view, perintah, maupun `lang/id`.
+
+### 9.87 Wildcard LIKE di kotak pencarian pesanan
+
+Kotak pencarian pesanan pelanggan dan admin menyusun `like '%'.$term.'%'`
+tanpa meng-escape `%` dan `_`. Mengetik `%` membuat kata kunci berubah arti
+menjadi "semua data", dan `_` mencocokkan satu karakter apa pun — hasil
+pencarian jadi menyesatkan tanpa sebab yang terlihat. Keduanya kini memakai
+`addcslashes(trim($q), '%_\\')`, sehingga `%` dan `_` dicari sebagai karakter
+biasa. Tidak ada perubahan pada rute, kolom, atau tampilan hasil.
+
+### 9.88 Dasbor admin menghitung notifikasi tanpa memuat isinya
+
+`DashboardController::admin()` memakai `Auth::user()->unreadNotifications`
+(properti) sehingga seluruh baris notifikasi diambil ke memori hanya untuk
+dihitung. Diganti `unreadNotifications()->count()`, sama seperti dasbor
+pelanggan (`DashboardController::customer()`), dan sejalan dengan `NavCounts`
+yang dipakai lencana navigasi. Angka yang tampil tidak berubah.
+
+Pemeriksaan lain pada putaran ini yang tidak menghasilkan perubahan:
+`RentalScheduleController` sudah membatasi parameter `month`/`status`/
+`activity` dengan `date_format` dan `Rule::in`, serta memakai
+`Asia/Jakarta`; `RentalAddonController::destroy()` sudah menolak item yang
+dipakai pesanan dan mengunci barisnya di dalam transaksi;
+`RentalCashBookController::export()` sudah menetralkan sel CSV yang diawali
+`=`, `+`, `@`, atau `-` (`csvText()`); `Email/reset-password` dan tata
+letaknya memakai "kamu" dan `Laundry::name()`; `vendor/pagination/
+customer-simple.blade.php` memang alias lama yang masih diuji
+`ResponsiveLayoutTest:311`, jadi tidak dihapus.
+
+**Hasil:** harness **181 lulus, 0 gagal, 223 dilewati**; `blade-scan.py`
+81 view / 0 / 0; `.tmp-verify.php` 26/0; `node --check` 11 berkas JS lolos;
+`php -l` bersih.

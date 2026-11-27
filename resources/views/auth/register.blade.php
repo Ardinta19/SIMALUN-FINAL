@@ -462,7 +462,7 @@ $oldText = function (string $key, $fallback = '') {
             <input class="form-input @error('email') error @enderror"
               type="email" id="email" name="email" aria-describedby="err-email"
               @error('email') aria-invalid="true" @enderror
-              placeholder="Contoh: sari@email.com (opsional)"
+              placeholder="Contoh: nama@email.com (opsional)"
               value="{{ $oldText('email') }}" autocomplete="email" inputmode="email">
           </div>
           @error('email')<div class="form-error show" role="alert">{{ $message }}</div>@enderror
@@ -478,7 +478,7 @@ $oldText = function (string $key, $fallback = '') {
             <span class="input-icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'lock', 'size' => 20])</span>
             <input class="form-input" type="password" id="password" name="password" aria-describedby="err-pw"
               @error('password') aria-invalid="true" @enderror
-              placeholder="Min. 8 karakter" autocomplete="new-password">
+              placeholder="Minimal 8 karakter" autocomplete="new-password">
             <button type="button" class="pw-toggle" id="pw-toggle-1" aria-label="Tampilkan kata sandi" aria-pressed="false"><span data-glyph="eye">@include('layouts.component._icon', ['name' => 'eye', 'size' => 20])</span><span data-glyph="eye-off" hidden>@include('layouts.component._icon', ['name' => 'eye-off', 'size' => 20])</span></button>
           </div>
           @error('password')<div class="form-error show" role="alert">{{ $message }}</div>@enderror
@@ -490,7 +490,7 @@ $oldText = function (string $key, $fallback = '') {
             </div>
             <div class="pw-strength-lbl" id="pw-strength-lbl">Ketik kata sandi...</div>
             <p style="font-size:var(--bk-fs-2xs);color:#fff;margin-top:.4rem">Selain minimal 8 karakter, kombinasi berikut disarankan, bukan wajib.</p><ul class="pw-hints">
-              <li class="pw-hint" id="hint-len">Min. 8 karakter</li>
+              <li class="pw-hint" id="hint-len">Minimal 8 karakter</li>
               <li class="pw-hint" id="hint-upper">Huruf besar</li>
               <li class="pw-hint" id="hint-num">Angka</li>
               <li class="pw-hint" id="hint-sym">Simbol (!@#...)</li>

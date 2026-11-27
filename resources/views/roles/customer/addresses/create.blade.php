@@ -287,7 +287,7 @@ $oldText = function (string $key, $fallback = '') {
                 <div>
                     <label class="field-label" for="address-phone">Nomor HP / WhatsApp</label>
                     <input autocomplete="tel" type="tel" inputmode="tel" name="phone" id="address-phone" class="field-input"
-                        placeholder="Contoh: 081234567890"
+                        placeholder="Contoh: 0812 3456 7890"
                         value="{{ $oldText('phone', auth()->user()->phone) }}">
                 </div>
             </div>

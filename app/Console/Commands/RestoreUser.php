@@ -16,7 +16,7 @@ use Illuminate\Console\Command;
  *
  * Pemakaian:
  *   php artisan user:restore
- *   php artisan user:restore 081234567890
+ *   php artisan user:restore "0812 3456 7890"
  */
 class RestoreUser extends Command
 {

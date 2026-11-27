@@ -46,7 +46,8 @@ class DashboardController extends Controller
 
         $voucherAktif = Voucher::where('is_active', true)->count();
 
-        $adminUnread = Auth::user()->unreadNotifications->count();
+        // Kueri hitung, bukan memuat seluruh notifikasi ke memori.
+        $adminUnread = Auth::user()->unreadNotifications()->count();
 
         $rentalPending = RentalOrderUnit::where('status', 'pending')->count();
         $rentalActive = RentalOrderUnit::where('status', 'confirmed')->where('progress', '!=', 'returned')->count();

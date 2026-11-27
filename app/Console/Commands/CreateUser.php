@@ -39,7 +39,7 @@ class CreateUser extends Command
 
         // Normalisasi HP ke format kanonik DB: 8xxxxxxxxxx (sama seperti
         // RegisterController & LoginController).
-        $phoneRaw = (string) $this->ask('Nomor HP (contoh: 081234567890)');
+        $phoneRaw = (string) $this->ask('Nomor HP (contoh: 0812 3456 7890)');
         $phone = preg_replace('/[\s\-\.]/', '', $phoneRaw);
         $phone = preg_replace('/^(\+?62|0)/', '', $phone);
 

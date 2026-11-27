@@ -63,6 +63,7 @@ class ViewCopyTest extends TestCase
             '/\bNo\.?\s?HP\b/' => 'memakai "No. HP" (pakai "nomor HP")',
             '/\bAnda\b/' => 'menyapa "Anda" (pakai "kamu")',
             '/\bSilahkan\b/' => 'salah eja "Silahkan" (pakai "Silakan")',
+            '/\b081234567890\b/' => 'contoh nomor HP tanpa spasi (pakai "0812 3456 7890")',
         ];
 
         $masalah = [];

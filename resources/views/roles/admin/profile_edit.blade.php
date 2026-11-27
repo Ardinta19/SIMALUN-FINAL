@@ -77,7 +77,7 @@
             <div class="adm-field">
                 <label for="phone">Nomor WhatsApp</label>
                 <input type="tel" id="phone" name="phone" inputmode="tel" autocomplete="tel"
-                       placeholder="Contoh: 081234567890" value="{{ $oldText('phone', $user->phone) }}" @error('phone') aria-invalid="true" @enderror>
+                       placeholder="Contoh: 0812 3456 7890" value="{{ $oldText('phone', $user->phone) }}" @error('phone') aria-invalid="true" @enderror>
                 @error('phone')<p class="adm-err" role="alert">{{ $message }}</p>@enderror
             </div>
         </div>
@@ -109,7 +109,7 @@
             <div class="adm-field">
                 <label for="password">Kata sandi baru</label>
                 <input type="password" id="password" name="password"
-                       autocomplete="new-password" placeholder="Min. 8 karakter"
+                       autocomplete="new-password" placeholder="Minimal 8 karakter"
                        @error('password', 'updatePassword') aria-invalid="true" aria-describedby="password-error" @enderror>
                 @error('password', 'updatePassword')<p class="adm-err" role="alert" id="password-error">{{ $message }}</p>@enderror
             </div>

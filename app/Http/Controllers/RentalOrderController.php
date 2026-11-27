@@ -328,10 +328,12 @@ class RentalOrderController extends Controller
         ]);
         $orders = RentalOrder::where('customer_id', $request->user()->id)
             ->when(! empty($filters['q']), function ($query) use ($filters) {
-                $term = trim($filters['q']);
-                $query->where(function ($query) use ($term) {
-                    $query->where('reference', 'like', '%'.$term.'%')
-                        ->orWhereHas('units', fn ($units) => $units->where('product_name', 'like', '%'.$term.'%')->orWhere('recipient_name', 'like', '%'.$term.'%'));
+                // Wildcard LIKE (%, _) di kata kunci di-escape supaya ketikan
+                // "50%" tidak berubah arti menjadi "semua data".
+                $like = '%'.addcslashes(trim($filters['q']), '%_\\').'%';
+                $query->where(function ($query) use ($like) {
+                    $query->where('reference', 'like', $like)
+                        ->orWhereHas('units', fn ($units) => $units->where('product_name', 'like', $like)->orWhere('recipient_name', 'like', $like));
                 });
             })
             ->when(! empty($filters['status']), fn ($query) => $query->whereHas('units', fn ($units) => $units->where('status', $filters['status'])))
@@ -351,7 +353,8 @@ class RentalOrderController extends Controller
         if (! empty($filters['from']) && ! empty($filters['to']) && $filters['to'] < $filters['from']) throw ValidationException::withMessages(['to' => 'Tanggal akhir tidak boleh sebelum tanggal mulai.']);
         $orders = RentalOrder::with(['customer', 'units'])
             ->when(! empty($filters['q']), function ($query) use ($filters) {
-                $term = '%'.$filters['q'].'%';
+                // Escape wildcard LIKE seperti pada pencarian pelanggan.
+                $term = '%'.addcslashes(trim($filters['q']), '%_\\').'%';
                 $query->where(fn ($q) => $q->where('reference', 'like', $term)
                     ->orWhereHas('customer', fn ($customer) => $customer->where('name', 'like', $term)->orWhere('phone', 'like', $term))
                     ->orWhereHas('units', fn ($unit) => $unit->where('product_name', 'like', $term)->orWhere('recipient_name', 'like', $term)));

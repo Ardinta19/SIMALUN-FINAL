@@ -193,7 +193,7 @@ $oldText = function (string $key, $fallback = '') {
             name="identifier"
             aria-describedby="err-identifier @error('identifier') server-identifier-error @enderror"
             @error('identifier') aria-invalid="true" @enderror
-            placeholder="Contoh: nama@email.com atau 081234567890"
+            placeholder="Contoh: nama@email.com atau 0812 3456 7890"
             value="{{ $oldText('identifier') }}"
             autocomplete="username"
             inputmode="text"
