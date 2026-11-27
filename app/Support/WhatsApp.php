@@ -9,7 +9,9 @@ namespace App\Support;
  * karena percakapan tetap dipegang admin dan disetujui manual.
  * Tinggal generate URL `wa.me` dengan teks pre-filled saja.
  *
- * Untuk WA toko (customer → admin), gunakan {@see Laundry::waLink()}.
+ * Untuk WA toko (customer → admin), gunakan
+ * {@see \App\Support\RentalWhatsApp::adminLink()} yang mengisi nomor dari
+ * `config('laundry.whatsapp')`.
  * Helper ini dipakai tombol WhatsApp ke nomor pelanggan maupun admin.
  */
 class WhatsApp

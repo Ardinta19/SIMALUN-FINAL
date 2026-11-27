@@ -4177,3 +4177,39 @@ Dua hal lain yang diperiksa di putaran ini dan dinyatakan wajar:
 
 **Hasil putaran 16 (lanjutan):** harness **190 lulus, 0 gagal, 227
 dilewati**; `blade-scan.py` 82 view / 0 / 0; `.tmp-verify.php` 26/0.
+
+### 9.100 Empat jalur mati menuju data usaha
+
+Setelah pembungkus `Laundry` dirapikan di §9.93, `AppServiceProvider`
+masih menyisakan empat jalur lama dari modul laundry yang tidak dipakai
+satu view pun:
+
+```php
+$this->app->singleton('laundry', fn () => new Laundry);   // register()
+View::share('laundry', app('laundry'));                   // boot()
+Blade::directive('laundryName', …);
+Blade::directive('laundryAddress', …);
+Blade::directive('laundryPhone', …);
+```
+
+Tiga direktif itu tidak muncul di satu berkas Blade mana pun (`grep` = 0),
+dan variabel bersama `$laundry` juga tidak pernah dipakai — padahal
+`View::share()` menempelkan objek itu ke **setiap** view yang dirender,
+termasuk halaman admin dan email. Semuanya dibuang; `AppServiceProvider`
+kini hanya berisi pengaturan paginasi, dan `Laundry` tinggal dipanggil
+langsung dari view.
+
+Sekalian satu pembungkus terakhir yang tidak dipakai: `Laundry::phone()`.
+Nomor yang tampil di layar memakai `phoneDisplay()` (`LAUNDRY_PHONE_DISPLAY`)
+dan tautan WhatsApp memakai `whatsapp()` (`LAUNDRY_WA`), jadi
+`Laundry::phone()` beserta kunci `phone`/`LAUNDRY_PHONE` ikut dihapus dari
+`config/laundry.php` dan `.env.example`. Pemasangan lama yang masih menyimpan
+`LAUNDRY_PHONE` di `.env` tidak terpengaruh — nilainya hanya tidak dibaca
+lagi. Docblock `App\Support\WhatsApp` yang masih menunjuk
+`Laundry::waLink()` (sudah dihapus) diperbarui ke
+`RentalWhatsApp::adminLink()`.
+
+Dijaga `tests/Feature/BrandConfigTest.php` (2 tes): tidak ada lagi
+singleton/`View::share`/direktif `laundry` di provider maupun pemakaiannya
+di 82 view, dan **setiap** pembungkus statis di `Laundry` wajib punya
+pemakai di `app/` atau `resources/`.

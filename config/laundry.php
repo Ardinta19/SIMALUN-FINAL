@@ -26,7 +26,6 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'phone' => env('LAUNDRY_PHONE', '082378886053'),
     'phone_display' => env('LAUNDRY_PHONE_DISPLAY', '0823-7888-6053'),
     'whatsapp' => env('LAUNDRY_WA', '6282378886053'),
 

@@ -29,11 +29,6 @@ class Laundry
         return config('laundry.google_maps', '#');
     }
 
-    public static function phone(): string
-    {
-        return config('laundry.phone', '');
-    }
-
     public static function phoneDisplay(): string
     {
         return config('laundry.phone_display', '');
