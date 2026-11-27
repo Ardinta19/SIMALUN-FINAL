@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\RentalOrderUnit;
 use App\Services\RentalNotifications;
+use App\Support\RentalLabels;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -33,7 +34,17 @@ class RentalProgressController extends Controller
             }
             $unit->update(['progress' => $next]);
             $unit->progressEvents()->create(['progress' => $next, 'recorded_by' => $request->user()->id, 'note' => $data['note'] ?? null]);
-            app(RentalNotifications::class)->customer($unit->order, 'Perkembangan unit', 'Perkembangan unit '.$unit->product_name.' telah diperbarui.');
+            // Notifikasi menyebut langkah yang baru dicapai + apa yang perlu
+            // dilakukan pelanggan. Sebelumnya isinya "perkembangan telah
+            // diperbarui", yang tetap memaksa pelanggan membuka WhatsApp untuk
+            // bertanya "sudah sampai mana?".
+            $hint = RentalLabels::progressHint($next);
+            $note = trim((string) ($data['note'] ?? ''));
+            app(RentalNotifications::class)->customer(
+                $unit->order,
+                'Progres: '.RentalLabels::progress($next),
+                'Unit '.$unit->product_name.$unit->variantLabel().': '.$hint.($note !== '' ? ' Catatan admin: '.rtrim($note, ' .').'.' : '')
+            );
         }, 3);
         return back()->with('success', 'Perkembangan unit diperbarui.');
     }

@@ -110,6 +110,28 @@
     @guest<p class="muted">Kamu akan diminta masuk atau daftar; keranjang ini tetap tersimpan di peramban yang sama.</p>@endguest
     @endif
     <a class="btn secondary" href="{{ route('welcome') }}">Tambah papan lain</a>
+    @php
+        // Jalur cepat untuk orang yang lebih nyaman chat: rincian keranjang
+        // sudah terisi di pesan, jadi admin tidak perlu menanyakan ulang
+        // papan, jumlah, dan tanggal. Tautan biasa, tanpa API berbayar.
+        $cartLines = collect($groups)->map(function ($group) use ($products, $variants) {
+            $product = $products->get($group['product_id']);
+            if (! $product) return null;
+            $variant = $variants[$group['key']] ?? null;
+            $line = count($group['ids']).'× '.$product->name.($variant ? ' ('.$variant->name.')' : '');
+            if (! empty($group['starts_on']) && ! empty($group['ends_on'])) {
+                $line .= ' — '.\Carbon\Carbon::parse($group['starts_on'])->format('d/m/Y').' s.d. '.\Carbon\Carbon::parse($group['ends_on'])->format('d/m/Y');
+            }
+            return $line;
+        })->filter()->values();
+        $cartWa = $cartLines->isEmpty() ? null : \App\Support\WhatsApp::link(
+            \App\Support\Laundry::whatsapp(),
+            "Halo, saya mau tanya ketersediaan untuk keranjang ini:\n- ".$cartLines->implode("\n- ")."\nApakah bisa dipesan?"
+        );
+    @endphp
+    @if($cartWa)
+        <a class="btn secondary" href="{{ $cartWa }}" target="_blank" rel="noopener noreferrer">Tanya keranjang ini lewat WhatsApp</a>
+    @endif
     </div>
 @endif
 </div>

@@ -10,7 +10,7 @@ Snapshot kode setelah babak C dan D alur pemesanan (ongkos dua arah, batal mandi
 | Katalog admin | Kelola produk, kategori, stok, paket durasi dan tarif universitas | Uji perubahan katalog bersamaan dengan transaksi; foto produk yang diganti dibersihkan bila tidak direferensikan produk lain, dan perubahan produk, kategori serta paket yang baru dilakukan dicatat di audit. |
 | Checkout | Beberapa unit terpisah, tanggal acara sekaligus penerimaan per unit dan tanggal pengembalian, rincian desain/serah terima, harga dan tarif snapshot, persetujuan ketentuan; pesanan lama tetap mempertahankan tanggalnya | Uji banyak unit dan input batas di browser; tombol dinonaktifkan saat pengiriman jika JavaScript aktif; pengulangan untuk unit keranjang yang sama diperiksa di server, tetapi penguncian dan interleaving sesi tetap perlu uji proses bersamaan di MySQL; checkout memeriksa stok terkonfirmasi dan overlap antarunit, tetapi tidak mencadangkan stok; unit pending lain tidak dihitung sebagai reservasi dan perlu konfirmasi admin. |
 | Reservasi | Tanggal ditahan sejak pesanan dikirim (pending), stok berdasarkan irisan tanggal, konfirmasi, pembatalan dan riwayat, pelanjutan, pembatalan otomatis setelah 24 jam, jendela pemesanan 366 hari | Uji transaksi bersamaan pada MySQL dan scheduler nyata. Periksa penanganan jadwal dekat dan semua interleaving pembatalan/pelanjutan. |
-| Ongkos | Tarif universitas atau penawaran manual per unit; pelanggan menyetujui atau **menolak beralasan**, admin mengirim versi baru selama belum ada pembayaran, riwayat penawaran tersimpan | Uji negosiasi dua arah, penolakan setelah pembayaran masuk (harus ditolak), dan tampilan riwayat di dua peran. |
+| Ongkos | Tarif universitas atau penawaran manual per unit; persetujuan pelanggan **hanya** untuk penawaran manual di atas nol (tarif universitas yang sudah tampil saat checkout dan penawaran 0 langsung disetujui), pelanggan dapat **menolak beralasan**, admin mengirim versi baru selama belum ada pembayaran, riwayat penawaran tersimpan | Uji negosiasi dua arah, penolakan setelah pembayaran masuk (harus ditolak), dan tampilan riwayat di dua peran. |
 | Desain | Preview privat berversi, persetujuan/revisi, kontrol sebelum pengerjaan, tenggat respons (48 jam / H-3) dan keputusan admin "lanjutkan dengan catatan" beralasan yang tercatat di riwayat | Uji unggahan, akses silang, kegagalan storage dan penggunaan nyata pada perangkat. |
 | Pembayaran | Bukti privat per unit, DP fleksibel, verifikasi, koreksi dan refund tercatat, toleransi bukti terlambat sampai H+1 pukul 12.00 WIB sebelum DP hangus | Uji batas H-1 WIB, bukti terlambat/ditolak, race saat unggah dan verifikasi serta konsistensi setelah kegagalan. Refund adalah pencatatan manual, bukan transfer otomatis. |
 | Operasional | Progres per unit (serah terima memeriksa desain dan tagihan), jadwal bulanan dan filter kegiatan, ringkasan cetak, filter "toleransi" dan "lewat tanggal kembali", kartu dasbor "menunggu pelanggan" | Periksa kesesuaian alur bisnis di perangkat; jadwal bukan bukti serah terima. |
@@ -224,3 +224,28 @@ Pemeriksaan manual:
 4. Keranjang: tekan − dan + beberapa kali tanpa halaman dimuat ulang — angka unit, subtotal baris, dan total keranjang berubah; baris dengan warna berbeda tetap terpisah.
 5. Tambah warna melebihi stok → pesan server muncul setelah halaman dimuat ulang (jalur cadangan).
 6. Checkout & detail pesanan menampilkan "warna Marun"; admin melihat warna yang sama di detail pesanan.
+
+### Babak N — kontak berjalan di footer, tagline satu sumber, ongkos opsional, progres terlihat (`statis, belum diuji di Windows`)
+
+Permintaan pemilik usaha: strip berjalan juga dipakai di halaman yang memuat link WhatsApp/media sosial; tagline dari deskripsi Instagram diseragamkan; persetujuan ongkir hanya untuk pesanan yang memang punya ongkir; progres yang terlihat bagi pelanggan beserta notifikasinya; dan seluruh alur per peran dibuat lebih cepat daripada WhatsApp.
+
+1. **Strip kontak di footer.** `catalog/_ribbon.blade.php` menerima `withSteps`/`withContacts`; footer layout memanggilnya tanpa langkah untuk semua halaman selain beranda (beranda sudah punya strip di atas). Ubin "Tanya stok & jadwal" menambah isi, kelas `bk-ribbon--contact` merapatkan garis dan lebar.
+2. **Tagline satu sumber.** Lima tempat kini memanggil `Laundry::tagline()` (`BUSINESS_TAGLINE`): header katalog (dua cabang), wordmark navigasi pelanggan, splash login, lupa sandi, halaman suka publik. Tidak ada lagi "Papan bunga untuk momen istimewa" atau "Rangkaian bunga untuk momen yang kamu tunggu" yang ditulis harfiah.
+3. **Ongkos tidak lagi menahan pembayaran.** Tarif universitas tetap yang sudah tampil saat checkout langsung disetujui (tercatat sebagai peristiwa `approve` di riwayat ongkos). Penawaran manual bernilai 0 berarti gratis dan langsung disetujui admin; voucher ongkos dihitung ulang dan pelanggan menerima kabar "Ongkos gratis". Penawaran manual > 0 tetap perlu persetujuan pelanggan dan tetap terkunci setelah ada pembayaran.
+4. **Progres terlihat.** `RentalLabels` menambah `PROGRESS_STEPS`/`PROGRESS_HINT`/`progressHint()`/`progressStep()`; partial `rental/_progress_steps.blade.php` dipasang di halaman unit, kartu unit pada detail pesanan, dan beranda pelanggan (bagian "Progres pesananmu"). Kartu daftar pesanan menampilkan "… dikerjakan / siap diserahkan / selesai" dari `withCount`.
+5. **Notifikasi progres konkret.** Judul `Progres: <langkah>` + arahan dari `PROGRESS_HINT` + catatan admin. Tidak ada lagi "Perkembangan unit telah diperbarui".
+6. **Jalur chat tetap cepat.** Tombol "Tanya papan ini lewat WhatsApp" (detail papan) dan "Tanya keranjang ini lewat WhatsApp" (keranjang) membawa pesan terisi nama papan, warna, harga, dan tanggal.
+7. **Analisis UX per peran.** `docs/ANALISIS-ALUR-PENGGUNA.md` memuat hitungan ketukan, temuan, dan sisa pekerjaan berprioritas.
+
+Berkas utama: `resources/views/catalog/{_ribbon,layout,index,show,cart,customer-navigation}.blade.php`, `resources/views/auth/{login,forgot-password}.blade.php`, `resources/views/rental/{_progress_steps,unit,show,index,admin-detail,public-like}.blade.php`, `resources/views/roles/customer/dashboard.blade.php`, `app/Http/Controllers/{RentalOrderController,RentalProgressController,DashboardController}.php`, `app/Support/{RentalLabels,Laundry}.php`, `public/css/berkah-experience.css`, `docs/ANALISIS-ALUR-PENGGUNA.md`.
+
+Tes penjaga baru: `tests/Feature/ProgressJourneyTest.php` (3), `tests/Feature/TaglineSourceTest.php` (2), satu tes footer strip di `ContactRibbonTest`, dan satu tes penawaran nol di `RentalTransportQuoteTest`. `RentalUniversityTest` disesuaikan ke kontrak baru (tarif universitas disetujui saat checkout). Perkiraan jumlah tes: **±520 lulus**.
+
+Pemeriksaan manual:
+
+1. `php artisan optimize:clear`, lalu buka Keranjang dan detail papan: di footer ada strip kontak berjalan (tanpa langkah). Beranda hanya punya satu strip.
+2. Ganti `BUSINESS_TAGLINE` di `.env` → header, splash login, dan wordmark pelanggan ikut berubah.
+3. Pesan papan dengan pengantaran ke universitas bertarif: halaman unit langsung "Disetujui"/"Gratis" dan tombol bayar tersedia; tidak ada lagi layar "Menunggu persetujuan ongkos".
+4. Pesan papan dengan "Diambil sendiri": bagian ongkos tidak muncul dan tidak ada penundaan pembayaran.
+5. Admin kirim penawaran 0 → pelanggan menerima "Ongkos gratis" dan bisa membayar.
+6. Admin naikkan progres → notifikasi `Progres: …` berisi arahan; dasbor pelanggan menampilkan "Progres pesananmu"; kartu pesanan menampilkan ringkasan progres.

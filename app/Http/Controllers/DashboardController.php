@@ -28,8 +28,16 @@ class DashboardController extends Controller
         $totalOrders = RentalOrder::where('customer_id', $user->id)->count();
         $activeUnits = RentalOrderUnit::whereHas('order', fn ($query) => $query->where('customer_id', $user->id))
             ->whereIn('status', ['pending', 'confirmed'])->where('progress', '!=', 'returned')->count();
+        // Putaran 35: beranda pelanggan ikut menampilkan progres unit yang
+        // sedang berjalan. Sebelumnya pelanggan harus membuka "Pesanan saya"
+        // lalu satu per satu unit hanya untuk tahu papannya sudah dikerjakan
+        // atau belum — persis pertanyaan yang biasanya dikirim ke WhatsApp.
+        $trackedUnits = RentalOrderUnit::with(['order', 'previews', 'payments'])
+            ->whereHas('order', fn ($query) => $query->where('customer_id', $user->id))
+            ->where('status', 'confirmed')->where('progress', '!=', 'returned')
+            ->latest('id')->take(4)->get();
         $unreadNotif = $user->unreadNotifications()->count();
-        return view('roles.customer.dashboard', compact('user', 'orders', 'totalOrders', 'activeUnits', 'unreadNotif'));
+        return view('roles.customer.dashboard', compact('user', 'orders', 'totalOrders', 'activeUnits', 'trackedUnits', 'unreadNotif'));
     }
 
     public function admin()

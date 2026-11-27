@@ -96,8 +96,11 @@ class ContactRibbonTest extends TestCase
     {
         $ribbon = $this->ribbon();
 
-        foreach (['Ig', 'Tt', 'Wa'] as $kanal) {
-            $this->assertStringContainsString('@if($bkRibbon'.$kanal.')', $ribbon);
+        // Sejak putaran 35 tiap kanal juga bergantung pada mode isi strip
+        // (`withContacts`) karena partial yang sama dipakai di footer.
+        $tambahan = ['Ig' => '', 'Tt' => '', 'Wa' => ''];
+        foreach (array_keys($tambahan) as $kanal) {
+            $this->assertStringContainsString('@if($withContacts && $bkRibbon'.$kanal.')', $ribbon);
         }
 
         $this->assertStringNotContainsString('href="#"', $ribbon);
@@ -159,6 +162,27 @@ class ContactRibbonTest extends TestCase
         $theme = File::get(public_path('css/berkah-theme.css'));
         $this->assertStringContainsString('html[data-theme="dark"] .bk-ribbon__link', $theme);
         $this->assertStringContainsString('html[data-theme="dark"] .bk-ribbon__icon', $theme);
+    }
+
+    /**
+     * Putaran 35: strip yang sama dipakai sebagai kanal kontak di footer —
+     * semua halaman katalog selain beranda menampilkan WhatsApp/Instagram/
+     * TikTok sebagai baris berjalan, bukan deretan tautan kecil.
+     */
+    public function test_footer_memakai_strip_kontak_tanpa_langkah(): void
+    {
+        $layout = File::get(resource_path('views/catalog/layout.blade.php'));
+        $ribbon = $this->ribbon();
+
+        $this->assertStringContainsString("@include('catalog._ribbon', ['withSteps' => false])", $layout);
+        $this->assertStringContainsString("@unless(request()->routeIs('welcome'))", $layout,
+            'Beranda sudah punya strip di atas; footer tidak boleh menggandakannya.');
+        $this->assertStringContainsString('$withSteps = $withSteps ?? true;', $ribbon);
+        $this->assertStringContainsString('Kanal kontak kami', $ribbon);
+        $this->assertStringContainsString('bk-ribbon--contact', $ribbon);
+
+        $css = File::get(public_path('css/berkah-experience.css'));
+        $this->assertStringContainsString('.bk-ribbon--contact', $css);
     }
 
     public function test_skrip_strip_dimuat_dari_layout_katalog(): void

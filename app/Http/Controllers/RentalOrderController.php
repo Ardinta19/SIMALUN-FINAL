@@ -253,7 +253,14 @@ class RentalOrderController extends Controller
                     $allFixed = ($unit['delivery_method'] !== 'delivery' || $delivery) && ($unit['return_method'] !== 'collection' || $collection);
                     $hasTransport = $unit['delivery_method'] === 'delivery' || $unit['return_method'] === 'collection';
                     $transport = ['delivery_university' => $delivery?->name, 'delivery_university_fee' => $delivery?->delivery_fee, 'return_university' => $collection?->name, 'return_university_fee' => $collection?->collection_fee];
-                    if ($hasTransport && $allFixed) $transport += ['transport_quote' => (int) ($delivery?->delivery_fee ?? 0) + (int) ($collection?->collection_fee ?? 0), 'transport_quote_version' => 1, 'transport_quote_note' => 'Tarif universitas sesuai pilihan saat checkout.'];
+                    // Putaran 35 — ongkos hanya opsi, bukan gerbang.
+                    // Kalau biaya kirim sudah berupa tarif tetap universitas yang
+                    // tampil di ringkasan checkout, pelanggan sudah melihat dan
+                    // memilihnya: tidak ada yang perlu "disetujui" lagi. Tanpa
+                    // ini seluruh pembayaran tertahan di layar "Menunggu
+                    // persetujuan ongkos" padahal angkanya tidak pernah berubah.
+                    // Penawaran manual (alamat bebas) tetap harus disetujui.
+                    if ($hasTransport && $allFixed) $transport += ['transport_quote' => (int) ($delivery?->delivery_fee ?? 0) + (int) ($collection?->collection_fee ?? 0), 'transport_quote_version' => 1, 'transport_quote_note' => 'Tarif universitas sudah tercantum saat checkout.', 'transport_approved_at' => now()];
                     // Unit dibuat setelah potongan voucher diketahui agar setiap
                     // baris unit langsung menyimpan bagian potongannya.
                     $plans[$key] = array_merge($unit, $transport, ['rental_product_id' => $product->id, 'product_name' => $product->name, 'rental_product_variant_id' => $variant?->id, 'variant_name' => $variant?->name, 'variant_color' => $variant?->color, 'unit_price' => $product->base_price, 'price_unit' => $product->price_unit, 'rental_amount' => $amount, 'addon_amount' => $addonTotal, 'rental_duration_package_id' => $package?->id, 'package_name' => $package?->name, 'package_days' => $package?->days]);
@@ -282,9 +289,21 @@ class RentalOrderController extends Controller
                 foreach ($plans as $planKey => $plan) {
                     $createdUnit = $order->units()->create($plan + ['discount_amount' => (int) ($allocation['rental'][$planKey] ?? 0)]);
                     if (! empty($addonRowsByKey[$planKey])) $createdUnit->addons()->createMany($addonRowsByKey[$planKey]);
+                    // Riwayat ongkos tetap mencatat persetujuan otomatis itu,
+                    // supaya admin bisa menelusuri dari mana angka ongkir datang.
+                    if (! empty($plan['transport_approved_at'])) {
+                        $createdUnit->transportQuoteEvents()->create(['action' => 'approve', 'version' => 1, 'amount' => (int) $plan['transport_quote'], 'note' => 'Tarif universitas otomatis disetujui karena sudah tampil saat checkout.', 'recorded_by' => $order->customer_id]);
+                    }
                 }
                 if ($voucher && $discount > 0) {
                     $vouchers->record($voucher, $order, $discount, $request->user()->id);
+                    // Ongkos yang sudah disetujui saat checkout ikut menjadi
+                    // basis potongan voucher ber-scope "sewa + ongkos". Tanpa
+                    // ini potongan ongkos baru dihitung saat admin/pelanggan
+                    // menyetujui penawaran — langkah yang kini dilewati.
+                    if ($voucher->coversTransport() && collect($plans)->contains(fn (array $plan) => ! empty($plan['transport_approved_at']))) {
+                        $vouchers->redistribute($order);
+                    }
                 }
                 foreach ($storedReferences as $path) {
                     $order->references()->create(['image_path' => $path, 'uploaded_by' => $request->user()->id]);
@@ -365,7 +384,13 @@ class RentalOrderController extends Controller
                 });
             })
             ->when(! empty($filters['status']), fn ($query) => $query->whereHas('units', fn ($units) => $units->where('status', $filters['status'])))
-            ->withCount(['units', 'units as pending_units_count' => fn ($q) => $q->where('status', 'pending'), 'units as confirmed_units_count' => fn ($q) => $q->where('status', 'confirmed'), 'units as cancelled_units_count' => fn ($q) => $q->where('status', 'cancelled')])
+            ->withCount(['units', 'units as pending_units_count' => fn ($q) => $q->where('status', 'pending'), 'units as confirmed_units_count' => fn ($q) => $q->where('status', 'confirmed'), 'units as cancelled_units_count' => fn ($q) => $q->where('status', 'cancelled'),
+                // Putaran 35: kartu pesanan ikut menampilkan progres yang
+                // sedang berjalan, bukan hanya hitungan status. Dihitung di
+                // query (bukan di view) supaya tidak ada N+1.
+                'units as working_units_count' => fn ($q) => $q->where('status', 'confirmed')->where('progress', 'production'),
+                'units as ready_units_count' => fn ($q) => $q->where('status', 'confirmed')->where('progress', 'ready'),
+                'units as done_units_count' => fn ($q) => $q->where('status', 'confirmed')->where('progress', 'returned')])
             ->latest()->orderByDesc('id')->paginate(20)->withQueryString();
         return view('rental.index', compact('orders', 'filters'));
     }
@@ -441,7 +466,8 @@ class RentalOrderController extends Controller
     public function quoteTransport(Request $request, RentalOrderUnit $unit)
     {
         $data = $request->validate(['amount' => ['required', 'integer', 'min:0', 'max:200000000'], 'note' => ['nullable', 'string', 'max:1000']]);
-        DB::transaction(function () use ($unit, $data, $request) {
+        $free = (int) $data['amount'] === 0;
+        DB::transaction(function () use ($unit, $data, $request, $free) {
             $unit = RentalOrderUnit::lockForUpdate()->findOrFail($unit->id);
             // Revisi boleh selama belum ada pembayaran sama sekali; persetujuan
             // lama otomatis gugur sehingga pelanggan wajib menyetujui versi baru.
@@ -453,11 +479,23 @@ class RentalOrderController extends Controller
             if (($allFixed && (int) $data['amount'] !== $fixed) || (! $allFixed && (int) $data['amount'] < $fixed)) {
                 throw ValidationException::withMessages(['transport' => 'Penawaran harus mencakup tarif tetap universitas sesuai pesanan.']);
             }
-            $unit->update(['transport_quote' => $data['amount'], 'transport_quote_version' => $unit->transport_quote_version + 1, 'transport_quote_note' => $data['note'] ?? null, 'transport_approved_at' => null]);
+            // Ongkos nol (mis. diantar gratis karena dekat) tidak masuk akal
+            // kalau masih harus disetujui: pelanggan hanya akan melihat layar
+            // "menunggu persetujuan" untuk biaya yang tidak ada. Angka nol
+            // langsung disetujui admin yang menuliskannya.
+            $unit->update(['transport_quote' => $data['amount'], 'transport_quote_version' => $unit->transport_quote_version + 1, 'transport_quote_note' => $data['note'] ?? null, 'transport_approved_at' => $free ? now() : null]);
             $unit->transportQuoteEvents()->create(['action' => 'quote', 'version' => $unit->transport_quote_version, 'amount' => (int) $data['amount'], 'note' => $data['note'] ?? null, 'recorded_by' => $request->user()->id]);
-            app(RentalNotifications::class)->customer($unit->order, 'Penawaran ongkos', 'Ongkos untuk unit '.$unit->product_name.' siap diperiksa. Setujui atau ajukan keberatan dengan alasan.');
+            if ($free) {
+                $unit->transportQuoteEvents()->create(['action' => 'approve', 'version' => $unit->transport_quote_version, 'amount' => 0, 'note' => 'Ongkos gratis, tidak perlu persetujuan pelanggan.', 'recorded_by' => $request->user()->id]);
+                // Voucher ongkos ikut dihitung ulang supaya potongannya tidak
+                // menggantung pada biaya yang tidak pernah ditagih.
+                app(RentalVouchers::class)->redistribute($unit->order()->first());
+                app(RentalNotifications::class)->customer($unit->order, 'Ongkos gratis', 'Pengantaran unit '.$unit->product_name.' tanpa biaya tambahan. Pembayaran bisa dilanjutkan kapan saja.');
+            } else {
+                app(RentalNotifications::class)->customer($unit->order, 'Penawaran ongkos', 'Ongkos untuk unit '.$unit->product_name.' siap diperiksa. Setujui atau ajukan keberatan dengan alasan.');
+            }
         });
-        return back()->with('success', 'Penawaran ongkos dikirim kepada pelanggan.');
+        return back()->with('success', $free ? 'Ongkos gratis dicatat; pelanggan bisa langsung membayar.' : 'Penawaran ongkos dikirim kepada pelanggan.');
     }
 
     public function approveTransport(Request $request, RentalOrderUnit $unit)

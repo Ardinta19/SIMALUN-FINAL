@@ -16,7 +16,8 @@ class RentalTransportQuoteTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_transport_quote_requires_owner_approval_and_is_locked_after_payment(): void
+    /** @return array{0:User,1:User,2:User,3:\App\Models\RentalOrderUnit} */
+    private function fixture(): array
     {
         Storage::fake('local');
         $admin = User::factory()->create(); $admin->forceFill(['role' => 'admin'])->save();
@@ -26,6 +27,13 @@ class RentalTransportQuoteTest extends TestCase
         $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100000, 'price_unit' => 'day', 'stock' => 1]);
         $order = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $owner->id, 'confirmation_deadline' => now()->addDay()]);
         $unit = $order->units()->create(['rental_product_id' => $product->id, 'product_name' => 'Papan', 'unit_price' => 100000, 'price_unit' => 'day', 'rental_amount' => 100000, 'starts_on' => now()->addDays(3), 'event_on' => now()->addDays(3), 'ends_on' => now()->addDays(3), 'recipient_name' => 'Penerima', 'greeting' => 'Selamat', 'delivery_method' => 'delivery', 'delivery_address' => 'Alamat', 'return_method' => 'dropoff', 'status' => 'confirmed']);
+
+        return [$admin, $owner, $other, $unit];
+    }
+
+    public function test_transport_quote_requires_owner_approval_and_is_locked_after_payment(): void
+    {
+        [$admin, $owner, $other, $unit] = $this->fixture();
         $this->actingAs($owner)->post(route('rental.payment.store', $unit), ['amount' => 1000, 'proof' => UploadedFile::fake()->image('bukti.jpg')])->assertSessionHasErrors('payment');
         $this->actingAs($admin)->post(route('admin.rental.transport.quote', $unit), ['amount' => 20000, 'note' => 'Antar'])->assertSessionHasNoErrors();
         $this->post(route('admin.rental.transport.quote', $unit), ['amount' => 25000, 'note' => 'Antar'])->assertSessionHasNoErrors();
@@ -49,5 +57,27 @@ class RentalTransportQuoteTest extends TestCase
 
         // Setelah ada pembayaran, ongkos terkunci.
         $this->actingAs($admin)->post(route('admin.rental.transport.quote', $unit), ['amount' => 1])->assertSessionHasErrors('transport');
+    }
+
+    /**
+     * Putaran 35 — ongkos hanya opsi. Penawaran bernilai nol tidak perlu
+     * disetujui pelanggan: admin yang menuliskannya sudah menyatakan gratis,
+     * dan layar "menunggu persetujuan" untuk biaya nol hanya menahan bayar.
+     */
+    public function test_zero_quote_is_approved_without_customer_step(): void
+    {
+        [$admin, $owner, $other, $unit] = $this->fixture();
+
+        $this->actingAs($admin)->post(route('admin.rental.transport.quote', $unit), ['amount' => 0, 'note' => 'Gratis, masih dekat kampus'])->assertSessionHasNoErrors();
+
+        $unit->refresh();
+        $this->assertNotNull($unit->transport_approved_at);
+        $this->assertSame(100000, $unit->payableAmount());
+        $this->assertSame(1, $unit->transportQuoteEvents()->where('action', 'approve')->count());
+        $this->assertDatabaseHas('notifications', ['notifiable_id' => $owner->id]);
+
+        // Tidak ada lagi yang bisa disetujui pelanggan untuk versi ini.
+        $this->actingAs($owner)->post(route('rental.transport.approve', $unit), ['version' => $unit->transport_quote_version])->assertSessionHasErrors('transport');
+        $this->assertSame(100000, $unit->fresh()->payableAmount());
     }
 }

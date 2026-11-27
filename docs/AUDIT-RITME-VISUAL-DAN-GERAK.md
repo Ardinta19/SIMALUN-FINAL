@@ -5830,3 +5830,119 @@ label berganti. Ubah jumlah unit: total di bawah tombol ikut berubah seketika.
 Tambahkan ke keranjang, lalu tekan − dan + di keranjang: angka unit, subtotal
 baris, dan total keranjang berubah tanpa halaman berkedip. Bila warna habis,
 tombol + berhenti sendiri dan pesan muncul saat dicoba.
+
+### 9.147 Kontak berjalan di footer, satu tagline, ongkos yang tidak menahan, dan progres yang terlihat
+
+Permintaan pemilik usaha pada putaran ini lima hal sekaligus: *"terapkan ticker
+berjalan pada halaman yang menampilkan link WA + media sosial; tagline dari
+deskripsi IG sebaiknya diubah di bagian mana dan bagusnya bagaimana; persetujuan
+ongkir itu hanya opsi saja karena hanya beberapa pesanan yang ada ongkirnya;
+tambahkan progres untuk pelanggan plus notifikasi progres; analisis UX seluruh
+peran dan buat lebih satset daripada WhatsApp"*.
+
+**1. Strip kontak di footer, bukan deretan tautan kecil.** Partial
+`catalog/_ribbon.blade.php` sekarang punya dua mode: `$withSteps` (bawa lima
+langkah pemesanan) dan `$withContacts` (bawa Instagram/TikTok/WhatsApp). Footer
+`catalog/layout.blade.php` memanggilnya dengan
+`['withSteps' => false]`, jadi setiap halaman yang menampilkan nomor WhatsApp —
+keranjang, detail papan, checkout, pesanan, bantuan, dsb. — memakai strip
+berjalan yang sama dengan beranda. Beranda sengaja **dilewati** karena strip
+kontaknya sudah ada di atas; mengulanginya di footer membuat pembaca layar
+mendengar kanal yang sama dua kali. Di mode footer ditambah satu ubin
+"Tanya stok & jadwal" agar strip tidak terasa kosong saat hanya berisi tiga
+tautan. Kelas `bk-ribbon--contact` melepas garis atas/bawah dan membatasi lebar.
+
+**2. Satu sumber tagline.** Sebelumnya ada empat kalimat berbeda di empat
+tempat (config/email "Papan bunga untuk setiap cerita", hero katalog "Papan
+bunga untuk momen istimewa", splash login "Rangkaian bunga untuk momen yang
+kamu tunggu", dan wordmark navigasi pelanggan). Semuanya sekarang memanggil
+`App\Support\Laundry::tagline()` yang membaca `BUSINESS_TAGLINE`:
+
+- header katalog (dua cabang: tamu/admin dan pelanggan),
+- wordmark `catalog/customer-navigation.blade.php`,
+- splash `auth/login.blade.php`,
+- `auth/forgot-password.blade.php` dan `rental/public-like.blade.php`,
+- kepala email transaksi (sudah sejak sebelumnya).
+
+Mengganti kalimat kini cukup satu baris di `.env`; tidak ada teks tagline yang
+tertinggal di view. **Letak yang disarankan:** sub-baris wordmark di header,
+splash login, dan kepala email (tiga tempat orang pertama kali bertemu merek).
+Judul besar beranda (`Setiap momen punya cerita.`) dibiarkan sebagai kalimat
+pembuka, bukan tagline, supaya tidak bersaing dengan sub-baris. Footer tidak
+perlu tagline karena ruangnya sekarang dipakai kanal kontak.
+
+**3. Ongkos hanya opsi, bukan gerbang pembayaran.** `payableAmount()`
+mengembalikan `null` selama ongkos belum disetujui, dan sebelumnya itu juga
+berlaku untuk **tarif universitas tetap** yang sudah tampil di ringkasan
+checkout — akibatnya pelanggan melihat "Menunggu persetujuan ongkos" untuk
+angka yang tidak pernah berubah, dan pembayaran tertahan. Dua perubahan:
+
+- Saat checkout, bila seluruh komponen antar/jemput memakai tarif universitas
+  (`$allFixed`), ongkos langsung ditandai disetujui (`transport_approved_at`)
+  dan dicatat sebagai peristiwa `approve` di riwayat ongkos, dengan catatan
+  bahwa tarifnya sudah tampil saat checkout.
+- Saat admin menulis penawaran **0** (mis. diantar gratis), penawaran langsung
+  disetujui admin yang menuliskannya; pelanggan menerima kabar "Ongkos gratis",
+  voucher ongkos dihitung ulang, dan pembayaran bisa langsung dikirim tanpa
+  layar persetujuan.
+
+Penawaran manual di atas nol tetap harus disetujui pelanggan, tetap terkunci
+setelah ada pembayaran, dan tetap wajib memuat tarif universitas. Unit dengan
+pengambilan/pengembalian sendiri tidak pernah menyentuh alur ini: di halaman
+unit bagian ongkos tidak dirender, dan di bagian ongkos kini ada satu kalimat
+penjelas bahwa ongkos hanya berlaku untuk unit yang diantar atau dijemput.
+Form admin memberi petunjuk "isi 0 bila gratis".
+
+**4. Progres yang terlihat.** `App\Support\RentalLabels` mendapat
+`PROGRESS_STEPS`, `PROGRESS_HINT`, `progressHint()`, dan `progressStep()`.
+Partial baru `rental/_progress_steps.blade.php` merender lima langkah
+(`Menunggu pengerjaan → Dalam pengerjaan → Siap diserahkan → Sudah diserahkan →
+Sudah dikembalikan`) dengan status `done`/`current`/`todo`, tanda centang untuk
+langkah lewat, dan satu kalimat arahan di bawahnya. Dipasang di:
+
+- halaman unit pelanggan (tepat di bawah judul unit, sebelum "Langkah
+  berikutnya"),
+- tiap kartu unit di detail pesanan (`compact`),
+- beranda pelanggan: bagian baru "Progres pesananmu" (maksimal empat unit yang
+  sedang berjalan, `trackedUnits` di `DashboardController@customer`), lengkap
+  dengan chip tindakan yang menunggu pelanggan ("Setujui ongkos", "Tinjau
+  desain", "Bukti bayar ditolak", "Belum lunas") yang menaut langsung ke
+  jangkar bagian terkait,
+- kartu daftar pesanan: baris ringkas "1 dikerjakan · 1 siap diserahkan ·
+  1 selesai" dari `withCount` (tanpa N+1).
+
+Notifikasi progres tidak lagi "Perkembangan unit telah diperbarui", melainkan
+judul berisi langkahnya (`Progres: Dalam pengerjaan`) dan pesan berisi arahan
+dari `PROGRESS_HINT` plus catatan admin bila ada. Inilah yang menghapus
+kebutuhan pelanggan membuka WhatsApp hanya untuk bertanya "sudah sampai mana?".
+
+**5. Analisis alur per peran.** Ringkasan lengkap ada di dokumen baru
+`docs/ANALISIS-ALUR-PENGGUNA.md`: hitungan ketukan tiap alur utama (publik,
+pelanggan, admin) dibandingkan dengan memesan lewat chat, daftar gesekan yang
+ditemukan, yang sudah diperbaiki pada putaran ini, dan sisa pekerjaan yang
+diurutkan menurut dampak. Dua perbaikan jalur cepat ikut dikerjakan di sini:
+tombol **"Tanya papan ini lewat WhatsApp"** di detail papan dan **"Tanya
+keranjang ini lewat WhatsApp"** di keranjang — pesannya sudah terisi nama
+papan, warna, harga, dan tanggal, jadi orang yang tetap memilih chat tidak
+perlu mengetik ulang rincian.
+
+**Cara memeriksa sendiri:**
+
+1. Buka beranda: strip berjalan tetap muncul di atas (lima langkah + kontak).
+   Buka Keranjang atau halaman detail papan: di footer ada strip kontak
+   berjalan tanpa langkah, arahnya sama (ke kanan) dan berhenti saat disentuh.
+   Beranda **tidak** menampilkan strip kedua di footer.
+2. Ganti `BUSINESS_TAGLINE` di `.env`, jalankan `php artisan optimize:clear`,
+   lalu muat ulang: sub-baris header, splash login, dan wordmark navigasi
+   pelanggan ikut berubah tanpa menyunting view.
+3. Pesan satu papan dengan penerimaan "Diantar penjual" ke universitas yang
+   punya tarif: di halaman unit, ongkos langsung berstatus "Disetujui" (atau
+   "Gratis" bila tarifnya 0) dan tombol pembayaran tersedia tanpa langkah
+   persetujuan. Pesan unit lain dengan "Diambil sendiri": bagian ongkos tidak
+   muncul sama sekali.
+4. Sebagai admin, kirim penawaran ongkos 0 pada unit antar/jemput: pelanggan
+   menerima notifikasi "Ongkos gratis" dan langsung bisa membayar.
+5. Buka halaman unit: stepper lima langkah tampil dan langkah sekarang
+   berwarna. Minta admin menekan "Mulai kerjakan": notifikasi pelanggan berjudul
+   "Progres: Dalam pengerjaan" dengan arahan, dan beranda pelanggan menampilkan
+   bagian "Progres pesananmu".

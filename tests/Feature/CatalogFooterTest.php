@@ -19,9 +19,15 @@ class CatalogFooterTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * Sejak putaran 35 kanal kontak dirender oleh strip berjalan
+     * (`catalog/_ribbon.blade.php`) yang dipanggil dari footer, jadi berkas
+     * yang diperiksa mencakup layout + partial itu.
+     */
     private function layout(): string
     {
-        return (string) file_get_contents(resource_path('views/catalog/layout.blade.php'));
+        return (string) file_get_contents(resource_path('views/catalog/layout.blade.php'))
+            .(string) file_get_contents(resource_path('views/catalog/_ribbon.blade.php'));
     }
 
     public function test_footer_memakai_data_usaha_dari_config(): void
@@ -43,7 +49,11 @@ class CatalogFooterTest extends TestCase
             ->assertSee(Laundry::tiktok(), false)
             ->assertSee('Instagram')
             ->assertSee('TikTok')
-            ->assertSee('WhatsApp '.Laundry::phoneDisplay())
+            // Nomor tampil sebagai dua potong di dalam strip berjalan
+            // (<strong>WhatsApp</strong><small>0895-...</small>), jadi yang
+            // diperiksa adalah label dan nomornya terpisah.
+            ->assertSee('WhatsApp')
+            ->assertSee(Laundry::phoneDisplay())
             // Belum punya outlet resmi: alamat karangan tidak boleh muncul lagi.
             ->assertDontSee('Lokasi di Google Maps')
             ->assertDontSee('Mayang Mangurai');

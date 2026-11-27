@@ -9,7 +9,7 @@
     <header class="bk-header {{ request()->routeIs('welcome') ? 'bk-header--catalog' : '' }}" data-bk-header>
         <div class="bk-header-inner">
             <a class="bk-logo" href="{{ route('welcome') }}" aria-label="Berkah Kreatif, buka katalog"><img src="{{ asset('images/logo-104.png') }}" width="104" height="57" alt=""></a>
-            <a class="bk-wordmark" href="{{ route('welcome') }}"><strong>Berkah Kreatif</strong><span>Papan bunga untuk setiap cerita</span></a>
+            <a class="bk-wordmark" href="{{ route('welcome') }}"><strong>Berkah Kreatif</strong><span>{{ \App\Support\Laundry::tagline() }}</span></a>
             <nav class="bk-desktop-nav" aria-label="Navigasi utama">
                 @if($isCustomer)<a href="{{ route('customer.dashboard') }}" @if(request()->routeIs('customer.dashboard')) aria-current="page" @endif>Beranda</a>@endif
                 <a href="{{ route('welcome') }}" @if(request()->routeIs('welcome', 'catalog.show')) aria-current="page" @endif>Katalog</a>

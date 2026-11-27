@@ -152,7 +152,7 @@
                 @if($unit->transportRequired())
                     <h3>Ongkos antar dan/atau penjemputan</h3>
                     @if($unit->transport_quote !== null)
-                        <p>Versi {{ $unit->transport_quote_version }} · Rp {{ number_format($unit->transport_quote, 0, ',', '.') }} · {{ $unit->transport_approved_at ? 'Disetujui pelanggan' : 'Menunggu persetujuan' }}</p>
+                        <p>Versi {{ $unit->transport_quote_version }} · Rp {{ number_format($unit->transport_quote, 0, ',', '.') }} · {{ $unit->transport_approved_at ? ((int) $unit->transport_quote === 0 ? 'Gratis' : 'Disetujui') : 'Menunggu persetujuan' }}</p>
                         <p class="muted">{{ $unit->transport_quote_note }}</p>
                     @endif
                     @php $lastTransport = $unit->transportQuoteEvents->last(); @endphp
@@ -172,7 +172,7 @@
                                 <label for="transport-note-{{ $unit->id }}">Rincian ongkos</label>
                                 <textarea id="transport-note-{{ $unit->id }}" placeholder="Contoh: Antar 15.000 dan jemput kembali 20.000, sudah termasuk tol." name="note" maxlength="1000" rows="4">{{ $unit->transport_quote_note }}</textarea>
                             </div>
-                            <p class="adm-help">Mengirim versi baru membatalkan persetujuan lama; pelanggan wajib menyetujui versi terbaru.</p>
+                            <p class="adm-help">Isi 0 bila pengantaran gratis — pelanggan tidak perlu menyetujui apa pun dan bisa langsung membayar. Untuk angka lain, versi baru membatalkan persetujuan lama sehingga pelanggan wajib menyetujui versi terbaru. Tarif universitas yang sudah tampil saat checkout tidak perlu ditawar ulang.</p>
                             <div><button class="btn secondary" type="submit">Kirim penawaran</button></div>
                         </form>
                     @elseif($unit->payments->isNotEmpty())

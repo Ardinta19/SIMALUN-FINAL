@@ -91,24 +91,27 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
      pelanggan yang punya, sehingga pengguna papan ketik berperan admin harus
      menekan Tab melewati seluruh header lebih dulu. --}}
 <a class="bk-skip" href="#main-content">Langsung ke isi</a>
-<header class="hero"><div class="top"><a href="{{ route('welcome') }}"><img class="logo" src="{{ asset('images/logo-104.png') }}" width="104" height="57" alt="Logo Berkah Kreatif"></a><div><a class="brand" href="{{ route('welcome') }}">Berkah Kreatif</a><div class="tag">Papan bunga untuk momen istimewa</div></div><nav class="nav" aria-label="Navigasi utama"><a href="{{ route('welcome') }}">Katalog</a><a href="{{ route('cart.index') }}">Keranjang ({{ count(session('rental_cart', [])) }})</a>@auth @if(auth()->user()->role === 'admin')<a href="{{ route('admin.catalog.index') }}">Kelola katalog</a><a href="{{ route('admin.rental.orders') }}">Pesanan sewa</a><a href="{{ route('admin.rental.cashbook.index') }}">Buku kas</a>@elseif(auth()->user()->role === 'customer')<a href="{{ route('rental.orders.index') }}">Pesanan saya</a><a href="{{ route('customer.dashboard') }}">Dasbor</a>@else<a href="{{ route('dashboard') }}">Dasbor</a>@endif @else<a href="{{ route('login') }}">Masuk</a>@endauth</nav></div>@yield('hero')</header>
+<header class="hero"><div class="top"><a href="{{ route('welcome') }}"><img class="logo" src="{{ asset('images/logo-104.png') }}" width="104" height="57" alt="Logo Berkah Kreatif"></a><div><a class="brand" href="{{ route('welcome') }}">Berkah Kreatif</a><div class="tag">{{ \App\Support\Laundry::tagline() }}</div></div><nav class="nav" aria-label="Navigasi utama"><a href="{{ route('welcome') }}">Katalog</a><a href="{{ route('cart.index') }}">Keranjang ({{ count(session('rental_cart', [])) }})</a>@auth @if(auth()->user()->role === 'admin')<a href="{{ route('admin.catalog.index') }}">Kelola katalog</a><a href="{{ route('admin.rental.orders') }}">Pesanan sewa</a><a href="{{ route('admin.rental.cashbook.index') }}">Buku kas</a>@elseif(auth()->user()->role === 'customer')<a href="{{ route('rental.orders.index') }}">Pesanan saya</a><a href="{{ route('customer.dashboard') }}">Dasbor</a>@else<a href="{{ route('dashboard') }}">Dasbor</a>@endif @else<a href="{{ route('login') }}">Masuk</a>@endauth</nav></div>@yield('hero')</header>
 @endif
 <main class="wrap" id="main-content" tabindex="-1">@if(session('success'))<div class="notice" role="status">{{ session('success') }}</div>@endif @if($errors->any())<div class="notice" role="alert"><strong>Mohon periksa kembali:</strong><ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif @yield('content')</main><footer>
 @php
     $bkMaps = \App\Support\Laundry::googleMaps();
-    $bkWa = \App\Support\WhatsApp::link(\App\Support\Laundry::whatsapp(), 'Halo, saya ingin bertanya soal sewa papan bunga.');
-    $bkIg = \App\Support\Laundry::instagram();
-    $bkTt = \App\Support\Laundry::tiktok();
 @endphp
 <p>© {{ date('Y') }} {{ \App\Support\Laundry::name() }}@if(\App\Support\Laundry::hasAddress()) · {{ \App\Support\Laundry::address() }}@endif</p>
-{{-- Usaha ini belum punya toko fisik: yang ditampilkan hanya kanal yang
-     benar-benar bisa dihubungi. Tautan kosong otomatis hilang. --}}
-<div style="display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:center;margin-top:6px">
-@if($bkIg)<a href="{{ $bkIg }}" target="_blank" rel="noopener">Instagram</a>@endif
-@if($bkTt)<a href="{{ $bkTt }}" target="_blank" rel="noopener">TikTok</a>@endif
-@if($bkWa)<a href="{{ $bkWa }}" target="_blank" rel="noopener">WhatsApp {{ \App\Support\Laundry::phoneDisplay() }}</a>@endif
-@if($bkMaps && $bkMaps !== '#')<a href="{{ $bkMaps }}" target="_blank" rel="noopener">Lokasi di Google Maps</a>@endif
-</div>
+{{-- Putaran 35: kanal kontak tidak lagi ditulis sebagai deretan tautan biasa.
+     Di setiap halaman yang menampilkan WhatsApp/media sosial, kanal itu kini
+     tampil sebagai strip berjalan yang sama dengan beranda, jadi mata pembaca
+     menangkap nomor yang bisa dihubungi tanpa harus mencari baris kecil di
+     kaki halaman. Tautan yang kosong tetap otomatis hilang.
+
+     Beranda sengaja dilewati: di sana strip kontak sudah tampil di atas, dan
+     mengulanginya di footer membuat isi halaman terbaca dua kali. --}}
+@unless(request()->routeIs('welcome'))
+    @include('catalog._ribbon', ['withSteps' => false])
+@endunless
+@if($bkMaps && $bkMaps !== '#')
+<div style="display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:center;margin-top:6px"><a href="{{ $bkMaps }}" target="_blank" rel="noopener">Lokasi di Google Maps</a></div>
+@endif
 </footer>
 @auth
     @if(auth()->user()->role === 'customer')

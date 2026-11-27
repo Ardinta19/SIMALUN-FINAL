@@ -116,7 +116,7 @@ $oldText = function (string $key, $fallback = '') {
     <p class="bk-splash__eyebrow">Papan bunga &amp; hadiah</p>
     <p class="bk-splash__brand">Berkah Kreatif</p>
     <div class="bk-splash__rule"></div>
-    <p class="bk-splash__tagline">Rangkaian bunga untuk momen yang kamu tunggu.</p>
+    <p class="bk-splash__tagline">{{ \App\Support\Laundry::tagline() }}.</p>
   </div>
   <div class="bk-splash__bar" aria-hidden="true"><span></span></div>
   <button class="bk-splash__skip" type="button">Lewati</button>

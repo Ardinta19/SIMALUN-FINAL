@@ -49,6 +49,24 @@ class RentalLabels
         'returned' => 'Sudah dikembalikan',
     ];
 
+    /**
+     * Kalimat penjelas untuk tiap progres.
+     *
+     * Dipisah dari label supaya notifikasi bisa menjawab "lalu saya harus apa?"
+     * tanpa admin menulis pesan manual — inilah yang membuat pelanggan tidak
+     * perlu membuka WhatsApp hanya untuk menanyakan status.
+     */
+    public const PROGRESS_HINT = [
+        'waiting' => 'Tidak ada yang perlu kamu lakukan. Admin menyiapkan bahan dan pratinjau desain.',
+        'production' => 'Papan sedang dikerjakan. Kami kabari lagi begitu siap diserahkan.',
+        'ready' => 'Papan sudah siap. Serah terima menunggu jadwal dan pembayaran yang lunas.',
+        'handed_over' => 'Papan sudah kamu terima. Pengembalian mengikuti tanggal yang disepakati.',
+        'returned' => 'Unit sudah kembali ke kami. Terima kasih sudah memakai Berkah Kreatif.',
+    ];
+
+    /** Urutan progres yang dilihat pelanggan, dari awal sampai selesai. */
+    public const PROGRESS_STEPS = ['waiting', 'production', 'ready', 'handed_over', 'returned'];
+
     /** Status bukti pembayaran. */
     public const PAYMENT_STATUS = [
         'pending' => 'Menunggu verifikasi',
@@ -72,6 +90,19 @@ class RentalLabels
     public static function progress(?string $value): string
     {
         return self::label(self::PROGRESS, $value);
+    }
+
+    public static function progressHint(?string $value): string
+    {
+        return self::PROGRESS_HINT[$value] ?? '';
+    }
+
+    /** Indeks langkah (0-4) untuk stepper; null bila progres tidak dikenal. */
+    public static function progressStep(?string $value): ?int
+    {
+        $index = array_search($value, self::PROGRESS_STEPS, true);
+
+        return $index === false ? null : (int) $index;
     }
 
     public static function paymentStatus(?string $value): string

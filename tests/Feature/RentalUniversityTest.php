@@ -14,7 +14,7 @@ class RentalUniversityTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_university_rates_are_snapshotted_and_require_customer_approval(): void
+    public function test_university_rates_are_snapshotted_and_approved_at_checkout(): void
     {
         $admin = User::factory()->create(); $admin->forceFill(['role' => 'admin'])->save();
         $customer = User::factory()->create(); $customer->forceFill(['role' => 'customer'])->save();
@@ -29,12 +29,16 @@ class RentalUniversityTest extends TestCase
         $unit = ['starts_on' => now()->addDays(3)->toDateString(), 'event_on' => now()->addDays(3)->toDateString(), 'ends_on' => now()->addDays(3)->toDateString(), 'recipient_name' => 'Penerima', 'greeting' => 'Selamat', 'delivery_method' => 'delivery', 'delivery_address' => 'Gedung A', 'delivery_university_id' => $university->id, 'return_method' => 'collection', 'return_address' => 'Gedung A', 'return_university_id' => $university->id];
         $this->post(route('rental.checkout.store'), ['units' => [$key => $unit], 'terms' => '1'])->assertSessionHasNoErrors();
         $ordered = RentalOrder::firstOrFail()->units()->firstOrFail();
+        // Putaran 35: tarif universitas sudah tampil di checkout, jadi ongkos
+        // itu langsung disetujui dan tidak menahan pembayaran. Persetujuan
+        // manual hanya tersisa untuk penawaran bebas (alamat non-universitas).
         $this->assertSame(50000, (int) $ordered->transport_quote);
-        $this->assertNull($ordered->payableAmount());
+        $this->assertNotNull($ordered->transport_approved_at);
+        $this->assertSame(150000, $ordered->payableAmount());
+        $this->assertNotNull($ordered->transportQuoteEvents()->where('action', 'approve')->first());
         $this->actingAs($admin)->put(route('admin.rental.universities.update', $university), ['name' => 'Nama baru', 'delivery_fee' => 1, 'collection_fee' => 2])->assertSessionHasNoErrors();
         $this->post(route('admin.rental.transport.quote', $ordered), ['amount' => 1])->assertSessionHasErrors('transport');
         $this->assertSame('Kampus', $ordered->fresh()->delivery_university);
-        $this->actingAs($customer)->post(route('rental.transport.approve', $ordered), ['version' => 1])->assertSessionHasNoErrors();
         $this->assertSame(150000, $ordered->fresh()->payableAmount());
     }
     public function test_university_rate_changes_are_audited(): void
