@@ -12,9 +12,10 @@ use Illuminate\Http\Request;
  * 2. Cek HTTP Referer — hanya jika masih same-host & bukan halaman sendiri
  * 3. Fallback ke route yang diberikan
  *
- * Cara pakai di view:
- *   <x-back-button fallback="rental.orders.index" />
- *   atau manual: BackUrl::resolve($request, 'rental.orders.index')
+ * Cara pakai di view: ambil URL-nya untuk atribut `href` lalu pasang
+ * atribut `data-smart-back` (lihat public/js/berkah-smart-back.js):
+ *
+ *   <a data-smart-back href="{{ BackUrl::resolve(request(), 'rental.orders.index') }}">Kembali</a>
  */
 class BackUrl
 {

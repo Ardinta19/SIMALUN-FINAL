@@ -3864,3 +3864,34 @@ customer-simple.blade.php` memang alias lama yang masih diuji
 **Hasil:** harness **181 lulus, 0 gagal, 223 dilewati**; `blade-scan.py`
 81 view / 0 / 0; `.tmp-verify.php` 26/0; `node --check` 11 berkas JS lolos;
 `php -l` bersih.
+
+### 9.89 Komponen tombol kembali tercabut setengah, dan pemindai rujukan baru
+
+Putaran sebelumnya menghapus `resources/views/components/back-button.blade.php`
+karena tidak lagi dirujuk. Yang tertinggal: kelas
+`App\View\Components\BackButton` yang `render()`-nya masih menunjuk view yang
+sudah tidak ada, plus 55 baris `.back-btn*` di `resources/css/app.css` dengan
+komentar "used by x-back-button component". Komponen seperti ini tidak
+menimbulkan galat sampai ada yang memakainya — lalu halaman yang memuatnya
+gagal 500 dengan pesan "View [components.back-button] not found", bukan pesan
+yang bisa dimengerti. Kelas dan blok CSS-nya dihapus; contoh pakai di docblock
+`App\Support\BackUrl` diperbaiki agar menunjuk pola yang benar-benar dipakai
+(`data-smart-back` + `href`, penanganannya di
+`public/js/berkah-smart-back.js`).
+
+Agar kelas masalah ini tertangkap lebih awal, `tests/Feature/RouteReferenceTest.php`
+memindai seluruh `app/`, `resources/views/`, dan `public/js/`:
+
+- setiap `route('…')` literal harus ada di `routes/*.php`, termasuk nama yang
+  dibentuk awalan grup (`admin.`, `customer.`);
+- setiap `@include`/`@extends`/`@each`/`view('…')` literal harus punya berkas
+  `resources/views/…blade.php`.
+
+Pemindai ini yang menemukan sisa `BackButton`. Pada pemindaian seluruh
+proyek: 115 nama rute terdaftar dibaca dan 332 pemanggilan `route('…')`
+diperiksa — tidak ada satu pun yang menunjuk rute tak dikenal. Pemeriksaan pendamping lain juga bersih: tidak ada `<form>` non-GET
+tanpa `@csrf` (tujuh `<form>` yang tertangkap pemindai awal semuanya form
+filter `method="get"`), dan seluruh kurawal `public/css/*.css` seimbang.
+
+**Hasil:** harness **183 lulus, 0 gagal, 223 dilewati**; `blade-scan.py`
+81 view / 0 / 0; `.tmp-verify.php` 26/0; `node --check` 11 berkas JS lolos.
