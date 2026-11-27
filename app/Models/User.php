@@ -71,4 +71,18 @@ class User extends Authenticatable
     {
         return $this->hasMany(CustomerAddress::class, 'customer_id');
     }
+
+    /**
+     * Boleh dikirimi pemberitahuan?
+     *
+     * Dua syarat: admin belum menonaktifkan akun (`is_active`) **dan**
+     * pemiliknya belum menonaktifkan akun sendiri (soft delete). Pemeriksaan
+     * kedua perlu ditulis eksplisit karena `RentalOrder::customer()`
+     * memakai `withTrashed()` — tanpa ini, pengingat penjadwal akan tetap
+     * dikirim ke akun yang sudah ditutup pemiliknya.
+     */
+    public function dapatMenerimaNotifikasi(): bool
+    {
+        return (bool) $this->is_active && $this->deleted_at === null;
+    }
 }

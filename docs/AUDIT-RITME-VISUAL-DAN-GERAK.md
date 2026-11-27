@@ -4782,3 +4782,65 @@ perubahan kode):
   sebagai rangka untuk migrasi bertahap; README sudah menyatakan Vite tidak
   dipakai satu view pun, dan `FrontendAssetsTest` menjaga agar
   `composer setup` tidak memanggil `npm install`/`npm run build`.
+
+### 9.122 "Nonaktifkan akun" tanpa syarat apa pun
+
+`ProfileController::destroy()` sebelumnya hanya memeriksa kata sandi, lalu
+langsung melakukan `Auth::logout()` + `$user->delete()`. Dua akibat yang
+tidak diinginkan:
+
+1. **Pelanggan bisa menutup akun di tengah pesanan berjalan.** Unitnya
+   masih perlu diantar, admin masih perlu menghubungi orangnya, tetapi
+   akunnya sudah tidak bisa dipakai masuk. Halaman profil menjanjikan
+   "data pesanan tetap tersimpan", bukan "pesanan tetap berjalan tanpa
+   pemilik".
+2. **Admin terakhir bisa menghapus dirinya sendiri.** Rutenya berlaku untuk
+   semua peran; UI-nya memang hanya tampil untuk pelanggan, tetapi satu
+   permintaan `DELETE /profile` yang dibuat manual akan melenyapkan
+   satu-satunya admin aktif dan aplikasi tidak bisa dikelola lagi kecuali
+   lewat `php artisan`.
+
+Sekarang, sesudah kata sandi diverifikasi:
+
+- peran `admin`: penghapusan ditolak bila jumlah admin aktif (kolom
+  `is_active` = true, belum terhapus) tinggal satu;
+- peran `customer`: penghapusan ditolak bila masih ada unit berstatus
+  `pending`/`confirmed` yang belum `returned`.
+
+Pesan galat memakai kunci `password` karena itu satu-satunya bidang galat
+yang dirender kartu "Hapus akun", dan teks peringatannya juga ditambahkan di
+kartu tersebut supaya pelanggan tahu syaratnya sebelum mencoba.
+
+Dijaga `tests/Feature/ProfileTest.php`: tiga tes baru
+(`…dengan_pesanan_berjalan_tidak_bisa_menonaktifkan_akun`,
+`…tanpa_pesanan_berjalan_bisa_menonaktifkan_akun`,
+`test_admin_terakhir_tidak_bisa_menghapus_akunnya`) plus asersi bahwa
+peringatan itu tampil di halaman profil.
+
+### 9.123 Riwayat pesanan kehilangan nama pelanggan yang menonaktifkan akun
+
+`RentalOrder::customer()` adalah `belongsTo` biasa. Karena `User` memakai
+`SoftDeletes`, begitu pelanggan menonaktifkan akun, relasi itu mengembalikan
+`null` — semua layar admin menampilkan "Pelanggan tidak tersedia"
+(`roles/admin/dashboard`, `rental/admin`, `rental/admin-detail`,
+`rental/schedule`, `admin/notifications`) padahal unitnya masih harus
+di antar dan dihubungi. Data itu sengaja disimpan (soft delete), jadi
+menyembunyikannya justru bertentangan dengan alasan penyimpanan.
+
+Relasi kini memakai `withTrashed()`. Konsekuensinya harus ditutup: pengiriman
+pemberitahuan memeriksa `is_active` saja, dan akun yang ditutup pemiliknya
+masih punya `is_active = 1`, sehingga pengingat penjadwal akan tetap masuk ke
+akun yang sudah ditutup. Karena itu ditambahkan
+`User::dapatMenerimaNotifikasi()` (aktif **dan** belum soft delete), dipakai
+`RentalNotifications::customer()` dan `RentalReminders::customerReachable()`.
+
+Dijaga `tests/Feature/RentalNotificationTest.php`:
+
+- `test_pelanggan_yang_menonaktifkan_akun_tidak_menerima_pemberitahuan()` —
+  pelanggan aktif menerima satu pemberitahuan; setelah akun ditutup, jumlahnya
+  tidak bertambah; akun yang dinonaktifkan admin juga nihil.
+- `test_penanda_dapat_menerima_notifikasi_mengikuti_status_akun()` — tiga
+  keadaan: aktif, dinonaktifkan admin, dan soft delete.
+
+Dan `ProfileTest::test_riwayat_pesanan_tetap_menampilkan_pelanggan_yang_dinonaktifkan()`
+memastikan nama pelanggan masih terbaca lewat relasi setelah akunnya ditutup.

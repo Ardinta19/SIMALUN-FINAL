@@ -2,10 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Models\RentalCategory;
+use App\Models\RentalOrder;
+use App\Models\RentalOrderUnit;
+use App\Models\RentalProduct;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class ProfileTest extends TestCase
@@ -189,5 +194,118 @@ class ProfileTest extends TestCase
             'label' => ['Rumah'], 'recipient_name' => ['Budi'], 'full_address' => ['Jalan panjang nomor satu'], 'latitude' => ['-3.8'],
         ])->assertRedirect(route('customer.addresses.create'))->assertSessionHasErrors(['label', 'recipient_name', 'full_address']);
         $this->get(route('customer.addresses.create'))->assertOk()->assertDontSee('Array')->assertSee('name="label"', false);
+    }
+
+    /**
+     * Membuat satu unit pesanan untuk pelanggan. Diperlukan untuk menguji
+     * penjagaan "masih ada pesanan berjalan" saat akun dinonaktifkan.
+     */
+    private function pesananBerjalan(User $customer, string $status = 'confirmed', string $progress = 'waiting'): RentalOrderUnit
+    {
+        $category = RentalCategory::firstOrCreate(['name' => 'Wisuda']);
+        $product = RentalProduct::create([
+            'rental_category_id' => $category->id,
+            'name' => 'Papan Uji',
+            'base_price' => 100000,
+            'price_unit' => 'day',
+            'stock' => 3,
+            'is_active' => true,
+        ]);
+
+        $order = RentalOrder::create([
+            'reference' => (string) Str::uuid(),
+            'customer_id' => $customer->id,
+            'confirmation_deadline' => now()->addDay(),
+        ]);
+
+        return $order->units()->create([
+            'rental_product_id' => $product->id,
+            'product_name' => $product->name,
+            'unit_price' => $product->base_price,
+            'price_unit' => 'day',
+            'rental_amount' => 1,
+            'starts_on' => '2026-12-10',
+            'event_on' => '2026-12-10',
+            'ends_on' => '2026-12-11',
+            'recipient_name' => 'Penerima',
+            'greeting' => 'Selamat',
+            'delivery_method' => 'pickup',
+            'return_method' => 'dropoff',
+            'status' => $status,
+            'progress' => $progress,
+        ]);
+    }
+
+    public function test_pelanggan_dengan_pesanan_berjalan_tidak_bisa_menonaktifkan_akun(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer', 'phone' => '81234567890']);
+        $this->pesananBerjalan($customer);
+
+        $this->actingAs($customer)
+            ->from('/profile/edit')
+            ->delete('/profile', ['password' => 'password'])
+            ->assertRedirect('/profile/edit')
+            ->assertSessionHasErrors('password');
+
+        $this->assertNull($customer->fresh()->deleted_at);
+
+        // Peringatannya sudah tampil di halaman, bukan hanya muncul setelah gagal.
+        $this->actingAs($customer)->get('/profile/edit')->assertOk()->assertSee('selama masih ada pesanan yang berjalan');
+    }
+
+    public function test_pelanggan_tanpa_pesanan_berjalan_bisa_menonaktifkan_akun(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer', 'phone' => '81234567890']);
+        // Unit yang sudah selesai tidak boleh menahan penonaktifan.
+        $this->pesananBerjalan($customer, 'confirmed', 'returned');
+
+        $this->actingAs($customer)
+            ->delete('/profile', ['password' => 'password'])
+            ->assertRedirect('/');
+
+        $this->assertSoftDeleted('users', ['id' => $customer->id]);
+    }
+
+    public function test_admin_terakhir_tidak_bisa_menghapus_akunnya(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($admin)
+            ->from('/profile/edit')
+            ->delete('/profile', ['password' => 'password'])
+            ->assertSessionHasErrors('password');
+
+        $this->assertNull($admin->fresh()->deleted_at);
+
+        // Begitu ada admin aktif lain, penghapusan diizinkan.
+        User::factory()->create(['role' => 'admin', 'is_active' => true]);
+
+        $this->actingAs($admin)
+            ->delete('/profile', ['password' => 'password'])
+            ->assertSessionHasNoErrors();
+
+        $this->assertSoftDeleted('users', ['id' => $admin->id]);
+    }
+
+    public function test_riwayat_pesanan_tetap_menampilkan_pelanggan_yang_dinonaktifkan(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer', 'phone' => '81234567890', 'name' => 'Sari Wulandari']);
+
+        $this->actingAs($customer)->delete('/profile', ['password' => 'password']);
+        $this->assertSoftDeleted('users', ['id' => $customer->id]);
+
+        $lain = User::factory()->create(['role' => 'customer', 'phone' => '81234567891']);
+        $unit = $this->pesananBerjalan($lain);
+
+        // Pesanan milik pelanggan yang sudah nonaktif: relasi tetap membawa nama
+        // dan nomor HP supaya admin masih bisa mengantar dan menghubungi.
+        $order = RentalOrder::create([
+            'reference' => (string) Str::uuid(),
+            'customer_id' => $customer->id,
+            'confirmation_deadline' => now()->addDay(),
+        ]);
+
+        $this->assertSame('Sari Wulandari', $order->fresh()->customer?->name);
+        $this->assertNotNull($unit->fresh()->order->customer?->name);
     }
 }

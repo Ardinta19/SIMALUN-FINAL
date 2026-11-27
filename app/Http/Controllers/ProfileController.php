@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\CustomerAddress;
+use App\Models\RentalOrderUnit;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -126,6 +128,34 @@ class ProfileController extends Controller
         ]);
 
         $user = Auth::user();
+
+        // Dua penjagaan sebelum akun dihapus (soft delete). Pesan galat memakai
+        // kunci `password` karena itulah satu-satunya bidang galat yang
+        // ditampilkan kartu "Hapus akun" di halaman profil.
+        if ($user->role === 'admin') {
+            $adminAktif = User::query()->where('role', 'admin')->where('is_active', true)->count();
+
+            if ($adminAktif <= 1) {
+                throw ValidationException::withMessages([
+                    'password' => 'Ini satu-satunya akun admin yang aktif. Buat akun admin lain lebih dulu sebelum menghapus akun ini.',
+                ]);
+            }
+        }
+
+        if ($user->role === 'customer') {
+            $pesananBerjalan = RentalOrderUnit::query()
+                ->whereHas('order', fn ($query) => $query->where('customer_id', $user->id))
+                ->whereIn('status', ['pending', 'confirmed'])
+                ->where('progress', '!=', 'returned')
+                ->count();
+
+            if ($pesananBerjalan > 0) {
+                throw ValidationException::withMessages([
+                    'password' => 'Akun belum dapat dinonaktifkan karena masih ada pesanan yang berjalan. Selesaikan atau batalkan pesanannya lebih dulu, atau hubungi admin.',
+                ]);
+            }
+        }
+
         Auth::logout();
         $user->delete();
 

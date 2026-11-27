@@ -13,7 +13,7 @@ class RentalNotifications
     public function customer(RentalOrder $order, string $title, string $message): void
     {
         $customer = $order->customer;
-        if ($customer && $customer->is_active) $customer->notify(new RentalUpdate($order->id, $title, $message));
+        if ($customer && $customer->dapatMenerimaNotifikasi()) $customer->notify(new RentalUpdate($order->id, $title, $message));
     }
 
     public function admins(RentalOrder $order, string $title, string $message): void

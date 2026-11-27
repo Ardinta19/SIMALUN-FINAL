@@ -12,7 +12,13 @@ class RentalOrder extends Model
     public function units(): HasMany { return $this->hasMany(RentalOrderUnit::class); }
     /** Foto contoh desain dari pelanggan (berlaku untuk seluruh pesanan). */
     public function references(): HasMany { return $this->hasMany(RentalOrderReference::class)->orderBy('id'); }
-    public function customer(): BelongsTo { return $this->belongsTo(User::class, 'customer_id'); }
+    /**
+     * Pelanggan yang sudah menonaktifkan akun tetap ditampilkan di riwayat
+     * pesanan admin. Tanpa `withTrashed()`, pesanan yang masih berjalan
+     * kehilangan nama dan nomor pemesannya begitu akun dihapus — padahal
+     * admin masih harus mengantar papan dan menghubungi orangnya.
+     */
+    public function customer(): BelongsTo { return $this->belongsTo(User::class, 'customer_id')->withTrashed(); }
     public function voucher(): BelongsTo { return $this->belongsTo(Voucher::class); }
     public function voucherUsage(): \Illuminate\Database\Eloquent\Relations\HasOne { return $this->hasOne(RentalVoucherUsage::class); }
 }

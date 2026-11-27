@@ -439,6 +439,7 @@ $oldText = function (string $key, $fallback = '') {
             <div class="section-body">
                 <div class="field-hint" style="margin:0;">
                     Akun akan dinonaktifkan. Data pesanan dan catatan transaksi dapat tetap tersimpan untuk keperluan operasional.
+                    Penonaktifan ditolak selama masih ada pesanan yang berjalan — selesaikan atau batalkan pesanannya lebih dulu.
                 </div>
                 <form method="POST" action="{{ route('profile.destroy') }}" id="form-delete-account">
                     @csrf

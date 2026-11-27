@@ -297,7 +297,7 @@ class RentalReminders
     {
         $order = $unit->order;
 
-        return $order && $order->customer && $order->customer->is_active;
+        return $order && $order->customer && $order->customer->dapatMenerimaNotifikasi();
     }
 
     /**

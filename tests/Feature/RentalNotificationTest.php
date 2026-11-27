@@ -7,6 +7,7 @@ use App\Models\RentalOrder;
 use App\Models\RentalProduct;
 use App\Models\User;
 use App\Notifications\RentalUpdate;
+use App\Services\RentalNotifications;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -63,5 +64,48 @@ class RentalNotificationTest extends TestCase
         $this->assertStringNotContainsString('function markRead(', $controller);
         // Satu-satunya jalur membuka satu notifikasi tetap ada.
         $this->assertStringContainsString('function markAndRedirect(', $controller);
+    }
+
+    /**
+     * `RentalOrder::customer()` memakai `withTrashed()` supaya riwayat pesanan
+     * tetap menyebut nama pelanggan. Konsekuensinya, pengiriman pemberitahuan
+     * harus memeriksa sendiri status akun: pelanggan yang sudah menonaktifkan
+     * akun tidak boleh terus menerima pengingat.
+     */
+    public function test_pelanggan_yang_menonaktifkan_akun_tidak_menerima_pemberitahuan(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer', 'phone' => '81234567890']);
+        $category = RentalCategory::create(['name' => 'Wisuda']);
+        $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 2, 'is_active' => true]);
+        $order = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $customer->id, 'confirmation_deadline' => now()->addDay()]);
+
+        $notifier = app(RentalNotifications::class);
+
+        $notifier->customer($order, 'Unit dikonfirmasi', 'Pesan untuk pelanggan aktif');
+        $this->assertSame(1, $customer->notifications()->count());
+
+        // Akun ditutup pemiliknya: pemberitahuan berikutnya tidak dikirim.
+        $customer->delete();
+        $notifier->customer($order->fresh(), 'Pengingat', 'Pesan untuk akun yang sudah ditutup');
+        $this->assertSame(1, $customer->notifications()->count());
+
+        // Dinonaktifkan admin juga sama.
+        $lain = User::factory()->create(['role' => 'customer', 'phone' => '81234567891', 'is_active' => false]);
+        $orderLain = RentalOrder::create(['reference' => (string) Str::uuid(), 'customer_id' => $lain->id, 'confirmation_deadline' => now()->addDay()]);
+        $notifier->customer($orderLain, 'Pengingat', 'Pesan untuk akun nonaktif');
+        $this->assertSame(0, $lain->notifications()->count());
+    }
+
+    public function test_penanda_dapat_menerima_notifikasi_mengikuti_status_akun(): void
+    {
+        $aktif = User::factory()->create(['role' => 'customer', 'phone' => '81234567892']);
+        $this->assertTrue($aktif->dapatMenerimaNotifikasi());
+
+        $nonaktif = User::factory()->create(['role' => 'customer', 'phone' => '81234567893', 'is_active' => false]);
+        $this->assertFalse($nonaktif->dapatMenerimaNotifikasi());
+
+        $dihapus = User::factory()->create(['role' => 'customer', 'phone' => '81234567894']);
+        $dihapus->delete();
+        $this->assertFalse($dihapus->fresh()->dapatMenerimaNotifikasi());
     }
 }
