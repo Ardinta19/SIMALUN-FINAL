@@ -3387,3 +3387,11 @@ hanya `@section('title')`, `back`, dan `crumbs` yang dipakai shell admin;
 section lain di halaman anak tidak akan tampil.
 
 **Hasil:** harness **165 lulus, 0 gagal, 217 dilewati**.
+
+**d. Kunci `@error` sudah sepadan.** Setiap `@error('…')` di view punya sumber
+pesan: kunci field biasa berasal dari `name="…"` di formulir yang sama, sedangkan
+`unit`, `cancel`, dan `transport` di halaman detail admin memang dikirim
+`ValidationException::withMessages([...])` dari `RentalOrderController`.
+Pemeriksaan ini pernah menandai kunci `units.` di checkout, tetapi itu kunci
+dinamis (`@error('units.'.$key.'.…')`) — bukan temuan.
+
