@@ -405,6 +405,10 @@ class RentalOrderController extends Controller
             'status' => ['nullable', Rule::in(['pending', 'confirmed', 'cancelled', 'payment_pending', 'design_pending', 'review', 'transport_quote', 'transport_approval', 'design_initial', 'design_revision', 'seller_cancelled', 'grace', 'return_overdue'])],
             'from' => ['nullable', 'date_format:Y-m-d'],
             'to' => ['nullable', 'date_format:Y-m-d'],
+            // Urutan daftar: `terbaru` (bawaan), `tenggat` (konfirmasi terdekat),
+            // atau `acara` (tanggal acara terdekat). Tanpa pilihan ini admin
+            // hanya bisa melihat pesanan terbaru, bukan yang paling mendesak.
+            'sort' => ['nullable', Rule::in(['tenggat', 'acara'])],
         ]);
         if (! empty($filters['from']) && ! empty($filters['to']) && $filters['to'] < $filters['from']) throw ValidationException::withMessages(['to' => 'Tanggal akhir tidak boleh sebelum tanggal mulai.']);
         // `units.payments` dan `units.previews` dimuat sekaligus: kartu daftar
@@ -441,7 +445,24 @@ class RentalOrderController extends Controller
                     if (! empty($filters['from'])) $unit->where('event_on', '>=', $filters['from']);
                     if (! empty($filters['to'])) $unit->where('event_on', '<=', $filters['to']);
                 });
-            })->when(($filters['status'] ?? null) === 'pending', fn ($query) => $query->orderBy('confirmation_deadline')->orderBy('id'), fn ($query) => $query->latest()->orderByDesc('id'))->paginate(20)->withQueryString();
+            })
+            ->when(($filters['sort'] ?? null) === 'acara', fn ($query) => $query->withMin('units', 'event_on'))
+            ->when(($filters['sort'] ?? null) === 'tenggat', fn ($query) => $query
+                ->orderByRaw('confirmation_deadline IS NULL')
+                ->orderBy('confirmation_deadline')
+                ->orderBy('id'))
+            ->when(($filters['sort'] ?? null) === 'acara', fn ($query) => $query
+                ->orderByRaw('units_min_event_on IS NULL')
+                ->orderBy('units_min_event_on')
+                ->orderBy('id'))
+            // Tanpa pilihan urutan: antrean konfirmasi memakai tenggat terdekat,
+            // selebihnya pesanan terbaru — perilaku lama dipertahankan.
+            ->when(! isset($filters['sort']), fn ($query) => $query->when(
+                ($filters['status'] ?? null) === 'pending',
+                fn ($q) => $q->orderBy('confirmation_deadline')->orderBy('id'),
+                fn ($q) => $q->latest()->orderByDesc('id')
+            ))
+            ->paginate(20)->withQueryString();
         return view('rental.admin', compact('orders', 'filters'));
     }
 

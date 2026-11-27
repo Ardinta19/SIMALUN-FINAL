@@ -54,6 +54,17 @@
             <label for="adm-order-to">Tanggal acara sampai</label>
             <input id="adm-order-to" type="date" name="to" value="{{ $filters['to'] ?? '' }}">
         </div>
+        @php $urutan = $filters['sort'] ?? ''; @endphp
+        <div class="adm-field">
+            <label for="adm-order-sort">Urutkan</label>
+            <select id="adm-order-sort" name="sort">
+                {{-- Tanpa pilihan = perilaku bawaan halaman (antrean konfirmasi
+                     memakai tenggat terdekat, selebihnya pesanan terbaru). --}}
+                <option value="" @selected($urutan === '')>Bawaan</option>
+                <option value="tenggat" @selected($urutan === 'tenggat')>Tenggat konfirmasi terdekat</option>
+                <option value="acara" @selected($urutan === 'acara')>Tanggal acara terdekat</option>
+            </select>
+        </div>
     </div>
     <div class="adm-row">
         <button class="btn" type="submit">Tampilkan</button>
@@ -77,6 +88,10 @@
     }
     if (! empty($filters['to'])) {
         $chipFilter[] = ['label' => 'Acara sampai '.\Carbon\Carbon::parse($filters['to'])->format('d/m/Y'), 'remove' => $hapusFilter('to')];
+    }
+    if (! empty($filters['sort'])) {
+        $labelUrutan = ['tenggat' => 'Tenggat konfirmasi', 'acara' => 'Tanggal acara'][$filters['sort']] ?? $filters['sort'];
+        $chipFilter[] = ['label' => 'Urutan: '.$labelUrutan, 'remove' => $hapusFilter('sort')];
     }
 @endphp
 @include('layouts.component.admin._filter_state', ['chips' => $chipFilter, 'resetUrl' => route('admin.rental.orders')])
@@ -146,6 +161,30 @@
                 <p class="muted adm-flat">
                     {{ $namaPapan->take(2)->implode(' · ') }}{{ $sisaPapan > 0 ? ' · dan '.$sisaPapan.' papan lain' : '' }}
                 </p>
+                @php
+                    // Tahap pengerjaan per pesanan: admin bisa memilah pekerjaan
+                    // tanpa membuka satu per satu. Urut sesuai alur, dan unit
+                    // yang sudah dikembalikan diringkas di ujung.
+                    $tahapUnit = [];
+                    foreach (\App\Support\RentalLabels::PROGRESS_STEPS as $kunciTahap) {
+                        $jumlah = $order->units->where('status', 'confirmed')->where('progress', $kunciTahap)->count();
+                        if ($jumlah > 0) {
+                            $tahapUnit[] = [$kunciTahap, $jumlah];
+                        }
+                    }
+                @endphp
+                @if($tahapUnit)
+                    <ul class="adm-stages" aria-label="Tahap pengerjaan tiap unit">
+                        @foreach(array_slice($tahapUnit, 0, 3) as [$kunciTahap, $jumlah])
+                            <li class="adm-stages__item" data-state="{{ $kunciTahap === 'returned' ? 'done' : 'jalan' }}">
+                                <b>{{ $jumlah }}</b> {{ \App\Support\RentalLabels::progress($kunciTahap) }}
+                            </li>
+                        @endforeach
+                        @if(count($tahapUnit) > 3)
+                            <li class="adm-stages__item">+{{ count($tahapUnit) - 3 }} tahap lain</li>
+                        @endif
+                    </ul>
+                @endif
                 <p class="adm-help adm-meta">
                     @if($pending)
                         Batas konfirmasi: {{ $order->confirmation_deadline->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB

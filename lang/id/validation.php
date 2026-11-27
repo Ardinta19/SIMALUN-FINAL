@@ -207,6 +207,7 @@ return [
         'date' => 'tanggal',
         'from' => 'tanggal awal',
         'to' => 'tanggal akhir',
+        'sort' => 'urutan',
         'next' => 'langkah berikutnya',
         'base' => 'nilai belanja',
 

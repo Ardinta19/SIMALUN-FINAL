@@ -1720,7 +1720,45 @@ html[data-theme="dark"] .adm-app {
 }
 
 /* Paginasi bersama di panel admin: pakai token admin agar sejajar dengan
-   `.adm-btn` dan `.adm-card` (bukan palet katalog). */
+   `.adm-btn` dan `.adm-card` (bukan palet katalog).
+
+   Wadah `.bk-page-nav` sendiri hanya didefinisikan di `berkah-ui-kit.css`,
+   yang TIDAK dimuat panel admin. Tanpa aturan di bawah, tautan halaman tampil
+   sebagai tautan blok yang menumpuk ke bawah — bukan sederet tombol. */
+.adm-app .bk-page-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    max-width: 100%;
+    padding: 12px 0;
+}
+
+.adm-app .bk-page-nav__link,
+.adm-app .bk-page-nav__current,
+.adm-app .bk-page-nav__gap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 8px 14px;
+    border: 1.5px solid transparent;
+    border-radius: 12px;
+    font-size: .8125rem;
+    font-weight: 800;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.adm-app .bk-page-nav__link:focus-visible {
+    outline: 3px solid var(--adm-wine);
+    outline-offset: 2px;
+}
+
 .adm-app .bk-page-nav__link {
     color: var(--adm-ink);
     background: var(--adm-surface-2);
@@ -2472,4 +2510,47 @@ details[open] > .bk-disclosure::before { transform: rotate(90deg); }
     border-style: dashed;
     background: transparent;
     color: #7c6068;
+}
+
+/* Ringkasan tahap pada kartu daftar pesanan (putaran 44). */
+.adm-stages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: var(--adm-space-2) 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.adm-stages__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border: 1px solid #ecd9dc;
+    border-radius: 999px;
+    background: #fffaf8;
+    color: #7b1f37;
+    font-size: .75rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.adm-stages__item b {
+    font-weight: 800;
+}
+
+.adm-stages__item[data-state="done"] {
+    border-color: #d7e3ea;
+    background: #f6fbfd;
+    color: #2c5b70;
+}
+
+/* Chip tugas pada kartu pesanan adalah tautan: di perangkat sentuh naikkan
+   sasarannya ke 44 px seperti kendali lain di panel admin. */
+@media (pointer: coarse) {
+    .adm-tasklist__item a {
+        min-height: 44px;
+        padding: 10px 14px;
+    }
 }

@@ -8,6 +8,23 @@
     $currentExpense = (int) ($current['expense'] ?? 0);
     $previousIncome = (int) ($previous['income'] ?? 0);
     $previousExpense = (int) ($previous['expense'] ?? 0);
+
+    /* Perbandingan dengan periode sebelumnya: angka mentah sudah ada di kartu
+       sebelah, tetapi admin tetap harus menghitung sendiri selisihnya. Satu
+       kalimat di bawah statistik menjawab "naik atau turun?" tanpa aritmetika. */
+    $banding = function (int $sekarang, int $sebelum): ?string {
+        if ($sebelum === 0) {
+            return $sekarang === 0 ? null : 'baru ada';
+        }
+        $persen = (int) round((($sekarang - $sebelum) / $sebelum) * 100);
+        if ($persen === 0) {
+            return 'tetap';
+        }
+
+        return ($persen > 0 ? 'naik ' : 'turun ').abs($persen).'%';
+    };
+    $bandingMasuk = $banding($currentIncome, $previousIncome);
+    $bandingKeluar = $banding($currentExpense, $previousExpense);
 @endphp
 
 <div class="adm-page-head" data-adm-reveal="head">
@@ -86,6 +103,12 @@
                 <div class="adm-stat__label">Selisih</div>
             </div>
         </div>
+        @if($bandingMasuk || $bandingKeluar)
+            <p class="adm-help adm-flat adm-mt-3">
+                Dibanding {{ $previousStart->format('d/m/Y') }}–{{ $previousEnd->format('d/m/Y') }}:
+                pemasukan {{ $bandingMasuk ?? 'tetap' }}@if($bandingKeluar), pengeluaran {{ $bandingKeluar }}@endif.
+            </p>
+        @endif
     </section>
 
     <section class="adm-card" data-adm-reveal="summary">

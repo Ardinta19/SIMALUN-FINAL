@@ -420,3 +420,24 @@ dan tanpa tugas). Tenggat konfirmasi yang lewat kini diberi nada peringatan pada
 chip tugas.
 
 Pemeriksaan manual: `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.159 dan §9.159b.
+
+## Babak X — Sapuan celah lanjutan panel admin (putaran 44)
+
+1. **Paginasi admin** mendapat aturan wadah (`.adm-app .bk-page-nav`) dan butir
+   44 px; sebelumnya tautan halaman menumpuk ke bawah.
+2. **Penjaga kelas** kini ikut menyapu `vendor/pagination/token-simple`, sehingga
+   kelas paginasi tidak bisa hilang tanpa tes gagal.
+3. **Urutan daftar pesanan**: Bawaan / Tenggat konfirmasi terdekat / Tanggal
+   acara terdekat, dengan chip yang bisa dilepas. Bawaan tidak berubah.
+4. **Buku kas** membandingkan periode sebelumnya dalam satu kalimat (aman dari
+   pembagi nol).
+5. **Chip tugas** 44 px di perangkat sentuh.
+6. Sapuan aksesibilitas admin bersih: tanpa `@csrf` hilang, tombol tanpa `type`,
+   `img` tanpa `alt`, `label for` menggantung, isian tanpa label, `h1` ganda,
+   atau lompatan tingkat judul.
+
+Berkas: `app/Http/Controllers/RentalOrderController.php`,
+`resources/views/rental/{admin,cashbook}.blade.php`, `public/css/berkah-admin.css`,
+`lang/id/validation.php`, `tests/Feature/{AdminFlowTest,AdminOrderSortTest}.php`.
+
+Pemeriksaan manual: `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.160.

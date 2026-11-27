@@ -122,14 +122,38 @@ Sisanya diringkas "+N tugas lain". Bila tidak ada, kartu berkata terus terang
 karena tidak memberi tahu apa pun. Datanya dimuat lewat `units.payments` dan
 `units.previews` sekaligus, jadi tidak ada kueri per unit.
 
-**Masih terbuka:** urutan kartu mengikuti yang terbaru, bukan tenggat terdekat
-(kecuali filter status "menunggu konfirmasi").
+**Diperbaiki lanjutan (putaran 44):** urutan kartu kini bisa dipilih —
+**Bawaan**, **Tenggat konfirmasi terdekat**, atau **Tanggal acara terdekat**.
+Bawaan tidak berubah (antrean konfirmasi memakai tenggat, selebihnya terbaru),
+dan pilihan aktif muncul sebagai chip yang bisa dilepas seperti filter lain.
 
 ### A6. Pil tahap belum ada di daftar (sebagian diperbaiki)
 
 Header unit di detail sekarang menyebut `Tahap 2/5 · Dalam pengerjaan`, tetapi
 daftar pesanan belum. **Usulan P2:** bawa pil yang sama ke daftar (satu per
 unit, ringkas) supaya admin bisa memilah pekerjaan tanpa membuka pesanan.
+
+### A6b. Paginasi admin tampil tanpa tata letak (diperbaiki)
+
+Paginasi memakai `vendor.pagination.token-simple` (lewat
+`Paginator::defaultView`). Butirnya sudah diberi warna lewat
+`.adm-app .bk-page-nav__link`, tetapi **wadah `.bk-page-nav`** hanya
+didefinisikan di `berkah-ui-kit.css` yang tidak dimuat panel admin. Akibatnya
+tautan halaman tampil sebagai tautan blok yang menumpuk ke bawah, bukan sederet
+tombol 44 px.
+
+**Perbaikan:** aturan wadah (`display:flex`, `flex-wrap`, `gap`, `justify-content`)
+dan ukuran butir 44 px ditambahkan ke `berkah-admin.css`, diuji oleh
+`AdminFlowTest::test_paginasi_admin_punya_tata_letak_bukan_hanya_warna`, dan
+berkas paginasi kini ikut disapu oleh penjaga kelas.
+
+### A6c. Buku kas: angka tanpa pembanding (diperbaiki)
+
+Kartu "Periode dipilih" dan "Periode sebelumnya" berisi enam angka; admin tetap
+harus menghitung sendiri naik atau turun. Sekarang satu kalimat di bawah
+statistik meringkasnya: "Dibanding 01/10–31/10: pemasukan naik 20%, pengeluaran
+turun 5%." Pembagi nol dicegat (`sebelum === 0` → "baru ada" atau disembunyikan),
+jadi tidak ada pembagian nol ketika periode sebelumnya kosong.
 
 ### A7. Dua belas kata untuk satu keadaan (terbuka)
 
@@ -143,7 +167,7 @@ tampilkan kata yang sama di daftar, detail, dan filter.
 | Fase | Isi | Status |
 |---|---|---|
 | **P1** | CSS pinjaman, panel langkah berikutnya, satu formulir melanjutkan, katalog berlipat | **selesai, putaran 43** |
-| **P2** | Baris tugas di daftar pesanan **(selesai)**; sisa: urut tenggat, pil tahap di daftar, buku kas dirapikan | sebagian selesai |
+| **P2** | Baris tugas, pil tahap, **urutan tenggat/acara**, paginasi admin, perbandingan buku kas | **selesai, putaran 44** |
 | **P3** | Penyatuan bahasa status (4 warna makna), audit teks jargon ("peninjauan manual", "toleransi verifikasi"), pintasan papan tunjuk di dasbor | setelah P2 |
 
 ## Soal "React, GSAP, Lenis"

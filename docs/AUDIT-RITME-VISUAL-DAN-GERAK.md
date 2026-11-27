@@ -6628,3 +6628,31 @@ Selain dua perbaikan itu, enam tes keadaan baru ditambahkan
 layar: unit menunggu konfirmasi, pengerjaan tertahan desain, serah terima
 tertahan pembayaran, unit batal yang masih bisa dilanjutkan, unit batal yang
 batasnya sudah lewat, serta daftar pesanan dengan dan tanpa tugas.
+
+## 9.160 Sapuan celah lanjutan: paginasi, urutan, pembanding kas (putaran 44)
+
+Empat celah yang tertangkap saat menyapu ulang panel admin setelah P1.
+
+| Celah | Cara menemukannya | Akibat bila dibiarkan |
+| --- | --- | --- |
+| Wadah `.bk-page-nav` tak bergaya di admin | Menyapu semua kelas pada `vendor/pagination/token-simple` terhadap CSS yang benar-benar dimuat admin | Tautan halaman menumpuk ke bawah di setiap halaman berpaginasi |
+| Berkas paginasi tidak ikut penjaga kelas | Penjaga hanya menyapu view `@extends('layouts.admin')` | Kelas paginasi bisa hilang tanpa satu tes pun gagal |
+| Urutan daftar hanya "terbaru" | Membaca ulang temuan A5 | Pesanan bertenggat besok bisa berada di halaman kedua |
+| Buku kas tanpa pembanding | Menghitung angka yang harus dihitung manual admin | Admin menghitung selisih sendiri, rawan salah baca |
+
+**Perbaikan**
+
+1. `.adm-app .bk-page-nav` (wadah) + ukuran butir 44 px masuk `berkah-admin.css`.
+2. `vendor/pagination/token-simple.blade.php` masuk daftar berkas sapuan
+   `AdminFlowTest`, jadi kelas paginasi ikut dijaga.
+3. Filter **Urutkan**: `tenggat` (konfirmasi terdekat) dan `acara` (tanggal acara
+   terdekat); `sort` masuk whitelist validasi dan punya nama Indonesia
+   (`urutan`). Pilihan aktif tampil sebagai chip yang bisa dilepas.
+4. Buku kas menampilkan perbandingan periode sebelumnya dalam satu kalimat,
+   dengan penjagaan pembagi nol.
+5. Chip tugas di kartu pesanan naik ke 44 px pada `@media (pointer: coarse)`.
+
+**Sapuan yang bersih (tidak ada temuan):** formulir POST tanpa `@csrf`, tombol
+tanpa `type` di dalam formulir, `<img>` tanpa `alt`, `<label for>` tanpa `id`
+yang cocok, isian tanpa label/`aria-label`, `h1` ganda, dan lompatan tingkat
+judul — semuanya nol di 15 view admin.

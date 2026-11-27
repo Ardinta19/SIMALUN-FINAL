@@ -33,6 +33,8 @@ class AdminFlowTest extends TestCase
             'rental/admin-cancellation-history.blade.php',
             'rental/admin-next-step.blade.php',
             'rental/cashbook-fields.blade.php',
+            // Dirender di halaman admin yang berpaginasi (`Paginator::defaultView`).
+            'vendor/pagination/token-simple.blade.php',
         ];
 
         // `File::allFiles` mengembalikan jalur relatif yang sudah bebas
@@ -83,6 +85,25 @@ class AdminFlowTest extends TestCase
         sort($tanpaGaya);
         $this->assertSame([], $tanpaGaya,
             'Kelas ini dipakai view admin tetapi tidak punya aturan di CSS yang dimuat admin: '.implode(', ', $tanpaGaya));
+    }
+
+    public function test_paginasi_admin_punya_tata_letak_bukan_hanya_warna(): void
+    {
+        $css = (string) file_get_contents(public_path('css/berkah-admin.css'));
+
+        // `.bk-page-nav` aslinya hanya ada di berkah-ui-kit.css (tidak dimuat
+        // admin). Tanpa aturan wadah di sini, tautan halaman menumpuk ke bawah.
+        $posisi = strpos($css, '.adm-app .bk-page-nav {');
+        $this->assertNotFalse($posisi, 'Wadah paginasi admin kehilangan aturan tata letak.');
+
+        $blok = substr($css, $posisi, 400);
+        $this->assertStringContainsString('display: flex', $blok);
+        $this->assertStringContainsString('flex-wrap: wrap', $blok);
+
+        // Butirnya harus tetap 44 px seperti tombol lain di panel admin.
+        $butir = substr($css, (int) strpos($css, '.adm-app .bk-page-nav__link,'), 500);
+        $this->assertStringContainsString('min-height: 44px', $butir);
+        $this->assertStringContainsString('min-width: 44px', $butir);
     }
 
     public function test_tindakan_utama_berada_di_puncak_kartu_unit(): void
@@ -144,6 +165,51 @@ class AdminFlowTest extends TestCase
         $this->assertStringNotContainsString('perlu tindakan', $daftar);
     }
 
+    public function test_daftar_pesanan_bisa_diurutkan_menurut_tenggat_dan_acara(): void
+    {
+        $daftar = (string) file_get_contents(resource_path('views/rental/admin.blade.php'));
+
+        $this->assertStringContainsString('name="sort"', $daftar);
+        $this->assertStringContainsString('Tenggat konfirmasi terdekat', $daftar);
+        $this->assertStringContainsString('Tanggal acara terdekat', $daftar);
+        // Tidak ada dua pilihan untuk hal yang sama: "terbaru" hanya satu.
+        $this->assertSame(1, substr_count($daftar, '>Bawaan</option>'));
+        $this->assertStringNotContainsString('>Terbaru (tetap)</option>', $daftar);
+        $this->assertStringContainsString('\'Urutan: \'.$labelUrutan', $daftar);
+
+        $kontroler = (string) file_get_contents(app_path('Http/Controllers/RentalOrderController.php'));
+        $this->assertStringContainsString("Rule::in(['tenggat', 'acara'])", $kontroler);
+        $this->assertStringContainsString("withMin('units', 'event_on')", $kontroler);
+        $this->assertStringContainsString("orderByRaw('confirmation_deadline IS NULL')", $kontroler);
+
+        // Kolom baru wajib punya nama Indonesia agar pesan galat tidak
+        // menampilkan nama variabel.
+        $this->assertStringContainsString("'sort' => 'urutan',", (string) file_get_contents(base_path('lang/id/validation.php')));
+    }
+
+    public function test_buku_kas_membandingkan_dengan_periode_sebelumnya_tanpa_pembagian_nol(): void
+    {
+        $view = (string) file_get_contents(resource_path('views/rental/cashbook.blade.php'));
+
+        $this->assertStringContainsString('$banding = function (int $sekarang, int $sebelum): ?string', $view);
+        // Pembagi nol dicegat sebelum dibagi.
+        $this->assertStringContainsString('if ($sebelum === 0)', $view);
+        $this->assertStringContainsString('Dibanding {{ $previousStart->format', $view);
+        // Kutip tunggal: dengan kutip ganda, `$bandingMasuk` disisipkan PHP.
+        $this->assertStringContainsString('pemasukan {{ $bandingMasuk', $view);
+    }
+
+    public function test_chip_tugas_menjadi_44_px_di_perangkat_sentuh(): void
+    {
+        $css = (string) file_get_contents(public_path('css/berkah-admin.css'));
+
+        $this->assertMatchesRegularExpression(
+            '/@media \(pointer: coarse\) \{[^}]*\.adm-tasklist__item a \{[^}]*min-height: 44px;/s',
+            $css,
+            'Chip tugas adalah tautan; di perangkat sentuh sasarannya harus 44 px.'
+        );
+    }
+
     public function test_bagian_berjangkar_dan_gaya_panel_ada(): void
     {
         $detail = (string) file_get_contents(resource_path('views/rental/admin-detail.blade.php'));
@@ -152,7 +218,7 @@ class AdminFlowTest extends TestCase
         }
 
         $css = (string) file_get_contents(public_path('css/berkah-admin.css'));
-        foreach (['.adm-next {', '.adm-next--blocked', '.adm-next__title', '.adm-chip--stage', '.bk-sr-only {', '.bk-swatch {', '.bk-items__list {', '.bk-disclosure {'] as $aturan) {
+        foreach (['.adm-next {', '.adm-next--blocked', '.adm-next__title', '.adm-chip--stage', '.adm-stages {', '.bk-sr-only {', '.bk-swatch {', '.bk-items__list {', '.bk-disclosure {', '.adm-app .bk-page-nav {'] as $aturan) {
             $this->assertStringContainsString($aturan, $css, "Aturan {$aturan} hilang dari berkah-admin.css.");
         }
     }
