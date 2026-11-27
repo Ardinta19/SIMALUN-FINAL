@@ -24,14 +24,11 @@ class NotificationController extends Controller
         return back()->with('success', 'Semua notifikasi ditandai telah dibaca.');
     }
 
-    public function markRead(string $id)
-    {
-        $notif = Auth::user()->notifications()->findOrFail($id);
-        $notif->markAsRead();
-
-        return back();
-    }
-
+    /**
+     * Buka satu notifikasi: tandai dibaca lalu arahkan ke pesanan terkait.
+     * Ini satu-satunya jalur "buka satu notifikasi"; tidak ada PATCH
+     * terpisah karena tanda dibaca selalu menyertai tindakan membuka.
+     */
     public function markAndRedirect(string $id)
     {
         $notif = Auth::user()->notifications()->findOrFail($id);

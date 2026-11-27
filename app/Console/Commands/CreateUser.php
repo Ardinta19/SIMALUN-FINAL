@@ -43,7 +43,7 @@ class CreateUser extends Command
         $phone = preg_replace('/[\s\-\.]/', '', $phoneRaw);
         $phone = preg_replace('/^(\+?62|0)/', '', $phone);
 
-        $role = $this->choice('Role', ['customer', 'admin'], 'admin');
+        $role = $this->choice('Peran akun', ['customer', 'admin'], 'admin');
 
         $gender = $this->choice('Jenis kelamin', ['L', 'P', '(lewati)'], '(lewati)');
         $gender = $gender === '(lewati)' ? null : $gender;
@@ -109,7 +109,7 @@ class CreateUser extends Command
         $this->newLine();
         $this->info('Akun berhasil dibuat:');
         $this->table(
-            ['ID', 'Nama', 'Email', 'Nomor HP', 'Role', 'Aktif'],
+            ['ID', 'Nama', 'Email', 'Nomor HP', 'Peran', 'Aktif'],
             [[$user->id, $user->name, $user->email ?? '-', $user->phone, $user->role, $user->is_active ? 'ya' : 'tidak']]
         );
 

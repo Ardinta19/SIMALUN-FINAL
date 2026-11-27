@@ -4213,3 +4213,54 @@ Dijaga `tests/Feature/BrandConfigTest.php` (2 tes): tidak ada lagi
 singleton/`View::share`/direktif `laundry` di provider maupun pemakaiannya
 di 82 view, dan **setiap** pembungkus statis di `Laundry` wajib punya
 pemakai di `app/` atau `resources/`.
+
+### 9.101 Akun demo bersandi `password123` bisa lahir di server produksi
+
+`UserSeeder` membuat dua akun dengan kredensial yang tertulis di
+repositori:
+
+| Peran | Email | Sandi |
+| --- | --- | --- |
+| Pelanggan | `customer@test.com` | `password123` |
+| Admin | `admin@test.com` | `password123` |
+
+README memang menyuruh mengganti sandi sebelum deploy, tetapi tidak ada
+apa pun yang menegakkannya: siapa pun yang menjalankan
+`php artisan migrate --seed` di server sungguhan — atau mengikuti petunjuk
+lama — mendapat akun **admin** dengan sandi yang bisa dibaca siapa saja di
+GitHub. Ini bukan risiko teoretis: `db:seed` adalah langkah yang tertulis
+di README dan di panduan pemasangan.
+
+Seeder kini berhenti lebih dulu bila `APP_ENV` bukan `local`/`testing`,
+dengan pesan di terminal: *"Seeder akun demo dilewati: hanya untuk
+lingkungan local/testing. Pakai php artisan user:create untuk akun
+sungguhan."* Akun produksi dibuat lewat `php artisan user:create` yang
+sudah ada (validasi email unik, HP unik, sandi minimal 8 karakter,
+`role` di-set lewat property assignment bukan mass-fill).
+
+README bagian **Akun Demo** diperbarui: tabel kredensial tetap ada, tetapi
+diberi catatan bahwa akun itu hanya lahir di `local`/`testing`.
+
+Dijaga `tests/Feature/UserSeederTest.php`: satu tes statis (penjaga
+lingkungan + rujukan `user:create`) dan satu tes perilaku (dengan
+`APP_ENV=production`, `$this->seed(UserSeeder::class)` tidak membuat baris
+`users` apa pun).
+
+### 9.102 Rute tandai-dibaca yang tidak pernah dipanggil, dan label terminal berbahasa Inggris
+
+Dua sisa kecil di jalur notifikasi dan perintah artisan:
+
+1. `PATCH /notifications/{id}/read` (`customer.notifications.read`) hanya
+   dipakai oleh `NotificationController::markRead()`, dan tidak ada satu
+   view pun yang mengirim permintaan ke sana. Notifikasi pelanggan selalu
+   ditandai dibaca saat dibuka lewat `notifications.open` — dan admin
+   memang tidak punya padanan rute itu. Rute serta metode `markRead()`
+   dihapus; `markAndRedirect()` diberi catatan bahwa membuka notifikasi
+   sekaligus menandainya dibaca. `RentalNotificationTest` mendapat tes
+   statis yang memastikan rute itu tidak kembali tanpa pemakai.
+
+2. Perintah `user:create`, `user:edit`, dan `user:restore` masih memakai
+   label berbahasa Inggris di tabel dan pilihan interaktif: `Role`,
+   `Gender`. Diganti `Peran akun`, `Peran`, dan `Jenis kelamin` supaya
+   sejalan dengan istilah yang dipakai di seluruh UI ("peran", "jenis
+   kelamin"). Dijaga tes statis di `UserRestoreCommandTest`.

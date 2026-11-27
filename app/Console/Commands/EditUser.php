@@ -59,7 +59,7 @@ class EditUser extends Command
         $this->newLine();
         $this->info('Akun ditemukan:');
         $this->table(
-            ['ID', 'Nama', 'Email', 'Nomor HP', 'Role', 'Gender', 'Aktif'],
+            ['ID', 'Nama', 'Email', 'Nomor HP', 'Peran', 'Jenis kelamin', 'Aktif'],
             [[$user->id, $user->name, $user->email ?? '-', $user->phone, $user->role, $user->gender ?? '-', $user->is_active ? 'ya' : 'tidak']]
         );
         $this->line('Tekan ENTER untuk mempertahankan nilai saat ini.');
@@ -75,7 +75,7 @@ class EditUser extends Command
         $phone = preg_replace('/[\s\-\.]/', '', $phoneInput);
         $phone = preg_replace('/^(\+?62|0)/', '', $phone);
 
-        $role = $this->choice('Role', ['customer', 'admin'], $user->role);
+        $role = $this->choice('Peran akun', ['customer', 'admin'], $user->role);
 
         $genderDefault = $user->gender ?? '(lewati)';
         $gender = $this->choice('Jenis kelamin', ['L', 'P', '(lewati)'], $genderDefault);
@@ -153,7 +153,7 @@ class EditUser extends Command
         $this->newLine();
         $this->info('Perubahan tersimpan:');
         $this->table(
-            ['ID', 'Nama', 'Email', 'Nomor HP', 'Role', 'Gender', 'Aktif'],
+            ['ID', 'Nama', 'Email', 'Nomor HP', 'Peran', 'Jenis kelamin', 'Aktif'],
             [[$user->id, $user->name, $user->email ?? '-', $user->phone, $user->role, $user->gender ?? '-', $user->is_active ? 'ya' : 'tidak']]
         );
 

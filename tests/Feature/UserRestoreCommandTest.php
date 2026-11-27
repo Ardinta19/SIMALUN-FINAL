@@ -37,4 +37,15 @@ class UserRestoreCommandTest extends TestCase
             ->expectsOutput('Akun dengan data itu masih aktif; tidak ada yang perlu dipulihkan.')
             ->assertExitCode(1);
     }
+
+    public function test_label_terminal_berbahasa_indonesia(): void
+    {
+        foreach (['CreateUser', 'EditUser', 'RestoreUser'] as $nama) {
+            $berkas = (string) file_get_contents(app_path('Console/Commands/'.$nama.'.php'));
+            $this->assertStringNotContainsString("'Role'", $berkas, $nama.' masih memakai label "Role".');
+            $this->assertStringNotContainsString("'Gender'", $berkas, $nama.' masih memakai label "Gender".');
+        }
+
+        $this->assertStringContainsString("'Peran akun'", (string) file_get_contents(app_path('Console/Commands/CreateUser.php')));
+    }
 }

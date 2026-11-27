@@ -52,4 +52,16 @@ class RentalNotificationTest extends TestCase
         $this->post(route('admin.notifications.read-all'))->assertSessionHasNoErrors();
         $this->assertSame(0, $admin->unreadNotifications()->count());
     }
+
+    public function test_tidak_ada_rute_tandai_dibaca_yang_tidak_dipakai(): void
+    {
+        $rute = (string) file_get_contents(base_path('routes/web.php'));
+        $this->assertStringNotContainsString("/notifications/{id}/read", $rute);
+        $this->assertStringNotContainsString("'notifications.read'", $rute);
+
+        $controller = (string) file_get_contents(app_path('Http/Controllers/NotificationController.php'));
+        $this->assertStringNotContainsString('function markRead(', $controller);
+        // Satu-satunya jalur membuka satu notifikasi tetap ada.
+        $this->assertStringContainsString('function markAndRedirect(', $controller);
+    }
 }

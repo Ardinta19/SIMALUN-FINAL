@@ -60,7 +60,7 @@ class RestoreUser extends Command
         $this->newLine();
         $this->info('Akun terhapus ditemukan:');
         $this->table(
-            ['ID', 'Nama', 'Email', 'Nomor HP', 'Role', 'Dihapus'],
+            ['ID', 'Nama', 'Email', 'Nomor HP', 'Peran', 'Dihapus'],
             [[$terhapus->id, $terhapus->name, $terhapus->email ?? '-', $terhapus->phone, $terhapus->role, optional($terhapus->deleted_at)->format('d/m/Y H:i') ?? '-']]
         );
 

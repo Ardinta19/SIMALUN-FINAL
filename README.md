@@ -128,8 +128,12 @@ Setelah `db:seed`:
 | Customer | customer@test.com | password123 |
 | Admin | admin@test.com | password123 |
 
-> Ganti password demo sebelum deploy. Akun admin tambahan dibuat lewat
-> `php artisan user:create` (tidak ada pendaftaran admin publik).
+> Akun demo di atas **hanya dibuat di lingkungan `local` dan `testing`**.
+> Di server produksi `db:seed` melewati `UserSeeder` (menulis peringatan di
+> terminal), karena sandi `password123` tertulis di repositori dan tidak
+> layak dipakai di dunia nyata. Akun sungguhan dibuat lewat
+> `php artisan user:create` (tidak ada pendaftaran admin publik); untuk
+> pelanggan, pendaftaran biasa lewat `/register`.
 >
 > Pelanggan yang akunnya pernah dihapus tidak dapat mendaftar ulang dengan
 > nomor HP/email yang sama (penghapusan menyimpan riwayat pesanan). Pulihkan

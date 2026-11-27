@@ -10,6 +10,17 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        // Akun demo memakai sandi yang tertulis di kode. Menjalankannya di
+        // server produksi berarti membuat akun admin dengan sandi yang bisa
+        // ditebak siapa pun yang pernah membaca repositori ini. Karena itu
+        // seeder hanya berjalan di lingkungan lokal/pengujian, dan akun
+        // produksi dibuat lewat `php artisan user:create`.
+        if (! app()->environment(['local', 'testing'])) {
+            $this->command?->warn('Seeder akun demo dilewati: hanya untuk lingkungan local/testing. Pakai php artisan user:create untuk akun sungguhan.');
+
+            return;
+        }
+
         // Catatan: $role di-set lewat property assignment, bukan mass-fill,
         // karena `role` sudah dikeluarkan dari User::$fillable (anti
         // privilege escalation). Pattern ini dipakai di seluruh codebase
