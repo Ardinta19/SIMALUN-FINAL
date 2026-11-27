@@ -5241,3 +5241,42 @@ biasa), sesuai standar yang sudah dikunci `UiDefaultsTest::test_halaman_galat_be
 (`'403' => 'Akses ditolak'`). Tes lama menuntut "Akses Ditolak" dan bertentangan
 dengan tes lain di repo yang sama. Tes disesuaikan ke kalimat biasa; halaman
 tidak diubah.
+
+### 9.133 Verifikasi akhir: 469 tes hijau dan daftar periksa sebelum dipakai pelanggan
+
+Pemilik proyek menjalankan `php artisan test` di `D:\download\berkah-preview`
+pada commit `1ea281d`:
+
+```
+Tests:    469 passed (4316 assertions)
+Duration: 16.84s
+```
+
+Perjalanan angka itu penting dicatat supaya tidak terulang:
+
+| Tahap | Hasil | Sebab |
+| --- | --- | --- |
+| Awal laporan | 28 gagal / 436 lulus | kolom DATE menyimpan `Y-m-d H:i:s`, `is_active` kosong pada model baru, `.env` lama ("Azka Laundry"), ditambah ekspektasi tes usang |
+| Setelah §9.130–§9.131 | 2 gagal / 467 lulus | daftar pesanan tidak merender nama papan; judul 403 masih dituntut Judul Kapital |
+| Setelah §9.132 | **0 gagal / 469 lulus** | tes diperbaiki ke teks yang benar-benar dirender |
+
+**Keputusan yang dikunci sekarang.** `App\Http\Middleware\SecurityHeaders` tidak memasang
+`Content-Security-Policy` karena hampir semua view peran memakai `<style>`
+dan `<script>` inline; CSP longgar (`'unsafe-inline'`) hanya memberi rasa
+aman. Tes baru
+`SecurityHardeningTest::test_header_keamanan_terpasang_dan_csp_tidak_dipasang_setengah_jadi()`
+memastikan empat header keamanan tetap ada dan CSP tidak ditambahkan
+setengah jadi — kalau nanti dipasang, jalurnya nonce di reverse proxy.
+
+**Daftar periksa mesin/server (di luar jangkauan tes otomatis).** Tes
+menjalankan SQLite `:memory:` dan tidak menyentuh berkas nyata, jadi empat
+hal ini tetap harus diperiksa manusia:
+
+1. `APP_KEY` terisi (`php artisan key:generate --show` lalu tempel ke `.env`).
+2. `storage/` dan `bootstrap/cache/` dapat ditulis proses web
+   (di Linux: `chmod -R ug+rwX storage bootstrap/cache`; pemilik berkas
+   harus pengguna yang sama dengan PHP-FPM).
+3. `php artisan storage:link` sudah dijalankan — tanpa itu foto papan dan
+   bukti pembayaran 404 walau unggahannya berhasil.
+4. `php artisan schedule:run` benar-benar dipanggil cron tiap menit, dan
+   `QUEUE_CONNECTION` pada `.env` sesuai kebutuhan (bawaan repo: `sync`).

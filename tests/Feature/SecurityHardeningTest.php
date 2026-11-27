@@ -118,4 +118,28 @@ class SecurityHardeningTest extends TestCase
         $this->assertSame('max-age=31536000', $https->headers->get('Strict-Transport-Security'));
         $this->assertStringNotContainsString('includeSubDomains', (string) $https->headers->get('Strict-Transport-Security'));
     }
+
+    public function test_header_keamanan_terpasang_dan_csp_tidak_dipasang_setengah_jadi(): void
+    {
+        // CSP sengaja TIDAK dipasang di middleware (lihat komentar kelas
+        // App\Http\Middleware\SecurityHeaders): hampir semua view peran
+        // memakai <style> dan <script> inline, jadi CSP longgar seperti
+        // "unsafe-inline" hanya memberi rasa aman tanpa perlindungan nyata.
+        // Kalau nanti dipasang, jalurnya adalah nonce/header di reverse proxy.
+        // Tes ini mengunci keputusan itu supaya tidak ada yang menambahkan
+        // header setengah jadi tanpa membahas konsekuensinya.
+        $response = $this->get('/');
+        $response->assertOk();
+
+        $headers = $response->headers;
+
+        foreach (['X-Content-Type-Options', 'X-Frame-Options', 'Referrer-Policy', 'Permissions-Policy'] as $nama) {
+            $this->assertNotNull($headers->get($nama), 'Header keamanan '.$nama.' hilang dari respons web.');
+        }
+
+        $this->assertNull(
+            $headers->get('Content-Security-Policy'),
+            'CSP belum siap dipasang di middleware; gunakan nonce di reverse proxy.'
+        );
+    }
 }
