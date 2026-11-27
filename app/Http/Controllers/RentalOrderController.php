@@ -365,7 +365,7 @@ class RentalOrderController extends Controller
                     if (in_array($status, ['pending', 'confirmed', 'cancelled'], true)) $unit->where('status', $status);
                     if ($status === 'seller_cancelled') $unit->where('status', 'cancelled')->where('cancel_responsibility', 'seller');
                     if ($status === 'grace') $unit->where('status', 'cancelled')->where('cancel_code', 'payment_timeout')->whereNull('deposit_forfeited_at');
-                    if ($status === 'return_overdue') $unit->where('status', 'confirmed')->where('progress', 'handed_over')->whereDate('ends_on', '<', now('Asia/Jakarta')->toDateString());
+                    if ($status === 'return_overdue') $unit->where('status', 'confirmed')->where('progress', 'handed_over')->where('ends_on', '<', now('Asia/Jakarta')->toDateString());
                     if ($status === 'review') $unit->needsPaymentReview();
                     if ($status === 'payment_pending') $unit->whereHas('payments', fn ($payment) => $payment->where('status', 'pending'));
                     if ($status === 'design_pending') $unit->where('status', 'confirmed')->whereHas('previews', fn ($preview) => $preview->where('status', 'pending'));
@@ -379,8 +379,8 @@ class RentalOrderController extends Controller
                     if ($status === 'design_initial') $unit->where('status', 'confirmed')->where('progress', 'waiting')->whereDoesntHave('previews');
                     if ($status === 'design_revision') $unit->where('status', 'confirmed')->where('progress', 'waiting')
                         ->whereHas('previews', fn ($preview) => $preview->where('status', 'revision')->whereRaw('rental_design_previews.version = (select max(latest_preview.version) from rental_design_previews as latest_preview where latest_preview.rental_order_unit_id = rental_order_units.id)'));
-                    if (! empty($filters['from'])) $unit->whereDate('event_on', '>=', $filters['from']);
-                    if (! empty($filters['to'])) $unit->whereDate('event_on', '<=', $filters['to']);
+                    if (! empty($filters['from'])) $unit->where('event_on', '>=', $filters['from']);
+                    if (! empty($filters['to'])) $unit->where('event_on', '<=', $filters['to']);
                 });
             })->when(($filters['status'] ?? null) === 'pending', fn ($query) => $query->orderBy('confirmation_deadline')->orderBy('id'), fn ($query) => $query->latest()->orderByDesc('id'))->paginate(20)->withQueryString();
         return view('rental.admin', compact('orders', 'filters'));

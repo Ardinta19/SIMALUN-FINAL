@@ -43,7 +43,7 @@ class RentalCashBookController extends Controller
 
     private function entriesBetween(CarbonImmutable $start, CarbonImmutable $end)
     {
-        return FinanceEntry::query()->whereDate('entry_date', '>=', $start->toDateString())->whereDate('entry_date', '<=', $end->toDateString());
+        return FinanceEntry::query()->where('entry_date', '>=', $start->toDateString())->where('entry_date', '<=', $end->toDateString());
     }
 
     private function periodBounds(Request $request): array

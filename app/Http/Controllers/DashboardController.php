@@ -37,7 +37,7 @@ class DashboardController extends Controller
         // Dasbor admin hanya menampilkan pekerjaan modul sewa. Angka laundry
         // (pesanan, kurir, layanan, rating) sudah dihapus bersama modulnya.
         $pemasukanHari = FinanceEntry::where('entry_type', 'income')
-            ->whereDate('entry_date', today())
+            ->where('entry_date', today()->toDateString())
             ->sum('amount');
 
         $pemasukanBulan = FinanceEntry::where('entry_type', 'income')
@@ -64,7 +64,7 @@ class DashboardController extends Controller
         $rentalWaitingTransport = RentalOrderUnit::where('status', 'confirmed')->whereNotNull('transport_quote')->whereNull('transport_approved_at')->count();
         $rentalWaitingGrace = RentalOrderUnit::where('status', 'cancelled')->where('cancel_code', 'payment_timeout')->whereNull('deposit_forfeited_at')->count();
         $rentalReturnOverdue = RentalOrderUnit::where('status', 'confirmed')->where('progress', 'handed_over')
-            ->whereDate('ends_on', '<', now('Asia/Jakarta')->toDateString())->count();
+            ->where('ends_on', '<', now('Asia/Jakarta')->toDateString())->count();
         // Umur tunggu: agar admin tahu antrean mana yang paling lama menganggur.
         $rentalWaitingDesignSince = \App\Models\RentalDesignPreview::where('status', 'pending')
             ->whereHas('unit', fn ($query) => $query->where('status', 'confirmed')->where('progress', 'waiting'))

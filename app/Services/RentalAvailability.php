@@ -69,7 +69,7 @@ class RentalAvailability
         array $statuses = RentalOrderUnit::RESERVING_STATUSES
     ): int {
         $overlaps = RentalOrderUnit::where('rental_product_id', $product->id)->whereIn('status', $statuses)
-            ->whereDate('starts_on', '<=', $endsOn)->whereDate('ends_on', '>=', $startsOn)
+            ->where('starts_on', '<=', $endsOn)->where('ends_on', '>=', $startsOn)
             ->when($lock, fn ($query) => $query->lockForUpdate())->get(['starts_on', 'ends_on']);
         return $this->minimumFromOverlaps($product, $overlaps, $startsOn, $endsOn);
     }
@@ -83,7 +83,7 @@ class RentalAvailability
     ): array {
         if ($products->isEmpty()) return [];
         $overlaps = RentalOrderUnit::whereIn('rental_product_id', $products->modelKeys())->whereIn('status', $statuses)
-            ->whereDate('starts_on', '<=', $endsOn)->whereDate('ends_on', '>=', $startsOn)
+            ->where('starts_on', '<=', $endsOn)->where('ends_on', '>=', $startsOn)
             ->get(['rental_product_id', 'starts_on', 'ends_on'])->groupBy('rental_product_id');
         $result = [];
         foreach ($products as $product) {
@@ -128,7 +128,7 @@ class RentalAvailability
         $from = CarbonImmutable::now('Asia/Jakarta')->startOfDay();
         $to = $from->addDays(max(1, $days) - 1);
         $units = RentalOrderUnit::where('rental_product_id', $product->id)->whereIn('status', $statuses)
-            ->whereDate('starts_on', '<=', $to->toDateString())->whereDate('ends_on', '>=', $from->toDateString())
+            ->where('starts_on', '<=', $to->toDateString())->where('ends_on', '>=', $from->toDateString())
             ->get(['starts_on', 'ends_on']);
         $counts = [];
         foreach ($units as $unit) {
@@ -163,7 +163,7 @@ class RentalAvailability
         $from = CarbonImmutable::now('Asia/Jakarta')->startOfDay();
         $to = $from->addDays(max(1, $days) - 1);
         $units = RentalOrderUnit::whereIn('rental_product_id', $products->modelKeys())->whereIn('status', RentalOrderUnit::RESERVING_STATUSES)
-            ->whereDate('starts_on', '<=', $to->toDateString())->whereDate('ends_on', '>=', $from->toDateString())
+            ->where('starts_on', '<=', $to->toDateString())->where('ends_on', '>=', $from->toDateString())
             ->get(['rental_product_id', 'starts_on', 'ends_on']);
         $used = [];
         foreach ($units as $unit) {
@@ -202,7 +202,7 @@ class RentalAvailability
         $starts = array_column($ranges, 'starts_on');
         $ends = array_column($ranges, 'ends_on');
         $existing = RentalOrderUnit::where('rental_product_id', $product->id)->whereIn('status', $statuses)
-            ->whereDate('starts_on', '<=', max($ends))->whereDate('ends_on', '>=', min($starts))
+            ->where('starts_on', '<=', max($ends))->where('ends_on', '>=', min($starts))
             ->when($lock, fn ($query) => $query->lockForUpdate())->get(['starts_on', 'ends_on']);
         $events = [];
         $add = function (string $date, int $reserved, int $requested) use (&$events) {

@@ -33,7 +33,7 @@ class RentalAutoClose
         RentalOrderUnit::query()->with('order')
             ->where('status', RentalOrderUnit::STATUS_CONFIRMED)
             ->where('progress', 'handed_over')
-            ->whereDate('ends_on', '<=', $cutoff)
+            ->where('ends_on', '<=', $cutoff)
             ->chunkById(100, function ($units) use (&$closed) {
                 foreach ($units as $unit) {
                     $didClose = DB::transaction(function () use ($unit) {

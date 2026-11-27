@@ -11,7 +11,7 @@ class ExpireRentalPayments
     public function run(): array
     {
         $result = ['cancelled' => 0, 'forfeited' => 0];
-        RentalOrderUnit::whereIn('status', ['confirmed', 'cancelled'])->whereDate('starts_on', '<=', now('Asia/Jakarta')->toDateString())
+        RentalOrderUnit::whereIn('status', ['confirmed', 'cancelled'])->where('starts_on', '<=', now('Asia/Jakarta')->toDateString())
             ->chunkById(100, function ($units) use (&$result) {
                 foreach ($units as $candidate) {
                     $change = DB::transaction(function () use ($candidate) {

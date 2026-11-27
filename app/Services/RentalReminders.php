@@ -114,7 +114,7 @@ class RentalReminders
         RentalOrderUnit::query()->with('order')
             ->where('status', RentalOrderUnit::STATUS_CONFIRMED)
             ->whereIn('progress', ['waiting', 'production', 'ready'])
-            ->whereDate('event_on', '<', $today)
+            ->where('event_on', '<', $today)
             ->chunkById(200, function ($units) use (&$counts) {
                 foreach ($units as $unit) {
                     if (! $this->claim($unit, 'event_overdue', 'admins')) continue;
@@ -140,7 +140,7 @@ class RentalReminders
         RentalOrderUnit::query()->with('order')
             ->where('status', RentalOrderUnit::STATUS_CONFIRMED)
             ->where('progress', 'handed_over')
-            ->whereDate('ends_on', '<=', $threshold)
+            ->where('ends_on', '<=', $threshold)
             ->chunkById(200, function ($units) use (&$counts) {
                 foreach ($units as $unit) {
                     if (! $this->claim($unit, 'return_pending', 'admins')) continue;
@@ -166,7 +166,7 @@ class RentalReminders
             ->where('status', RentalOrderUnit::STATUS_CANCELLED)
             ->where('cancel_code', 'payment_timeout')
             ->whereNull('deposit_forfeited_at')
-            ->whereDate('starts_on', '<=', CarbonImmutable::now('Asia/Jakarta')->toDateString())
+            ->where('starts_on', '<=', CarbonImmutable::now('Asia/Jakarta')->toDateString())
             ->chunkById(200, function ($units) use (&$counts, $policy, $adminsReachable) {
                 foreach ($units as $unit) {
                     if (! $policy->withinGrace($unit)) continue;
@@ -227,7 +227,7 @@ class RentalReminders
 
         RentalOrderUnit::query()->with('order')
             ->where('status', RentalOrderUnit::STATUS_CONFIRMED)
-            ->whereDate('starts_on', $tomorrow)
+            ->where('starts_on', $tomorrow)
             ->whereNotIn('progress', ['handed_over', 'returned'])
             ->chunkById(200, function ($units) use (&$counts, $policy) {
                 foreach ($units as $unit) {
@@ -259,7 +259,7 @@ class RentalReminders
         RentalOrderUnit::query()->with(['order', 'previews'])
             ->where('status', RentalOrderUnit::STATUS_CONFIRMED)
             ->where('progress', 'waiting')
-            ->whereDate('starts_on', '>=', $today->toDateString())
+            ->where('starts_on', '>=', $today->toDateString())
             ->whereHas('previews', fn ($query) => $query->where('status', 'pending')->where('created_at', '<=', $customerThreshold))
             ->chunkById(200, function ($units) use (&$counts, $adminsReachable, $customerThreshold, $deadlines) {
                 foreach ($units as $unit) {

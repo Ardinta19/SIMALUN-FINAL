@@ -4917,3 +4917,55 @@ Dijaga `tests/Feature/PruneNotificationsCommandTest.php`: pemberitahuan
 terbaca 120 hari terhapus, terbaca 3 hari tetap ada, belum dibaca 200 hari
 tetap ada, dan `--days=5` keluar dengan kode 1 beserta pesan penjelasan.
 README juga diperbarui dari "empat perintah" menjadi "lima perintah".
+
+### 9.127 `whereDate()` membuat indeks tanggal tidak terpakai
+
+Setelah indeks `(event_on)` dan `(ends_on)` ditambahkan (butir 9.120),
+pemindaian lanjutan menemukan masalah yang membatalkan manfaatnya:
+**seluruh** saringan tanggal di aplikasi memakai `whereDate()`. Di MySQL,
+`whereDate('ends_on', '<=', ?)` diterjemahkan menjadi
+`date(ends_on) <= ?`, dan kolom yang dibungkus fungsi tidak dapat memakai
+indeks biasa. Jadi kedua indeks itu hanya menambah biaya tulis.
+
+Selama kolomnya bertipe `DATE` (bukan `DATETIME`) dan nilai pembandingnya
+selalu `"Y-m-d"`, `where('ends_on', '<=', $nilai)` memberi hasil yang sama
+persis. Itu berlaku di sini: `starts_on`, `event_on`, `ends_on`, dan
+`entry_date` semuanya `$table->date(...)`, sedangkan pembandingnya berasal
+dari `toDateString()` atau input tervalidasi `date_format:Y-m-d`.
+
+Yang diubah (semua pada kolom `DATE`):
+
+| Berkas | Sebelum | Sesudah |
+| --- | --- | --- |
+| `DashboardController` | `whereDate('entry_date', today())` | `where('entry_date', today()->toDateString())` |
+| `DashboardController` | `whereDate('ends_on', '<', …)` | `where('ends_on', '<', …)` |
+| `RentalOrderController` | `whereDate('ends_on'/'event_on', …)` (3 titik) | `where(...)` |
+| `RentalCashBookController` | `whereDate('entry_date', …)` (2) | `where(...)` |
+| `RentalScheduleController` | `whereDate('starts_on'/'ends_on', …)` (4) | `where(...)` |
+| `RentalReminders` | `whereDate(...)` (5 titik) | `where(...)` |
+| `RentalAutoClose` | `whereDate('ends_on', …)` | `where(...)` |
+| `ExpireRentalPayments` | `whereDate('starts_on', …)` | `where(...)` |
+| `RentalAvailability` | `whereDate(...)` (5 titik) | `where(...)` |
+
+`DashboardController` butir `entry_date` sekaligus memakai
+`today()->toDateString()`: kalau dibiarkan `today()` (objek Carbon), nilai
+terikatnya menjadi `"2026-11-22 00:00:00"` dan perbandingan kesetaraan
+terhadap kolom `DATE` tidak lagi cocok.
+
+**Yang sengaja tetap `whereDate()`**:
+`AuditLogController` menyaring `audit_logs.created_at` — kolom itu
+`TIMESTAMP`, jadi `whereDate()` justru diperlukan agar "sampai tanggal X"
+mencakup seluruh hari itu. Mengubahnya menjadi perbandingan biasa akan
+memotong data di tengah hari.
+
+Dijaga `tests/Feature/DateQueryIndexTest.php`:
+
+- `test_kolom_tanggal_tidak_disaring_dengan_where_date()` — statis, seluruh
+  `app/` tidak boleh lagi memakai `whereDate()` pada `starts_on`,
+  `event_on`, `ends_on`, atau `entry_date`.
+- `test_perbandingan_biasa_setara_dengan_where_date()` — tiga unit pada
+  tanggal berbeda, lima operator (`<`, `<=`, `=`, `>=`, `>`), tiga kolom;
+  hasil `where()` harus identik dengan `whereDate()`.
+- `test_hasil_pencarian_tanggal_pada_daftar_pesanan_admin()` — saringan
+  "dari/tanggal" daftar pesanan admin tetap menemukan unit yang tanggal
+  acaranya tepat di batas.

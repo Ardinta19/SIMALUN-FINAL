@@ -23,8 +23,8 @@ class RentalScheduleController extends Controller
         $units = RentalOrderUnit::with('order.customer')
             ->whereIn('status', ['pending', 'confirmed'])
             ->when(! empty($input['status']), fn ($query) => $query->where('status', $input['status']))
-            ->whereDate('starts_on', '<=', $end->toDateString())
-            ->whereDate('ends_on', '>=', $month->toDateString())
+            ->where('starts_on', '<=', $end->toDateString())
+            ->where('ends_on', '>=', $month->toDateString())
             ->orderBy('starts_on')->orderBy('id')->get();
         $days = [];
         for ($date = $month; $date->lessThanOrEqualTo($end); $date = $date->addDay()) {
@@ -48,7 +48,7 @@ class RentalScheduleController extends Controller
         $units = RentalOrderUnit::with('order.customer')
             ->where('status', 'confirmed')
             ->where(function ($query) use ($key) {
-                $query->whereDate('starts_on', $key)->orWhereDate('ends_on', $key);
+                $query->where('starts_on', $key)->orWhere('ends_on', $key);
             })
             ->orderBy('id')->get();
         $receiving = $units->filter(fn ($unit) => $unit->starts_on->toDateString() === $key);
