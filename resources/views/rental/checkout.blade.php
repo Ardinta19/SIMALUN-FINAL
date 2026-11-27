@@ -35,6 +35,8 @@
     <form class="stack checkout-form bk-co__form" data-checkout-form data-co-form data-voucher-url="{{ route('rental.voucher.check') }}" method="post" action="{{ route('rental.checkout.store') }}" enctype="multipart/form-data">@csrf
     <div class="bk-co__grid">
         <div class="bk-co__main">
+        <h2 class="bk-co-section">Detail penyewaan</h2>
+        <p class="bk-co-section__hint">Satu kartu untuk tiap papan. Bagian yang sudah lengkap bertanda centang.</p>
         @foreach($cart as $key => $entry)
         @php
             $product = $products->get($entry['product_id']);

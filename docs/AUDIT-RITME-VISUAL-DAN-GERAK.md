@@ -6091,3 +6091,36 @@ adalah `php.ini`: pada Windows `.user.ini` tidak dibaca, sehingga
 3. Kirim pesanan → foto muncul di halaman pesanan (khusus pelanggan dan admin).
 4. Bila muncul galat 413/500 saat mengunggah: naikkan `upload_max_filesize` di
    `php.ini`, mulai ulang Apache, lalu coba lagi.
+
+### 9.150 Judul "Detail penyewaan" dikembalikan + balon validasi tidak lagi nyasar
+
+1. **Tes lama menangkap judul yang hilang.** `RentalCartTest::test_cart_survives_login`
+   mengunci kalimat "Detail penyewaan" pada halaman checkout; penulisan ulang
+   putaran 36 menggantinya dengan "Detail papan" sehingga tes merah. Judul
+   bagiannya dikembalikan tepat di atas deretan kartu papan, dengan satu baris
+   pemandu ("Satu kartu untuk tiap papan. Bagian yang sudah lengkap bertanda
+   centang."), dan `CheckoutFlowTest` kini ikut menjaganya.
+2. **Balon "Bagian ini wajib diisi." muncul melayang di sudut halaman.** Penyebab
+   teknis: `reportValidity()` dipanggil pada elemen yang belum punya kotak tata
+   letak — bagiannya baru dibuka, atau isiannya ada di dalam kotak alamat yang
+   masih `hidden`. Chrome menaruh balon di sudut kiri atas layar, bukan di
+   dekat isian, sehingga pesannya terlihat seperti galat halaman. Sekarang:
+   - semua lapisan yang menutupi isian dibuka lebih dulu (`revealField`), lalu
+     fokus dan gulir;
+   - balon diminta setelah satu bingkai (`requestAnimationFrame`) dan **hanya**
+     bila elemen benar-benar punya kotak tata letak (`getClientRects().length`).
+
+   Bila balon tidak bisa ditempatkan, pesan status di dekat tombol kirim tetap
+   menjelaskan apa yang kurang ("Masih ada N isian wajib…" atau "Unit 1 lengkap.
+   Centang persetujuan ketentuan untuk mengirim.").
+
+**Cara memeriksa sendiri:**
+
+1. Checkout → judul "Detail penyewaan" tampil di atas kartu papan.
+2. Kosongkan satu isian di tab "Serah terima", kembali ke tab "Jadwal", lalu
+   tekan "Kirim pesanan": halaman pindah ke tab yang benar, isian disorot, dan
+   balon "Bagian ini wajib diisi." menempel pada isian itu (bukan di sudut
+   layar), disertai pesan status di bawah tombol kirim.
+3. Bila hanya persetujuan yang kurang: pesan status berbunyi "Unit 1 lengkap.
+   Centang persetujuan ketentuan untuk mengirim." dan balon muncul di kotak
+   centang.

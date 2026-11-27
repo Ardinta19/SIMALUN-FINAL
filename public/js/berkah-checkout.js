@@ -127,12 +127,37 @@
             return panel ? missingFields(panel)[0] : null;
         }
 
-        function showField(field) {
+        /* Balon validasi menempel pada posisi elemen saat dipanggil. Bila bagian
+           baru saja dibuka, tata letak belum dihitung ulang; dan bila elemennya
+           sendiri tidak punya kotak tata letak (bagian tertutup), Chrome
+           menaruh balon di sudut kiri atas halaman — terlihat seperti pesan
+           nyasar. Karena itu balon hanya diminta setelah satu bingkai dan hanya
+           untuk elemen yang benar-benar tampil; pesan status tetap memberi tahu
+           apa yang kurang. */
+        function reportValiditySoon(field) {
+            if (typeof field.reportValidity !== 'function') return;
+            var show = function () {
+                if (field.getClientRects().length === 0) return;
+                field.reportValidity();
+            };
+            if (typeof requestAnimationFrame === 'function') requestAnimationFrame(show);
+            else show();
+        }
+
+        /* Buka semua lapisan yang menutupi isian: tab bagian, lalu kotak alamat
+           yang hanya muncul saat "diantar"/"dijemput". */
+        function revealField(field) {
             var panel = field.closest('[data-co-panel]');
             if (panel) activate(Number(panel.getAttribute('data-co-panel')));
+            var box = field.closest('[data-delivery-fields], [data-return-fields]');
+            if (box) box.hidden = false;
+        }
+
+        function showField(field) {
+            revealField(field);
             field.focus({ preventScroll: true });
             scrollTo(field);
-            if (typeof field.reportValidity === 'function') field.reportValidity();
+            reportValiditySoon(field);
         }
 
         function refresh() {
@@ -465,12 +490,14 @@
             event.preventDefault();
             var first = missing[0];
             var owner = first.closest('[data-co-unit]');
-            var activate = owner ? activators.get(owner) : null;
+            var openUnit = owner ? activators.get(owner) : null;
             var panel = first.closest('[data-co-panel]');
-            if (activate && panel) activate(Number(panel.getAttribute('data-co-panel')));
+            if (openUnit && panel) openUnit(Number(panel.getAttribute('data-co-panel')));
+            var box = first.closest('[data-delivery-fields], [data-return-fields]');
+            if (box) box.hidden = false;
             first.focus({ preventScroll: true });
             scrollTo(first);
-            if (typeof first.reportValidity === 'function') first.reportValidity();
+            reportValiditySoon(first);
             setStatus('Masih ada ' + missing.length + ' isian wajib. Halaman sudah membuka bagian yang belum lengkap.');
             return;
         }

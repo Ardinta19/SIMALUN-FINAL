@@ -65,6 +65,9 @@ class CheckoutFlowTest extends TestCase
             $this->assertStringContainsString('checkout-{{ $unitNumber }}-tab-'.$step.'"', $view);
         }
 
+        // Judul bagian tetap ada: dipakai kalimat pemandu di keranjang dan tes lama.
+        $this->assertStringContainsString('>Detail penyewaan</h2>', $view);
+
         // Kepala halaman menjanjikan tiga hal yang benar-benar dilakukan sistem.
         $this->assertStringContainsString('Tanggal ditahan 24 jam', $view);
         $this->assertStringContainsString('Admin mengonfirmasi jadwal', $view);

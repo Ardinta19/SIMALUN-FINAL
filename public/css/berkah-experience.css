@@ -1967,3 +1967,20 @@ body.bk-experience {
     margin: 8px 0 0;
     font-size: var(--bk-fs-xs);
 }
+
+/* Judul kelompok kartu papan: penanda bagian, bukan judul halaman. */
+.bk-co-section {
+    margin: 4px 0 2px;
+    font-size: var(--bk-fs-lg, 1.15rem);
+    letter-spacing: .01em;
+}
+
+.bk-co-section__hint {
+    margin: 0 0 4px;
+    font-size: var(--bk-fs-xs);
+    color: #6b4b55;
+}
+
+html[data-theme="dark"] .bk-co-section__hint {
+    color: var(--theme-ink-mid);
+}
