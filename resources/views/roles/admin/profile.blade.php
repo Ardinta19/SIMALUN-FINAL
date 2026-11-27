@@ -90,7 +90,7 @@
 
         <div class="adm-note adm-note--warn" style="margin:0">
             <span class="adm-note__title">Optimalkan operasi</span>
-            Cek performa outlet dan kelola semua pesanan dari panel ini.
+            Cek performa usaha dan kelola semua pesanan dari panel ini.
         </div>
     </div>
 </div>

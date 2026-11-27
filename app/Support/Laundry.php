@@ -39,5 +39,21 @@ class Laundry
         return config('laundry.whatsapp', '');
     }
 
+    public static function instagram(): string
+    {
+        return config('laundry.instagram', '');
+    }
+
+    public static function tiktok(): string
+    {
+        return config('laundry.tiktok', '');
+    }
+
+    /** Usaha ini belum punya outlet; alamat kosong berarti barisnya disembunyikan. */
+    public static function hasAddress(): bool
+    {
+        return self::address() !== '';
+    }
+
     /** Tautan chat WhatsApp toko sudah disediakan WhatsApp::link(). */
 }

@@ -109,14 +109,14 @@
             </div>
             <div>
                 <span class="adm-help">Penerimaan</span>
-                <p style="margin:2px 0 0">{{ $unit->delivery_method === 'delivery' ? 'Diantar penjual' : 'Diambil di outlet' }} · {{ $unit->delivery_address ?: 'Outlet' }}</p>
+                <p style="margin:2px 0 0">{{ $unit->delivery_method === 'delivery' ? 'Diantar penjual' : 'Diambil sendiri' }} · {{ $unit->delivery_address ?: 'Lokasi dikonfirmasi admin' }}</p>
                 @if($unit->delivery_university)
                     <p class="muted" style="margin:0">Universitas pengantaran: {{ $unit->delivery_university }} · Rp {{ number_format($unit->delivery_university_fee, 0, ',', '.') }}</p>
                 @endif
             </div>
             <div>
                 <span class="adm-help">Pengembalian</span>
-                <p style="margin:2px 0 0">{{ $unit->return_method === 'collection' ? 'Diambil kembali penjual' : 'Dikembalikan ke outlet' }} · {{ $unit->return_address ?: 'Outlet' }}</p>
+                <p style="margin:2px 0 0">{{ $unit->return_method === 'collection' ? 'Diambil kembali penjual' : 'Dikembalikan sendiri' }} · {{ $unit->return_address ?: 'Lokasi dikonfirmasi admin' }}</p>
                 @if($unit->return_university)
                     <p class="muted" style="margin:0">Universitas pengambilan kembali: {{ $unit->return_university }} · Rp {{ number_format($unit->return_university_fee, 0, ',', '.') }}</p>
                 @endif

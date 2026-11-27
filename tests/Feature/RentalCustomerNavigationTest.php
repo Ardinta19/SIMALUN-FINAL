@@ -165,7 +165,7 @@ class RentalCustomerNavigationTest extends TestCase
     {
         // Kontak toko di footer hanya tampil bila benar-benar dikonfigurasi;
         // halaman bantuan sendiri memakai nomor dari RentalPaymentSetting.
-        config(['laundry.whatsapp' => '', 'laundry.phone_display' => '', 'laundry.google_maps' => '', 'laundry.address' => '']);
+        config(['laundry.whatsapp' => '', 'laundry.phone_display' => '', 'laundry.google_maps' => '', 'laundry.address' => '', 'laundry.instagram' => '', 'laundry.tiktok' => '']);
         $customer = User::factory()->create(['role' => 'customer']);
         $this->actingAs($customer)->get(route('customer.help'))->assertOk()
             ->assertSee('Berkah Kreatif')->assertDontSee('Azka Laundry')->assertDontSee('wa.me/');

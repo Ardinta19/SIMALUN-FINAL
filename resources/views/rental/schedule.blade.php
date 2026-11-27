@@ -88,13 +88,13 @@
                         {{ $unit->order->customer?->name ?? 'Pelanggan tidak tersedia' }} · {{ $unit->recipient_name }} · Acara {{ $unit->event_on->format('d/m/Y') }}
                     </p>
                     @if($unit->starts_on->toDateString() === $today)
-                        <p style="margin:4px 0 0">Penerimaan hari ini: {{ $unit->delivery_method === 'delivery' ? 'Diantar penjual · '.$unit->delivery_address : 'Diambil di outlet' }}</p>
+                        <p style="margin:4px 0 0">Penerimaan hari ini: {{ $unit->delivery_method === 'delivery' ? 'Diantar penjual · '.$unit->delivery_address : 'Diambil sendiri' }}</p>
                     @endif
                     @if($unit->event_on->toDateString() === $today)
                         <p style="margin:4px 0 0">Acara hari ini</p>
                     @endif
                     @if($unit->ends_on->toDateString() === $today)
-                        <p style="margin:4px 0 0">Pengembalian hari ini: {{ $unit->return_method === 'collection' ? 'Diambil kembali penjual · '.$unit->return_address : 'Dikembalikan ke outlet' }}</p>
+                        <p style="margin:4px 0 0">Pengembalian hari ini: {{ $unit->return_method === 'collection' ? 'Diambil kembali penjual · '.$unit->return_address : 'Dikembalikan sendiri' }}</p>
                     @endif
                     <div class="adm-row" style="justify-content:space-between;margin-top:6px">
                         <span class="adm-chip">{{ \App\Support\RentalLabels::progress($unit->progress) }}</span>

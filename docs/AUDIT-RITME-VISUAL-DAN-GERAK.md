@@ -5280,3 +5280,48 @@ hal ini tetap harus diperiksa manusia:
    bukti pembayaran 404 walau unggahannya berhasil.
 4. `php artisan schedule:run` benar-benar dipanggil cron tiap menit, dan
    `QUEUE_CONNECTION` pada `.env` sesuai kebutuhan (bawaan repo: `sync`).
+
+### 9.134 Identitas usaha yang sebenarnya: tanpa outlet, dengan kanal sosial
+
+Pemilik usaha memberi tiga fakta yang membatalkan asumsi aplikasi:
+
+1. **Belum ada outlet resmi.** Seluruh alur "Diambil di outlet" / "Dikembalikan
+   ke outlet" menyuruh pelanggan datang ke tempat yang tidak ada, dan footer
+   menampilkan alamat jalan "Mayang Mangurai, Kota Baru…" beserta tautan
+   Google Maps yang tidak pernah diverifikasi. Alamat karangan lebih buruk
+   daripada tidak ada alamat.
+2. **Instagram** `https://www.instagram.com/berkahkreatif_/`.
+3. **TikTok** `https://www.tiktok.com/@berkahkreatif_`, dan **WhatsApp**
+   `0895-1405-7305` (`6289514057305` untuk tautan `wa.me`).
+
+**Perubahan konfigurasi.** `config/laundry.php` memakai enam kunci
+`BUSINESS_*` (§9.131) ditambah dua kunci baru, `BUSINESS_INSTAGRAM` dan
+`BUSINESS_TIKTOK`. Nilai bawaan `BUSINESS_ADDRESS` dan `BUSINESS_GMAPS`
+sekarang **kosong**, nomor telepon/WhatsApp diganti nomor yang benar.
+`App\Support\Laundry` mendapat `instagram()`, `tiktok()`, dan `hasAddress()`.
+`phpunit.xml` memaku kedelapan nilai itu sehingga tes tidak bergantung `.env`;
+`.env.example`, `.env.production.example`, dan panduan Hostinger disamakan.
+
+**Tampilan.** Footer katalog kini menampilkan Instagram · TikTok · WhatsApp
+(hanya yang terisi, dengan `rel="noopener"`), dan baris alamat/peta menghilang
+saat kosong — tidak ada lagi "© 2026 Berkah Kreatif · " berekor. Halaman
+bantuan menambahkan tautan Instagram/TikTok di samping nomor admin. Templat
+surel tidak lagi mencetak baris alamat kosong.
+
+**Serah terima.** Label `<select>` diganti menjadi "Diambil sendiri di lokasi
+kami" dan "Dikembalikan sendiri ke lokasi kami"; struk, lembar harian,
+jadwal, detail admin, dan detail unit pelanggan memakai istilah yang sama.
+Halaman checkout menjelaskan bahwa lokasi disepakati lewat WhatsApp.
+
+**Cacat aksesibilitas yang ikut ditemukan.** `aria-describedby` pada pilihan
+penerimaan dan pengembalian menunjuk `checkout-N-delivery-hint` dan
+`checkout-N-return-hint` yang **tidak pernah dibuat**, sehingga pembaca layar
+tidak membacakan petunjuk apa pun. Kedua paragraf petunjuk sekarang ada.
+
+Dijaga `tests/Feature/BusinessIdentityTest.php` (4 tes): tidak ada kata
+"outlet" di seluruh view (komentar diabaikan), label serah terima baru beserta
+id hint-nya, halaman bantuan menampilkan kedua tautan sosial, dan nilai
+konfigurasi bawaan (WhatsApp, nomor tampil, alamat kosong, peta kosong).
+`CatalogFooterTest` diperbarui: footer wajib memuat Instagram/TikTok/WhatsApp
+dan **tidak boleh** memuat "Lokasi di Google Maps" atau "Mayang Mangurai",
+serta menyembunyikan semua tautan saat konfigurasi dikosongkan.

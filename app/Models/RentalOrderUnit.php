@@ -33,7 +33,7 @@ class RentalOrderUnit extends Model
     }
     public function plannedPaymentDeadline(): \Carbon\CarbonImmutable
     {
-        // Tanggal penerimaan adalah tanggal pengantaran/ambil outlet; WIB tidak mengikuti zona browser.
+        // Tanggal penerimaan adalah tanggal pengantaran atau pengambilan sendiri; WIB tidak mengikuti zona browser.
         return \Carbon\CarbonImmutable::parse($this->starts_on->toDateString(), 'Asia/Jakarta')->startOfDay()->subSecond();
     }
     public function transportApproved(): bool

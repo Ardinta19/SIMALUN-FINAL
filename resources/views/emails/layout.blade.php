@@ -32,7 +32,7 @@
                         <td style="padding:18px 28px 26px;border-top:1px solid #f0e4e0;">
                             <div style="font-size:12px;color:#6f5960;line-height:1.7;">
                                 <strong style="color:#321d24;">{{ \App\Support\Laundry::name() }}</strong><br>
-                                {{ \App\Support\Laundry::address() }}<br>
+                                @if(\App\Support\Laundry::hasAddress()){{ \App\Support\Laundry::address() }}<br>@endif
                                 WhatsApp/Telp: {{ \App\Support\Laundry::phoneDisplay() }}
                             </div>
                             <div style="font-size:11px;color:#806975;margin-top:12px;">

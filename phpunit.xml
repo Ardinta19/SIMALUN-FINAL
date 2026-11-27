@@ -29,10 +29,14 @@
         -->
         <env name="BUSINESS_NAME" value="Berkah Kreatif"/>
         <env name="BUSINESS_TAGLINE" value="Papan bunga untuk setiap cerita"/>
-        <env name="BUSINESS_ADDRESS" value="Mayang Mangurai, Kota Baru, Jambi City, Jambi"/>
-        <env name="BUSINESS_GMAPS" value="https://maps.app.goo.gl/gArdhsRxYnPkRwDq8"/>
-        <env name="BUSINESS_PHONE_DISPLAY" value="0823-7888-6053"/>
-        <env name="BUSINESS_WA" value="6282378886053"/>
+        <!-- Usaha belum punya outlet: alamat dan peta dikunci kosong agar tes
+             tidak bergantung `.env` yang mungkin masih memuat alamat lama. -->
+        <env name="BUSINESS_ADDRESS" value=""/>
+        <env name="BUSINESS_GMAPS" value=""/>
+        <env name="BUSINESS_PHONE_DISPLAY" value="0895-1405-7305"/>
+        <env name="BUSINESS_WA" value="6289514057305"/>
+        <env name="BUSINESS_INSTAGRAM" value="https://www.instagram.com/berkahkreatif_/"/>
+        <env name="BUSINESS_TIKTOK" value="https://www.tiktok.com/@berkahkreatif_"/>
         <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="CACHE_STORE" value="array"/>
         <env name="DB_CONNECTION" value="sqlite"/>

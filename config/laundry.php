@@ -24,8 +24,11 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'address' => env('BUSINESS_ADDRESS', 'Mayang Mangurai, Kota Baru, Jambi City, Jambi'),
-    'google_maps' => env('BUSINESS_GMAPS', 'https://maps.app.goo.gl/gArdhsRxYnPkRwDq8'),
+    // Usaha ini belum punya outlet resmi, jadi alamat jalan dan tautan peta
+    // sengaja kosong: menampilkan alamat karangan lebih buruk daripada tidak
+    // menampilkan apa pun. Lokasi serah terima disepakati lewat WhatsApp.
+    'address' => env('BUSINESS_ADDRESS', ''),
+    'google_maps' => env('BUSINESS_GMAPS', ''),
 
     /*
     |--------------------------------------------------------------------------
@@ -33,7 +36,19 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'phone_display' => env('BUSINESS_PHONE_DISPLAY', '0823-7888-6053'),
-    'whatsapp' => env('BUSINESS_WA', '6282378886053'),
+    'phone_display' => env('BUSINESS_PHONE_DISPLAY', '0895-1405-7305'),
+    'whatsapp' => env('BUSINESS_WA', '6289514057305'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Media Sosial
+    |--------------------------------------------------------------------------
+    |
+    | Ditampilkan di kaki halaman katalog dan halaman bantuan. Kosongkan
+    | bila akun belum ada; tautannya otomatis disembunyikan.
+    */
+
+    'instagram' => env('BUSINESS_INSTAGRAM', 'https://www.instagram.com/berkahkreatif_/'),
+    'tiktok' => env('BUSINESS_TIKTOK', 'https://www.tiktok.com/@berkahkreatif_'),
 
 ];

@@ -109,10 +109,13 @@ APP_TIMEZONE=Asia/Jakarta
 # Identitas usaha. Kunci LAUNDRY_* dari aplikasi lama sudah tidak dibaca.
 BUSINESS_NAME="Berkah Kreatif"
 BUSINESS_TAGLINE="Papan bunga untuk setiap cerita"
-BUSINESS_ADDRESS="__ALAMAT_TOKO__"
-BUSINESS_GMAPS="__TAUTAN_GOOGLE_MAPS__"
-BUSINESS_PHONE_DISPLAY="__NOMOR_TAMPIL__"
-BUSINESS_WA="__NOMOR_WHATSAPP_62__"
+# Belum punya outlet resmi: kosongkan alamat dan tautan peta.
+BUSINESS_ADDRESS=""
+BUSINESS_GMAPS=""
+BUSINESS_PHONE_DISPLAY="0895-1405-7305"
+BUSINESS_WA="6289514057305"
+BUSINESS_INSTAGRAM="https://www.instagram.com/berkahkreatif_/"
+BUSINESS_TIKTOK="https://www.tiktok.com/@berkahkreatif_"
 
 DB_CONNECTION=mysql
 DB_HOST=localhost
