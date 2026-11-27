@@ -9,7 +9,7 @@
      halaman admin lainnya. Isi dan tautannya tidak berubah. --}}
 @section('content')
 @php
-    $adminUnread = auth()->user()->unreadNotifications->count();
+    $adminUnread = \App\Support\NavCounts::unreadNotifications();
     $adminPhone = trim((string) ($user->phone ?? ''));
 @endphp
 

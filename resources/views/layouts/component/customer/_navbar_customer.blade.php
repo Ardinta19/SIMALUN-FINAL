@@ -4,9 +4,8 @@
     if (request()->routeIs('cart.*', 'rental.checkout*')) $navActive = 'keranjang';
     elseif (request()->routeIs('welcome', 'catalog.show')) $navActive = 'katalog';
     elseif ($navActive === 'pesan') $navActive = 'katalog';
-    $cartCount = count(session('rental_cart', []));
-    $unreadNotif = 0;
-    try { $unreadNotif = auth()->user()?->unreadNotifications()->count() ?? 0; } catch (\Exception $e) {}
+    $cartCount = \App\Support\NavCounts::cartItems();
+    $unreadNotif = \App\Support\NavCounts::unreadNotifications();
 @endphp
 <nav class="customer-nav" id="customer-nav" aria-label="Navigasi pelanggan">
     <div class="customer-nav__inner">

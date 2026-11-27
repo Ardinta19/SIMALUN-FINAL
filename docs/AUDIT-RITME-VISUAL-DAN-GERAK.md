@@ -3557,3 +3557,25 @@ penjelasan; email pemulihan kata sandi dari alamat contoh masuk folder spam
 atau ditolak. Ditambahkan catatan agar diganti dengan alamat domain sendiri.
 
 **Hasil:** harness **174 lulus, 0 gagal, 218 dilewati**.
+
+### 9.75 Putaran kesebelas, catatan penutup: satu hitungan untuk dua navigasi
+
+Halaman pelanggan memuat **dua** navigasi — bilah atas
+(`catalog/customer-navigation`) dan bilah bawah
+(`layouts/component/customer/_navbar_customer`) — dan keduanya menghitung
+notifikasi belum dibaca serta isi keranjang dengan caranya sendiri. Satu
+halaman karenanya membuka kueri notifikasi yang sama **dua kali**, dan `try`
+penahannya ditulis dua kali dengan cakupan berbeda (`\Exception` di satu
+tempat, tanpa penahan di tempat lain). Semua kini lewat
+`App\Support\NavCounts`, yang menyimpan hasil per permintaan dan menahan
+gangguan basis data supaya lencana notifikasi tidak pernah menggagalkan
+halaman. Halaman profil admin memakai penampung yang sama. Dijaga
+`test_angka_navigasi_dihitung_sekali`.
+
+Pemeriksaan lain pada putaran ini: semua daftar yang memuat relasi sudah
+memakai *eager loading* (`RentalProduct::with('category')`, pesanan admin,
+papan jadwal, lembar harian, notifikasi admin), jadi tidak ada kueri berulang
+di dalam perulangan; `.photo` memakai `aspect-ratio` sehingga tidak ada
+lonjakan tata letak saat foto termuat.
+
+**Hasil:** harness **175 lulus, 0 gagal, 218 dilewati**.

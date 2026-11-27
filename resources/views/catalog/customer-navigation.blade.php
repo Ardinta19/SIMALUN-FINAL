@@ -1,9 +1,8 @@
 @php
     $isCustomer = auth()->check() && auth()->user()->role === 'customer';
-    $cartCount = count(session('rental_cart', []));
+    $cartCount = \App\Support\NavCounts::cartItems();
     $navActive = request()->routeIs('rental.orders.*') ? 'pesanan' : (request()->routeIs('customer.notifications*') ? 'notif' : '');
-    $unreadNotif = 0;
-    if ($isCustomer) { try { $unreadNotif = auth()->user()->unreadNotifications()->count(); } catch (\Exception $e) {} }
+    $unreadNotif = $isCustomer ? \App\Support\NavCounts::unreadNotifications() : 0;
 @endphp
 <a class="bk-skip" href="#main-content">Langsung ke isi</a>
 <div class="bk-header-space">

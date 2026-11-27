@@ -1347,4 +1347,34 @@ class UiDefaultsTest extends TestCase
         $this->assertStringContainsString('php artisan storage:link', $readme, 'README harus menyebut storage:link untuk pemasangan baru.');
         $this->assertStringContainsString("file_exists(public_path('storage'))", $admin, 'Panel katalog perlu memberi tahu admin bila tautan storage belum ada.');
     }
+
+    /** Penghitung lencana navigasi diambil dari satu tempat.
+     *
+     *  Halaman pelanggan memuat dua navigasi (atas dan bawah) yang menghitung
+     *  angka sama. Keduanya dulu menjalankan kueri notifikasi sendiri-sendiri,
+     *  jadi satu halaman membuka kueri yang sama dua kali. Sekarang
+     *  `App\Support\NavCounts` menyimpan hasilnya selama satu permintaan.
+     */
+    public function test_angka_navigasi_dihitung_sekali(): void
+    {
+        $pelanggaran = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            $html = (string) File::get($file->getPathname());
+
+            // Hitungan lewat helper sah; halaman notifikasi sendiri boleh
+            // memakai `->exists()` untuk pertanyaan berbeda (ada/tidak).
+            if (preg_match('/(?<!NavCounts::)unreadNotifications\(\)/', $html)
+                && ! preg_match('/unreadNotifications\(\)->exists\(\)/', $html)) {
+                $pelanggaran[] = str_replace('\\', '/', $file->getRelativePathname());
+            }
+        }
+
+        $this->assertSame([], array_values(array_unique($pelanggaran)), 'Pakai NavCounts::unreadNotifications(): '.implode(', ', array_unique($pelanggaran)));
+        $this->assertStringContainsString('public static function unreadNotifications', (string) File::get(app_path('Support/NavCounts.php')));
+    }
 }
