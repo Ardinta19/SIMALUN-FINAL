@@ -2,13 +2,6 @@
 @section('back', route('dashboard.admin'))
 @section('title', 'Katalog papan')
 @section('crumbs')<strong>Katalog papan</strong>@endsection
-@push('head')
-<style>
-    /* Bingkai pratinjau foto: geometri saja (warna mengikuti token admin). */
-    .admin-photo { display: grid; place-items: center; width: min(100%, 220px); aspect-ratio: 4 / 3; margin: 0 0 14px; padding: 6px; border-radius: 14px; overflow: hidden; background: var(--adm-surface-2, #fbf3f4); border: 1px dashed var(--adm-line, #eadbdd); }
-    .admin-photo img { display: block; width: 100%; height: 100%; object-fit:contain; object-position:center; }
-</style>
-@endpush
 @section('content')
 @unless(file_exists(public_path('storage')))
     {{-- Tautan folder unggahan belum dibuat: semua foto produk tampil rusak
@@ -20,10 +13,6 @@
         <span class="adm-kicker">Katalog &amp; penawaran</span>
         <h1>Kelola katalog</h1>
         <p class="adm-page-sub">Tambahkan kategori lalu papan; harga di sini adalah data dasar, bukan ketersediaan tanggal.</p>
-                <details class="adm-page-note">
-                    <summary>Selengkapnya</summary>
-                    <p>Tambahkan kategori dan papan. Harga dan stok di sini adalah data dasar, bukan ketersediaan pada tanggal tertentu.</p>
-                </details>
     </div>
     <div class="adm-actions">
         <a class="btn secondary" href="{{ route('admin.rental.universities.index') }}">Kelola universitas dan tarif</a>
@@ -45,15 +34,15 @@
             </div>
             <div><button class="btn" type="submit">Tambah kategori</button></div>
         </form>
-        <p class="adm-help" style="margin-top:10px">Kategori nonaktif dan seluruh papannya tersembunyi dari katalog; riwayat pesanan tetap tersimpan.</p>
+        <p class="adm-help adm-mt-3">Kategori nonaktif dan seluruh papannya tersembunyi dari katalog; riwayat pesanan tetap tersimpan.</p>
 
         @foreach($categories as $category)
-            <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--adm-line)">
-                <div class="adm-row" style="justify-content:space-between">
+            <div class="adm-divider-top">
+                <div class="adm-row adm-row--between">
                     <strong>{{ $category->name }}</strong>
                     <span class="adm-badge {{ $category->is_active ? 'adm-badge--confirmed' : 'adm-badge--cancelled' }}">Status: {{ $category->is_active ? 'Aktif' : 'Nonaktif' }}</span>
                 </div>
-                <form class="adm-stack" style="margin-top:8px" method="post" action="{{ route('admin.catalog.categories.update', $category) }}">
+                <form class="adm-stack adm-mt-2" method="post" action="{{ route('admin.catalog.categories.update', $category) }}">
                     @csrf
                     @method('PUT')
                     <div class="adm-field">
@@ -62,7 +51,7 @@
                     </div>
                     <div><button class="btn secondary adm-btn--sm" type="submit">Simpan nama</button></div>
                 </form>
-                <form method="post" action="{{ route('admin.catalog.categories.toggle', $category) }}" style="margin-top:8px">
+                <form class="adm-mt-2" method="post" action="{{ route('admin.catalog.categories.toggle', $category) }}">
                     @csrf
                     @method('PATCH')
                     <button type="submit" class="btn secondary adm-btn--sm">{{ $category->is_active ? 'Nonaktifkan' : 'Aktifkan' }} kategori</button>
@@ -82,25 +71,25 @@
             <div><button type="submit" class="btn" @disabled($categories->isEmpty())>Simpan papan</button></div>
         </form>
         @if($categories->isEmpty())
-            <p class="adm-help" style="margin-top:8px">Buat kategori terlebih dahulu.</p>
+            <p class="adm-help adm-mt-2">Buat kategori terlebih dahulu.</p>
         @endif
     </section>
 </div>
 
-<div class="adm-row" style="justify-content:space-between;margin:26px 0 12px" data-adm-reveal="list-title">
+<div class="adm-row adm-row--between adm-head-row" data-adm-reveal="list-title">
     <h2>Papan di katalog</h2>
     <span class="adm-chip">{{ $products->total() }} papan</span>
 </div>
 
 @forelse($products as $product)
     <details class="adm-card" data-adm-reveal="produk">
-        <summary style="cursor:pointer;display:flex;align-items:center;gap:10px;list-style:none">
+        <summary class="adm-summary-inline">
             <strong>{{ $product->name }}</strong>
             <span class="adm-badge {{ $product->is_active ? 'adm-badge--confirmed' : 'adm-badge--cancelled' }}">{{ $product->is_active ? 'Aktif' : 'Nonaktif' }}</span>
-            <span class="adm-chip" style="margin-left:auto">{{ $product->category->name }} · {{ $product->stock }} unit @if($product->variants->isNotEmpty()) · {{ $product->variants->count() }} warna @endif</span>
+            <span class="adm-chip adm-push">{{ $product->category->name }} · {{ $product->stock }} unit @if($product->variants->isNotEmpty()) · {{ $product->variants->count() }} warna @endif</span>
         </summary>
 
-        <div style="margin-top:14px">
+        <div class="adm-mt-4">
             <div class="admin-photo">
                 @if($product->image_path)
                     <img src="{{ asset('storage/'.$product->image_path) }}" alt="Foto {{ $product->name }}" loading="lazy" decoding="async">
@@ -113,30 +102,30 @@
                 @csrf
                 @method('PUT')
                 @include('catalog.product-fields', ['product' => $product])
-                <p class="adm-help" style="margin:8px 0 0">Stok papan dipakai selama papan belum punya warna. Bila sudah ada warna di bawah, stok yang berlaku adalah stok tiap warna.</p>
+                <p class="adm-help adm-block-gap">Stok papan dipakai selama papan belum punya warna. Bila sudah ada warna di bawah, stok yang berlaku adalah stok tiap warna.</p>
                 <div><button class="btn" type="submit">Simpan perubahan</button></div>
             </form>
 
-            <form method="post" action="{{ route('admin.catalog.toggle', $product) }}" style="margin-top:8px">
+            <form class="adm-mt-2" method="post" action="{{ route('admin.catalog.toggle', $product) }}">
                 @csrf
                 @method('PATCH')
                 <button type="submit" class="btn secondary adm-btn--sm">{{ $product->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button>
             </form>
 
             <h3 class="adm-subhead">Warna &amp; foto (varian)</h3>
-            <p class="adm-help">Tiap warna punya stok sendiri. Pelanggan memilih warna di katalog dan pratinjau foto langsung berganti. Harga tidak berubah antarvarians; selama belum ada warna, papan memakai stok papan seperti biasa.</p>
+            <p class="adm-help">Tiap warna punya stok sendiri dan pratinjau foto ikut berganti. Harga sama untuk semua warna; selama papan belum punya warna, stok papan yang dipakai.</p>
 
             @forelse($product->variants as $variant)
-                <div class="adm-note" style="margin-top:10px">
-                    <div class="adm-row" style="justify-content:space-between;gap:8px;flex-wrap:wrap">
-                        <strong style="display:flex;align-items:center;gap:8px">
+                <div class="adm-note adm-mt-3">
+                    <div class="adm-row adm-row--between adm-row--tight adm-row--wrap">
+                        <strong class="adm-row adm-row--tight">
                             <span class="bk-swatch" style="--bk-swatch:{{ $variant->color }}" aria-hidden="true"></span>
                             {{ $variant->name }}
                         </strong>
                         <span class="adm-chip">{{ $variant->stock }} unit</span>
                         <span class="adm-badge {{ $variant->is_active ? 'adm-badge--confirmed' : 'adm-badge--cancelled' }}">{{ $variant->is_active ? 'Aktif' : 'Nonaktif' }}</span>
                     </div>
-                    <form class="adm-stack" style="margin-top:10px" method="post" action="{{ route('admin.catalog.variants.update', $variant) }}" enctype="multipart/form-data">
+                    <form class="adm-stack adm-mt-3" method="post" action="{{ route('admin.catalog.variants.update', $variant) }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div class="adm-field-grid">
@@ -162,11 +151,11 @@
                             </div>
                         </div>
                         @if($variant->image_path)
-                            <div class="admin-photo" style="margin-top:8px"><img src="{{ asset('storage/'.$variant->image_path) }}" alt="Foto warna {{ $variant->name }}" loading="lazy" decoding="async"></div>
+                            <div class="admin-photo adm-mt-2"><img src="{{ asset('storage/'.$variant->image_path) }}" alt="Foto warna {{ $variant->name }}" loading="lazy" decoding="async"></div>
                         @endif
                         <div><button class="btn secondary adm-btn--sm" type="submit">Simpan warna</button></div>
                     </form>
-                    <div class="adm-row" style="gap:8px;margin-top:6px;flex-wrap:wrap">
+                    <div class="adm-row adm-row--tight adm-mt-6 adm-row--wrap">
                         <form method="post" action="{{ route('admin.catalog.variants.toggle', $variant) }}">
                             @csrf
                             @method('PATCH')
@@ -183,7 +172,7 @@
                 <p class="adm-help">Belum ada warna untuk papan ini.</p>
             @endforelse
 
-            <form class="adm-stack" style="margin-top:14px" method="post" action="{{ route('admin.catalog.variants.store', $product) }}" enctype="multipart/form-data">
+            <form class="adm-stack adm-mt-4" method="post" action="{{ route('admin.catalog.variants.store', $product) }}" enctype="multipart/form-data">
                 @csrf
                 <div class="adm-field-grid">
                     <div class="adm-field">
@@ -214,12 +203,12 @@
             <p class="adm-help">Paket berlaku untuk jumlah hari yang tepat, termasuk hari penerimaan dan pengembalian.</p>
 
             @foreach($product->packages as $package)
-                <div class="adm-note" style="margin-top:10px">
-                    <div class="adm-row" style="justify-content:space-between">
+                <div class="adm-note adm-mt-3">
+                    <div class="adm-row adm-row--between">
                         <strong>{{ $package->name }} · {{ $package->days }} hari</strong>
                         <span class="adm-badge {{ $package->is_active ? 'adm-badge--confirmed' : 'adm-badge--cancelled' }}">{{ $package->is_active ? 'Aktif' : 'Nonaktif' }}</span>
                     </div>
-                    <form class="adm-stack" style="margin-top:10px" method="post" action="{{ route('admin.catalog.packages.update', $package) }}">
+                    <form class="adm-stack adm-mt-3" method="post" action="{{ route('admin.catalog.packages.update', $package) }}">
                         @csrf
                         @method('PUT')
                         <div class="adm-field-grid">
@@ -238,7 +227,7 @@
                         </div>
                         <div><button class="btn secondary adm-btn--sm" type="submit">Simpan paket</button></div>
                     </form>
-                    <form method="post" action="{{ route('admin.catalog.packages.toggle', $package) }}" style="margin-top:6px">
+                    <form class="adm-mt-6" method="post" action="{{ route('admin.catalog.packages.toggle', $package) }}">
                         @csrf
                         @method('PATCH')
                         <button type="submit" class="btn secondary adm-btn--sm">{{ $package->is_active ? 'Nonaktifkan paket' : 'Aktifkan paket' }}</button>
@@ -246,7 +235,7 @@
                 </div>
             @endforeach
 
-            <form class="adm-stack" style="margin-top:14px" method="post" action="{{ route('admin.catalog.packages.store', $product) }}">
+            <form class="adm-stack adm-mt-4" method="post" action="{{ route('admin.catalog.packages.store', $product) }}">
                 @csrf
                 <div class="adm-field-grid">
                     <div class="adm-field">

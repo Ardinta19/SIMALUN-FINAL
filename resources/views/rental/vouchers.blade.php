@@ -119,7 +119,7 @@
     </form>
 </section>
 
-<div class="adm-row" style="justify-content:space-between;margin:26px 0 12px" data-adm-reveal="list-title">
+<div class="adm-row adm-row--between adm-head-row" data-adm-reveal="list-title">
     <h2>Daftar voucher</h2>
     <span class="adm-chip">{{ $vouchers->count() }} voucher</span>
 </div>
@@ -131,15 +131,15 @@
         $quotaPercent = $quotaLimit ? min(100, (int) round($quotaUsed / max(1, $quotaLimit) * 100)) : 0;
     @endphp
     <article class="adm-card adm-card--hover" data-adm-reveal="vouchers">
-        <div class="adm-row" style="justify-content:space-between;align-items:flex-start;gap:12px">
-            <div style="min-width:0">
-                <div class="adm-row" style="gap:8px">
+        <div class="adm-row adm-row--between adm-row--top">
+            <div class="adm-min0">
+                <div class="adm-row adm-row--tight">
                     <h3 class="adm-title--code">{{ $voucher->code }}</h3>
                     <span class="adm-badge {{ $voucher->is_active ? 'adm-badge--confirmed' : 'adm-badge--cancelled' }}">
                         {{ $voucher->is_active ? 'Aktif' : 'Nonaktif' }}
                     </span>
                 </div>
-                <p class="muted" style="margin:4px 0 0">{{ $voucher->description }}</p>
+                <p class="muted adm-meta">{{ $voucher->description }}</p>
             </div>
             <form method="post" action="{{ route('admin.rental.vouchers.toggle', $voucher) }}">
                 @csrf
@@ -148,25 +148,25 @@
             </form>
         </div>
 
-        <div class="adm-grid adm-grid--3" style="margin-top:12px">
+        <div class="adm-grid adm-grid--3 adm-mt-3">
             <div>
                 <span class="adm-help">Potongan</span>
-                <p style="margin:2px 0 0;font-weight:800">{{ $voucher->display_value }}</p>
-                <p class="muted" style="margin:0">{{ $voucher->scopeLabel() }}</p>
+                <p class="adm-note-line adm-strong">{{ $voucher->display_value }}</p>
+                <p class="muted adm-flat">{{ $voucher->scopeLabel() }}</p>
             </div>
             <div>
                 <span class="adm-help">Minimum belanja</span>
-                <p style="margin:2px 0 0;font-weight:700">{{ (int) $voucher->min_order > 0 ? 'Rp '.number_format((int) $voucher->min_order, 0, ',', '.') : 'tanpa minimum' }}</p>
-                <p class="muted" style="margin:0">Per pelanggan: {{ $voucher->per_customer_limit === null ? 'tanpa batas' : (int) $voucher->per_customer_limit.' kali' }}</p>
+                <p class="adm-note-line adm-strong">{{ (int) $voucher->min_order > 0 ? 'Rp '.number_format((int) $voucher->min_order, 0, ',', '.') : 'tanpa minimum' }}</p>
+                <p class="muted adm-flat">Per pelanggan: {{ $voucher->per_customer_limit === null ? 'tanpa batas' : (int) $voucher->per_customer_limit.' kali' }}</p>
             </div>
             <div>
                 <span class="adm-help">Masa berlaku</span>
-                <p style="margin:2px 0 0;font-weight:700">{{ $voucher->valid_from?->format('d/m/Y') ?? 'sekarang' }} – {{ $voucher->valid_until?->format('d/m/Y') ?? 'tanpa batas' }}</p>
-                <p class="muted" style="margin:0">Dipakai pada {{ (int) $voucher->rental_usages_count }} pesanan sewa</p>
+                <p class="adm-note-line adm-strong">{{ $voucher->valid_from?->format('d/m/Y') ?? 'sekarang' }} – {{ $voucher->valid_until?->format('d/m/Y') ?? 'tanpa batas' }}</p>
+                <p class="muted adm-flat">Dipakai pada {{ (int) $voucher->rental_usages_count }} pesanan sewa</p>
             </div>
         </div>
 
-        <div class="adm-bar" style="margin-top:12px">
+        <div class="adm-bar adm-mt-3">
             <div class="adm-bar__meta">
                 <span>Kuota: {{ $quotaLimit === null ? 'tanpa batas' : $quotaUsed.' dari '.$quotaLimit.' terpakai' }}</span>
                 @if($quotaLimit)<span>{{ $quotaPercent }}%</span>@endif

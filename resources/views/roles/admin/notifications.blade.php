@@ -24,7 +24,7 @@
     </div>
 </div>
 
-<section class="adm-card" data-adm-reveal="queue" aria-labelledby="notif-queue-title" style="margin-bottom:var(--adm-gap)">
+<section class="adm-card adm-mb-gap" data-adm-reveal="queue" aria-labelledby="notif-queue-title">
     <div class="adm-card__head">
         <h2 id="notif-queue-title" class="adm-row">
             @include('layouts.component._icon', ['name' => 'orders', 'size' => 20])
@@ -34,10 +34,10 @@
     </div>
 
     @forelse($notifikasiOperasional as $order)
-        <div class="adm-row adm-row--between" style="gap:12px;padding:12px 0;border-top:1px solid var(--adm-line)">
-            <div style="min-width:0">
-                <strong style="display:block;overflow-wrap:anywhere">{{ $order->product_name }} · {{ $order->order->reference }}</strong>
-                <p class="adm-help" style="margin:2px 0 8px">
+        <div class="adm-row adm-row--between adm-row--gap3 adm-divider-row">
+            <div class="adm-min0">
+                <strong class="adm-block adm-wrapany">{{ $order->product_name }} · {{ $order->order->reference }}</strong>
+                <p class="adm-help adm-tight">
                     {{ $order->order->customer?->name ?? 'Pelanggan tidak tersedia' }} ·
                     {{ $order->created_at->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB
                 </p>
@@ -49,7 +49,7 @@
         <div class="adm-empty">
             <span class="adm-empty__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'orders', 'size' => 24])</span>
             <p class="adm-empty__title">Belum ada aktivitas pesanan</p>
-            <p class="adm-help" style="margin:0">Pesanan baru akan muncul di sini begitu pelanggan mengirim checkout.</p>
+            <p class="adm-help adm-flat">Pesanan baru akan muncul di sini begitu pelanggan mengirim checkout.</p>
         </div>
     @endforelse
 </section>
@@ -70,7 +70,7 @@
             <span class="adm-notif__icon" aria-hidden="true">
                 @include('layouts.component._icon', ['name' => 'notifikasi', 'size' => 16])
             </span>
-            <span style="min-width:0">
+            <span class="adm-min0">
                 <span class="adm-notif__title">{{ $notif->data['title'] ?? 'Notifikasi' }}</span>
                 <span class="adm-notif__msg">{{ $notif->data['message'] ?? 'Tidak ada rincian.' }}</span>
             </span>
@@ -80,12 +80,12 @@
         <div class="adm-empty">
             <span class="adm-empty__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'notifikasi', 'size' => 24])</span>
             <p class="adm-empty__title">Belum ada notifikasi sistem</p>
-            <p class="adm-help" style="margin:0">Kabar pembayaran, pratinjau desain, dan perubahan pesanan akan tampil di sini.</p>
+            <p class="adm-help adm-flat">Kabar pembayaran, pratinjau desain, dan perubahan pesanan akan tampil di sini.</p>
         </div>
     @endforelse
 
     @if($notifications->hasPages())
-        <div class="adm-row" style="justify-content:center;margin-top:16px">
+        <div class="adm-row adm-row--center adm-mt-4">
             {{ $notifications->links('vendor.pagination.token-simple') }}
         </div>
     @endif

@@ -37,7 +37,7 @@
     </div>
 @endif
 
-<section class="adm-card" data-adm-reveal="identity" aria-labelledby="adm-identity-title" style="margin-bottom:var(--adm-gap)">
+<section class="adm-card adm-mb-gap" data-adm-reveal="identity" aria-labelledby="adm-identity-title">
     <div class="adm-card__head">
         <h2 id="adm-identity-title">Data identitas</h2>
         <span class="adm-chip">Berlaku di seluruh panel</span>
@@ -47,13 +47,13 @@
         @csrf
         @method('patch')
 
-        <div class="adm-row" style="gap:16px;align-items:flex-start">
-            <img data-adm-avatar-preview
+        <div class="adm-row adm-row--gap4 adm-row--top">
+            <img class="adm-avatar--lg" data-adm-avatar-preview
                  src="{{ $user->avatar ? asset('storage/'.$user->avatar) : asset('images/logo-104.png') }}"
                  alt="Foto profil {{ $user->name }}"
                  width="72" height="72"
-                 style="width:72px;height:72px;flex:none;border-radius:50%;object-fit:cover;border:1px solid var(--adm-line);background:var(--adm-surface-3)">
-            <div class="adm-field" style="flex:1 1 220px;min-width:0">
+                >
+            <div class="adm-field adm-grow">
                 <label for="avatar">Foto profil</label>
                 <input type="file" id="avatar" name="avatar" accept="image/jpeg,image/png,image/webp" data-adm-avatar aria-describedby="avatar-hint" @error('avatar') aria-invalid="true" @enderror>
                 <p class="adm-help" id="avatar-hint">JPG, PNG, atau WebP, maksimal 5 MB. Kosongkan bila tidak diganti. <span data-adm-avatar-name></span></p>

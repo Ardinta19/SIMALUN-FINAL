@@ -52,14 +52,14 @@
     <div class="adm-row">
         <button class="btn" type="submit">Tampilkan</button>
         <a class="btn secondary" href="{{ route('admin.rental.schedule') }}">Atur ulang filter</a>
-        <span class="adm-row" style="margin-left:auto;gap:8px">
+        <span class="adm-row adm-push adm-row--tight">
             <a class="btn secondary adm-btn--sm" href="{{ route('admin.rental.schedule', array_merge($input, ['month' => $prevMonth])) }}">← Bulan sebelumnya</a>
             <a class="btn secondary adm-btn--sm" href="{{ route('admin.rental.schedule', array_merge($input, ['month' => $nextMonth])) }}">Bulan berikutnya →</a>
         </span>
     </div>
 </form>
 
-<div class="adm-row" style="justify-content:space-between;margin:6px 0 14px" data-adm-reveal="month">
+<div class="adm-row adm-row--between adm-month-row" data-adm-reveal="month">
     <h2>{{ $month->locale('id')->translatedFormat('F Y') }}</h2>
     <span class="adm-chip">{{ collect($days)->sum(fn ($day) => count($day['units'])) }} unit terjadwal</span>
 </div>
@@ -77,32 +77,32 @@
             </div>
 
             @forelse($day['units'] as $unit)
-                <div style="padding:10px 0;border-top:1px solid var(--adm-line)">
-                    <div class="adm-row" style="justify-content:space-between;gap:8px">
+                <div class="adm-divider-row">
+                    <div class="adm-row adm-row--between adm-row--tight">
                         <strong>{{ $unit->product_name }}</strong>
                         <span class="adm-badge {{ $unit->status === 'confirmed' ? 'adm-badge--confirmed' : 'adm-badge--pending' }}">
                             {{ $unit->status === 'confirmed' ? 'Dikonfirmasi · stok dicadangkan' : 'Menunggu · tanggal ditahan' }}
                         </span>
                     </div>
-                    <p class="muted" style="margin:4px 0 0">
+                    <p class="muted adm-meta">
                         {{ $unit->order->customer?->name ?? 'Pelanggan tidak tersedia' }} · {{ $unit->recipient_name }} · Acara {{ $unit->event_on->format('d/m/Y') }}
                     </p>
                     @if($unit->starts_on->toDateString() === $today)
-                        <p style="margin:4px 0 0">Penerimaan hari ini: {{ $unit->delivery_method === 'delivery' ? 'Diantar penjual · '.$unit->delivery_address : 'Diambil sendiri' }}</p>
+                        <p class="adm-meta">Penerimaan hari ini: {{ $unit->delivery_method === 'delivery' ? 'Diantar penjual · '.$unit->delivery_address : 'Diambil sendiri' }}</p>
                     @endif
                     @if($unit->event_on->toDateString() === $today)
-                        <p style="margin:4px 0 0">Acara hari ini</p>
+                        <p class="adm-meta">Acara hari ini</p>
                     @endif
                     @if($unit->ends_on->toDateString() === $today)
-                        <p style="margin:4px 0 0">Pengembalian hari ini: {{ $unit->return_method === 'collection' ? 'Diambil kembali penjual · '.$unit->return_address : 'Dikembalikan sendiri' }}</p>
+                        <p class="adm-meta">Pengembalian hari ini: {{ $unit->return_method === 'collection' ? 'Diambil kembali penjual · '.$unit->return_address : 'Dikembalikan sendiri' }}</p>
                     @endif
-                    <div class="adm-row" style="justify-content:space-between;margin-top:6px">
+                    <div class="adm-row adm-row--between adm-mt-6">
                         <span class="adm-chip">{{ \App\Support\RentalLabels::progress($unit->progress) }}</span>
                         <a href="{{ route('admin.rental.orders.show', $unit->order) }}">Buka pesanan</a>
                     </div>
                 </div>
             @empty
-                <p class="muted" style="margin:10px 0 0">Tidak ada unit terjadwal.</p>
+                <p class="muted adm-inline-note adm-inline-note--top">Tidak ada unit terjadwal.</p>
             @endforelse
         </section>
     @endforeach

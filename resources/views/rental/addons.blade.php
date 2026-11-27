@@ -11,7 +11,11 @@
         <p class="adm-page-sub">Pelengkap yang bisa dicentang pelanggan saat checkout — misalnya lilin, kartu ucapan, atau bunga ekstra.</p>
                 <details class="adm-page-note">
                     <summary>Selengkapnya</summary>
-                    <p>Daftar ini berlaku untuk semua papan. Pelanggan memilih jumlahnya per unit di halaman checkout, dan harga item masuk ke tagihan unit sehingga ikut DP, pelunasan, serta pengingat otomatis. Nama dan harga disalin ke pesanan saat checkout, jadi mengubah harga di sini tidak menulis ulang tagihan lama.</p>
+                    <p>Berlaku untuk semua papan; pelanggan memilih jumlahnya per unit di checkout.</p>
+                    <ul>
+                        <li>Harga item masuk ke tagihan unit, jadi ikut DP, pelunasan, dan pengingat otomatis.</li>
+                        <li>Nama dan harga disalin saat checkout — mengubah harga di sini tidak menulis ulang tagihan lama.</li>
+                    </ul>
                 </details>
     </div>
     <div class="adm-actions">
@@ -71,7 +75,7 @@
     </form>
 </section>
 
-<div class="adm-row" style="justify-content:space-between;margin:26px 0 12px" data-adm-reveal="list-title">
+<div class="adm-row adm-row--between adm-head-row" data-adm-reveal="list-title">
     <h2>Daftar item tambahan</h2>
     <span class="adm-chip">{{ $addons->count() }} item</span>
 </div>
@@ -79,15 +83,15 @@
 @forelse($addons as $addon)
     @php $addonUsed = in_array((int) $addon->id, array_map('intval', $usedIds), true); @endphp
     <article class="adm-card adm-card--hover" data-adm-reveal="addons">
-        <div class="adm-row" style="justify-content:space-between;align-items:flex-start;gap:12px">
-            <div class="adm-row" style="gap:12px;align-items:flex-start">
+        <div class="adm-row adm-row--between adm-row--top">
+            <div class="adm-row adm-row--gap3 adm-row--top">
                 @if($addon->image_path)
-                    <img src="{{ asset('storage/'.$addon->image_path) }}" alt="Foto {{ $addon->name }}" width="72" height="72" loading="lazy" decoding="async"
-                         style="width:72px;height:72px;object-fit:cover;border-radius:12px;border:1px solid var(--adm-line)">
+                    <img class="adm-thumb" src="{{ asset('storage/'.$addon->image_path) }}" alt="Foto {{ $addon->name }}" width="72" height="72" loading="lazy" decoding="async"
+                        >
                 @endif
                 <div>
                     <h3>{{ $addon->name }}</h3>
-                    <div class="adm-row" style="gap:6px;margin-top:6px;flex-wrap:wrap">
+                    <div class="adm-row adm-row--tight adm-mt-6 adm-row--wrap">
                         <span class="adm-badge {{ $addon->is_active ? 'adm-badge--confirmed' : 'adm-badge--cancelled' }}">
                             {{ $addon->is_active ? 'Aktif' : 'Nonaktif' }}
                         </span>
@@ -96,11 +100,11 @@
                         @if($addonUsed)<span class="adm-chip">Dipakai pesanan</span>@endif
                     </div>
                     @if($addon->description)
-                        <p class="muted" style="margin:8px 0 0">{{ $addon->description }}</p>
+                        <p class="muted adm-block-gap">{{ $addon->description }}</p>
                     @endif
                 </div>
             </div>
-            <div class="adm-row" style="gap:8px;flex-wrap:wrap">
+            <div class="adm-row adm-row--tight adm-row--wrap">
                 <form method="post" action="{{ route('admin.rental.addons.toggle', $addon) }}">
                     @csrf
                     @method('PATCH')
@@ -116,9 +120,9 @@
             </div>
         </div>
 
-        <details style="margin-top:10px">
+        <details class="adm-mt-3">
             <summary class="bk-disclosure">Ubah item</summary>
-            <form class="adm-stack" style="margin-top:12px" method="post" action="{{ route('admin.rental.addons.update', $addon) }}" enctype="multipart/form-data">
+            <form class="adm-stack adm-mt-3" method="post" action="{{ route('admin.rental.addons.update', $addon) }}" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="adm-field-grid">

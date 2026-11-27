@@ -44,17 +44,17 @@
     </form>
 </section>
 
-<div class="adm-row" style="justify-content:space-between;margin:26px 0 12px" data-adm-reveal="list-title">
+<div class="adm-row adm-row--between adm-head-row" data-adm-reveal="list-title">
     <h2>Daftar universitas</h2>
     <span class="adm-chip">{{ $universities->count() }} universitas</span>
 </div>
 
 @forelse($universities as $university)
     <article class="adm-card adm-card--hover" data-adm-reveal="unis">
-        <div class="adm-row" style="justify-content:space-between;align-items:flex-start;gap:12px">
+        <div class="adm-row adm-row--between adm-row--top">
             <div>
                 <h3>{{ $university->name }}</h3>
-                <div class="adm-row" style="gap:6px;margin-top:6px">
+                <div class="adm-row adm-row--tight adm-mt-6">
                     <span class="adm-badge {{ $university->is_active ? 'adm-badge--confirmed' : 'adm-badge--cancelled' }}">
                         {{ $university->is_active ? 'Aktif' : 'Nonaktif' }}
                     </span>
@@ -69,9 +69,9 @@
             </form>
         </div>
 
-        <details style="margin-top:10px">
+        <details class="adm-mt-3">
             <summary class="bk-disclosure">Ubah nama dan tarif</summary>
-            <form class="adm-stack" style="margin-top:12px" method="post" action="{{ route('admin.rental.universities.update', $university) }}">
+            <form class="adm-stack adm-mt-3" method="post" action="{{ route('admin.rental.universities.update', $university) }}">
                 @csrf
                 @method('PUT')
                 <div class="adm-field-grid">

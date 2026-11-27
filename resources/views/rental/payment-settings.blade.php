@@ -34,7 +34,7 @@
     Hanya unggah gambar QRIS dan tulis nomor WhatsApp usaha. Jangan pernah menyimpan PIN, kata sandi, atau kode rahasia di halaman ini.
 </div>
 
-<form class="adm-card adm-stack" style="margin-top:var(--adm-gap)" method="post" action="{{ route('admin.rental.payment-settings.update') }}" enctype="multipart/form-data" data-adm-reveal="form">
+<form class="adm-card adm-stack adm-mt-gap" method="post" action="{{ route('admin.rental.payment-settings.update') }}" enctype="multipart/form-data" data-adm-reveal="form">
     @csrf
     @method('PUT')
 
@@ -44,9 +44,9 @@
     </div>
 
     @if($hasQris)
-        <div class="adm-row" style="align-items:flex-start;gap:16px">
-            <img src="{{ route('rental.payment.qris') }}" alt="QRIS yang saat ini digunakan" loading="lazy" decoding="async" style="max-width:220px;width:100%;height:auto;border-radius:var(--adm-r-md);border:1px solid var(--adm-line);background:#fff;padding:8px" width="320" height="320">
-            <div class="adm-field" style="max-width:320px">
+        <div class="adm-row adm-row--top adm-row--gap4">
+            <img class="adm-qr" src="{{ route('rental.payment.qris') }}" alt="QRIS yang saat ini digunakan" loading="lazy" decoding="async" width="320" height="320">
+            <div class="adm-field adm-narrow">
                 <label class="adm-switch">
                     <input type="checkbox" name="remove_qris" value="1">
                     <span class="adm-switch__track" aria-hidden="true"></span>
@@ -56,7 +56,7 @@
             </div>
         </div>
     @else
-        <p class="adm-note adm-note--warn" style="margin:0">QRIS belum diatur.</p>
+        <p class="adm-note adm-note--warn adm-flat">QRIS belum diatur.</p>
     @endif
 
     <div class="adm-field">

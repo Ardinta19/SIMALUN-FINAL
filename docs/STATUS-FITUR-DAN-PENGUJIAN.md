@@ -316,3 +316,26 @@ Tes: `tests/Feature/OrderedItemsTest.php` (6; dua di antaranya butuh basis data 
 
 Pemeriksaan manual: `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.154.
 
+### Babak T — panel admin tanpa gaya sebaris (`statis, belum diuji di Windows`)
+
+Jawaban atas pertanyaan pemilik usaha *"apakah kita perlu meng unslop halaman
+admin secara keseluruhan?"*: ya.
+
+1. **202 atribut `style` di 15 view admin** dihapus; gayanya pindah ke 57
+   kelas utilitas baru di akhir `public/css/berkah-admin.css` (jarak, susunan
+   baris, teks, garis, gambar).
+2. **Blok `<style>` di `catalog/admin.blade.php` dihapus**; `.admin-photo` kini di
+   berkas CSS admin.
+3. **Nama bertabrakan**: foto profil bulat memakai `.adm-avatar-img` supaya tidak
+   menimpa inisial `.adm-avatar` 36 px di sidebar/topbar.
+4. **Kelas hantu** `adm-narrow` didefinisikan; tiga paragraf panjang dipecah jadi
+   butir daftar.
+5. **Penjaga**: `tests/Feature/AdminSurfaceTest.php` (6 tes) — larangan `style`
+   statis, larangan `<style>` di view, judul multi-baris, kelas `adm-*` harus ada,
+   kelas kunci tidak boleh hilang, dan batas teks 12 px.
+
+Berkas: 15 view `layouts.admin`, `public/css/berkah-admin.css`,
+`resources/views/catalog/admin.blade.php`, `tests/Feature/AdminSurfaceTest.php`.
+
+Pemeriksaan manual: `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.155.
+

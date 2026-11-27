@@ -96,17 +96,17 @@
     </div>
 
     @forelse($logs as $log)
-        <article class="adm-timeline__item" style="gap:6px;padding:14px 0;border-bottom:1px solid var(--adm-line)">
-            <div class="adm-row adm-row--between" style="gap:8px">
+        <article class="adm-timeline__item adm-timeline-row">
+            <div class="adm-row adm-row--between adm-row--tight">
                 <span class="adm-badge adm-badge--info">{{ $log->action }}</span>
                 <time class="adm-timeline__time" datetime="{{ $log->created_at->toIso8601String() }}">{{ $log->created_at->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB</time>
             </div>
 
             @if($log->summary)
-                <p class="adm-timeline__note" style="margin:0;overflow-wrap:anywhere">{{ $log->summary }}</p>
+                <p class="adm-timeline__note adm-flat adm-wrapany">{{ $log->summary }}</p>
             @endif
 
-            <p class="adm-help" style="margin:0;overflow-wrap:anywhere">
+            <p class="adm-help adm-flat adm-wrapany">
                 <strong>Aktor:</strong> {{ $log->actor?->name ?? 'Sistem' }}
                 @if($log->ip)· <strong>IP:</strong> {{ $log->ip }}@endif
                 @if($log->auditable_type)· <strong>Target:</strong> {{ class_basename($log->auditable_type) }}#{{ $log->auditable_id }}@endif
@@ -118,7 +118,7 @@
                     $afterArr = is_array($log->after) ? $log->after : [];
                     $diffKeys = array_unique(array_merge(array_keys($beforeArr), array_keys($afterArr)));
                 @endphp
-                <div class="adm-stack" style="gap:4px;margin-top:4px">
+                <div class="adm-stack adm-stack--snug-top">
                     @foreach($diffKeys as $diffKey)
                         @php
                             $before = $beforeArr[$diffKey] ?? null;
@@ -127,13 +127,13 @@
                             if (is_array($after)) { $after = json_encode($after); }
                         @endphp
                         @continue($before === $after)
-                        <div class="adm-row" style="gap:6px;flex-wrap:wrap">
+                        <div class="adm-row adm-row--tight adm-row--wrap">
                             <span class="adm-chip">{{ $diffKey }}</span>
                             @if($before !== null)
-                                <span class="adm-chip" style="text-decoration:line-through;color:var(--adm-ink-3)">{{ Str::limit((string) $before, 60) }}</span>
-                                <span aria-hidden="true" style="color:var(--adm-ink-3)">→</span>
+                                <span class="adm-chip adm-strike">{{ Str::limit((string) $before, 60) }}</span>
+                                <span class="adm-ink-3" aria-hidden="true">→</span>
                             @endif
-                            <span class="adm-chip" style="font-weight:800">{{ $after !== null ? Str::limit((string) $after, 60) : '(dihapus)' }}</span>
+                            <span class="adm-chip adm-strong">{{ $after !== null ? Str::limit((string) $after, 60) : '(dihapus)' }}</span>
                         </div>
                     @endforeach
                 </div>
@@ -143,9 +143,9 @@
         <div class="adm-empty">
             <span class="adm-empty__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'audit', 'size' => 32])</span>
             <p class="adm-empty__title">Belum ada catatan audit yang cocok</p>
-            <p class="adm-help" style="margin:0">Coba ubah atau atur ulang filter di atas.</p>
+            <p class="adm-help adm-flat">Coba ubah atau atur ulang filter di atas.</p>
             @if(request()->hasAny(['actor_id', 'action', 'date_from', 'date_to']))
-                <a href="{{ route('admin.audit.index') }}" class="adm-btn adm-btn--ghost adm-btn--sm" style="margin-top:10px">
+                <a href="{{ route('admin.audit.index') }}" class="adm-btn adm-btn--ghost adm-btn--sm adm-mt-3">
                     @include('layouts.component._icon', ['name' => 'refresh', 'size' => 16])
                     Atur ulang filter
                 </a>
@@ -154,7 +154,7 @@
     @endforelse
 
     @if($logs->hasPages())
-        <div class="adm-row" style="justify-content:center;margin-top:16px">
+        <div class="adm-row adm-row--center adm-mt-4">
             {{ $logs->links('vendor.pagination.token-simple') }}
         </div>
     @endif

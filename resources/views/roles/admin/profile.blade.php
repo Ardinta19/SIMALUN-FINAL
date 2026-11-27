@@ -35,29 +35,29 @@
     </div>
 @endif
 
-<div class="adm-grid adm-grid--split" style="margin-bottom:var(--adm-gap)">
+<div class="adm-grid adm-grid--split adm-mb-gap">
     <section class="adm-card" data-adm-reveal="identity" aria-labelledby="adm-profile-name">
-        <div class="adm-row" style="gap:14px;align-items:center">
-            <img src="{{ $user->avatar ? asset('storage/'.$user->avatar) : asset('images/logo-104.png') }}"
+        <div class="adm-row adm-row--gap3">
+            <img class="adm-avatar-img" src="{{ $user->avatar ? asset('storage/'.$user->avatar) : asset('images/logo-104.png') }}"
                  alt="Foto profil {{ $user->name }}" width="64" height="64"
-                 style="width:64px;height:64px;flex:none;border-radius:50%;object-fit:cover;border:1px solid var(--adm-line);background:var(--adm-surface-3)">
-            <div style="min-width:0">
+                >
+            <div class="adm-min0">
                 <h2 id="adm-profile-name" class="adm-title--lg">{{ $user->name }}</h2>
-                <p class="adm-help" style="margin:2px 0 6px">Administrator · Berkah Kreatif</p>
+                <p class="adm-help adm-tight-sm">Administrator · Berkah Kreatif</p>
                 <span class="adm-badge adm-badge--live"><span class="adm-dot" aria-hidden="true"></span> Mode pengujian</span>
             </div>
         </div>
 
         <hr class="adm-divider">
 
-        <dl class="adm-stack" style="gap:10px;margin:0">
+        <dl class="adm-stack adm-stack--snug adm-flat">
             <div>
-                <dt class="adm-help" style="margin:0">Email</dt>
-                <dd style="margin:0;font-weight:700;overflow-wrap:anywhere">{{ $user->email }}</dd>
+                <dt class="adm-help adm-flat">Email</dt>
+                <dd class="adm-flat adm-strong adm-wrapany">{{ $user->email }}</dd>
             </div>
             <div>
-                <dt class="adm-help" style="margin:0">Nomor WhatsApp</dt>
-                <dd style="margin:0;font-weight:700">{{ $adminPhone !== '' ? $adminPhone : 'Belum diisi' }}</dd>
+                <dt class="adm-help adm-flat">Nomor WhatsApp</dt>
+                <dd class="adm-flat adm-strong">{{ $adminPhone !== '' ? $adminPhone : 'Belum diisi' }}</dd>
             </div>
         </dl>
 
@@ -88,7 +88,7 @@
             </a>
         </div>
 
-        <div class="adm-note adm-note--warn" style="margin:0">
+        <div class="adm-note adm-note--warn adm-flat">
             <span class="adm-note__title">Optimalkan operasi</span>
             Cek performa usaha dan kelola semua pesanan dari panel ini.
         </div>
@@ -116,18 +116,18 @@
 
     <div class="adm-grid adm-grid--auto">
         @foreach($admShortcuts as $shortcut)
-            <a class="adm-card adm-card--hover" href="{{ route($shortcut['route']) }}" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit">
+            <a class="adm-card adm-card--hover adm-shortcut" href="{{ route($shortcut['route']) }}">
                 <span class="adm-stat__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => $shortcut['icon'], 'size' => 20])</span>
-                <span style="min-width:0">
-                    <span style="display:block;font-weight:800">{{ $shortcut['label'] }}</span>
-                    <span class="adm-help" style="display:block;margin-top:2px">{{ $shortcut['sub'] }}</span>
+                <span class="adm-min0">
+                    <span class="adm-block adm-strong">{{ $shortcut['label'] }}</span>
+                    <span class="adm-help adm-block adm-note-line">{{ $shortcut['sub'] }}</span>
                 </span>
-                <span style="margin-left:auto;flex:none;color:var(--adm-ink-3)" aria-hidden="true">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>
+                <span class="adm-push-icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'next', 'size' => 16])</span>
             </a>
         @endforeach
     </div>
 
-    <p class="adm-help" style="margin:16px 0 0">Berkah Kreatif · Panel admin</p>
+    <p class="adm-help adm-mt-4">Berkah Kreatif · Panel admin</p>
 </section>
 @endsection
 

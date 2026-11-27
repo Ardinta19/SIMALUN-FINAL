@@ -58,7 +58,7 @@
     <div class="adm-row">
         <button class="btn" type="submit">Terapkan filter</button>
         <a class="btn secondary" href="{{ route('admin.rental.orders') }}">Atur ulang filter</a>
-        <span class="adm-help" style="margin-left:auto">{{ $orders->total() }} pesanan ditemukan</span>
+        <span class="adm-help adm-push">{{ $orders->total() }} pesanan ditemukan</span>
     </div>
     <p class="adm-help">Hasil memuat seluruh unit dalam pesanan yang memiliki setidaknya satu unit sesuai filter. Filter menunggu diurutkan berdasarkan batas konfirmasi terdekat.</p>
 </form>
@@ -72,13 +72,13 @@
         $needsAttention = $order->units->contains(fn ($unit) => $unit->status === 'pending' || $unit->payment_review_hold);
     @endphp
     <article class="adm-card adm-card--hover" data-adm-reveal="stores" aria-labelledby="adm-order-{{ $order->id }}">
-        <div class="adm-row" style="justify-content:space-between;align-items:flex-start;gap:14px">
-            <div style="min-width:0">
+        <div class="adm-row adm-row--between adm-row--top">
+            <div class="adm-min0">
                 <span class="adm-kicker">Pesanan</span>
                 <h2 id="adm-order-{{ $order->id }}">{{ $order->customer?->name ?? 'Pelanggan tidak tersedia' }}</h2>
-                <p class="muted" style="margin:2px 0 0">Referensi: <strong>{{ $order->reference }}</strong></p>
+                <p class="muted adm-note-line">Referensi: <strong>{{ $order->reference }}</strong></p>
             </div>
-            <div class="adm-row" style="gap:6px;justify-content:flex-end">
+            <div class="adm-row adm-row--end adm-row--tight">
                 <span class="adm-chip">{{ $unitCount }} unit</span>
                 @if($pending)<span class="adm-badge adm-badge--pending">{{ $pending }} menunggu</span>@endif
                 @if($confirmed)<span class="adm-badge adm-badge--confirmed">{{ $confirmed }} dikonfirmasi</span>@endif
@@ -87,8 +87,8 @@
             </div>
         </div>
 
-        <div class="adm-row" style="margin-top:10px;justify-content:space-between;align-items:center">
-            <p class="muted" style="margin:0">
+        <div class="adm-row adm-row--between adm-mt-3">
+            <p class="muted adm-flat">
                 Batas konfirmasi: {{ $order->confirmation_deadline->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB
             </p>
             <a class="btn secondary adm-btn--sm" href="{{ route('admin.rental.orders.show', $order) }}">Lihat detail pesanan</a>

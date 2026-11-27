@@ -6300,3 +6300,68 @@ berkas yang salah di kemudian hari.
    checkout tidak lagi lengket dan tidak memotong tombol.
 6. Tema gelap: kartu daftar item memakai permukaan gelap, angka harga memakai
    warna aksen.
+
+### 9.155 Panel admin tanpa `style` sebaris: semua gaya pindah ke `berkah-admin.css`
+
+Pertanyaan pemilik usaha: *"apakah kita perlu meng unslop halaman admin secara
+keseluruhan?"* Jawabnya ya, dan seluruh panel disapu — bukan hanya satu halaman.
+
+**Keadaan sebelum.** Lima belas view memakai `layouts.admin` membawa sekitar 160
+atribut `style="…"` (21× `margin:0`, 15× `margin-top:12px`, 8× `min-width:0`,
+8× `margin:4px 0 0`, sisanya puluhan variasi satu kali pakai), satu blok `<style>`
+di `catalog/admin.blade.php`, dan satu `<h2>` yang atributnya bersambung ke baris
+berikutnya sehingga lolos penjaga lama. Gaya yang tersebar begitu tidak ikut tema
+gelap, tidak bisa diseragamkan, dan membuat setiap halaman terasa dirakit tangan.
+
+**Yang dikerjakan.**
+
+1. **Lima puluh tujuh kelas utilitas baru** di akhir `public/css/berkah-admin.css`:
+   jarak (`.adm-mt-1..6`, `.adm-pt-3`, `.adm-pad-y`, `.adm-inline-note`), susunan
+   (`.adm-row--top/--between/--wrap/--tight/--gap3/--gap4/--center/--end`,
+   `.adm-stack--tight/--snug`), teks (`.adm-strong`, `.adm-flat`, `.adm-wrapany`,
+   `.adm-min0`, `.adm-meta`, `.adm-note-line`), garis (`.adm-divider-top`,
+   `.adm-divider-row`, `.adm-month-row`), dan gambar (`.adm-thumb`, `.adm-avatar-img`,
+   `.adm-avatar--lg`, `.adm-qr`, `.adm-preview-img`).
+2. **202 atribut `style` di 15 view** dihapus, kelasnya
+   digabung ke `class` yang sudah ada. Nilai jarak lepas diselaraskan ke tangga
+   `--adm-space-*`: **10 → 12 px** dan **14 → 16 px**; selain dua itu tidak ada
+   pergeseran tampilan.
+3. **Blok `<style>` + `@push('head')` di `catalog/admin.blade.php` dihapus**;
+   `.admin-photo` kini tinggal di `berkah-admin.css` bersama seluruh gaya admin.
+4. **Nama kelas yang bertabrakan diperbaiki**: `.adm-avatar` sudah dipakai inisial
+   36 px di sidebar/topbar, jadi foto profil bulat 64 px memakai
+   `.adm-avatar-img` — bukan menimpa kelas lama.
+5. **Nol atribut `style` tersisa**, kecuali satu yang memang harus dinamis:
+   `--bk-swatch` pada contoh warna varian (nilainya dari basis data).
+6. **Kelas hantu dibersihkan**: `adm-narrow` dipakai tapi tidak pernah
+   didefinisikan (kini `max-width: 320px` untuk kolom nomor WhatsApp).
+7. **Tiga paragraf panjang dipecah** menjadi kalimat pembuka + butir daftar
+   (`.adm-list`, `.adm-page-note ul`): halaman bantuan "Pengingat operasional",
+   keterangan item tambahan, dan bantuan varian di katalog.
+
+**Penjaga baru — `tests/Feature/AdminSurfaceTest.php` (6 tes).**
+
+| Tes | Yang ditahan |
+| --- | --- |
+| `test_view_admin_tidak_memakai_style_sebaris_kecuali_nilai_dinamis` | Setiap `style="…"` di view admin harus memuat `{{`/`{!!`; nilai tetap dilarang. |
+| `test_view_admin_tidak_menyimpan_blok_style` | Tidak ada `<style>` di view admin (komentar Blade disamarkan dulu). |
+| `test_judul_view_admin_tanpa_gaya_sebaris` | `<h1>`–`<h6>` multi-baris tanpa `style=` — menutup celah penjaga lama yang hanya membaca satu baris. |
+| `test_kelas_admin_yang_dipakai_view_benar_benar_ada` | Setiap kelas `adm-*` yang dipakai view punya aturan di `berkah-admin.css` (mencegah kelas hantu). |
+| `test_kelas_utilitas_hasil_penyapuan_tersedia` | Dua puluh dua kelas kunci tidak boleh hilang. |
+| `test_gaya_admin_tidak_memakai_ukuran_di_bawah_dua_belas_piksel` | Batas keterbacaan yang sama seperti `MotionAssetsTest`, kini juga untuk berkas admin. |
+
+Tes terakhir langsung menangkap satu kesalahan nyata: prefiks "Rp" pada
+`.adm-amount-hero__unit` semula ditulis `.5em` (≈8–17 px mengikuti induk),
+sekarang `clamp(13px, 1.6vw, 17px)`.
+
+**Cara memeriksa sendiri:**
+
+1. Buka lima belas halaman admin (katalog, item tambahan, pesanan, detail pesanan,
+   jadwal, voucher, universitas, buku kas, petunjuk pembayaran, peran & audit,
+   dasbor, notifikasi, profil, ubah profil, bantuan). Tampilan harus sama seperti
+   sebelumnya — hanya sumber gayanya yang berpindah.
+2. Tema gelap: kartu, lencana, dan garis pemisah tetap memakai permukaan gelap.
+3. Ponsel (≤ 520 px): kepala halaman, tabel bertumpuk, dan daftar angka tidak
+   meluber; tombol tetap 44 px.
+4. Ubah `--adm-space-3` di `berkah-admin.css` → semua jarak sejenis ikut berubah.
+   Itu tanda tidak ada lagi angka mati di view.

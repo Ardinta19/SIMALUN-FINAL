@@ -94,7 +94,7 @@
     </section>
 </div>
 
-<section class="adm-card" style="margin-top:var(--adm-gap)" data-adm-reveal="form">
+<section class="adm-card adm-mt-gap" data-adm-reveal="form">
     <div class="adm-card__head">
         <h2>Tambah catatan manual</h2>
         <span class="adm-chip">Bukan pembayaran sewa</span>
