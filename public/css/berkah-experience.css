@@ -726,3 +726,196 @@ body.bk-experience {
         scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 72px);
     }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Strip berjalan: alur pemesanan + kanal kontak
+   ──────────────────────────────────────────────────────────────────────────
+   `.bk-how` tetap dipakai agar warna langkah (termasuk tema gelap) dan
+   penguncian sumbu gulir di berkah-motion.css tidak perlu diubah. `.bk-ribbon`
+   hanya menambahkan tata letak mendatar yang bergerak.
+
+   Gerak: isi bergeser ke KANAN (dari -N% ke 0), berhenti saat disentuh,
+   diklik, atau difokuskan, lalu lanjut dua detik setelah interaksi terakhir
+   (lihat public/js/berkah-ribbon.js). Tanpa JavaScript, atau saat
+   prefers-reduced-motion / `?gerak=mati`, strip diam dan bisa digulir sendiri.
+   ══════════════════════════════════════════════════════════════════════════ */
+.bk-ribbon {
+    display: block;
+    overflow: hidden;
+    margin: 0 0 28px;
+    padding: 10px 0;
+    border-top: 1px solid #efe0da;
+    border-bottom: 1px solid #e9dad3;
+    /* Aturan ponsel lama memberi `.bk-how` mask sendiri; di sini mask-nya
+       dipindah ke viewport agar garis atas/bawah tidak ikut memudar. */
+    -webkit-mask-image: none;
+    mask-image: none;
+}
+
+.bk-ribbon__viewport {
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 20px, #000 calc(100% - 20px), transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 20px, #000 calc(100% - 20px), transparent);
+}
+
+.bk-ribbon__track {
+    display: flex;
+    align-items: center;
+    flex: none;
+    width: max-content;
+}
+
+/* Jarak antarsalinan ditaruh DI DALAM grup (padding-right), bukan sebagai
+   `gap` track. Kalau memakai gap, lebar yang ditempuh satu putaran bukan lagi
+   tepat satu salinan dan sambungannya melompat beberapa piksel setiap kali
+   animasi mengulang. */
+.bk-ribbon__group {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    flex: none;
+    padding-right: 26px;
+    width: max-content;
+}
+
+.bk-ribbon.is-running .bk-ribbon__track {
+    animation-name: bk-ribbon-run;
+    animation-duration: var(--bk-ribbon-duration, 26s);
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    will-change: transform;
+}
+
+.bk-ribbon.is-paused .bk-ribbon__track,
+.bk-ribbon.is-offscreen .bk-ribbon__track {
+    animation-play-state: paused;
+}
+
+@keyframes bk-ribbon-run {
+    from { transform: translate3d(var(--bk-ribbon-shift, -50%), 0, 0); }
+    to { transform: translate3d(0, 0, 0); }
+}
+
+/* Langkah: nomor, judul, keterangan. `.bk-how>div` dari aturan lama sudah
+   memberi flex + jarak; di sini hanya dipastikan tidak menyusut. */
+.bk-ribbon__step {
+    flex: none;
+    padding-right: 2px;
+}
+
+.bk-ribbon__sep {
+    flex: none;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #d9b3bd;
+}
+
+/* Kanal kontak: seluruh pil bisa diklik, bukan hanya teksnya. */
+.bk-ribbon__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    flex: none;
+    min-height: 44px;
+    padding: 6px 14px 6px 8px;
+    border: 1px solid #e7d5d1;
+    border-radius: 999px;
+    background: #fffaf7;
+    color: #5c2a3a;
+    text-decoration: none;
+    transition: border-color .2s ease, transform .2s ease, background-color .2s ease;
+}
+
+.bk-ribbon__link:hover {
+    border-color: #c98a9c;
+    background: #fff;
+    transform: translateY(-1px);
+}
+
+.bk-ribbon__link:active {
+    transform: translateY(0) scale(.985);
+}
+
+.bk-ribbon__icon {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f6e3e7;
+    color: #85092d;
+    flex: none;
+}
+
+.bk-ribbon__icon svg {
+    width: 17px;
+    height: 17px;
+}
+
+.bk-ribbon__text {
+    display: grid;
+    gap: 1px;
+    line-height: 1.25;
+}
+
+.bk-ribbon__text strong {
+    font-size: var(--bk-fs-xs);
+    font-weight: 800;
+    color: #4b1f2d;
+}
+
+.bk-ribbon__text small {
+    font-size: var(--bk-fs-2xs);
+    color: #705a5c;
+}
+
+.bk-ribbon__link:focus-visible {
+    outline: 3px solid #bc5b75;
+    outline-offset: 3px;
+}
+
+@media (max-width: 700px) {
+    .bk-ribbon {
+        padding: 8px 0;
+    }
+
+    .bk-ribbon__group {
+        gap: 18px;
+        padding-right: 18px;
+    }
+
+    .bk-ribbon__link {
+        padding: 5px 12px 5px 6px;
+    }
+
+    .bk-ribbon__icon {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+/* Tanpa JavaScript (atau saat gerak dimatikan): isi tetap utuh, hanya diam
+   dan bisa digeser sendiri — persis seperti strip langkah sebelumnya. */
+.bk-ribbon.is-static .bk-ribbon__viewport,
+.bk-ribbon:not(.is-running) .bk-ribbon__viewport {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.bk-ribbon.is-static .bk-ribbon__viewport::-webkit-scrollbar,
+.bk-ribbon:not(.is-running) .bk-ribbon__viewport::-webkit-scrollbar {
+    display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bk-ribbon.is-running .bk-ribbon__track {
+        animation: none;
+    }
+
+    .bk-ribbon__link {
+        transition: none;
+    }
+}

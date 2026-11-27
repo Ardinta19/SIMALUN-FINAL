@@ -201,3 +201,14 @@ Tambahkan `<span class="bk-theme-host" data-bk-theme-host></span>` di dalam head
 - `tests/Feature/UiKitTest.php` — aset & partial, semua halaman memuat tema/UI kit, cakupan permukaan terang, kontrak form, dan larangan menonaktifkan tombol submit.
 - `tests/Feature/ResponsiveLayoutTest.php` — lint `dvh` tanpa fallback juga mencakup CSS baru.
 - Harness jsdom `ui-kit.cjs` — penempatan tombol, dialog, persistensi tema, sakelar + reduced motion, status "Menambahkan…", dan hati tanpa mengubah `liked`.
+
+### Konten yang bergerak (strip berjalan)
+
+Strip berjalan hanya dipakai di beranda katalog (`.bk-ribbon`): lima langkah pemesanan dan tiga kanal kontak. Bila nanti ada baris berjalan lain, ikuti kontrak yang sama:
+
+1. **Jangan menggandakan isi di Blade.** Salinan dibuat JavaScript (`public/js/berkah-ribbon.js`) supaya pembaca layar tidak mendengar isi yang sama dua kali; salinan wajib `aria-hidden="true"` dan tautannya `tabindex="-1"`.
+2. **Jeda & lanjut.** Berhenti pada `pointerenter`, `pointerdown`, `pointerup` (sentuhan), `click`, dan `focusin`; lanjut `RESUME_DELAY = 2000` setelah interaksi terakhir. Tanpa jeda saat fokus, tautan yang bergerak nyaris tidak bisa diklik papan ketik.
+3. **Hormati pilihan gerak.** `prefers-reduced-motion` dan `?gerak=mati` (`localStorage['bk-motion']='off'`) → tidak ada animasi, isi tetap terbaca dan bisa digulir. Tanpa JavaScript pun harus sama (`.bk-ribbon:not(.is-running)` memberi `overflow-x: auto`).
+4. **Sambungan mulus tanpa lompatan.** Jumlah salinan genap, dan jarak antarsalinan ditaruh sebagai `padding-right` di dalam grup — bukan `gap` pada track. Dengan `gap`, satu putaran tidak selebar satu salinan sehingga animasi melompat beberapa piksel setiap kali mengulang.
+5. **Hemat tenaga.** Hentikan animasi saat tab tidak aktif atau strip di luar layar (`IntersectionObserver`).
+6. **Warna ikut tema.** Pil kontak punya pasangan `html[data-theme="dark"]` di `berkah-theme.css`; jangan menaruh `<style>` atau `style="…"` di view.

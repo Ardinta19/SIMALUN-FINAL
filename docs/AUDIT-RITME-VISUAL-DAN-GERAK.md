@@ -5667,3 +5667,80 @@ punya `min-width: 0`, jadi keduanya berebut ruang sampai sumbing. Di bawah
 terlipat (`overflow-wrap: anywhere`), dan `align-items` menjadi `flex-start`
 agar keduanya tidak saling mendorong.
 
+### 9.145 Strip berjalan: alur pemesanan yang jujur + kontak dalam satu baris
+
+Permintaan pemilik usaha, dengan tangkapan layar strip langkah lama: *"untuk
+sosmed dan no whatsapp bisa kita letakin di sana ga sih? di link dengan tombol
+logo, dan nama dan bisa di click, dan baris itu kita buat running ke kanan,
+ketika di click saja dia berhenti, lalu 2 detik jika tidak di click lanjut
+running lagi"* — lalu, saat dikonfirmasi: *"bagaimana kita buat di ikut di dalam
+strip langkah, dan langkahnya kita buat lebih jelas dan sesuai alur pemesanan
+kita ga sih?"*
+
+**Isi lama tidak sesuai alur.** Tiga langkah lama berbunyi "Pilih papan →
+Tulis ceritamu → Pantau pesanan" dengan keterangan langkah ketiga "Tunggu
+konfirmasi admin". Itu menyesatkan: konfirmasi admin bukan langkah terakhir.
+Alur yang benar-benar berjalan (lihat `App\Support\RentalLabels`: `pending`,
+`transport_quote`, `payment_pending`, `design_pending`, `design_initial`,
+`review`, dan `PROGRESS` `waiting → production → ready → handed_over →
+returned` serta `docs/STATUS-FITUR-DAN-PENGUJIAN.md`) adalah lima langkah:
+
+1. **Pilih papan** — temukan bentuk yang cocok (keranjang belum menahan stok).
+2. **Atur tanggal & ucapan** — kirim sendiri atau diantar.
+3. **Admin konfirmasi** — jadwal dicek, ongkos disepakati (termasuk penawaran
+   ongkos antar-jemput pada `transport_quote`).
+4. **Bayar & setujui desain** — unggah bukti bayar, cek pratinjau.
+5. **Pantau sampai terpasang** — progres tampil di akun.
+
+**Satu baris, tiga kanal.** Di belakang kelima langkah — dipisah satu titik —
+muncul Instagram, TikTok, dan WhatsApp dengan lambang merek (SVG sebaris, tanpa
+berkas gambar baru dan tanpa CDN), nama kanal, dan keterangan kecil
+(`@berkahkreatif_`, `0895-1405-7305`). Seluruh pil bisa diklik, tinggi 44 px,
+dan setiap tautan keluar memakai `rel="noopener noreferrer"`. Tautan yang
+alamatnya belum diatur di `config/laundry.php` hilang sendiri, sama seperti
+footer.
+
+**Gerak.** `public/js/berkah-ribbon.js` menggandakan isi (bukan di Blade, agar
+pembaca layar tidak mendengar langkah yang sama dua kali) lalu menjalankan
+`@keyframes bk-ribbon-run` dari `translate3d(-100/N %,0,0)` ke `0` — isi
+bergeser **ke kanan**, sesuai permintaan. Jumlah salinan genap dan jarak
+antarsalinan diletakkan sebagai `padding-right` di dalam grup, bukan `gap`
+track; kalau memakai `gap`, satu putaran tidak lagi tepat selebar satu salinan
+dan sambungannya melompat beberapa piksel setiap kali animasi mengulang.
+Kecepatan 38 px/detik, durasi dihitung dari lebar isi (`max(12s, lebar/38)`).
+
+**Jeda.** Berhenti saat kursor masuk (`pointerenter`), saat jari menyentuh
+(`pointerdown`), saat tautan diklik, dan saat salah satu tautannya difokuskan
+papan ketik (`focusin`). Lanjut otomatis dua detik setelah interaksi terakhir
+(`pointerleave`, `pointerup` pada sentuhan, `focusout`) — `RESUME_DELAY = 2000`.
+Saat tab tidak aktif atau strip di luar layar (`IntersectionObserver`), animasi
+dihentikan supaya CPU tidak terbakar.
+
+**Pengaman.** `prefers-reduced-motion` atau `?gerak=mati`
+(`localStorage['bk-motion']='off'`) → tidak ada salinan, tidak ada animasi,
+strip menjadi deretan biasa yang bisa digulir sendiri; isi tetap terbaca.
+Tanpa JavaScript pun sama: CSS `.bk-ribbon:not(.is-running)` memberi
+`overflow-x: auto`. Salinan diberi `aria-hidden="true"` dan tautannya
+`tabindex="-1"`, jadi Tab tidak berhenti di tautan kembar dan fokus tidak
+hilang ke luar layar.
+
+**Yang sengaja tidak diubah.** Kelas `.bk-how` dipertahankan pada elemen luar
+supaya warna langkah di tema gelap (`berkah-theme.css` §7e), penguncian sumbu
+gulir (`berkah-motion.css`: `overscroll-behavior-y: auto`), dan penanda
+`data-lenis-prevent` yang sudah dipasang lewat `SCROLL_REGIONS` tetap berlaku
+tanpa disentuh. Footer tetap memuat tautan kontak yang sama dalam bentuk teks —
+halaman selain beranda katalog tidak punya strip ini.
+
+Dijaga `tests/Feature/ContactRibbonTest.php` (9 tes) dan diuji perilakunya di
+jsdom (`/tmp/wasm-php/ribbon-jsdom.cjs`): satu grup asli, salinan bertanda
+`aria-hidden`, 12 tautan salinan ber-`tabindex="-1"`, `is-paused` menyala saat
+`pointerenter`, dan hilang lagi 2,1 detik setelah `pointerleave`;
+`prefers-reduced-motion` menghasilkan `is-static` tanpa salinan.
+
+**Cara memeriksa sendiri:** buka beranda katalog. Kelima langkah dan tiga pil
+kontak bergerak pelan ke kanan. Arahkan kursor ke salah satunya — berhenti;
+pindahkan kursor — dua detik kemudian jalan lagi. Klik "WhatsApp" — tab baru
+terbuka, strip berhenti dulu, lalu lanjut. Tekan Tab sampai salah satu pil
+kontak — strip berhenti selama fokus di sana. Di ponsel: ketuk salah satu pil,
+dan strip diam dua detik setelahnya. Bila `?gerak=mati`, strip diam dan bisa
+digeser dengan jari.

@@ -128,6 +128,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 @if(!auth()->check() || auth()->user()->role === 'customer')
 <script src="{{ $asset('js/berkah-experience.js') }}" defer></script>
 @endif
+{{-- Strip berjalan (langkah pemesanan + kontak) hanya ada di beranda katalog;
+     skripnya kecil dan langsung berhenti bila elemennya tidak ditemukan. --}}
+<script src="{{ $asset('js/berkah-ribbon.js') }}" defer></script>
 @include('layouts.component._form_controls')
 @include('layouts.component._ui_kit')
 </body></html>

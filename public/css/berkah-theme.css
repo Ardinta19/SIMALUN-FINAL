@@ -1565,3 +1565,37 @@ html[data-theme="dark"] #bk-theme-switch .bk-theme-svg__knob-ring {
     }
 }
 
+
+/* Strip berjalan (katalog): pil kontak ikut tema, dan garis atas/bawah
+   memakai --theme-line seperti `.bk-how` sebelumnya. */
+html[data-theme="dark"] .bk-ribbon {
+    border-top-color: var(--theme-line);
+}
+
+html[data-theme="dark"] .bk-ribbon__link {
+    background: var(--theme-surface-2);
+    border-color: var(--theme-line);
+    color: var(--theme-ink-lt);
+}
+
+html[data-theme="dark"] .bk-ribbon__link:hover {
+    background: var(--theme-surface-3);
+    border-color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] .bk-ribbon__icon {
+    background: #3a2a33;
+    color: var(--theme-accent-text);
+}
+
+html[data-theme="dark"] .bk-ribbon__text strong {
+    color: var(--theme-ink-lt);
+}
+
+html[data-theme="dark"] .bk-ribbon__text small {
+    color: var(--theme-ink-mid);
+}
+
+html[data-theme="dark"] .bk-ribbon__sep {
+    background: var(--theme-line);
+}

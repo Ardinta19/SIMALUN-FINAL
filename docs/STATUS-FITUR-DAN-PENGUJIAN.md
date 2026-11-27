@@ -179,3 +179,23 @@ Pemeriksaan manual:
 2. Buka dasbor admin, kecilkan/lebarkan jendela beberapa kali, buka menu di ponsel lalu tekan Escape dan Tab — konsol harus bersih, drawer tertutup, fokus tetap di dalam drawer.
 3. Konsol tidak lagi memuat "was preloaded using link preload but not used".
 4. Keranjang berisi papan bertanggal kemarin: tombol `+` tampak mati, dan tidak ada formulir "tambah" di HTML-nya.
+
+### Babak L — strip berjalan: alur pemesanan + kontak (`statis, belum diuji di Windows`)
+
+Permintaan pemilik usaha: kontak (Instagram, TikTok, WhatsApp + nomor) dimasukkan ke strip langkah di beranda katalog, dengan lambang merek dan nama yang bisa diklik, baris berjalan ke kanan, berhenti saat disentuh/diklik, lalu lanjut dua detik kemudian. Sekaligus langkah pemesanan dibuat sesuai alur nyata.
+
+1. **Lima langkah yang benar.** "Pilih papan → Atur tanggal & ucapan → Admin konfirmasi → Bayar & setujui desain → Pantau sampai terpasang". Langkah lama ("Pantau pesanan / Tunggu konfirmasi admin") tidak menggambarkan alur: konfirmasi admin terjadi sebelum pembayaran, bukan sesudahnya. Detail: `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.145.
+2. **Tiga pil kontak** dengan lambang SVG sebaris dan keterangan `@berkahkreatif_` / `0895-1405-7305`; kanal yang belum diatur di `config/laundry.php` hilang sendiri.
+3. **Gerak & jeda.** `public/js/berkah-ribbon.js`: isi bergeser ke kanan 38 px/detik, berhenti saat kursor masuk, disentuh, diklik, atau difokuskan, lalu lanjut 2 detik setelah interaksi terakhir. Salinan isi `aria-hidden` + `tabindex="-1"`.
+4. **Pengaman.** `prefers-reduced-motion` dan `?gerak=mati` membuat strip diam namun tetap bisa digulir; tanpa JavaScript pun tetap terbaca.
+
+Berkas: `resources/views/catalog/_ribbon.blade.php` (baru), `public/js/berkah-ribbon.js` (baru), `public/css/berkah-experience.css` + `berkah-theme.css` (tambahan), `catalog/index.blade.php` + `catalog/layout.blade.php`.
+
+Tes penjaga baru: `tests/Feature/ContactRibbonTest.php` (9). Perkiraan jumlah tes: **±504 lulus**.
+
+Pemeriksaan manual di beranda katalog:
+
+1. Baris langkah + kontak bergerak ke kanan dengan mulus, tanpa lompatan saat animasi mengulang.
+2. Kursor di atas strip → berhenti; pindahkan → 2 detik kemudian lanjut.
+3. Tab sampai salah satu pil kontak → berhenti; Tab keluar → lanjut.
+4. Buka dengan `?gerak=mati` → strip diam dan bisa digeser; isi tetap terbaca.
