@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 /**
@@ -129,5 +130,25 @@ class RouteReferenceTest extends TestCase
 
         $this->assertTrue($dirujuk > 100, 'Rujukan view tidak terbaca dengan benar.');
         $this->assertSame([], array_values(array_unique($masalah)), implode(' | ', array_values(array_unique($masalah))));
+    }
+
+    /**
+     * Nama rute ganda membuat `route('nama')` diam-diam menunjuk ke rute yang
+     * terakhir didaftarkan. Selama alamatnya kebetulan sama, tidak ada gejala;
+     * begitu salah satunya pindah alamat, tautan di seluruh aplikasi berubah
+     * tanpa satu pun tes gagal.
+     */
+    public function test_tidak_ada_nama_rute_yang_ganda(): void
+    {
+        $ganda = collect(Route::getRoutes()->getRoutes())
+            ->map(fn ($rute) => $rute->getName())
+            ->filter()
+            ->countBy()
+            ->filter(fn ($jumlah) => $jumlah > 1)
+            ->keys()
+            ->values()
+            ->all();
+
+        $this->assertSame([], $ganda, 'Nama rute ganda: '.implode(', ', $ganda));
     }
 }

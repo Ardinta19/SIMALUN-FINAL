@@ -4459,3 +4459,51 @@ Sekalian diverifikasi: `app/Http/Controllers/Auth/ForgotPasswordController`
 tidak membocorkan keberadaan akun (selalu membalas `passwords.sent`),
 `ResetPasswordController` mengikuti token broker, dan `PasswordController`
 mewajibkan kata sandi saat ini.
+
+### 9.109 Endpoint apresiasi publik (`/apresiasi/{token}`)
+
+Tiga metode `RentalFeedbackController` ini diperiksa karena membawa data ke
+luar sesi pelanggan:
+
+- `share()` — hanya pemilik pesanan (`abort_unless($order->customer_id ===
+  $request->user()->id, 403)`), membuat token `Str::random(64)` sekali pakai
+  saat pertama diaktifkan, dan menghapus barisnya saat dinonaktifkan.
+  Tautan lama otomatis 404, jadi tidak ada token yang "hidup kembali".
+- `publicShare()` — token dibatasi pola `[A-Za-z0-9]{64}` di rute, tidak
+  ditemukan berarti 404 (tanpa membedakan "tidak ada" dan "sudah dicabut").
+  Respons hanya memuat jumlah suka dan status suka pengunjung; **tidak ada**
+  nama pelanggan, alamat, nominal, atau nomor pesanan. Header
+  `Cache-Control: private, no-store`, `Referrer-Policy: no-referrer`, dan
+  `X-Robots-Tag` mencegah halaman tersimpan di cache bersama atau bocor lewat
+  referer ketika tautannya dibuka dari WhatsApp.
+- `orderLike()` — wajib login (`role:customer`) dan dibatasi `throttle:30,1`;
+  tombol suka hanya muncul untuk pengunjung yang sudah masuk sebagai
+  pelanggan.
+
+Halaman `rental.public-like` memakai `noindex,nofollow`, `referrer`
+`no-referrer`, dan tag Open Graph/Twitter (judul "Apresiasi · Berkah
+Kreatif", deskripsi "Rincian pesanan tetap privat") supaya pratinjau tautan
+WhatsApp tidak tampil sebagai kotak kosong. Tidak ada perubahan kode pada
+putaran ini — semuanya sudah sesuai.
+
+Catatan yang sengaja tidak diubah: pengunjung yang belum masuk dan menekan
+"Masuk" dari halaman ini akan mendarat di dasbor setelah login, bukan
+kembali ke halaman apresiasi. Menambah parameter `redirect` akan
+membuka risiko *open redirect* demi kenyamanan yang kecil; tautan WhatsApp
+tetap bisa dibuka ulang.
+
+### 9.110 Penjaga nama rute ganda
+
+`php artisan route:list` tidak mengeluh soal nama rute yang dipakai dua kali:
+Laravel diam-diam memakai pendaftaran terakhir. Di `routes/web.php` ada tiga
+`->name('dashboard')`, tetapi dua di antaranya berada di grup dengan awalan
+`->name('customer.')` dan `->name('admin.')`, jadi nama lengkapnya tetap
+berbeda (`customer.dashboard`, `admin.dashboard`) dan alamatnya pun berbeda
+(`/customer/dashboard`, `/admin/dashboard`). Pemindaian seluruh
+`routes/*.php` dengan penelusuran awalan grup menemukan **nol** nama ganda.
+
+Supaya keadaan itu bertahan, `tests/Feature/RouteReferenceTest.php`
+mendapat tes baru `test_tidak_ada_nama_rute_yang_ganda()` yang membaca
+`Route::getRoutes()` dan menggagalkan uji bila ada nama yang muncul lebih
+dari sekali. Tes ini butuh aplikasi hidup, jadi dilewati di harness
+PHP-WASM dan berjalan pada `php artisan test`.
