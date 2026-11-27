@@ -3,8 +3,9 @@
 namespace App\Support;
 
 /**
- * Helper statis untuk akses data usaha laundry.
- * Semua data diambil dari config/laundry.php — single source of truth.
+ * Akses data usaha (nama, tagline, alamat, kontak, tautan WhatsApp).
+ * Semua nilai diambil dari `config/laundry.php` — satu sumber kebenaran,
+ * dipakai halaman publik, email, dan ringkasan pesanan.
  */
 class Laundry
 {
@@ -16,11 +17,6 @@ class Laundry
     public static function tagline(): string
     {
         return config('laundry.tagline', 'Papan bunga untuk setiap cerita');
-    }
-
-    public static function version(): string
-    {
-        return config('laundry.version', '2.4.0');
     }
 
     public static function address(): string
@@ -48,38 +44,5 @@ class Laundry
         return config('laundry.whatsapp', '');
     }
 
-    public static function waLink(string $message = ''): string
-    {
-        $number = static::whatsapp();
-        $url = "https://wa.me/{$number}";
-
-        if ($message) {
-            $url .= '?text='.urlencode($message);
-        }
-
-        return $url;
-    }
-
-    public static function hours(string $type = 'weekday'): string
-    {
-        return config("laundry.hours.{$type}", '08:00 - 21:00');
-    }
-
-    public static function social(string $platform): string
-    {
-        return config("laundry.social.{$platform}", '');
-    }
-
-    /**
-     * Data lengkap untuk struk/receipt.
-     */
-    public static function receiptHeader(): array
-    {
-        return [
-            'name' => static::name(),
-            'address' => static::address(),
-            'phone' => static::phoneDisplay(),
-            'maps' => static::googleMaps(),
-        ];
-    }
+    /** Tautan chat WhatsApp toko sudah disediakan WhatsApp::link(). */
 }

@@ -93,7 +93,12 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 <a class="bk-skip" href="#main-content">Langsung ke isi</a>
 <header class="hero"><div class="top"><a href="{{ route('welcome') }}"><img class="logo" src="{{ asset('images/logo-104.png') }}" width="104" height="57" alt="Logo Berkah Kreatif"></a><div><a class="brand" href="{{ route('welcome') }}">Berkah Kreatif</a><div class="tag">Papan bunga untuk momen istimewa</div></div><nav class="nav" aria-label="Navigasi utama"><a href="{{ route('welcome') }}">Katalog</a><a href="{{ route('cart.index') }}">Keranjang ({{ count(session('rental_cart', [])) }})</a>@auth @if(auth()->user()->role === 'admin')<a href="{{ route('admin.catalog.index') }}">Kelola katalog</a><a href="{{ route('admin.rental.orders') }}">Pesanan sewa</a><a href="{{ route('admin.rental.cashbook.index') }}">Buku kas</a>@elseif(auth()->user()->role === 'customer')<a href="{{ route('rental.orders.index') }}">Pesanan saya</a><a href="{{ route('customer.dashboard') }}">Dasbor</a>@else<a href="{{ route('dashboard') }}">Dasbor</a>@endif @else<a href="{{ route('login') }}">Masuk</a>@endauth</nav></div>@yield('hero')</header>
 @endif
-<main class="wrap" id="main-content" tabindex="-1">@if(session('success'))<div class="notice" role="status">{{ session('success') }}</div>@endif @if($errors->any())<div class="notice" role="alert"><strong>Mohon periksa kembali:</strong><ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif @yield('content')</main><footer>© {{ date('Y') }} Berkah Kreatif</footer>
+<main class="wrap" id="main-content" tabindex="-1">@if(session('success'))<div class="notice" role="status">{{ session('success') }}</div>@endif @if($errors->any())<div class="notice" role="alert"><strong>Mohon periksa kembali:</strong><ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif @yield('content')</main><footer>
+© {{ date('Y') }} {{ \App\Support\Laundry::name() }} · {{ \App\Support\Laundry::address() }}
+@php $bkMaps = \App\Support\Laundry::googleMaps(); $bkWa = \App\Support\WhatsApp::link(\App\Support\Laundry::whatsapp(), 'Halo, saya ingin bertanya soal sewa papan bunga.'); @endphp
+@if($bkMaps && $bkMaps !== '#') · <a href="{{ $bkMaps }}" target="_blank" rel="noopener">Lokasi di Google Maps</a>@endif
+@if($bkWa) · <a href="{{ $bkWa }}" target="_blank" rel="noopener">WhatsApp {{ \App\Support\Laundry::phoneDisplay() }}</a>@endif
+</footer>
 @auth
     @if(auth()->user()->role === 'customer')
         @php

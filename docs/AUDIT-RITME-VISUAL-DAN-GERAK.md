@@ -3924,3 +3924,162 @@ ikut ditutup di `robots.txt`. Dijaga `tests/Feature/RouteAliasTest.php`.
 
 **Hasil:** harness **183 lulus, 0 gagal, 224 dilewati**; `blade-scan.py`
 81 view / 0 / 0; `.tmp-verify.php` 26/0; `node --check` 11 berkas JS lolos.
+
+### 9.91 Nama isian yang belum punya nama Indonesia
+
+Pesan galat Laravel dibentuk dari dua bagian: aturan (`required`, `max:1000`,
+…) dan nama kolom. Nama kolom itu diambil dari daftar `attributes` di
+`lang/id/validation.php`; kalau tidak terdaftar, yang muncul ke layar adalah
+nama variabel mentah. Blok validasi di controller sebelumnya belum tercakup
+pemeriksaan apa pun, jadi ejekan seperti "ends on harus berformat Y-m-d"
+hanya menunggu waktu.
+
+Sepuluh kolom ternyata belum terdaftar:
+
+| Kolom | Muncul di | Kalimat yang akan dilihat pelanggan |
+| --- | --- | --- |
+| `ends_on` | `RentalCatalogController`, `RentalCartController` | "tanggal pengembalian harus berformat …" (sebelumnya "ends on …") |
+| `from`, `to` | `RentalOrderController` | "tanggal awal"/"tanggal akhir" |
+| `date` | `RentalCashBookController`, `RentalScheduleController` | "tanggal" |
+| `next` | `RentalCartController` | "langkah berikutnya" |
+| `base` | `RentalVoucherController` | "nilai belanja" |
+| `image` | katalog, item tambahan, desain | "foto" |
+| `role` | `user:create` | "peran akun" |
+| `confirmed` | centang persetujuan desain/pesanan | "persetujuan" |
+| `request_key` | bukti pembayaran (kunci idempotensi) | "kunci permintaan" |
+
+Sekaligus dibuang tiga sisa fitur lama yang sudah tidak dipakai lagi
+(`grep` = 0 pemakaian): pesan `custom.proof_image`, atribut
+`customer_address_id`, dan `status_note` — yang terakhir bahkan hanya
+tersisa sebagai nama kolom di `InputSanitizer::FIELDS` tanpa satu pun isian
+yang mengirimnya.
+
+Supaya tidak terulang, `tests/Feature/ValidationAttributeTest.php`
+membaca setiap blok `->validate([...])` dan `Validator::make(...)` di
+controller serta perintah artisan (kurung siku diimbangi, string dilewati),
+mengumpulkan 80+ nama kolom, lalu memastikan semuanya terdaftar. Tes yang
+sama gagal pada sepuluh kolom di atas sebelum diperbaiki — jadi daftarnya
+bukan tebakan.
+
+### 9.92 Alamat tersimpan tanpa batas atas, hilang diam-diam saat checkout
+
+Kolom alamat di checkout dibatasi `max:1000`
+(`RentalOrderController:74,76,499,500`), dan halaman checkout hanya
+menawarkan alamat tersimpan yang panjangnya ≤ 1000 karakter
+(`->filter(fn ($address) => mb_strlen($address->full_address) <= 1000)`,
+`RentalOrderController:40`). Masalahnya, tiga tempat yang menyimpan alamat
+tidak punya batas atas sama sekali: `CustomerAddressController::store`,
+`CustomerAddressController::update`, dan `ProfileController::savePrimaryAddress`
+semuanya berhenti di `'min:10'`.
+
+Akibatnya pelanggan bisa menyimpan alamat 1.400 karakter lewat halaman
+alamat, melihatnya tersimpan rapi di daftar, lalu tidak menemukannya di
+daftar pilihan saat checkout — tanpa pesan apa pun. Batas atas `max:1000`
+kini dipasang di ketiga validasi itu sehingga pesan galat muncul di tempat
+yang benar. `RegisterController` tidak perlu diubah karena kolom `address`
+di formulir pendaftaran sudah dibatasi `max:300`.
+
+Dijaga `tests/Feature/CustomerAddressLimitTest.php`: satu tes statis
+(kedua controller memakai aturan baru) dan satu tes perilaku (alamat
+1.380 karakter ditolak, tidak ada baris `customer_addresses` yang dibuat).
+
+### 9.93 Kaki halaman tanpa alamat outlet
+
+Footer katalog hanya berbunyi `© 2026 Berkah Kreatif` — nama toko ditulis
+mati di Blade, bukan dari `config/laundry.php`. Alamat outlet tidak pernah
+muncul di satu halaman publik pun; satu-satunya tempat alamat tampil adalah
+kaki email reset kata sandi. Padahal checkout menawarkan "Diambil di
+outlet" dan struk mencetak kalimat yang sama: pelanggan diberi tahu bahwa
+barang diambil di outlet, tanpa pernah diberi tahu di mana outletnya.
+
+Footer kini memuat nama dari `Laundry::name()`, alamat dari
+`Laundry::address()`, tautan **Lokasi di Google Maps** dari
+`Laundry::googleMaps()`, dan **WhatsApp** dari
+`WhatsApp::link(Laundry::whatsapp(), …)`. Nilai `LAUNDRY_GMAPS` sudah lama
+ada di `config/laundry.php:22` dan `.env.example`, tetapi tidak pernah
+dipakai di view — sekarang tautannya benar-benar bisa diklik, dan tetap
+disembunyikan bila pemilik mengosongkannya.
+
+Rapikan sekalian: `App\Support\Laundry` menyimpan lima pembungkus yang
+tidak pernah dipanggil satu view pun — `version()`, `hours()`, `social()`,
+`receiptHeader()`, dan `waLink()` (duplikat `WhatsApp::link()`). Semuanya
+dibuang bersama blok `version`, `hours`, dan `social` di
+`config/laundry.php`. Blok `social` memang mustahil diisi: kunci
+`LAUNDRY_IG`/`LAUNDRY_FB` tidak pernah ada di `.env.example`.
+
+Dijaga `tests/Feature/CatalogFooterTest.php`: satu tes statis (footer
+memakai data config, bukan nama tertulis mati) dan satu tes halaman yang
+memastikan alamat, "Lokasi di Google Maps", dan "WhatsApp" tampil di `/`.
+
+**Catatan keputusan:** nama merek "Berkah Kreatif" di judul halaman, meta
+Open Graph, dan teks sambutan tetap ditulis harfiah. Itu bagian dari naskah,
+bukan data operasional yang berubah; memindahkannya ke config hanya
+menambah lapisan tanpa mengubah apa pun bagi pemilik toko.
+
+### 9.94 Daftar proxy tepercaya yang tertulis di kode
+
+`bootstrap/app.php` memanggil `trustProxies(at: '*')`. Alasannya masuk
+akal — hosting menerminasi TLS di proxy mereka, dan tanpa mempercayai
+proxy, Laravel mengira koneksi masih HTTP (muncul "Mixed Content" atau
+redirect berulang saat HTTPS dipaksa). Tetapi `*` juga berarti siapa pun
+yang menghubungi server langsung boleh mengaku sebagai IP apa saja, dan IP
+itu dipakai untuk kunci pembatasan percobaan masuk (5 kali per email+IP,
+`LoginRequest::throttleKey()`) serta kolom `ip` pada catatan audit.
+
+Nilai itu sekarang bisa diatur tanpa menyentuh kode:
+`App\Support\TrustedProxies::parse()` membaca `TRUSTED_PROXIES`
+(dipisah koma, kosong jatuh ke `'*'`), dipakai lewat
+`config('app.trusted_proxies')` di `bootstrap/app.php`. Bawaannya sengaja
+**tetap** `'*'` supaya tidak ada perubahan perilaku pada pemasangan yang
+sudah jalan; pemilik yang servernya punya TLS sendiri cukup mengisi
+`TRUSTED_PROXIES=127.0.0.1,::1` (atau daftar IP proxy) dan IP palsu tidak
+lagi dipercaya. Konsekuensinya ditulis di docblock kelas, di komentar
+config, dan di `.env.example`.
+
+Dijaga `tests/Feature/TrustedProxyTest.php` (3 tes): penguraian daftar
+koma, nilai kosong/bawaan, serta pemeriksaan bahwa `bootstrap/app.php`
+tidak lagi menuliskan `trustProxies(at: '*')` langsung di kode.
+
+### 9.95 `last_used_at` yang tidak pernah diisi
+
+Daftar alamat pelanggan diurutkan dengan
+`orderByDesc('last_used_at')` (dua tempat: `index()` dan promosi alamat
+utama setelah `destroy()`). Kolom itu warisan modul lama: `grep` seluruh
+repo menunjukkan tidak ada satu baris pun yang **menulis** nilainya —
+hanya membaca, mengurutkan, dan mencantumkannya di `$fillable`/`$casts`.
+Artinya pengurutan "terakhir dipakai" tidak pernah berpengaruh, dan
+komentar di `destroy()` ("promote alamat lain (yang terbaru dipakai)")
+menjanjikan sesuatu yang tidak terjadi.
+
+Pengurutan diganti `updated_at` lalu `id` — kolom yang selalu terisi —
+sehingga alamat yang baru diperbarui memang naik ke atas. `last_used_at`
+dihapus dari `$fillable` dengan catatan; kolomnya sengaja **tidak**
+dihapus lewat migrasi supaya tidak ada operasi destruktif pada basis data
+yang sudah berjalan.
+
+### 9.96 Yang sudah diperiksa dan tidak perlu diubah (putaran 16)
+
+Diperiksa ulang dan dinyatakan benar; dicatat supaya tidak diaudit lagi:
+
+- **`RentalPaymentController::store`** — kunci baris unit (`lockForUpdate`),
+  penjagaan status unit termasuk jalur toleransi `eligibleForLatePayment`,
+  penolakan saat penawaran ongkos belum disetujui, penjagaan overdraft
+  memakai `allocatedNet()` (menghitung bukti yang masih `pending`), dan
+  berkas bukti dihapus kembali bila transaksi gagal. Tidak ada temuan.
+- **Struk (`rental/receipt.blade.php`)** — "Pembayaran terverifikasi
+  bersih" = pembayaran `verified` − seluruh refund. Refund tidak mungkin
+  melebihi pembayaran induknya (`RentalPaymentController::correct` menolak
+  nominal di bawah jumlah refund, baris 95), jadi angkanya tidak bisa
+  negatif. Bukti `pending` ditampilkan terpisah dan diberi label jelas.
+- **`ProfileController::savePrimaryAddress`** — `zone` dipaksa `'A'` memang
+  disengaja: zona sudah tidak dipakai untuk harga (biaya penanganan flat),
+  begitu pula di `CustomerAddressController`. Bukan bug.
+- **Format tanggal/waktu** — seluruh view memakai `d/m/Y` (31) dan
+  `d/m/Y H:i` (28); tidak ada campuran format Amerika.
+- **Biaya `fullyBookedDates()`** di halaman checkout — satu kueri per produk
+  di keranjang; jumlah produk berbeda jarang lebih dari tiga, jadi masih
+  wajar. Dicatat sebagai catatan performa, bukan temuan.
+
+**Hasil putaran 16:** harness **189 lulus, 0 gagal, 226 dilewati**
+(naik dari 183 karena 6 tes baru); `blade-scan.py` 81 view / 0 / 0;
+`.tmp-verify.php` 26/0; `php -l` pada 15 berkas yang diubah bersih.

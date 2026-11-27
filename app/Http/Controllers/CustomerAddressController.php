@@ -10,9 +10,13 @@ class CustomerAddressController extends Controller
 {
     public function index()
     {
+        // Kolom `last_used_at` warisan modul lama dan tidak pernah diisi lagi,
+        // jadi urutannya memakai waktu ubah terakhir: alamat yang baru
+        // diperbarui tetap muncul lebih dulu.
         $alamat = Auth::user()->customerAddresses()
             ->orderByDesc('is_primary')
-            ->orderByDesc('last_used_at')
+            ->orderByDesc('updated_at')
+            ->orderByDesc('id')
             ->get();
 
         return view('roles.customer.addresses.index', compact('alamat'));
@@ -29,7 +33,7 @@ class CustomerAddressController extends Controller
             'label' => ['required', 'string', 'max:80'],
             'recipient_name' => ['required', 'string', 'max:120'],
             'phone' => ['nullable', 'string', 'max:30'],
-            'full_address' => ['required', 'string', 'min:10'],
+            'full_address' => ['required', 'string', 'min:10', 'max:1000'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'distance_km' => ['nullable', 'numeric', 'min:0', 'max:50'],
@@ -75,7 +79,7 @@ class CustomerAddressController extends Controller
             'label' => ['required', 'string', 'max:80'],
             'recipient_name' => ['required', 'string', 'max:120'],
             'phone' => ['nullable', 'string', 'max:30'],
-            'full_address' => ['required', 'string', 'min:10'],
+            'full_address' => ['required', 'string', 'min:10', 'max:1000'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'distance_km' => ['nullable', 'numeric', 'min:0', 'max:50'],
@@ -110,7 +114,7 @@ class CustomerAddressController extends Controller
         // alamat utama setelah delete.
         if ($wasPrimary) {
             $next = Auth::user()->customerAddresses()
-                ->orderByDesc('last_used_at')
+                ->orderByDesc('updated_at')
                 ->orderByDesc('id')
                 ->first();
 

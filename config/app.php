@@ -123,4 +123,19 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Trusted Proxies
+    |--------------------------------------------------------------------------
+    |
+    | Proxy yang boleh mengirim header X-Forwarded-*. Bawaan "*" dipertahankan
+    | karena hosting menerminasi TLS di proxy (kalau tidak, HTTPS tidak
+    | terdeteksi). Kosongkan bukan pilihan: nilai kosong jatuh ke "*", jadi
+    | isi daftar IP bila server punya TLS sendiri. Lihat
+    | App\Support\TrustedProxies.
+    |
+    */
+
+    'trusted_proxies' => \App\Support\TrustedProxies::parse(env('TRUSTED_PROXIES')),
+
 ];

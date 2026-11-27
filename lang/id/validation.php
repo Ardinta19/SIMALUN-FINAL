@@ -183,7 +183,6 @@ return [
         'address_note' => 'patokan alamat',
         'zone' => 'zona pengiriman',
         'notes' => 'catatan',
-        'customer_address_id' => 'alamat tersimpan',
         'status' => 'status pesanan',
 
         // Customer Address
@@ -204,11 +203,19 @@ return [
         'reference_images' => 'foto referensi',
         'reference_images.*' => 'foto referensi',
 
+        // Filter tanggal (buku kas, jadwal) & navigasi keranjang/voucher
+        'date' => 'tanggal',
+        'from' => 'tanggal awal',
+        'to' => 'tanggal akhir',
+        'next' => 'langkah berikutnya',
+        'base' => 'nilai belanja',
+
         // Checkout sewa (kunci bertingkat: `units.*.<field>`)
         'units' => 'daftar unit',
         'units.*' => 'unit pesanan',
         'units.*.package_id' => 'paket',
         'starts_on' => 'tanggal mulai acara',
+        'ends_on' => 'tanggal pengembalian',
         'units.*.starts_on' => 'tanggal acara',
         'units.*.event_on' => 'tanggal acara',
         'units.*.ends_on' => 'tanggal pengembalian',
@@ -228,6 +235,10 @@ return [
         // ("kolom gender wajib diisi", "kolom proof wajib diisi").
         'gender' => 'jenis kelamin',
         'avatar' => 'foto profil',
+        'image' => 'foto',
+        'role' => 'peran akun',
+        'confirmed' => 'persetujuan',
+        'request_key' => 'kunci permintaan',
         'proof' => 'bukti pembayaran',
         'greeting' => 'ucapan',
         'design_notes' => 'catatan desain',
@@ -319,11 +330,6 @@ return [
         'current_password' => [
             'required' => 'Kata sandi saat ini wajib diisi.',
             'current_password' => 'Kata sandi saat ini salah.',
-        ],
-        'proof_image' => [
-            'required' => 'Foto bukti pengiriman wajib diupload.',
-            'image' => 'File harus berupa gambar.',
-            'max' => 'Ukuran foto maksimal 5 MB.',
         ],
         'full_address' => [
             'required' => 'Alamat lengkap wajib diisi.',

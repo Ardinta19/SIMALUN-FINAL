@@ -10,6 +10,10 @@ class CustomerAddress extends Model
 {
     use SoftDeletes;
 
+    /**
+     * `last_used_at` sengaja tidak fillable: kolom warisan modul lama yang
+     * tidak pernah diisi, sehingga urutan daftar alamat memakai `updated_at`.
+     */
     protected $fillable = [
         'customer_id',
         'label',
@@ -21,7 +25,6 @@ class CustomerAddress extends Model
         'distance_km',
         'zone',
         'is_primary',
-        'last_used_at',
         'notes',
     ];
 

@@ -154,7 +154,7 @@ class ProfileController extends Controller
             'label' => ['required', 'string', 'max:80'],
             'recipient_name' => ['required', 'string', 'max:120'],
             'phone' => ['nullable', 'string', 'max:30'],
-            'full_address' => ['required', 'string', 'min:10'],
+            'full_address' => ['required', 'string', 'min:10', 'max:1000'],
             'distance_km' => ['nullable', 'numeric', 'min:0', 'max:50'],
             'notes' => ['nullable', 'string', 'max:300'],
         ]);

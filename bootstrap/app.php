@@ -31,7 +31,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // load balancer hosting (mis. Hostinger). Tanpa ini, Laravel
         // bisa salah deteksi HTTP vs HTTPS di belakang proxy → memicu
         // "Mixed Content" atau redirect loop saat HTTPS dipaksa.
-        $middleware->trustProxies(at: '*');
+        // Daftar proxy bisa diatur lewat TRUSTED_PROXIES (bawaan "*" seperti
+        // sebelumnya); lihat App\Support\TrustedProxies untuk konsekuensinya.
+        $middleware->trustProxies(at: config('app.trusted_proxies'));
     })
         //
     ->withExceptions(function (Exceptions $exceptions): void {

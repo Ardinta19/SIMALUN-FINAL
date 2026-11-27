@@ -30,7 +30,6 @@ class InputSanitizer
         'recipient_name',
         'customer_name',
         'name',
-        'status_note',
     ];
 
     public static function clean(string $value): string
