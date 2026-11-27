@@ -4300,3 +4300,45 @@ aset mati tidak menumpuk lagi.
 
 **Hasil putaran 17:** harness **197 lulus, 0 gagal, 228 dilewati**;
 `blade-scan.py` 82 view / 0 / 0; `.tmp-verify.php` 26/0.
+
+### 9.104 Factory pengguna yang diam-diam membuat pelanggan
+
+`User::$fillable` sengaja tidak memuat `role`, `is_active`, dan
+`email_verified_at` (anti privilege escalation). Keputusan itu benar untuk
+jalur aplikasi, tetapi berbenturan dengan cara factory Laravel bekerja:
+
+1. `Factory::create(['role' => 'admin'])` → `Factory::newModel($attributes)`
+   → `new User($attributes)`;
+2. konstruktor memanggil `fill()`, dan `fillableFromArray()` hanya
+   mempertahankan kunci yang ada di `$fillable`;
+3. `role` dibuang **tanpa pesan** (tidak ada `MassAssignmentException`
+   karena `$fillable` tidak kosong), lalu kolomnya terisi nilai bawaan
+   basis data: `customer`.
+
+Akibatnya 91 pemakaian `User::factory()->create(['role' => 'admin'])` di
+direktori `tests/` — termasuk helper `AdminPagesRenderTest::admin()` —
+menghasilkan akun pelanggan. Tes yang berniat memeriksa halaman panel
+berjalan dengan akun yang ditolak middleware `role:admin`, sehingga
+hasilnya bergantung pada asersi: 403 yang seharusnya gagal, atau lolos
+karena tidak ada yang memeriksa peran. `is_active => false` dan
+`email_verified_at => null` pun ikut diabaikan, sehingga tes status akun
+nonaktif dan tes email belum terverifikasi tidak menguji apa pun.
+
+`UserFactory::newModel()` kini menerapkan ketiga kolom itu dengan
+`forceFill` sebelum `fill()` untuk kolom biasa, plus dua state ringkas
+`->admin()` dan `->customer()`. Factory adalah kode tes, bukan jalur masuk
+pengguna; penjagaan anti privilege escalation untuk aplikasi tetap utuh
+dan diuji terpisah: `User::create(['role' => 'admin'])` tetap menghasilkan
+pelanggan.
+
+Dijaga `tests/Feature/UserFactoryTest.php` (3 tes): peran yang diminta
+benar-benar tersimpan (termasuk lewat state), `is_active`/`email_verified_at`
+dihormati, dan `User::create()` tetap menolak `role` dari mass assignment.
+
+> **Catatan menjalankan tes.** Perbaikan ini bisa "membangunkan" tes yang
+> sebelumnya berjalan sebagai pelanggan tanpa disadari. Bila ada tes admin
+> yang kini merah, itu bug nyata yang selama ini tersembunyi — bukan
+> kemunduran.
+
+**Hasil putaran 17 (lanjutan):** harness **197 lulus, 0 gagal, 231
+dilewati**; `blade-scan.py` 82 view / 0 / 0; `.tmp-verify.php` 26/0.

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Support\Laundry;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -16,6 +17,8 @@ use Tests\TestCase;
  */
 class CatalogFooterTest extends TestCase
 {
+    use RefreshDatabase;
+
     private function layout(): string
     {
         return (string) file_get_contents(resource_path('views/catalog/layout.blade.php'));

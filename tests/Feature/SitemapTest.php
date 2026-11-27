@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\RentalCategory;
 use App\Models\RentalProduct;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -17,6 +18,8 @@ use Tests\TestCase;
  */
 class SitemapTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_rute_dan_tampilan_peta_situs_ada(): void
     {
         $rute = (string) file_get_contents(base_path('routes/web.php'));
@@ -40,6 +43,7 @@ class SitemapTest extends TestCase
             'rental_category_id' => $kategori->id,
             'name' => 'Papan Ucapan Selamat',
             'base_price' => 350000,
+            'price_unit' => 'event',
             'stock' => 2,
             'is_active' => true,
         ]);
@@ -47,6 +51,7 @@ class SitemapTest extends TestCase
             'rental_category_id' => $kategori->id,
             'name' => 'Papan Arsip',
             'base_price' => 300000,
+            'price_unit' => 'event',
             'stock' => 1,
             'is_active' => false,
         ]);

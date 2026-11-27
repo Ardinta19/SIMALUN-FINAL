@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\CustomerAddress;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -18,6 +19,8 @@ use Tests\TestCase;
  */
 class CustomerAddressLimitTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_validasi_alamat_tersimpan_dibatasi_1000_karakter(): void
     {
         foreach ([

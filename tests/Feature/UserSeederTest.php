@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Database\Seeders\UserSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -16,6 +17,8 @@ use Tests\TestCase;
  */
 class UserSeederTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_seeder_menolak_berjalan_di_luar_local_dan_testing(): void
     {
         $berkas = (string) file_get_contents(base_path('database/seeders/UserSeeder.php'));
