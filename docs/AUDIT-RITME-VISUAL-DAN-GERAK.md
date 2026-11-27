@@ -5536,9 +5536,13 @@ keempat sebab yang dulu ditemukan:
   `touchInertiaMultiplier: 22` (hentakan tidak meluncur jauh).
 - **Kolom isian dan daerah bergulir sendiri memakai gulir asli.** Opsi
   `prevent` mengembalikan `true` untuk `[data-lenis-prevent]`, `input`,
-  `textarea`, `select`, `[contenteditable]`, `.fc-sheet`, `.bk-dialog`, dan
-  `.adm-sheet` — memilih teks di kolom isian, menggulir isi sheet, dan menggulir
-  tabel lebar tidak pernah tertahan.
+  `textarea`, `select`, `[contenteditable]`, `.fc-sheet`, `.bk-dialog`,
+  `.bk-theme-dialog`, `.adm-sheet`, `.adm-sidebar`, dan `.adm-drawer__body` —
+  memilih teks di kolom isian, menggulir isi sheet, dan menggulir tabel lebar
+  tidak pernah tertahan. Dua daerah gulir admin yang belum pernah terdaftar
+  (sidebar tetap dengan `overflow-y: auto` dan isi drawer HP) serta dialog tema
+  ikut dimasukkan ke `SCROLL_REGIONS`, jadi roda dan sentuhan di sana tetap
+  milik peramban.
 - **Halaman tidak bisa membeku.** Jaring pengaman `reviveIfStuck` (§9.55) tetap
   ada: sentuhan atau klik berikutnya menyalakan kembali Lenis bila ia tertinggal
   dalam keadaan berhenti padahal tidak ada kunci gulir.

@@ -97,8 +97,10 @@
        bertanda data-lenis-prevent, jadi tanda itu dipasang sekali di sini. */
     var SCROLL_REGIONS = [
         '.adm-sidebar', '.adm-drawer', '.adm-scroll-x', '.adm-sheet__body',
-        '.bk-dialog', '.bk-filter-sheet', '.fc-sheet', '.fc-list', '.fc-cal',
+        '.bk-dialog', '.bk-theme-dialog', '.bk-filter-sheet', '.fc-sheet', '.fc-list', '.fc-cal',
         '.bk-table-wrap', '.table-scroll',
+        /* Panel admin: sidebar tetap (overflow-y: auto) dan isi drawer HP. */
+        '.adm-sidebar', '.adm-drawer__body',
         /* Strip langkah dan deret chip kategori bergulir mendatar. Tanpa
            penanda ini, roda/trackpad Lenis menahan gulir mendatarnya. */
         '.bk-how', '.bk-category-strip', '.bk-jump div'
@@ -137,7 +139,7 @@
                 touchInertiaMultiplier: 22,
                 prevent: function (node) {
                     if (!node || !node.closest) return false;
-                    return !!node.closest('[data-lenis-prevent], input, textarea, select, [contenteditable="true"], .fc-sheet, .bk-dialog, .adm-sheet');
+                    return !!node.closest('[data-lenis-prevent], input, textarea, select, [contenteditable="true"], .fc-sheet, .bk-dialog, .bk-theme-dialog, .adm-sheet, .adm-sidebar, .adm-drawer__body');
                 },
                 autoRaf: false
             });

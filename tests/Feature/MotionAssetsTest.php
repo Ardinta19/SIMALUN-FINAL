@@ -144,6 +144,10 @@ class MotionAssetsTest extends TestCase
         $this->assertStringContainsString('[data-lenis-prevent], input, textarea, select', $js);
         $this->assertStringContainsString('.fc-sheet', $js);
 
+        // Sidebar admin dan drawer HP punya gulir sendiri.
+        $this->assertStringContainsString("'.adm-sidebar', '.adm-drawer__body'", $js);
+        $this->assertStringContainsString('.adm-sidebar, .adm-drawer__body', $js);
+
         // Gerak tetap dimatikan untuk pengguna yang memintanya.
         $this->assertStringContainsString('saveData', $js);
         $this->assertStringContainsString('prefers-reduced-motion', $js);
