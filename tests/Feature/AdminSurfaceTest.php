@@ -2,151 +2,177 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
 /**
- * Putaran 43 — permukaan panel admin.
+ * Menjaga "unslop" panel admin: seluruh jarak, warna, dan ukuran hidup di
+ * public/css/berkah-admin.css, bukan di atribut style sebaris atau blok
+ * <style> dalam view. Dengan begitu tema admin cukup diubah di satu tempat.
  *
- * Dua hal yang dijaga di sini:
- *
- * 1. Panel admin hanya memuat `berkah-admin.css` + `page-transitions.css`.
- *    Setiap kelas `bk-*`/`adm-*` yang dipakai view admin WAJIB punya aturan di
- *    salah satu berkas itu. Dulu empat kelas dipinjam dari kit pelanggan tanpa
- *    pernah dimuat, sehingga `<caption class="bk-sr-only">` justru terlihat
- *    sebagai teks di buku kas dan kotak warna varian tidak tampil.
- *
- * 2. Tindakan utama per unit tidak boleh kembali terkubur di lipatan bawah:
- *    panel "Langkah berikutnya" harus ada di puncak kartu unit, dan formulir
- *    memajukan pengerjaan hanya boleh muncul sekali di halaman itu.
+ * Pengecualian yang sah: nilai yang baru diketahui saat render (mis. warna
+ * varian dari database) tetap boleh lewat style sebaris karena tidak mungkin
+ * ditulis sebagai kelas tetap.
  */
 class AdminSurfaceTest extends TestCase
 {
-    /** View yang memakai `layouts.admin`, ditambah partial bersama yang ikut dirender. */
-    private function berkasAdmin(): array
+    /** @return array<string, string> nama berkas relatif => isi */
+    private function adminViews(): array
     {
-        $berkas = [
-            'layouts/admin.blade.php',
-            'catalog/product-fields.blade.php',
-            'rental/_ordered_items.blade.php',
-            'rental/admin-progress.blade.php',
-            'rental/admin-cancellation-history.blade.php',
-            'rental/admin-next-step.blade.php',
-            'rental/cashbook-fields.blade.php',
-        ];
+        return collect(File::allFiles(resource_path('views')))
+            ->filter(fn ($file) => str_ends_with($file->getFilename(), '.blade.php'))
+            ->mapWithKeys(function ($file) {
+                $path = str_replace('\\', '/', $file->getRelativePathname());
+                // Komentar Blade/HTML bisa menyebut `<style>` atau `style="…"`
+                // sebagai penjelasan; itu bukan kode yang dirender.
+                $body = preg_replace(
+                    ['/\{\{--.*?--\}\}/s', '/<!--.*?-->/s'],
+                    ' ',
+                    (string) file_get_contents($file->getPathname())
+                ) ?? '';
 
-        foreach (glob(resource_path('views/**/*.blade.php')) ?: [] as $jalur) {
-            $relatif = str_replace(resource_path('views').'/', '', str_replace('\\', '/', $jalur));
-            if (str_contains((string) file_get_contents($jalur), "@extends('layouts.admin')")) {
-                $berkas[] = $relatif;
+                return [$path => $body];
+            })
+            ->filter(fn (string $body) => str_contains($body, "layouts.admin"))
+            ->all();
+    }
+
+    private function adminCss(): string
+    {
+        return (string) file_get_contents(public_path('css/berkah-admin.css'));
+    }
+
+    public function test_view_admin_tidak_memakai_style_sebaris_kecuali_nilai_dinamis(): void
+    {
+        $views = $this->adminViews();
+        $this->assertNotEmpty($views, 'Tidak ada view yang memakai layouts.admin.');
+
+        $offenders = [];
+        foreach ($views as $path => $body) {
+            preg_match_all('/\sstyle="([^"]*)"/', $body, $matches);
+            foreach ($matches[1] as $value) {
+                // `{{ … }}` dan `{!! … !!}` berarti nilainya dinamis (warna,
+                // lebar bar) — itu memang tidak bisa jadi kelas tetap.
+                if (str_contains($value, '{{') || str_contains($value, '{!!')) {
+                    continue;
+                }
+                $offenders[] = $path . ' → style="' . trim($value) . '"';
             }
         }
 
-        foreach (glob(resource_path('views/layouts/component/admin/*.blade.php')) ?: [] as $jalur) {
-            $berkas[] = 'layouts/component/admin/'.basename($jalur);
-        }
-
-        return array_values(array_unique($berkas));
+        $this->assertSame([], array_values(array_unique($offenders)), 'Atribut style sebaris harus jadi kelas .adm-* di berkah-admin.css.');
     }
 
-    public function test_setiap_kelas_di_view_admin_punya_aturan_gaya(): void
+    public function test_view_admin_tidak_menyimpan_blok_style(): void
     {
-        $css = (string) file_get_contents(public_path('css/berkah-admin.css'))
-            .(string) file_get_contents(public_path('css/page-transitions.css'));
+        $offenders = [];
+        foreach ($this->adminViews() as $path => $body) {
+            if (preg_match('/<style[\s>]/i', $body)) {
+                $offenders[] = $path;
+            }
+        }
 
-        $dipakai = [];
-        foreach ($this->berkasAdmin() as $relatif) {
-            $jalur = resource_path('views/'.$relatif);
-            $this->assertFileExists($jalur, "View {$relatif} hilang.");
+        $this->assertSame([], $offenders, 'Gaya admin harus di public/css/berkah-admin.css, bukan di dalam view.');
+    }
 
-            preg_match_all('/class="([^"]*)"/', (string) file_get_contents($jalur), $cocok);
-            foreach ($cocok[1] as $daftar) {
-                foreach (preg_split('/\s+/', trim($daftar)) ?: [] as $kelas) {
-                    if (preg_match('/^(bk|adm|btn|card|notice|muted|stack|row|wrap)\b/', $kelas) === 1) {
-                        $dipakai[$kelas] = true;
+    public function test_judul_view_admin_tanpa_gaya_sebaris(): void
+    {
+        // Penjaga lama di UiDefaultsTest hanya membaca satu baris, sehingga
+        // <h2> yang atributnya bersambung ke baris berikutnya lolos.
+        $offenders = [];
+        foreach ($this->adminViews() as $path => $body) {
+            preg_match_all('/<h[1-6]\b[^>]*>/is', $body, $matches);
+            foreach ($matches[0] as $tag) {
+                if (preg_match('/\sstyle\s*=/i', $tag)) {
+                    $offenders[] = $path . ' → ' . preg_replace('/\s+/', ' ', $tag);
+                }
+            }
+        }
+
+        $this->assertSame([], $offenders, 'Judul admin memakai kelas, bukan style sebaris.');
+    }
+
+    public function test_kelas_admin_yang_dipakai_view_benar_benar_ada(): void
+    {
+        $css = $this->adminCss();
+        $missing = [];
+
+        foreach ($this->adminViews() as $path => $body) {
+            // Ekspresi Blade bisa berisi tanda kutip ganda, jadi disamarkan
+            // dulu supaya class="… {{ $x ? 'a' : 'b' }} …" tetap terbaca.
+            $masked = preg_replace('/\{\{.*?\}\}|\{!!.*?!!\}/s', ' ', $body);
+            preg_match_all('/\bclass="([^"]*)"/i', (string) $masked, $matches);
+
+            foreach ($matches[1] as $list) {
+                foreach (preg_split('/\s+/', $list) ?: [] as $class) {
+                    $class = trim($class);
+                    if ($class === '' || ! str_starts_with($class, 'adm-')) {
+                        continue;
+                    }
+                    if (! str_contains($css, '.' . $class)) {
+                        $missing[$class] = $path;
                     }
                 }
             }
         }
 
-        $tanpaGaya = [];
-        foreach (array_keys($dipakai) as $kelas) {
-            if (preg_match('/\.'.preg_quote($kelas, '/').'(?![-\w])/', $css) !== 1) {
-                $tanpaGaya[] = $kelas;
+        ksort($missing);
+        $this->assertSame([], $missing, 'Ada kelas .adm-* yang dipakai view tapi tidak punya aturan di berkah-admin.css.');
+    }
+
+    public function test_kelas_utilitas_hasil_penyapuan_tersedia(): void
+    {
+        $css = $this->adminCss();
+
+        // Kelas pengganti atribut style yang paling sering muncul; kalau salah
+        // satunya terhapus, tata letak panel admin ikut rusak tanpa galat.
+        foreach ([
+            '.adm-flat',
+            '.adm-min0',
+            '.adm-strong',
+            '.adm-wrapany',
+            '.adm-push',
+            '.adm-mt-3',
+            '.adm-mt-6',
+            '.adm-mt-gap',
+            '.adm-divider-top',
+            '.adm-divider-row',
+            '.adm-meta',
+            '.adm-block-gap',
+            '.adm-row--top',
+            '.adm-row--center',
+            '.adm-row--between',
+            '.adm-row--wrap',
+            '.adm-row--tight',
+            '.adm-list-indent',
+            '.adm-thumb',
+            '.adm-avatar-img',
+            '.adm-avatar--lg',
+            '.adm-preview-img',
+            '.admin-photo',
+            '.adm-amount-hero',
+            '.adm-amount-hero__unit',
+        ] as $selector) {
+            $this->assertStringContainsString($selector . ' ', $css . ' ', "Kelas {$selector} hilang dari berkah-admin.css.");
+        }
+    }
+
+    public function test_gaya_admin_tidak_memakai_ukuran_di_bawah_dua_belas_piksel(): void
+    {
+        $css = $this->adminCss();
+
+        preg_match_all('/font-size\s*:\s*([^;}]+)/', $css, $declarations);
+        $undersized = [];
+        foreach ($declarations[1] as $value) {
+            preg_match_all('/(\d*\.?\d+)(px|rem|em)/', $value, $units, PREG_SET_ORDER);
+            foreach ($units as $unit) {
+                $px = in_array($unit[2], ['rem', 'em'], true) ? (float) $unit[1] * 16 : (float) $unit[1];
+                if ($px < 12) {
+                    $undersized[] = trim($value);
+                }
             }
         }
 
-        sort($tanpaGaya);
-        $this->assertSame([], $tanpaGaya,
-            'Kelas ini dipakai view admin tetapi tidak punya aturan di CSS yang dimuat admin: '.implode(', ', $tanpaGaya));
-    }
-
-    public function test_tindakan_utama_berada_di_puncak_kartu_unit(): void
-    {
-        $detail = (string) file_get_contents(resource_path('views/rental/admin-detail.blade.php'));
-
-        // Panel dipanggil tepat setelah judul unit, bukan di dalam lipatan.
-        $this->assertStringContainsString("@include('rental.admin-next-step', ['unit' => \$unit])", $detail);
-        $this->assertLessThan(
-            strpos($detail, '<summary>Ongkos dan tagihan</summary>'),
-            strpos($detail, 'admin-next-step'),
-            'Panel langkah berikutnya harus muncul sebelum lipatan ongkos.'
-        );
-
-        // Formulir memajukan pengerjaan tidak lagi dirender di dalam riwayat.
-        $this->assertStringContainsString("@include('rental.admin-progress', ['admin' => true, 'actions' => false])", $detail);
-        $this->assertSame(1, substr_count($detail, "route('admin.rental.progress.advance', \$unit)") + 1);
-        $this->assertSame(1, substr_count((string) file_get_contents(resource_path('views/rental/admin-next-step.blade.php')), "route('admin.rental.progress.advance', \$unit)"));
-    }
-
-    public function test_panel_menyebut_tahap_hambatan_dan_bagian_terkait(): void
-    {
-        $panel = (string) file_get_contents(resource_path('views/rental/admin-next-step.blade.php'));
-
-        foreach (['Mulai pengerjaan', 'Tandai siap diserahkan', 'Tandai sudah diserahkan', 'Tandai sudah dikembalikan'] as $label) {
-            $this->assertStringContainsString($label, $panel, "Label tindakan {$label} hilang.");
-        }
-
-        // Penghalang diberi tautan ke bagian yang harus dibereskan lebih dulu.
-        $this->assertStringContainsString('Pratinjau desain belum disetujui pelanggan.', $panel);
-        $this->assertStringContainsString("['desain', 'Buka pratinjau desain']", $panel);
-        $this->assertStringContainsString("['pembayaran', 'Buka pembayaran']", $panel);
-        $this->assertStringContainsString('disabled aria-describedby="blocker-', $panel);
-
-        // Tombol batal/lanjut tidak lagi berulang tiga kali di halaman.
-        $detail = (string) file_get_contents(resource_path('views/rental/admin-detail.blade.php'));
-        $this->assertSame(0, substr_count($detail, "route('admin.rental.resume', \$unit)"), 'Formulir melanjutkan harus tunggal, yaitu di panel.');
-    }
-
-    public function test_daftar_pesanan_menyebut_tugas_yang_menunggu(): void
-    {
-        $daftar = (string) file_get_contents(resource_path('views/rental/admin.blade.php'));
-
-        // Kartu menyebut tugas + jangkar bagian terkait, bukan hanya badge status.
-        $this->assertStringContainsString('$tugas', $daftar);
-        $this->assertStringContainsString('adm-tasklist', $daftar);
-        $this->assertStringContainsString("'pembayaran-'.$unit->id", $daftar);
-        $this->assertStringContainsString("'desain-'.$unit->id", $daftar);
-        $this->assertStringContainsString('Tidak ada yang menunggu admin di pesanan ini.', $daftar);
-        $this->assertStringContainsString('+{{ $sisaTugas }} tugas lain', $daftar);
-
-        // Hitungannya memakai relasi yang sudah dimuat, bukan kueri per unit.
-        $kontroler = (string) file_get_contents(app_path('Http/Controllers/RentalOrderController.php'));
-        $this->assertStringContainsString("RentalOrder::with(['customer', 'units.payments', 'units.previews'])", $kontroler);
-
-        // Badge samar "perlu tindakan" digantikan baris tugas yang konkret.
-        $this->assertStringNotContainsString('perlu tindakan', $daftar);
-    }
-
-    public function test_bagian_berjangkar_dan_gaya_panel_ada(): void
-    {
-        $detail = (string) file_get_contents(resource_path('views/rental/admin-detail.blade.php'));
-        foreach (['ongkos-', 'pembayaran-', 'desain-', 'riwayat-'] as $awalan) {
-            $this->assertStringContainsString('id="'.$awalan.'{{ $unit->id }}"', $detail, "Jangkar {$awalan} hilang.");
-        }
-
-        $css = (string) file_get_contents(public_path('css/berkah-admin.css'));
-        foreach (['.adm-next {', '.adm-next--blocked', '.adm-next__title', '.adm-chip--stage', '.bk-sr-only {', '.bk-swatch {', '.bk-items__list {', '.bk-disclosure {'] as $aturan) {
-            $this->assertStringContainsString($aturan, $css, "Aturan {$aturan} hilang dari berkah-admin.css.");
-        }
+        $this->assertSame([], array_values(array_unique($undersized)), 'Ada teks di bawah 12px pada berkah-admin.css.');
     }
 }

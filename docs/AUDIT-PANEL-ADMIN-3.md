@@ -60,8 +60,9 @@ yang **tidak pernah dimuat** di admin:
 Ini sumber utama kesan "penuh dan tidak rapi" yang sulit ditunjuk penyebabnya.
 
 **Perbaikan:** aturan mandiri untuk sembilan kelas itu ditambahkan ke
-`berkah-admin.css`, dan `AdminSurfaceTest` sekarang menolak kelas admin yang
-tidak punya aturan gaya.
+`berkah-admin.css`, dan `AdminFlowTest` (baru) sekarang menolak kelas admin
+yang tidak punya aturan gaya. `AdminSurfaceTest` yang sudah ada tetap menjaga
+larangan `style` sebaris dan daftar `.adm-*` yang wajib tersedia.
 
 ### A2. Tindakan utama terkubur di dasar kartu (diperbaiki)
 
@@ -179,4 +180,4 @@ Yang **dilakukan** untuk rasa "naik kelas":
 - `resources/views/rental/admin-progress.blade.php`
 - `resources/views/catalog/admin.blade.php`
 - `public/css/berkah-admin.css`
-- `tests/Feature/AdminSurfaceTest.php` (baru)
+- `tests/Feature/AdminFlowTest.php` (baru)

@@ -409,7 +409,7 @@ Pemeriksaan manual: `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.158.
 
 Berkas: `resources/views/rental/admin-next-step.blade.php` (baru),
 `resources/views/{rental/admin-detail,rental/admin-progress,catalog/admin}.blade.php`,
-`public/css/berkah-admin.css`, `tests/Feature/AdminSurfaceTest.php` (baru),
+`public/css/berkah-admin.css`, `tests/Feature/AdminFlowTest.php` (baru),
 `docs/AUDIT-PANEL-ADMIN-3.md` (baru).
 
 Pemeriksaan manual: `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.159.

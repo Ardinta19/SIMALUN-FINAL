@@ -6567,7 +6567,7 @@ tidak efisien dan kurang informatif… sangat membingungkan dari segi layout."
 
 1. Sembilan kelas pinjaman (`bk-sr-only`, `bk-swatch`, `bk-disclosure`,
    `bk-items__*`, `bk-reference-list`, `bk-status-chip`, `bk-i`) kini punya
-   aturan mandiri di `berkah-admin.css`; `AdminSurfaceTest` menolak kelas admin
+   aturan mandiri di `berkah-admin.css`; `AdminFlowTest` menolak kelas admin
    tanpa aturan gaya.
 2. Panel **"Langkah berikutnya"** di puncak setiap kartu unit: keadaan, satu
    tombol utama, catatan opsional, dan tautan ke bagian yang menghalangi
