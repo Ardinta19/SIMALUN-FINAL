@@ -30,6 +30,7 @@ class RentalQueueIndexTest extends TestCase
         $this->assertContains('rental_units_status_progress', $unit);
         $this->assertContains('rental_units_event_on', $unit);
         $this->assertContains('rental_units_ends_on', $unit);
+        $this->assertContains('rental_units_starts_on', $unit);
 
         $this->assertContains('rental_payments_status', $this->namaIndeks('rental_payments'));
     }

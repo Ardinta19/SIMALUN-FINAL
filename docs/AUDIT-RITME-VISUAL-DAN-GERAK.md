@@ -4969,3 +4969,21 @@ Dijaga `tests/Feature/DateQueryIndexTest.php`:
 - `test_hasil_pencarian_tanggal_pada_daftar_pesanan_admin()` — saringan
   "dari/tanggal" daftar pesanan admin tetap menemukan unit yang tanggal
   acaranya tepat di batas.
+
+### 9.128 `starts_on` — kolom tanggal yang paling sering disaring — belum terindeks
+
+Setelah saringan tanggal memakai perbandingan biasa (butir 9.127), indeks
+tanggal benar-benar bisa dipakai. Saat itu terlihat satu kolom tertinggal:
+`starts_on`. Kolom inilah yang disaring pada:
+
+- jadwal bulanan admin (`where starts_on <= akhir bulan` dan `ends_on >= awal bulan`),
+- pengingat pelunasan H-1 (`where starts_on = besok`) dan desain (`starts_on >= hari ini`),
+- pemeriksaan tenggat penjadwal (`ExpireRentalPayments`: `starts_on <= hari ini`),
+- penanda "tanggal acara lewat" di daftar pesanan admin.
+
+Indeks ketersediaan yang lama (`rental_product_id, status, starts_on, ends_on`)
+tidak menolong saringan yang tidak menyebut produk atau status.
+
+Migrasi `2026_11_22_000025_add_rental_starts_on_index.php` menambahkan
+`rental_units_starts_on` (idempoten lewat `Schema::hasIndex()`), dan
+`RentalQueueIndexTest` diperluas agar indeks itu ikut diperiksa.
