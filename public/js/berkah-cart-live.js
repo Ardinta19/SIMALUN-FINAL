@@ -18,17 +18,6 @@
 (function () {
     'use strict';
 
-    var PULSE = 450;
-
-    function pulse(element) {
-        if (!element) return;
-        element.classList.remove('is-updated');
-        // Memaksa reflow kecil supaya animasi bisa dijalankan ulang.
-        void element.offsetWidth;
-        element.classList.add('is-updated');
-        window.setTimeout(function () { element.classList.remove('is-updated'); }, PULSE);
-    }
-
     function rupiah(value) {
         return 'Rp ' + Math.max(0, Math.round(Number(value) || 0)).toLocaleString('id-ID');
     }
@@ -45,17 +34,14 @@
     function apply(payload) {
         if (!payload || typeof payload !== 'object') return window.location.reload();
 
+        /* Angka uang tidak dianimasikan: permintaan pemilik usaha adalah harga
+           tidak berubah dengan efek. Angka berganti seketika; pembaca layar tetap
+           diberi tahu lewat aria-live pada elemennya di markup. */
         var total = document.querySelector('[data-cart-total]');
-        if (total) {
-            total.textContent = payload.total_label || rupiah(payload.total);
-            pulse(total);
-        }
+        if (total) total.textContent = payload.total_label || rupiah(payload.total);
 
         var counter = document.querySelector('[data-cart-total-count]');
-        if (counter) {
-            counter.textContent = payload.count + ' unit';
-            pulse(counter);
-        }
+        if (counter) counter.textContent = payload.count + ' unit';
 
         (payload.groups || []).forEach(function (group) {
             var row = rowFor(group.key);

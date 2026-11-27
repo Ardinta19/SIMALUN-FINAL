@@ -4,8 +4,8 @@
 <div class="cart-page">
 <a data-smart-back class="bk-back" href="{{ route('welcome') }}">← Kembali ke katalog</a>
 <div class="bk-cart-heading" data-bk-reveal="hero"><span class="bk-kicker">Pilihanmu</span><h1>Keranjang</h1></div>
-<p class="muted">Atur jumlah dengan <strong>−</strong> dan <strong>+</strong>; angka berubah langsung tanpa memuat ulang. Papan dengan warna atau tanggal berbeda menjadi baris tersendiri. Keranjang belum menahan tanggal.</p>
-@if(count($cart))<div class="bk-cart-count"><strong data-cart-total-count>{{ count($cart) }} unit</strong><span>di keranjang</span><a href="#cart-next">Ke langkah berikutnya ↓</a></div>@endif
+<p class="muted">Atur jumlah dengan <strong>−</strong> dan <strong>+</strong>; angka berubah langsung tanpa memuat ulang. Warna atau tanggal berbeda menjadi baris tersendiri.</p>
+@if(count($cart))<div class="bk-cart-count"><strong data-cart-total-count aria-live="polite" aria-atomic="true">{{ count($cart) }} unit</strong><span>di keranjang</span><a href="#cart-next">Ke langkah berikutnya ↓</a></div>@endif
 <div class="items" data-bk-reveal-group="cart-items" data-bk-reveal-stagger="0.05">
 @forelse($groups as $group)
     @php
@@ -60,7 +60,7 @@
                     @endif
                 </div>
 
-                <p class="cart-subtotal">Subtotal harga dasar <strong data-cart-subtotal>Rp {{ number_format($product->base_price * $qty, 0, ',', '.') }}</strong> · belum termasuk durasi dan ongkos</p>
+                <p class="cart-subtotal">Subtotal harga dasar <strong data-cart-subtotal>Rp {{ number_format($product->base_price * $qty, 0, ',', '.') }}</strong> <span class="muted">· belum termasuk durasi dan ongkos</span></p>
 
                 @if($hasDates && ! $datesExpired)
                     <p class="cart-meta">Tanggal pilihan: {{ \Carbon\Carbon::parse($group['starts_on'])->format('d/m/Y') }}–{{ \Carbon\Carbon::parse($group['ends_on'])->format('d/m/Y') }} (bisa diubah saat checkout)</p>
@@ -93,13 +93,16 @@
 </div>
 @if(count($cart))
     {{-- Total seluruh keranjang. Angkanya diperbarui langsung oleh
-         public/js/berkah-cart-live.js setiap kali jumlah unit berubah. --}}
-    <div class="cart-total">
+         public/js/berkah-cart-live.js setiap kali jumlah unit berubah.
+         Dulu ada dua blok terpisah (total + catatan `notice`) yang mengulang
+         kalimat yang sama; sekarang satu kartu memuat angka dan satu catatan,
+         dan `id="cart-next"` tetap di sini agar tautan "Ke langkah berikutnya"
+         tidak kehilangan tujuannya. --}}
+    <div class="cart-total" id="cart-next">
         <span>Total harga dasar</span>
-        <strong data-cart-total>Rp {{ number_format($cartTotal, 0, ',', '.') }}</strong>
-        <small>Belum termasuk durasi, item tambahan, dan ongkos.</small>
+        <strong data-cart-total aria-live="polite" aria-atomic="true">Rp {{ number_format($cartTotal, 0, ',', '.') }}</strong>
+        <small>Tanggal ditahan setelah pesanan dikirim, bukan saat masuk keranjang. Durasi, item tambahan, dan ongkos dihitung di checkout.</small>
     </div>
-    <div class="notice" id="cart-next">Harga dasar belum termasuk durasi dan ongkos. Tanggal ditahan setelah pesanan dikirim, bukan saat masuk keranjang.</div>
     <div class="cart-actions">
     @if($unavailableCount)
         <p role="status">Hapus {{ $unavailableCount }} unit yang tidak tersedia sebelum melanjutkan.</p>

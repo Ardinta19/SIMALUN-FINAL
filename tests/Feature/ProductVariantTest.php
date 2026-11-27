@@ -192,7 +192,8 @@ class ProductVariantTest extends TestCase
 
         $css = File::get(public_path('css/berkah-experience.css'));
         $this->assertStringContainsString('.bk-swatch', $css);
-        $this->assertStringContainsString('@keyframes bk-total-pop', $css);
+        // Putaran 39: angka uang keranjang tidak lagi beranimasi.
+        $this->assertStringNotContainsString('@keyframes bk-total-pop', $css);
         $this->assertStringContainsString('@media (prefers-reduced-motion: reduce)', $css);
     }
 }

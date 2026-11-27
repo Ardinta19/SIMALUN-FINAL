@@ -6171,3 +6171,60 @@ nol. Sekarang:
    hanya satu kalimat yang tampil. Saat ada dua unit menunggu konfirmasi, baris
    pertama menyebut batas konfirmasi terdekat dan menuju daftar berfilter
    `pending`.
+
+### 9.152 Konsistensi visual: keranjang, halaman pesanan, halaman unit
+
+Halaman checkout sudah memakai bahasa baru (bidang anggur, satu kalimat janji,
+rincian berbentuk pil). Tiga halaman sesudahnya masih bergaya bentuk lama, jadi
+pelanggan merasa "pindah aplikasi" tepat setelah checkout berhasil.
+
+1. **Keranjang.** Tiga paragraf pembuka dipotong menjadi satu; catatan `notice`
+   yang mengulang kalimat yang sama dengan baris kecil di kartu total dihapus.
+   Total dan catatan kini satu kartu (`id="cart-next"` dipindah ke kartu itu,
+   jadi tautan "Ke langkah berikutnya ↓" tetap menuju tempat yang benar).
+   Subtotal baris memakai teks redup untuk bagian "belum termasuk durasi dan
+   ongkos" agar angkanya yang menonjol.
+2. **Halaman pesanan pelanggan.** Kepala halaman menjadi bidang anggur: kicker
+   "Pesanan · N papan", judul, satu kalimat penjelas, dan rincian administrasi
+   (referensi, batas konfirmasi, voucher) sebagai pil — bukan tiga paragraf
+   abu-abu. Catatan `notice` panjang di tengah halaman dihapus; penggantinya
+   judul bagian "Papan dalam pesanan ini" + satu baris petunjuk. Status tiap
+   papan menjadi label kecil (`bk-status-chip`) yang tidak bersaing dengan judul
+   kartu, dengan warna berbeda untuk dikonfirmasi dan dibatalkan.
+3. **Halaman unit.** Memakai kepala yang sama. Catatan teknis "Penjadwal harus
+   berjalan untuk memproses tenggat" — keterangan untuk pengembang — diganti
+   peringatan singkat "Jangan kirim pembayaran nyata selama pengujian" di dalam
+   kepala, bersama nomor unit dan statusnya.
+
+Semua teks yang dikunci tes dipertahankan (`Referensi:`, `Batas konfirmasi:`,
+`Foto referensi desain`, `Acara dan penerimaan:`, `Penerimaan:`, `Acara:`,
+`Lihat bagian`, `Nilai pengalaman pesanan`, `Salin tautan secara manual`).
+
+**Cara memeriksa sendiri:** buka keranjang → checkout → halaman pesanan →
+halaman unit. Keempatnya harus terasa satu keluarga: bidang anggur gelap di
+kepala, teks pendek, angka yang menonjol, label status kecil. Periksa juga tema
+gelap pada halaman pesanan dan unit (label status dan petunjuk berubah warna).
+
+### 9.153 Angka uang keranjang tenang: animasi dicabut
+
+Permintaan "jangan membuat total harga berubah dengan animasi" sebelumnya hanya
+diterapkan pada katalog. Di keranjang, total dan jumlah unit masih "melompat"
+(`is-updated` + `@keyframes bk-total-pop`, 0,45 detik) setiap kali −/+ ditekan.
+Sekarang:
+
+- `public/js/berkah-cart-live.js` hanya mengganti `textContent` — tanpa kelas
+  animasi, tanpa `setTimeout`;
+- blok `[data-cart-total].is-updated` dan `@keyframes bk-total-pop` dihapus dari
+  `berkah-experience.css`;
+- umpan balik untuk pembaca layar **tidak** hilang: total dan jumlah unit di
+  kepala keranjang memakai `aria-live="polite"` + `aria-atomic="true"`, jadi
+  angkanya diumumkan sekali setiap berubah.
+
+Jumlah unit per baris tetap diumumkan lewat `aria-live` yang sudah ada, dan
+tombol −/+ tetap memberi umpan balik tekan (`data-bk-press`), sehingga keranjang
+tidak terasa "tidak merespons".
+
+**Cara memeriksa sendiri:** buka keranjang, tekan − lalu + berkali-kali. Angka
+unit, subtotal baris, dan total berganti seketika tanpa efek membesar/memerah.
+Uji dengan pembaca layar (NVDA/Narrator): perubahan total terdengar sekali,
+tidak berulang.

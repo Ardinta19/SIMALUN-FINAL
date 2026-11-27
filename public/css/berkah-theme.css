@@ -1732,3 +1732,22 @@ html[data-theme="dark"] :is(.bk-co-terms__more ul) {
 html[data-theme="dark"] .bk-co-refs {
     border-left-color: rgba(255, 196, 214, .45);
 }
+
+/* Halaman pesanan pelanggan di tema gelap: judul bagian, petunjuk, dan label status. */
+html[data-theme="dark"] .bk-section__hint {
+    color: var(--theme-ink-mid);
+}
+
+html[data-theme="dark"] .bk-status-chip {
+    border-color: var(--theme-line);
+    background: var(--theme-surface-2);
+    color: var(--theme-ink-lt);
+}
+
+html[data-theme="dark"] .bk-status-chip[data-status="confirmed"] {
+    color: var(--theme-success-ink, #9fe0bd);
+}
+
+html[data-theme="dark"] .bk-status-chip[data-status="cancelled"] {
+    color: var(--theme-danger-ink, #ffb4bd);
+}

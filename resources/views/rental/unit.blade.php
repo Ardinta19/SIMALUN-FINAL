@@ -2,8 +2,21 @@
 @section('title', 'Detail unit')
 @section('content')
 <p><a data-smart-back class="bk-back" href="{{ route('rental.orders.show', $order) }}">← Kembali ke unit pesanan</a></p>
-<h1>Detail unit</h1><p class="muted">Pesanan {{ $order->reference }}</p>
-<div class="notice">Penjadwal harus berjalan untuk memproses tenggat. Jangan gunakan transaksi nyata selama pengujian.</div><div class="items">@foreach(collect([$unit]) as $unit)
+{{-- Kepala halaman memakai bahasa visual yang sama dengan checkout dan halaman
+     pesanan. Catatan "penjadwal harus berjalan" adalah keterangan teknis untuk
+     pengembang, bukan untuk pelanggan, jadi diganti satu peringatan pengujian. --}}
+<div class="bk-order__top">
+    <div class="bk-order__intro">
+        <span class="bk-kicker">Pesanan {{ $order->reference }}</span>
+        <h1>Detail unit</h1>
+        <p class="bk-order__lead">Yang perlu kamu putuskan untuk papan ini: ongkos, desain, pembayaran, dan perkembangannya.</p>
+        <ul class="bk-order__meta">
+            <li>Unit {{ $unitNumber }} · {{ $unit->product_name }}{{ $unit->variant_name ? ' · warna '.$unit->variant_name : '' }}</li>
+            <li>{{ \App\Support\RentalLabels::unitStatus($unit->status) }}</li>
+            <li>Jangan kirim pembayaran nyata selama pengujian</li>
+        </ul>
+    </div>
+</div><div class="items">@foreach(collect([$unit]) as $unit)
 @php
     $netPaid = $unit->payments->where('status', 'verified')->sum('amount') - $unit->payments->sum(fn ($payment) => $payment->refunds->sum('amount'));
     $pendingAmount = $unit->payments->where('status', 'pending')->sum('amount');

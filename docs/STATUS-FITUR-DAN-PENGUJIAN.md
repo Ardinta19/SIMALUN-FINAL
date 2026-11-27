@@ -289,3 +289,18 @@ Berkas: `app/Notifications/RentalUpdate.php`, `app/Services/RentalNotifications.
 Tes: `tests/Feature/NotificationPayloadTest.php` (3, satu di antaranya pemeriksaan berkas yang berjalan di sandbox), `RentalNotificationTest` diperbarui (notifikasi unit kini membuka halaman unit; tes baru untuk jangkar admin), `RentalAdminSearchTest` memakai judul "Perlu tindakanmu".
 
 Pemeriksaan manual ada di `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.151.
+
+### Babak Q — konsistensi visual keranjang, pesanan, unit (`statis, belum diuji di Windows`)
+
+1. **Keranjang**: tiga paragraf → satu; `notice` duplikat dihapus dan `id="cart-next"` dipindah ke kartu total; subtotal memakai teks redup untuk bagian "belum termasuk durasi dan ongkos".
+2. **Halaman pesanan pelanggan**: kepala bidang anggur (kicker, judul, satu kalimat, pil referensi/tenggat/voucher), `notice` panjang dihapus, judul bagian "Papan dalam pesanan ini", status papan menjadi label kecil berwarna.
+3. **Halaman unit**: kepala sama; catatan teknis "Penjadwal harus berjalan…" diganti peringatan pengujian singkat di dalam kepala.
+
+Berkas: `resources/views/catalog/cart.blade.php`, `resources/views/rental/show.blade.php`, `resources/views/rental/unit.blade.php`, `public/css/berkah-experience.css`, `public/css/berkah-theme.css`.
+
+### Babak R — angka uang keranjang tenang (`statis, belum diuji di Windows`)
+
+Animasi "pop" pada total dan jumlah unit keranjang dicabut (JS + CSS), diganti `aria-live="polite"` + `aria-atomic="true"` pada kedua angka. `ProductVariantTest` disesuaikan (dulu justru mewajibkan `@keyframes bk-total-pop`, kini melarangnya), dan `CartQuietNumbersTest` (3 tes) menjadi penjaganya.
+
+Pemeriksaan manual: `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.152 dan §9.153.
+

@@ -1047,19 +1047,8 @@ body.bk-experience {
     font-size: var(--bk-fs-2xs);
 }
 
-[data-cart-total].is-updated,
-[data-cart-total-count].is-updated {
-    animation: bk-total-pop .45s ease;
-}
-
-@keyframes bk-total-pop {
-    0% { transform: scale(1); }
-    40% { transform: scale(1.06); color: #a3133c; }
-    100% { transform: scale(1); }
-}
-
 @media (prefers-reduced-motion: reduce) {
-    .bk-variant, [data-cart-total].is-updated, [data-cart-total-count].is-updated { transition: none; animation: none; }
+    .bk-variant { transition: none; }
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -1983,4 +1972,104 @@ body.bk-experience {
 
 html[data-theme="dark"] .bk-co-section__hint {
     color: var(--theme-ink-mid);
+}
+
+/* --------------------------------------------------------------------------
+   Kepala halaman pesanan pelanggan — bahasa visual yang sama dengan checkout:
+   satu bidang anggur, satu kalimat janji, rincian administratif sebagai pil.
+   -------------------------------------------------------------------------- */
+.bk-order__top {
+    display: grid;
+    gap: 12px;
+    margin: 8px 0 22px;
+}
+
+.bk-order__intro {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(20px, 3.5vw, 32px);
+    border-radius: 24px;
+    background: linear-gradient(148deg, #4d0420 0%, #7a0a28 58%, #8d1434 100%);
+    color: #fff;
+    box-shadow: 0 24px 56px -44px rgba(60, 4, 24, .8);
+}
+
+.bk-order__intro .bk-kicker {
+    color: rgba(255, 255, 255, .76);
+}
+
+.bk-order__intro h1 {
+    margin: 6px 0 10px;
+    color: #fff;
+}
+
+.bk-order__lead {
+    margin: 0;
+    max-width: 62ch;
+    font-size: var(--bk-fs-sm);
+    line-height: 1.6;
+    color: rgba(255, 255, 255, .9);
+}
+
+.bk-order__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.bk-order__meta li {
+    padding: 7px 12px;
+    border: 1px solid rgba(255, 255, 255, .2);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .12);
+    color: #fff;
+    font-size: var(--bk-fs-2xs);
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.bk-order__print {
+    justify-self: start;
+}
+
+/* Judul kelompok untuk daftar papan di halaman pesanan. */
+.bk-section {
+    margin: 26px 0 2px;
+    font-size: var(--bk-fs-lg, 1.15rem);
+}
+
+.bk-section__hint {
+    margin: 0 0 12px;
+    font-size: var(--bk-fs-xs);
+    color: #6b4b55;
+}
+
+/* Status papan sebagai label kecil: dulu baris tebal yang bersaing dengan judul. */
+.bk-status-chip {
+    display: inline-flex;
+    align-items: center;
+    margin: 0 0 8px;
+    padding: 4px 11px;
+    border: 1px solid #e6cfd3;
+    border-radius: 999px;
+    background: #fff6f4;
+    color: #7a1230;
+    font-size: var(--bk-fs-2xs);
+    font-weight: 800;
+    letter-spacing: .01em;
+}
+
+.bk-status-chip[data-status="confirmed"] {
+    border-color: #cfe6d8;
+    background: #f2fbf6;
+    color: #1d6b46;
+}
+
+.bk-status-chip[data-status="cancelled"] {
+    border-color: #f0cfcf;
+    background: #fdf3f3;
+    color: #97202a;
 }
