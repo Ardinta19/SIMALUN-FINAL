@@ -27,9 +27,14 @@ class RentalScheduleTest extends TestCase
         $order->units()->create(array_merge($base, ['product_name' => 'Papan Dibatalkan', 'status' => 'cancelled']));
         $url = route('admin.rental.schedule', ['month' => '2026-12']);
         $this->actingAs($customer)->get($url)->assertRedirect(route('customer.dashboard'));
-        $this->actingAs($admin)->get($url)->assertOk()->assertSee('Papan Mawar')->assertSee('Dikonfirmasi · stok dicadangkan')->assertSee('Pengembalian hari ini')
-            // Unit pending sudah menahan tanggal, bukan lagi "belum dicadangkan".
-            ->assertSee('Papan Menunggu')->assertSee('Menunggu · tanggal ditahan')->assertDontSee('belum dicadangkan')
+        // Putaran 45: satu label keadaan per unit (bukan status + progres yang
+        // bisa bertentangan), dan kegiatan hari itu berlabel tegas.
+        $this->actingAs($admin)->get($url)->assertOk()->assertSee('Papan Mawar')
+            ->assertSee('Antre pengerjaan')      // confirmed, progres masih waiting
+            ->assertSee('Pengembalian')
+            ->assertSee('Papan Menunggu')->assertSee('Menunggu konfirmasi')
+            ->assertDontSee('belum dicadangkan')
+            ->assertDontSee('Acara hari ini')     // baris yang mengulang tanggal
             ->assertDontSee('Papan Dibatalkan');
     }
     public function test_activity_and_status_filters_show_the_correct_day_and_handoff_details(): void

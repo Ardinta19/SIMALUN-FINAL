@@ -67,6 +67,41 @@ class RentalLabels
     /** Urutan progres yang dilihat pelanggan, dari awal sampai selesai. */
     public const PROGRESS_STEPS = ['waiting', 'production', 'ready', 'handed_over', 'returned'];
 
+    /**
+     * Keadaan unit dalam satu kata — untuk panel admin.
+     *
+     * Status (`pending`/`confirmed`/`cancelled`) dan progres adalah dua sumbu
+     * berbeda. Menampilkan keduanya berdampingan membuat admin membaca
+     * "Dikonfirmasi" (hijau) di sebelah "Tahap 5/5 · Sudah dikembalikan",
+     * seolah pekerjaannya belum beres, padahal sudah. Fungsi ini memadukan
+     * keduanya menjadi satu label dengan satu warna makna:
+     *
+     *  - `perlu-tindakan` (kuning): menunggu admin bergerak
+     *  - `jalan`          (biru)  : sedang dikerjakan / menunggu pelanggan
+     *  - `selesai`        (hijau) : papan sudah kembali
+     *  - `batal`          (merah) : tidak dikerjakan
+     *
+     * @return array{label: string, tone: string}
+     */
+    public static function unitState(?string $status, ?string $progress): array
+    {
+        if ($status === 'cancelled') {
+            return ['label' => 'Dibatalkan', 'tone' => 'batal'];
+        }
+
+        if ($status === 'pending') {
+            return ['label' => 'Menunggu konfirmasi', 'tone' => 'perlu-tindakan'];
+        }
+
+        return match ($progress) {
+            'returned' => ['label' => 'Selesai', 'tone' => 'selesai'],
+            'handed_over' => ['label' => 'Sudah diserahkan', 'tone' => 'jalan'],
+            'ready' => ['label' => 'Siap diserahkan', 'tone' => 'jalan'],
+            'production' => ['label' => 'Dikerjakan', 'tone' => 'jalan'],
+            default => ['label' => 'Antre pengerjaan', 'tone' => 'perlu-tindakan'],
+        };
+    }
+
     /** Status bukti pembayaran. */
     public const PAYMENT_STATUS = [
         'pending' => 'Menunggu verifikasi',

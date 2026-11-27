@@ -7,7 +7,13 @@
     <div class="adm-page-head__text">
         <span class="adm-kicker">Operasional</span>
         <h1>Pesanan sewa</h1>
-        <p class="adm-page-sub">Konfirmasi mencadangkan stok. Periode sewa termasuk hari penerimaan dan pengembalian. Buka detail pesanan untuk menangani setiap unit.</p>
+        <p class="adm-page-sub">
+            @if($antreanTotal > 0)
+                <strong>{{ $antreanTotal }} hal</strong> menunggu tindakanmu. Alurnya: konfirmasi → desain → ongkos → pembayaran → serah terima.
+            @else
+                Tidak ada unit yang menunggu tindakan. Alur kerja: konfirmasi → desain → ongkos → pembayaran → serah terima.
+            @endif
+        </p>
     </div>
     <div class="adm-actions">
         <a class="adm-btn adm-btn--ghost adm-btn--sm" href="{{ route('admin.rental.schedule') }}">Jadwal sewa</a>
@@ -21,14 +27,23 @@
 </div>
 
 @php $activeStatus = $filters['status'] ?? ''; @endphp
-<nav class="adm-chipbar" aria-label="Antrean cepat" data-adm-reveal="filters">
-    <span class="adm-chipbar__label">Antrean cepat</span>
-    <a class="adm-chip adm-chip--link {{ $activeStatus === 'pending' ? 'is-active' : '' }}" @if($activeStatus === 'pending') aria-current="page" @endif href="{{ route('admin.rental.orders', ['status' => 'pending']) }}">Menunggu konfirmasi</a>
-    <a class="adm-chip adm-chip--link {{ $activeStatus === 'payment_pending' ? 'is-active' : '' }}" @if($activeStatus === 'payment_pending') aria-current="page" @endif href="{{ route('admin.rental.orders', ['status' => 'payment_pending']) }}">Bukti pembayaran</a>
-    <a class="adm-chip adm-chip--link {{ in_array($activeStatus, ['transport_quote', 'transport_approval'], true) ? 'is-active' : '' }}" @if(in_array($activeStatus, ['transport_quote', 'transport_approval'], true)) aria-current="page" @endif href="{{ route('admin.rental.orders', ['status' => 'transport_quote']) }}">Ongkos</a>
-    <a class="adm-chip adm-chip--link {{ in_array($activeStatus, ['design_initial', 'design_revision', 'design_pending'], true) ? 'is-active' : '' }}" @if(in_array($activeStatus, ['design_initial', 'design_revision', 'design_pending'], true)) aria-current="page" @endif href="{{ route('admin.rental.orders', ['status' => 'design_initial']) }}">Desain</a>
-    <a class="adm-chip adm-chip--link {{ $activeStatus === 'review' ? 'is-active' : '' }}" @if($activeStatus === 'review') aria-current="page" @endif href="{{ route('admin.rental.orders', ['status' => 'review']) }}">Tinjau manual</a>
-    <a class="adm-chip adm-chip--link {{ $activeStatus === 'return_overdue' ? 'is-active' : '' }}" @if($activeStatus === 'return_overdue') aria-current="page" @endif href="{{ route('admin.rental.orders', ['status' => 'return_overdue']) }}">Lewat kembali</a>
+{{-- Antrean kerja dalam urutan alur pesanan, dengan jumlah yang menunggu.
+     Dulu enam pil tanpa urutan dan tanpa angka: admin tidak tahu mana yang
+     lebih dulu, dan tidak tahu berapa yang menunggu. --}}
+<nav class="adm-chipbar adm-chipbar--queue" aria-label="Antrean kerja" data-adm-reveal="filters">
+    <span class="adm-chipbar__label">Antrean kerja<span class="adm-chipbar__hint">sesuai alur</span></span>
+    @foreach($antrean as $tahap)
+        @php $aktif = ($filters['status'] ?? '') === $tahap['status']
+            || ($tahap['key'] === 'transport' && in_array($filters['status'] ?? '', ['transport_quote', 'transport_approval'], true))
+            || ($tahap['key'] === 'design' && in_array($filters['status'] ?? '', ['design_initial', 'design_revision', 'design_pending'], true)); @endphp
+        <a class="adm-chip adm-chip--link {{ $aktif ? 'is-active' : '' }} {{ $tahap['count'] === 0 ? 'is-quiet' : '' }}"
+           @if($aktif) aria-current="page" @endif
+           href="{{ route('admin.rental.orders', ['status' => $tahap['status']]) }}"
+           title="{{ $tahap['note'] }}">
+            {{ $tahap['label'] }}
+            <span class="adm-chip__count">{{ $tahap['count'] }}</span>
+        </a>
+    @endforeach
 </nav>
 
 <form class="adm-toolbar" method="get" action="{{ route('admin.rental.orders') }}" data-adm-reveal="filter">
@@ -41,9 +56,18 @@
             <label for="adm-order-status">Status atau tugas</label>
             <select id="adm-order-status" name="status">
                 <option value="">Semua</option>
-                @foreach(\App\Support\RentalLabels::UNIT_STATUS as $value => $label)
-                    <option value="{{ $value }}" @selected(($filters['status'] ?? '') === $value)>{{ $label }}</option>
-                @endforeach
+                <optgroup label="Status unit">
+                    @foreach(\App\Support\RentalLabels::UNIT_STATUS as $value => $label)
+                        <option value="{{ $value }}" @selected(($filters['status'] ?? '') === $value)>{{ $label }}</option>
+                    @endforeach
+                </optgroup>
+                {{-- Tugas dari antrean kerja ikut di sini supaya satu kendali
+                     mengenali semua nilai filter, bukan hanya status unit. --}}
+                <optgroup label="Tugas">
+                    @foreach($antrean as $tahap)
+                        <option value="{{ $tahap['status'] }}" @selected(($filters['status'] ?? '') === $tahap['status'])>{{ $tahap['label'] }}</option>
+                    @endforeach
+                </optgroup>
             </select>
         </div>
         <div class="adm-field">
@@ -78,7 +102,10 @@
     $hapusFilter = fn (string $kunci) => route('admin.rental.orders', array_filter(array_merge($filters, [$kunci => null])));
     $chipFilter = [];
     if (! empty($filters['status'])) {
-        $chipFilter[] = ['label' => 'Status: '.(\App\Support\RentalLabels::UNIT_STATUS[$filters['status']] ?? $filters['status']), 'remove' => $hapusFilter('status')];
+        // "Status:" untuk status unit, "Tugas:" untuk antrean kerja — dan
+        // labelnya selalu bahasa manusia, bukan nilai kolom.
+        $awalan = \App\Support\AdminQueues::isUnitStatus($filters['status']) ? 'Status: ' : 'Tugas: ';
+        $chipFilter[] = ['label' => $awalan.\App\Support\AdminQueues::label($filters['status']), 'remove' => $hapusFilter('status')];
     }
     if (! empty($filters['q'])) {
         $chipFilter[] = ['label' => 'Cari: '.$filters['q'], 'remove' => $hapusFilter('q')];

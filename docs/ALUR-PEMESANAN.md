@@ -477,3 +477,85 @@ Papan yang sudah diserahkan sengaja tidak bisa dibatalkan: pembatalan melepas
 reservasi dan mengeluarkan unit dari pengingat "belum kembali", dari
 penutupan otomatis, dan dari antrean aktif dasbor. Alurnya: tandai
 pengembalian lebih dulu, baru batalkan bila memang perlu.
+
+---
+
+## 7. Peta ringkas untuk dua peran (putaran 45)
+
+Bagian ini menjawab satu pertanyaan yang muncul saat UAT: "dari katalog sampai
+pesanan selesai, siapa mengerjakan apa, di layar mana?" Semua nama layar di
+bawah adalah rute yang benar-benar ada, bukan usulan.
+
+### 7.1 Pelanggan — lima langkah, satu stepper
+
+| # | Langkah | Layar | Pintu masuk | Pintu keluar |
+| --- | --- | --- | --- | --- |
+| 1 | Pilih papan & tanggal | `/katalog` → `/katalog/{produk}` | beranda, katalog | keranjang |
+| 2 | Keranjang | `/keranjang` | "Tambah ke keranjang" | checkout |
+| 3 | Checkout | `/checkout` | tombol keranjang | pesanan dibuat (`pending`, tenggat konfirmasi 24 jam) |
+| 4 | Pesanan berjalan | `/pesanan/{referensi}` | daftar pesanan / notifikasi | unggah bukti bayar, setujui desain, setujui ongkos |
+| 5 | Selesai | `/pesanan/{referensi}` (progres `returned`) | — | "Pesan ulang" |
+
+Stepper pelanggan lima langkah (`waiting → production → ready → handed_over →
+returned`) adalah satu-satunya penanda tahap yang dilihat pelanggan. Pelanggan
+tidak pernah melihat `pending`/`confirmed`; itu kosakata admin.
+
+### 7.2 Admin — enam antrean, urut alur
+
+Daftar pesanan (`/admin/rental/orders`) membuka dengan **antrean kerja** yang
+urut sesuai perjalanan pesanan, masing-masing dengan jumlah unit yang menunggu
+(`App\Support\AdminQueues`):
+
+| # | Antrean | Isi | Aksi admin berikutnya |
+| --- | --- | --- | --- |
+| 1 | Menunggu konfirmasi | unit `pending` | konfirmasi / tolak |
+| 2 | Perlu desain | `confirmed` + `waiting` + belum ada pratinjau | unggah pratinjau |
+| 3 | Perlu ongkos | antar/jemput tanpa penawaran | kirim penawaran ongkos |
+| 4 | Bukti pembayaran | `rental_payments.status = pending` | verifikasi / tolak |
+| 5 | Tinjau manual | `needsPaymentReview()` (jadwal ditahan) | putuskan |
+| 6 | Lewat kembali | `handed_over` + `ends_on` sudah lewat | tandai kembali |
+
+Kolom "Status" pada penyaring memuat **dua kelompok**: *Status unit*
+(`pending`, `confirmed`, `cancelled`) dan *Tugas* (enam antrean di atas). Dulu
+penyaring hanya mengenal tiga status unit, sehingga memilih antrean membuat
+dropdown tampak "Semua" padahal daftar sudah tersaring.
+
+### 7.3 Satu label keadaan, empat warna makna
+
+Status pesanan dan progres pengerjaan adalah dua sumbu berbeda. Menampilkannya
+berdampingan membuat unit yang sudah selesai tetap terbaca "belum beres":
+
+```
+SEBELUM  [Dikonfirmasi]  [Tahap 5/5 · Sudah dikembalikan]   ← hijau + "belum selesai"
+SESUDAH  [Selesai]  [Tahap 5/5]                              ← satu makna, satu warna
+```
+
+`RentalLabels::unitState($status, $progress)` memadukan keduanya:
+
+| Kondisi | Label | Warna (`data-tone`) |
+| --- | --- | --- |
+| `cancelled` | Dibatalkan | `batal` (merah) |
+| `pending` | Menunggu konfirmasi | `perlu-tindakan` (kuning) |
+| `confirmed` + `waiting` | Antre pengerjaan | `perlu-tindakan` |
+| `confirmed` + `production` | Dikerjakan | `jalan` (biru) |
+| `confirmed` + `ready` | Siap diserahkan | `jalan` |
+| `confirmed` + `handed_over` | Sudah diserahkan | `jalan` |
+| `confirmed` + `returned` | Selesai | `selesai` (hijau) |
+
+Aturan turunannya: panel tindakan **tidak dirender** untuk unit `returned`
+(tidak ada yang bisa dikerjakan), "Batas konfirmasi" hanya tampil bila masih ada
+unit `pending`, dan daftar "Item yang dipesan" hanya tampil untuk pesanan
+multi-unit (untuk satu unit isinya mengulang kartu unit di bawahnya).
+
+### 7.4 Tipografi panel admin
+
+Empat lapis, tidak lebih:
+
+1. `h1` 24–32 px — judul halaman, satu per layar.
+2. `h2`/`.adm-title--lg` 17–21 px — judul kartu (nama pelanggan, nama unit).
+3. teks isi 15 px — nilai dan label formulir.
+4. `.adm-meta` / `.adm-help` 13 px — keterangan sekunder.
+
+Dulu lapis 3 dan 4 berukuran sama, sehingga hierarki hanya bergantung pada
+warna. Sekarang `.adm-meta` 13 px dengan `strong` kembali ke warna tinta utama.
+Batas bawah tetap 12 px (`--adm-fs-2xs`) dan dijaga `TypographyScaleTest`.

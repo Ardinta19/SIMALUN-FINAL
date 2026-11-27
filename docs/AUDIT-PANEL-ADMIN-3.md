@@ -155,12 +155,25 @@ statistik meringkasnya: "Dibanding 01/10–31/10: pemasukan naik 20%, pengeluara
 turun 5%." Pembagi nol dicegat (`sebelum === 0` → "baru ada" atau disembunyikan),
 jadi tidak ada pembagian nol ketika periode sebelumnya kosong.
 
-### A7. Dua belas kata untuk satu keadaan (terbuka)
+### A7. Dua belas kata untuk satu keadaan (**selesai, putaran 45**)
 
 `UNIT_STATUS` dan `PROGRESS` punya 12 nilai berbeda; di layar semuanya muncul
 sebagai badge abu-abu serupa. **Usulan P3:** petakan ke empat warna makna
 (menunggu tindakan admin / menunggu pelanggan / dikerjakan / selesai) dan
 tampilkan kata yang sama di daftar, detail, dan filter.
+
+**Yang dikerjakan:** `RentalLabels::unitState($status, $progress)` memadukan
+status dan progres menjadi **satu label** dengan empat warna makna
+(`perlu-tindakan`, `jalan`, `selesai`, `batal`), dirender sebagai
+`span.adm-state[data-tone]`. Dipakai di kartu unit (detail pesanan) dan baris
+unit (jadwal sewa). Badge "Dikonfirmasi" yang berdampingan dengan
+"Tahap 5/5 · Sudah dikembalikan" sudah tidak ada; yang tampil adalah "Selesai"
+plus "Tahap 5/5". Panel tindakan tidak dirender untuk unit yang sudah kembali.
+
+**Yang masih terbuka (P4):** label keadaan belum dipakai di *kartu daftar
+pesanan* — di sana masih tampil pil tahap (`ul.adm-stages`) dan chip tugas.
+Menyamakan keduanya butuh satu keputusan: apakah kartu pesanan multi-unit
+menampilkan keadaan gabungan atau keadaan per unit.
 
 ## Rencana bertahap
 

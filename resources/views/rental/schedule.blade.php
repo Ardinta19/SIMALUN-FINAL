@@ -105,6 +105,7 @@
                 $tanggal = $day['date']->toDateString();
                 $terima = $day['units']->filter(fn ($unit) => $unit->starts_on->toDateString() === $tanggal)->count();
                 $kembali = $day['units']->filter(fn ($unit) => $unit->ends_on->toDateString() === $tanggal)->count();
+                $acara = $day['units']->filter(fn ($unit) => $unit->event_on->toDateString() === $tanggal)->count();
             @endphp
             <section class="adm-card adm-card--hover" id="{{ $tanggal === $hariIni ? 'hari-ini' : 'hari-'.$tanggal }}" data-adm-reveal="days">
                 <div class="adm-card__head">
@@ -115,43 +116,59 @@
                     <span class="adm-chip">{{ count($day['units']) }} unit</span>
                 </div>
 
-                @if($terima || $kembali)
+                @if($terima || $kembali || $acara)
                     <p class="adm-row adm-row--tight adm-flat">
                         @if($terima)<span class="adm-badge adm-badge--confirmed">{{ $terima }} serah terima</span>@endif
+                        @if($acara)<span class="adm-badge adm-badge--info">{{ $acara }} acara</span>@endif
                         @if($kembali)<span class="adm-badge adm-badge--pending">{{ $kembali }} pengembalian</span>@endif
                     </p>
                 @endif
 
                 @foreach($day['units'] as $unit)
+                    @php
+                        $keadaan = \App\Support\RentalLabels::unitState($unit->status, $unit->progress);
+                        $antar = $unit->delivery_method === 'delivery'
+                            ? 'Diantar penjual'.($unit->delivery_address ? ' · '.$unit->delivery_address : '')
+                            : 'Diambil sendiri';
+                        $jemput = $unit->return_method === 'collection'
+                            ? 'Diambil kembali penjual'.($unit->return_address ? ' · '.$unit->return_address : '')
+                            : 'Dikembalikan sendiri';
+                    @endphp
                     <div class="adm-divider-row">
-                        <div class="adm-row adm-row--between adm-row--tight">
-                            <strong>{{ $unit->product_name }}</strong>
-                            <span class="adm-badge {{ $unit->status === 'confirmed' ? 'adm-badge--confirmed' : 'adm-badge--pending' }}">
-                                {{ $unit->status === 'confirmed' ? 'Dikonfirmasi · stok dicadangkan' : 'Menunggu · tanggal ditahan' }}
-                            </span>
+                        <div class="adm-row adm-row--between adm-row--top adm-row--tight">
+                            <div class="adm-unitline">
+                                <span class="adm-unitline__name">{{ $unit->product_name }}</span>
+                                <p class="adm-unitline__meta">{{ $unit->order->customer?->name ?? 'Pelanggan tidak tersedia' }} · Penerima {{ $unit->recipient_name }}</p>
+                                <p class="adm-unitline__meta">Acara {{ $unit->event_on->format('d/m') }} · kembali {{ $unit->ends_on->format('d/m') }}</p>
+                            </div>
+                            <span class="adm-state" data-tone="{{ $keadaan['tone'] }}">{{ $keadaan['label'] }}</span>
                         </div>
-                        <p class="muted adm-meta">
-                            {{ $unit->order->customer?->name ?? 'Pelanggan tidak tersedia' }} · {{ $unit->recipient_name }} · Acara {{ $unit->event_on->format('d/m/Y') }}
-                        </p>
+
+                        {{-- Hanya kegiatan yang benar-benar terjadi pada tanggal kartu
+                             ini. Dulu ada baris "Acara hari ini" yang mengulang
+                             tanggal di baris atas tanpa menambah informasi. --}}
                         @if($unit->starts_on->toDateString() === $tanggal)
-                            <p class="adm-meta">Penerimaan hari ini: {{ $unit->delivery_method === 'delivery' ? 'Diantar penjual · '.$unit->delivery_address : 'Diambil sendiri' }}</p>
-                        @endif
-                        @if($unit->event_on->toDateString() === $tanggal)
-                            <p class="adm-meta">Acara hari ini</p>
+                            <p class="adm-unitline__today"><b>Serah terima</b><span>{{ $antar }}</span></p>
                         @endif
                         @if($unit->ends_on->toDateString() === $tanggal)
-                            <p class="adm-meta">Pengembalian hari ini: {{ $unit->return_method === 'collection' ? 'Diambil kembali penjual · '.$unit->return_address : 'Dikembalikan sendiri' }}</p>
+                            <p class="adm-unitline__today"><b>Pengembalian</b><span>{{ $jemput }}</span></p>
                         @endif
-                        <div class="adm-row adm-row--between adm-mt-6">
-                            <span class="adm-chip">{{ \App\Support\RentalLabels::progress($unit->progress) }}</span>
-                            <a href="{{ route('admin.rental.orders.show', $unit->order) }}">Buka pesanan</a>
+
+                        <div class="adm-row adm-row--between adm-mt-3">
+                            <span class="adm-help">Tahap: {{ \App\Support\RentalLabels::progress($unit->progress) }}</span>
+                            <a href="{{ route('admin.rental.orders.show', $unit->order) }}#unit-{{ $unit->id }}">Buka unit</a>
                         </div>
                     </div>
                 @endforeach
 
-                <div class="adm-card__foot">
-                    <a class="adm-btn adm-btn--ghost adm-btn--sm" href="{{ route('admin.rental.schedule.daily-sheet', ['date' => $tanggal]) }}">Lembar serah terima</a>
-                </div>
+                {{-- Lembar itu hanya berisi serah terima. Menawarkannya pada
+                     hari yang isinya cuma pengembalian membuat admin membuka
+                     halaman kosong dan mengira datanya hilang. --}}
+                @if($terima)
+                    <div class="adm-card__foot">
+                        <a class="adm-btn adm-btn--ghost adm-btn--sm" href="{{ route('admin.rental.schedule.daily-sheet', ['date' => $tanggal]) }}">Lembar serah terima ({{ $terima }} unit)</a>
+                    </div>
+                @endif
             </section>
         @endforeach
     </div>

@@ -463,7 +463,12 @@ class RentalOrderController extends Controller
                 fn ($q) => $q->latest()->orderByDesc('id')
             ))
             ->paginate(20)->withQueryString();
-        return view('rental.admin', compact('orders', 'filters'));
+        // Angka antrean per tahap alur: admin perlu tahu berapa yang menunggu,
+        // bukan hanya tautan ke daftar terfilter.
+        $antrean = \App\Support\AdminQueues::counts();
+        $antreanTotal = \App\Support\AdminQueues::total($antrean);
+
+        return view('rental.admin', compact('orders', 'filters', 'antrean', 'antreanTotal'));
     }
 
     public function adminShow(RentalOrder $order)

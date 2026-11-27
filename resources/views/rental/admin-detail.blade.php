@@ -4,8 +4,6 @@
 @section('crumbs')<a href="{{ route('admin.rental.orders') }}">Pesanan sewa</a><span class="adm-crumbs__sep" aria-hidden="true">/</span><strong>Detail pesanan</strong>@endsection
 @section('content')
 @php
-    $unitStatusLabels = \App\Support\RentalLabels::UNIT_STATUS;
-    $unitStatusTones = ['pending' => 'adm-badge--pending', 'confirmed' => 'adm-badge--confirmed', 'cancelled' => 'adm-badge--cancelled'];
     $paymentStatusLabels = \App\Support\RentalLabels::PAYMENT_STATUS;
     $paymentStatusTones = ['pending' => 'adm-badge--pending', 'verified' => 'adm-badge--confirmed', 'rejected' => 'adm-badge--cancelled'];
 @endphp
@@ -26,11 +24,13 @@
     <div class="adm-row adm-row--between adm-row--top">
         <div class="adm-min0">
             <h2>{{ $order->customer?->name ?? 'Pelanggan tidak tersedia' }}</h2>
-            <p class="muted adm-meta">Referensi: <strong>{{ $order->reference }}</strong></p>
+            <p class="muted adm-meta">Referensi <span class="adm-ref">{{ $order->reference }}</span></p>
         </div>
         <div class="adm-row adm-row--end adm-row--tight">
             <span class="adm-chip">{{ $order->units->count() }} unit</span>
-            <span class="adm-badge adm-badge--info">Batas konfirmasi: {{ $order->confirmation_deadline->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB</span>
+            @if($order->units->where('status', 'pending')->isNotEmpty())
+                <span class="adm-badge adm-badge--info">Batas konfirmasi: {{ $order->confirmation_deadline->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB</span>
+            @endif
         </div>
     </div>
     @if($order->voucher_code)
@@ -49,11 +49,13 @@
     @endif
 </section>
 
-@include('rental._ordered_items', [
-    'items' => \App\Support\OrderedItems::fromUnits($order->units, fn ($unit) => '#unit-'.$unit->id),
-    'hint' => 'Daftar ini untuk persiapan; tindakan per papan ada di bagian di bawahnya.',
-    'class' => 'adm-card',
-])
+@if($order->units->count() > 1)
+    @include('rental._ordered_items', [
+        'items' => \App\Support\OrderedItems::fromUnits($order->units, fn ($unit) => '#unit-'.$unit->id),
+        'hint' => 'Daftar ini untuk persiapan; tindakan per papan ada di bagian di bawahnya.',
+        'class' => 'adm-card',
+    ])
+@endif
 
 <div class="adm-stack adm-mt-gap">
 @foreach($order->units as $unit)
@@ -62,7 +64,6 @@
         $unitDesignPolicy = app(\App\Services\RentalDesignDeadline::class);
         $latestDesignPreview = $unit->previews->first();
         $designDeadline = $unitDesignPolicy->deadline($unit);
-        $unitTone = $unitStatusTones[$unit->status] ?? 'adm-badge--info';
         $pendingPayments = $unit->payments->where('status', 'pending')->count();
     @endphp
 
@@ -73,18 +74,23 @@
                 <h2 class="adm-note-line" id="unit-{{ $unit->id }}">{{ $unit->product_name }}{{ $unit->variant_name ? ' · warna '.$unit->variant_name : '' }}</h2>
             </div>
             <div class="adm-row adm-row--end adm-row--tight">
-                <span class="adm-badge {{ $unitTone }}">{{ $unitStatusLabels[$unit->status] ?? $unit->status }}</span>
                 @php
-                    // Data impor lama bisa punya `progress` kosong; pakai langkah
-                    // pertama supaya pil tahap tidak berakhir dengan label hampa.
+                    // Satu label keadaan, bukan status + progres yang bisa
+                    // bertentangan. Data impor lama bisa punya `progress` kosong.
                     $tahapKunci = $unit->progress ?: 'waiting';
                     $tahapUnit = \App\Support\RentalLabels::progressStep($tahapKunci);
+                    $keadaanUnit = \App\Support\RentalLabels::unitState($unit->status, $tahapKunci);
                 @endphp
-                <span class="adm-chip adm-chip--stage">Tahap {{ ($tahapUnit ?? 0) + 1 }}/{{ count(\App\Support\RentalLabels::PROGRESS_STEPS) }} · {{ \App\Support\RentalLabels::progress($tahapKunci) }}</span>
+                <span class="adm-state" data-tone="{{ $keadaanUnit['tone'] }}">{{ $keadaanUnit['label'] }}</span>
+                @if($unit->status === 'confirmed')
+                    <span class="adm-chip adm-chip--stage">Tahap {{ ($tahapUnit ?? 0) + 1 }}/{{ count(\App\Support\RentalLabels::PROGRESS_STEPS) }}</span>
+                @endif
             </div>
         </div>
 
-        @include('rental.admin-next-step', ['unit' => $unit])
+        @if(! ($unit->status === 'confirmed' && ($unit->progress ?: 'waiting') === 'returned'))
+            @include('rental.admin-next-step', ['unit' => $unit])
+        @endif
 
         <div class="adm-grid adm-grid--3 adm-mt-4">
             <div>
@@ -396,7 +402,9 @@
             </div>
         </details>
 
-        @if($unit->status !== 'cancelled' && $unit->progress === 'handed_over')
+        @if($unit->status === 'confirmed' && ($unit->progress ?: 'waiting') === 'returned')
+            <p class="muted adm-mt-3">Unit ini sudah selesai: papan sudah kembali ke tangan penjual. Tidak ada tindakan pembatalan yang tersisa.</p>
+        @elseif($unit->status !== 'cancelled' && $unit->progress === 'handed_over')
             <p class="muted adm-mt-3">Papan sudah diserahkan dan belum ditandai kembali. Tandai pengembalian lewat bagian perkembangan lebih dulu; setelah itu unit dapat dibatalkan bila memang perlu.</p>
         @elseif($unit->status !== 'cancelled')
             <details class="adm-card adm-card--flat adm-mt-3" data-adm-reveal="details" @if($errors->any()) open @endif>
