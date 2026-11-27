@@ -67,21 +67,24 @@ class CreateUser extends Command
                 'nullable',
                 'email:rfc',
                 'max:150',
-                Rule::unique('users', 'email')->whereNull('deleted_at'),
+                // Indeks unik di tabel users tidak membedakan akun terhapus,
+                // jadi aturan validasi ini juga tidak boleh mengecualikannya —
+                // operator harus mendapat pesan jelas, bukan galat SQL.
+                Rule::unique('users', 'email'),
             ],
             'phone' => [
                 'required',
                 'string',
                 'regex:/^8[0-9]{8,12}$/',
-                Rule::unique('users', 'phone')->whereNull('deleted_at'),
+                Rule::unique('users', 'phone'),
             ],
             'role' => ['required', 'in:customer,admin'],
             'gender' => ['nullable', 'in:L,P'],
             'password' => ['required', 'confirmed', Password::min(8)],
         ], [
             'phone.regex' => 'Format nomor HP tidak valid (setelah normalisasi harus seperti 81234567890).',
-            'phone.unique' => 'Nomor HP sudah terdaftar.',
-            'email.unique' => 'Email sudah terdaftar.',
+            'phone.unique' => 'Nomor HP sudah dipakai — termasuk oleh akun yang sudah dihapus. Pulihkan dengan: php artisan user:restore 81234567890',
+            'email.unique' => 'Email sudah dipakai — termasuk oleh akun yang sudah dihapus. Pulihkan dengan: php artisan user:restore alamat@email.com',
         ]);
 
         if ($validator->fails()) {

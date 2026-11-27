@@ -4844,3 +4844,47 @@ Dijaga `tests/Feature/RentalNotificationTest.php`:
 
 Dan `ProfileTest::test_riwayat_pesanan_tetap_menampilkan_pelanggan_yang_dinonaktifkan()`
 memastikan nama pelanggan masih terbaca lewat relasi setelah akunnya ditutup.
+
+### 9.124 `user:create`/`user:edit` meloloskan nomor milik akun terhapus, lalu gagal di SQL
+
+Kedua perintah memakai
+`Rule::unique('users', 'phone')->whereNull('deleted_at')`. Niatnya masuk akal
+— "jangan bentrok dengan akun yang masih ada" — tetapi indeks unik di tabel
+`users` **tidak** membedakan baris terhapus. Akibatnya nomor HP atau email
+milik akun yang sudah di-soft-delete lolos validasi, lalu `INSERT`/`UPDATE`
+menabrak indeks unik dan perintah berhenti dengan tumpukan galat
+`SQLSTATE[23000]` yang tidak bisa dibaca operator.
+
+Aturan itu dihapus (kini sama dengan `RegisterController`, yang sejak awal
+memakai `Rule::unique()` polos dan menampilkan pesan ramah). Pesan galat
+terminal juga diperjelas: menyebut bahwa nomor/email itu bisa milik akun yang
+sudah dihapus, dan menyertakan perintah pemulihannya
+(`php artisan user:restore …`).
+
+Dijaga `tests/Feature/UserCommandValidationTest.php`:
+
+- `test_aturan_unik_perintah_tidak_mengabaikan_akun_terhapus()` — statis,
+  kedua berkas perintah tidak boleh lagi memakai pengecualian akun terhapus
+  pada aturan unik (termasuk di dalam komentar, supaya tidak ada
+  kesalahpahaman saat dibaca ulang).
+- `test_pesan_galat_perintah_menyebut_pemulihan_akun()` — kedua perintah
+  harus menyebut `user:restore`.
+- `test_indeks_unik_tetap_menahan_nomor_milik_akun_terhapus()` — bukti di
+  tingkat basis data: setelah akun di-soft-delete, nomor yang sama tetap
+  ditolak `QueryException`.
+
+### 9.125 `user:restore` mengaku berhasil padahal akunnya masih nonaktif
+
+`RestoreUser` selalu mencetak "Pelanggan dapat masuk lagi dengan nomor HP
+atau email yang sama". Itu tidak benar bila akun dulu dinonaktifkan admin
+(`is_active = 0`): penghapusan baris `deleted_at` tidak mengubah status aktif,
+sehingga pemiliknya tetap ditolak di halaman masuk oleh pemeriksaan
+`LoginController`. Operator lalu mengira pemulihan gagal.
+
+Perintah sekarang menambahkan peringatan setelah pemulihan:
+"Akun ini masih berstatus nonaktif. Aktifkan lewat `php artisan user:edit`
+bila pemiliknya harus bisa masuk."
+
+Dijaga `UserRestoreCommandTest::test_pemulihan_akun_nonaktif_memberi_peringatan()`
+— akun nonaktif dihapus, dipulihkan, lalu keluarannya harus memuat
+"masih berstatus nonaktif" dan `is_active` tetap `false`.

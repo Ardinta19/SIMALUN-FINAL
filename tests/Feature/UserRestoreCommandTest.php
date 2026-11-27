@@ -48,4 +48,22 @@ class UserRestoreCommandTest extends TestCase
 
         $this->assertStringContainsString("'Peran akun'", (string) file_get_contents(app_path('Console/Commands/CreateUser.php')));
     }
+
+    /**
+     * Pemulihan tidak menghidupkan kembali akun yang dinonaktifkan admin.
+     * Operator harus diberi tahu, bukan dibiarkan mengira pemulihan gagal.
+     */
+    public function test_pemulihan_akun_nonaktif_memberi_peringatan(): void
+    {
+        $user = User::factory()->create(['role' => 'customer', 'phone' => '81234567892', 'is_active' => false]);
+        $user->delete();
+
+        $this->artisan('user:restore', ['identifier' => '81234567892'])
+            ->expectsConfirmation('Pulihkan akun ini? Riwayat pesanannya akan terlihat lagi oleh pelanggan.', 'yes')
+            ->expectsOutputToContain('masih berstatus nonaktif')
+            ->assertExitCode(0);
+
+        $this->assertNotSoftDeleted('users', ['id' => $user->id]);
+        $this->assertFalse((bool) $user->fresh()->is_active);
+    }
 }

@@ -74,6 +74,13 @@ class RestoreUser extends Command
 
         $this->info('Akun dipulihkan. Pelanggan dapat masuk lagi dengan nomor HP atau email yang sama.');
 
+        // Pemulihan tidak mengubah status aktif. Akun yang dulu dinonaktifkan
+        // admin tetap tidak bisa masuk, dan tanpa pemberitahuan ini operator
+        // akan mengira pemulihan gagal.
+        if (! $terhapus->is_active) {
+            $this->warn('Catatan: akun ini masih berstatus nonaktif. Aktifkan lewat `php artisan user:edit` bila pemiliknya harus bisa masuk.');
+        }
+
         return self::SUCCESS;
     }
 }

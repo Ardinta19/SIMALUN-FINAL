@@ -102,13 +102,15 @@ class EditUser extends Command
                 'nullable',
                 'email:rfc',
                 'max:150',
-                Rule::unique('users', 'email')->ignore($user->id)->whereNull('deleted_at'),
+                // Indeks unik tabel users tidak membedakan akun terhapus, jadi
+                // aturan ini juga tidak boleh mengabaikannya (lihat CreateUser).
+                Rule::unique('users', 'email')->ignore($user->id),
             ],
             'phone' => [
                 'required',
                 'string',
                 'regex:/^8[0-9]{8,12}$/',
-                Rule::unique('users', 'phone')->ignore($user->id)->whereNull('deleted_at'),
+                Rule::unique('users', 'phone')->ignore($user->id),
             ],
             'role' => ['required', 'in:customer,admin'],
             'gender' => ['nullable', 'in:L,P'],
@@ -122,8 +124,8 @@ class EditUser extends Command
 
         $validator = Validator::make($payload, $rules, [
             'phone.regex' => 'Format nomor HP tidak valid (setelah normalisasi harus seperti 81234567890).',
-            'phone.unique' => 'Nomor HP sudah dipakai akun lain.',
-            'email.unique' => 'Email sudah dipakai akun lain.',
+            'phone.unique' => 'Nomor HP sudah dipakai — termasuk oleh akun yang sudah dihapus. Pulihkan dengan: php artisan user:restore 81234567890',
+            'email.unique' => 'Email sudah dipakai — termasuk oleh akun yang sudah dihapus. Pulihkan dengan: php artisan user:restore alamat@email.com',
         ]);
 
         if ($validator->fails()) {
