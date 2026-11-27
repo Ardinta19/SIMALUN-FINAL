@@ -191,7 +191,7 @@ yang **wajib** diganti sebelum dipasang:
 | `SESSION_SECURE_COOKIE` | `true` | Cookie sesi tidak dikirim lewat koneksi non-HTTPS. |
 | `MAIL_MAILER` | `smtp` (+ `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_SCHEME`) | Bawaan `log` hanya menulis surel ke `storage/logs`, sehingga tautan "Lupa sandi" tidak pernah sampai. |
 | `MAIL_FROM_ADDRESS` | alamat milik domain sendiri | Alamat contoh akan masuk spam atau ditolak penerima. |
-| `QUEUE_CONNECTION` | `database` + jalankan `php artisan queue:work` | Notifikasi surel diproses lewat antrean. |
+| `QUEUE_CONNECTION` | `sync` (boleh tetap `database`) | Belum ada pekerjaan yang diantrekan: notifikasi tersimpan di tabel `notifications` dan surel reset sandi dikirim langsung. `php artisan queue:work` baru diperlukan kalau nanti ada job ber-`ShouldQueue`. |
 | `TRUSTED_PROXIES` | IP proxy hosting (bukan `*`) | `*` membuat pembatasan percobaan masuk mudah dilewati dengan memalsukan header IP. |
 
 Setelah `.env` final:
@@ -204,6 +204,31 @@ php artisan migrate --force
 php artisan storage:link
 php artisan user:create      # akun admin pertama
 ```
+
+### Penjadwal WAJIB berjalan
+
+Empat perintah terjadwal (`rental:expire-confirmations`, `rental:expire-payments`,
+`rental:remind`, `rental:close-events`) membatalkan unit yang lewat batas
+konfirmasi, menghanguskan DP yang telat dibayar, mengirim pengingat, dan
+menutup unit yang tidak ditandai kembali. Tanpa penjadwal, aplikasi tetap
+tampak normal tetapi tenggat tidak pernah ditegakkan.
+
+Linux/cPanel (crontab):
+
+```cron
+* * * * * cd /path/ke/proyek && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Windows (Task Scheduler, setiap 1 menit):
+
+```
+php C:\path\ke\proyek\artisan schedule:run
+```
+
+Saat pengembangan lokal cukup `php artisan schedule:work`. Setiap tugas
+memakai `withoutOverlapping(5)` (batas menit sesuai frekuensi tugas) dan `onOneServer()`, yang bergantung
+pada cache store bersama (`CACHE_STORE=database`, `file`, atau `array` —
+semuanya mendukung lock; driver `null` tidak).
 
 ---
 

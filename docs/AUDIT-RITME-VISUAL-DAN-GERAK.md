@@ -4657,3 +4657,60 @@ dengan `ResetPasswordController` (butir 9.116).
 Dijaga `PasswordUpdateTest::test_mengganti_kata_sandi_merotasi_remember_token()`:
 token lama disetel, kata sandi diganti, lalu token harus berubah dan
 panjangnya 60 karakter seperti keluaran `Str::random(60)`.
+
+### 9.118 `withoutOverlapping()` tanpa batas waktu bisa mematikan penjadwal sehari
+
+Keempat tugas di `routes/console.php` sudah memakai `withoutOverlapping()`,
+tetapi tanpa argumen. Bawaannya Laravel mengunci tugas selama **1440 menit
+(24 jam)**. Kuncinya dilepas saat proses selesai; kalau proses mati di tengah
+jalan (server restart, `memory_limit`, deploy saat tugas berjalan), kunci itu
+tertinggal. Karena `rental:expire-confirmations` dan `rental:expire-payments`
+berjalan **tiap menit**, satu kunci menggantung berarti pembatalan otomatis
+dan penghangusan DP berhenti sehari penuh — tanpa galat, tanpa gejala di
+halaman mana pun.
+
+Sekarang batasnya eksplisit dan disesuaikan dengan frekuensi:
+
+| Tugas | Frekuensi | Batas kunci |
+| --- | --- | --- |
+| `rental:expire-confirmations` | tiap menit | 5 menit |
+| `rental:expire-payments` | tiap menit | 5 menit |
+| `rental:remind` | tiap 5 menit | 10 menit |
+| `rental:close-events` | harian 02.00 WIB | 30 menit |
+
+Ditambahkan pula `onOneServer()` supaya, bila cron terpasang di lebih dari
+satu server, hanya satu yang menjalankan tugas. Ini butuh cache store yang
+mendukung lock; `database` (bawaan), `file`, dan `array` semuanya
+mengimplementasikan `LockProvider` — `Illuminate\Cache\FileStore` diperiksa
+langsung di sumber Laravel 11.x. Driver `null` tidak mendukung lock, dan
+`.env.example` tidak pernah memakainya.
+
+Dijaga `tests/Feature/ScheduleGuardTest.php`:
+
+- `test_empat_tugas_terjadwal_dengan_pengaman_overlap()` — tepat empat baris
+  `Schedule::command(...)`, masing-masing wajib memuat
+  `withoutOverlapping(<angka>)` dan `onOneServer()`.
+- `test_setiap_perintah_terjadwal_benar_benar_didefinisikan()` — nama yang
+  dijadwalkan harus sama (dan seurutan) dengan `Artisan::command(...)`;
+  salah ketik satu huruf berarti tugas yang tidak pernah ada.
+
+### 9.119 README tidak pernah menyebut penjadwal
+
+Seluruh penegakan tenggat bergantung pada `php artisan schedule:run` yang
+dipanggil cron tiap menit. README sebelumnya hanya memuat langkah pemasangan
+umum, sehingga pemasangan yang "mengikuti README" akan berjalan tanpa
+penjadwal: unit yang lewat batas konfirmasi tidak pernah batal, DP tidak
+pernah hangus, pengingat tidak terkirim, dan unit yang menggantung tidak
+pernah ditutup otomatis. Semua kegagalan itu senyap.
+
+Bagian **Menyiapkan Server Produksi** di README kini memuat:
+
+- baris crontab Linux/cPanel dan padanan Windows Task Scheduler;
+- penjelasan singkat akibat bila penjadwal tidak berjalan;
+- catatan `php artisan schedule:work` untuk pengembangan;
+- ketergantungan pada cache store yang mendukung lock.
+
+Sekalian dikoreksi satu baris tabel yang tidak akurat: `QUEUE_CONNECTION`
+tidak perlu `queue:work`, karena belum ada job ber-`ShouldQueue` —
+notifikasi tersimpan di tabel `notifications` dan surel reset dikirim
+langsung (`grep ShouldQueue` di `app/`, `routes/`, `database/` = kosong).
