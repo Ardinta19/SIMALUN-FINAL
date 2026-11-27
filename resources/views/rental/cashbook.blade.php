@@ -194,6 +194,12 @@
                                             @include('rental.cashbook-fields', ['entry' => $entry])
                                             <div><button class="btn secondary adm-btn--sm" type="submit">Simpan perubahan</button></div>
                                         </form>
+                                        @include('layouts.component.admin._delete_form', [
+                                            'action' => route('admin.rental.cashbook.destroy', $entry),
+                                            'label' => 'Hapus catatan',
+                                            'confirmLabel' => 'Ya, hapus catatan',
+                                            'note' => 'Catatan manual Rp '.number_format($entry->amount, 0, ',', '.').' tanggal '.$entry->entry_date->format('d/m/Y').' akan dihapus dari buku kas.',
+                                        ])
                                     </details>
                                 @else
                                     <p class="adm-help adm-table__help">Catatan terkait transaksi tidak dapat diubah dari buku kas.</p>

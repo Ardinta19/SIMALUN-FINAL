@@ -441,3 +441,28 @@ Berkas: `app/Http/Controllers/RentalOrderController.php`,
 `lang/id/validation.php`, `tests/Feature/{AdminFlowTest,AdminOrderSortTest}.php`.
 
 Pemeriksaan manual: `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.160.
+
+## Babak Y — Hapus data & katalog (putaran 46)
+
+1. **Satu label keadaan per unit** (`RentalLabels::unitState`): status pesanan
+   dan progres pengerjaan tidak lagi tampil berdampingan; kartu unit di detail
+   dan baris unit di jadwal memakai satu badge dengan empat warna makna.
+2. **Antrean kerja berangka & urut alur** (`App\Support\AdminQueues`), chip
+   "Filter aktif" memakai label manusia (`Status:` / `Tugas:`), bukan kunci
+   basis data.
+3. **Tombol hapus untuk data katalog**: kategori, papan, paket durasi, item
+   tambahan, voucher, universitas, dan catatan kas manual. Semua dua langkah
+   lewat satu partial (`layouts.component.admin._delete_form`), dan data yang
+   sudah dipakai pesanan tidak diberi tombol — alasannya yang tampil.
+4. **`php artisan rental:purge-orders`**: mengosongkan riwayat pesanan untuk
+   UAT tanpa menyentuh katalog/akun, dengan `--dry-run`, `--force` wajib di
+   produksi, `--keep-finance`, dan `--with-notifications`.
+
+Berkas: `app/Console/Commands/PurgeRentalOrders.php`, `App\Support\{AdminQueues,RentalLabels}`,
+`app/Http/Controllers/{RentalCatalogController,RentalVoucherController,RentalUniversityController,RentalCashBookController}.php`,
+`resources/views/layouts/component/admin/_delete_form.blade.php`,
+`resources/views/{catalog/admin,rental/addons,rental/vouchers,rental/universities,rental/cashbook}.blade.php`,
+`public/css/berkah-admin.css`, `routes/web.php`,
+`tests/Feature/{UnitStateTest,CatalogDeleteTest,PurgeRentalOrdersTest}.php`.
+
+Panduan: `docs/HAPUS-DATA-DAN-KATALOG.md`.

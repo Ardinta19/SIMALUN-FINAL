@@ -61,11 +61,19 @@
                     <span class="adm-chip">Jemput Rp {{ number_format($university->collection_fee, 0, ',', '.') }}</span>
                 </div>
             </div>
-            <form method="post" action="{{ route('admin.rental.universities.toggle', $university) }}">
-                @csrf
-                @method('PATCH')
-                <button type="submit" class="btn secondary adm-btn--sm">{{ $university->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button>
-            </form>
+            <div class="adm-row adm-row--tight adm-row--wrap adm-row--end">
+                <form method="post" action="{{ route('admin.rental.universities.toggle', $university) }}">
+                    @csrf
+                    @method('PATCH')
+                    <button type="submit" class="btn secondary adm-btn--sm">{{ $university->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button>
+                </form>
+                @include('layouts.component.admin._delete_form', [
+                    'action' => route('admin.rental.universities.destroy', $university),
+                    'label' => 'Hapus universitas',
+                    'confirmLabel' => 'Ya, hapus universitas',
+                    'note' => 'Tarif '.$university->name.' akan hilang dari pilihan checkout. Pesanan lama tetap memakai tarif yang tersimpan di pesanannya.',
+                ])
+            </div>
         </div>
 
         <details class="adm-mt-3">

@@ -140,11 +140,22 @@
                 </div>
                 <p class="muted adm-meta">{{ $voucher->description }}</p>
             </div>
-            <form method="post" action="{{ route('admin.rental.vouchers.toggle', $voucher) }}">
-                @csrf
-                @method('PATCH')
-                <button type="submit" class="btn secondary adm-btn--sm">{{ $voucher->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button>
-            </form>
+            <div class="adm-row adm-row--tight adm-row--wrap adm-row--end">
+                <form method="post" action="{{ route('admin.rental.vouchers.toggle', $voucher) }}">
+                    @csrf
+                    @method('PATCH')
+                    <button type="submit" class="btn secondary adm-btn--sm">{{ $voucher->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button>
+                </form>
+                @include('layouts.component.admin._delete_form', [
+                    'action' => route('admin.rental.vouchers.destroy', $voucher),
+                    'label' => 'Hapus voucher',
+                    'confirmLabel' => 'Ya, hapus voucher',
+                    'note' => 'Kode '.$voucher->code.' akan dihapus permanen. Pesanan yang sudah memakai kode ini tidak berubah.',
+                    'blocked' => $voucher->rental_usages_count > 0
+                        ? 'Sudah dipakai '.$voucher->rental_usages_count.' pesanan, jadi catatan pemakaiannya tidak boleh hilang. Nonaktifkan saja.'
+                        : null,
+                ])
+            </div>
         </div>
 
         <div class="adm-grid adm-grid--3 adm-mt-3">

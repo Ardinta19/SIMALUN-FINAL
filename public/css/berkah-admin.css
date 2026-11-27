@@ -2707,3 +2707,52 @@ details[open] > .bk-disclosure::before { transform: rotate(90deg); }
     background: #fff;
     color: #85092d;
 }
+
+/* ==========================================================================
+   Hapus permanen: dua langkah di dalam <details> (putaran 46)
+   --------------------------------------------------------------------------
+   Tidak memakai `confirm()`: teksnya tidak bisa menjelaskan akibat, tidak bisa
+   digayakan, dan diblokir sebagian peramban. Satu ketukan membuka penjelasan
+   dan tombol merah "Ya, hapus permanen".
+   ========================================================================== */
+
+.adm-danger {
+    display: inline-block;
+}
+
+.adm-danger > summary {
+    cursor: pointer;
+    list-style: none;
+    color: var(--adm-danger);
+    border-color: rgba(179, 38, 30, .28);
+}
+
+.adm-danger > summary::-webkit-details-marker { display: none; }
+
+.adm-danger > summary::after {
+    content: " ▾";
+    font-size: .75rem;
+}
+
+.adm-danger[open] > summary::after { content: " ▴"; }
+
+.adm-danger__body {
+    margin-top: 8px;
+    padding: 12px 14px;
+    border: 1px solid rgba(179, 38, 30, .22);
+    border-radius: 12px;
+    background: #fdf5f4;
+    max-width: 46ch;
+}
+
+.adm-danger__note {
+    margin: 0 0 10px;
+    font-size: var(--adm-fs-xs);
+    line-height: 1.55;
+    color: #7a2c26;
+}
+
+.adm-danger-note {
+    margin: 0;
+    max-width: 46ch;
+}

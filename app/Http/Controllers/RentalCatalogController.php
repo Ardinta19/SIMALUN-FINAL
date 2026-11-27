@@ -135,7 +135,17 @@ class RentalCatalogController extends Controller
 
     public function admin()
     {
-        return view('catalog.admin', ['categories' => RentalCategory::orderBy('name')->get(), 'products' => RentalProduct::with(['category', 'packages', 'variants'])->latest()->paginate(20)]);
+        return view('catalog.admin', [
+            // `withCount` dipakai tombol hapus: kategori yang masih berisi papan
+            // dan papan yang sudah pernah dipesan tidak boleh dihapus, jadi
+            // panel menampilkan alasannya, bukan membiarkan admin menekan tombol
+            // yang pasti gagal.
+            'categories' => RentalCategory::withCount('products')->orderBy('name')->get(),
+            'products' => RentalProduct::with(['category', 'packages' => fn ($q) => $q->withCount('orderUnits'), 'variants'])
+                ->withCount('orderUnits')
+                ->latest()
+                ->paginate(20),
+        ]);
     }
 
     public function categoryStore(Request $request)
@@ -158,6 +168,33 @@ class RentalCatalogController extends Controller
             Audit::log('rental.catalog.category.update', $locked, before: $before, after: $locked->only(['name', 'is_active']));
         });
         return back()->with('success', 'Kategori berhasil diperbarui.');
+    }
+
+    /**
+     * Hapus kategori yang benar-benar kosong.
+     *
+     * `rental_products.rental_category_id` memakai `restrictOnDelete`, jadi
+     * menghapus kategori yang masih berisi papan akan gagal di tingkat basis
+     * data dengan pesan SQL. Diperiksa lebih dulu supaya admin menerima
+     * kalimat yang bisa ditindaklanjuti.
+     */
+    public function categoryDestroy(RentalCategory $category)
+    {
+        $jumlahPapan = RentalProduct::where('rental_category_id', $category->id)->count();
+        if ($jumlahPapan > 0) {
+            throw ValidationException::withMessages([
+                'category' => 'Kategori ini masih berisi '.$jumlahPapan.' papan. Pindahkan atau hapus papannya dulu, atau nonaktifkan kategori — katalog tetap menyembunyikannya.',
+            ]);
+        }
+
+        DB::transaction(function () use ($category) {
+            $locked = RentalCategory::lockForUpdate()->findOrFail($category->id);
+            $before = $locked->only(['name', 'is_active']);
+            $locked->delete();
+            Audit::log('rental.catalog.category.delete', null, before: $before, summary: 'Kategori dihapus: '.$before['name']);
+        });
+
+        return back()->with('success', 'Kategori '.$category->name.' dihapus.');
     }
 
     public function categoryToggle(RentalCategory $category)
@@ -266,6 +303,75 @@ class RentalCatalogController extends Controller
     /* ── Varian warna ───────────────────────────────────────────────────────
        Admin mengelola warna per papan: nama, warna, stok, dan foto contoh.
        Harga tidak diatur di sini karena varian memang tidak mengubah harga. */
+
+    /**
+     * Hapus papan yang belum pernah dipesan, beserta warna dan paketnya.
+     *
+     * `rental_order_units.rental_product_id` memakai `restrictOnDelete`: papan
+     * yang sudah pernah dipesan tidak boleh hilang karena riwayat pesanan
+     * menunjuk ke sana. Untuk papan seperti itu jalannya "Nonaktifkan".
+     */
+    public function productDestroy(RentalProduct $product)
+    {
+        $dipakai = RentalOrderUnit::where('rental_product_id', $product->id)->exists();
+        if ($dipakai) {
+            throw ValidationException::withMessages([
+                'product' => 'Papan ini sudah pernah dipesan, jadi tidak bisa dihapus. Nonaktifkan saja: katalog menyembunyikannya dan riwayat pesanan tetap utuh.',
+            ]);
+        }
+
+        $nama = $product->name;
+        $hapus = DB::transaction(function () use ($product) {
+            $locked = RentalProduct::lockForUpdate()->findOrFail($product->id);
+            $before = $this->productSnapshot($locked);
+
+            $berkas = [];
+            if ($before['image_path']) $berkas[] = $before['image_path'];
+            foreach ($locked->variants()->get() as $variant) {
+                if ($variant->image_path) $berkas[] = $variant->image_path;
+            }
+
+            // Paket menahan produk lewat `restrictOnDelete`; warna ikut cascade,
+            // tetapi dihapus eksplisit agar berkas fotonya ikut dibersihkan.
+            // Relasi memakai `orderBy`, dan `DELETE ... ORDER BY` tidak sah di
+            // MySQL tanpa LIMIT — jadi dihapus lewat kueri biasa.
+            RentalDurationPackage::where('rental_product_id', $locked->id)->delete();
+            RentalProductVariant::where('rental_product_id', $locked->id)->delete();
+
+            Audit::log('rental.catalog.product.delete', null, before: $before, summary: 'Papan dihapus: '.$nama);
+            $locked->delete();
+
+            return $berkas;
+        });
+
+        foreach (array_unique($hapus) as $path) {
+            if (str_starts_with($path, 'catalog/')) Storage::disk('public')->delete($path);
+        }
+
+        return back()->with('success', 'Papan '.$nama.' dihapus dari katalog.');
+    }
+
+    /**
+     * Hapus paket durasi yang belum pernah dipakai pesanan.
+     */
+    public function packageDestroy(RentalDurationPackage $package)
+    {
+        $dipakai = RentalOrderUnit::where('rental_duration_package_id', $package->id)->exists();
+        if ($dipakai) {
+            throw ValidationException::withMessages([
+                'package' => 'Paket ini sudah pernah dipakai pesanan. Nonaktifkan saja agar tidak muncul lagi di halaman papan.',
+            ]);
+        }
+
+        DB::transaction(function () use ($package) {
+            $locked = RentalDurationPackage::lockForUpdate()->findOrFail($package->id);
+            $before = $locked->only(['rental_product_id', 'name', 'days', 'price', 'is_active']);
+            $locked->delete();
+            Audit::log('rental.catalog.package.delete', null, before: $before, summary: 'Paket durasi dihapus: '.$before['name']);
+        });
+
+        return back()->with('success', 'Paket durasi dihapus.');
+    }
 
     public function variantStore(Request $request, RentalProduct $product)
     {

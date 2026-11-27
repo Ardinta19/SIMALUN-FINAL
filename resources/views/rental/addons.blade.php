@@ -109,13 +109,17 @@
                     @method('PATCH')
                     <button type="submit" class="btn secondary adm-btn--sm">{{ $addon->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button>
                 </form>
-                @unless($addonUsed)
-                    <form method="post" action="{{ route('admin.rental.addons.destroy', $addon) }}">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn secondary adm-btn--sm">Hapus</button>
-                    </form>
-                @endunless
+                {{-- Satu pola hapus untuk seluruh panel: dua langkah, dengan
+                     alasan tertulis bila item tidak boleh dihapus. --}}
+                @include('layouts.component.admin._delete_form', [
+                    'action' => route('admin.rental.addons.destroy', $addon),
+                    'label' => 'Hapus item',
+                    'confirmLabel' => 'Ya, hapus item',
+                    'note' => 'Item '.$addon->name.' akan hilang dari pilihan checkout. Pesanan lama tetap memakai harga saat checkout.',
+                    'blocked' => $addonUsed
+                        ? 'Sudah dipakai pesanan, jadi tidak bisa dihapus. Nonaktifkan saja agar tidak muncul di checkout baru.'
+                        : null,
+                ])
             </div>
         </div>
 

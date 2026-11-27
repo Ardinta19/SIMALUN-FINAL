@@ -48,6 +48,26 @@ class RentalUniversityController extends Controller
         return back()->with('success', 'Status universitas diperbarui.');
     }
 
+    /**
+     * Hapus universitas dan tarifnya.
+     *
+     * Setiap unit pesanan menyimpan salinan nama dan tarifnya sendiri
+     * (`delivery_university`, `delivery_university_fee`), jadi menghapus baris
+     * ini tidak mengubah riwayat pesanan sama sekali.
+     */
+    public function destroy(RentalUniversity $university)
+    {
+        $nama = $university->name;
+        DB::transaction(function () use ($university) {
+            $locked = RentalUniversity::lockForUpdate()->findOrFail($university->id);
+            $before = $this->snapshot($locked);
+            $locked->delete();
+            Audit::log('rental.university.delete', null, before: $before, summary: 'Universitas dihapus: '.$nama);
+        });
+
+        return back()->with('success', 'Universitas '.$nama.' dihapus. Pesanan lama tetap memakai tarif yang tersimpan di pesanannya.');
+    }
+
     private function snapshot(RentalUniversity $university): array
     {
         return $university->only(['name', 'delivery_fee', 'collection_fee', 'is_active']);

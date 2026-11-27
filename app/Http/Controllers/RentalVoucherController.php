@@ -52,6 +52,31 @@ class RentalVoucherController extends Controller
     }
 
     /**
+     * Hapus voucher yang belum pernah dipakai.
+     *
+     * `rental_voucher_usages` memakai `cascadeOnDelete`, jadi menghapus voucher
+     * yang sudah terpakai akan menghapus catatan pemakaiannya juga. Itu sebabnya
+     * voucher terpakai hanya boleh dinonaktifkan.
+     */
+    public function destroy(Voucher $voucher)
+    {
+        if ($voucher->rentalUsages()->exists()) {
+            throw ValidationException::withMessages([
+                'voucher' => 'Voucher ini sudah dipakai pesanan, jadi catatan pemakaiannya tidak boleh hilang. Nonaktifkan saja agar tidak bisa dipakai lagi.',
+            ]);
+        }
+
+        DB::transaction(function () use ($voucher) {
+            $locked = Voucher::lockForUpdate()->findOrFail($voucher->id);
+            $before = $this->snapshot($locked);
+            $locked->delete();
+            Audit::log('rental.voucher.delete', null, before: $before, summary: 'Voucher dihapus: '.$before['code']);
+        });
+
+        return back()->with('success', 'Voucher '.$voucher->code.' dihapus.');
+    }
+
+    /**
      * Pemeriksaan kode di halaman checkout (dipanggil JavaScript).
      * Hanya menghitung perkiraan; keputusan final tetap dihitung saat pesanan
      * dikirim, memakai harga dan paket yang benar-benar dipilih.

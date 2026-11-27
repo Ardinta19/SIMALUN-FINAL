@@ -83,6 +83,24 @@ class RentalCashBookController extends Controller
         return back()->with('success', 'Catatan kas manual berhasil diperbarui.');
     }
 
+    /**
+     * Hapus catatan kas manual. Catatan yang lahir dari pembayaran sewa tidak
+     * boleh dihapus dari sini: sumbernya pesanan dan pembayarannya, bukan buku
+     * kas — menghapusnya akan membuat laporan tidak lagi cocok dengan pesanan.
+     */
+    public function destroy(FinanceEntry $entry)
+    {
+        DB::transaction(function () use ($entry) {
+            $locked = FinanceEntry::lockForUpdate()->findOrFail($entry->id);
+            abort_unless($locked->source_type === 'manual' && $locked->source_id === null, 403, 'Catatan dari pembayaran sewa tidak bisa dihapus dari buku kas.');
+            $before = $locked->only(['entry_date', 'entry_type', 'category', 'amount', 'notes']);
+            $locked->delete();
+            Audit::log('cashbook.manual.delete', null, before: $before, summary: 'Catatan kas manual dihapus: '.$before['notes']);
+        });
+
+        return back()->with('success', 'Catatan kas manual dihapus.');
+    }
+
     private function validated(Request $request): array
     {
         $data = $request->validate(['entry_date' => ['required', 'date_format:Y-m-d'], 'entry_type' => ['required', Rule::in(['income', 'expense'])], 'category' => ['required', 'string', 'max:50'], 'amount' => ['required', 'integer', 'min:1', 'max:1000000000'], 'notes' => ['required', 'string', 'max:1000']]);

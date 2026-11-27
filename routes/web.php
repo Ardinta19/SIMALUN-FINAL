@@ -178,6 +178,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/universitas', [RentalUniversityController::class, 'index'])->name('rental.universities.index');
         Route::post('/universitas', [RentalUniversityController::class, 'store'])->name('rental.universities.store');
         Route::put('/universitas/{university}', [RentalUniversityController::class, 'update'])->name('rental.universities.update');
+        Route::delete('/universitas/{university}', [RentalUniversityController::class, 'destroy'])->name('rental.universities.destroy');
         Route::patch('/universitas/{university}/status', [RentalUniversityController::class, 'toggle'])->name('rental.universities.toggle');
         Route::get('/item-tambahan', [RentalAddonController::class, 'index'])->name('rental.addons.index');
         Route::post('/item-tambahan', [RentalAddonController::class, 'store'])->name('rental.addons.store');
@@ -187,10 +188,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/voucher-sewa', [RentalVoucherController::class, 'index'])->name('rental.vouchers.index');
         Route::post('/voucher-sewa', [RentalVoucherController::class, 'store'])->name('rental.vouchers.store');
         Route::patch('/voucher-sewa/{voucher}/status', [RentalVoucherController::class, 'toggle'])->name('rental.vouchers.toggle');
+        Route::delete('/voucher-sewa/{voucher}', [RentalVoucherController::class, 'destroy'])->name('rental.vouchers.destroy');
         Route::get('/katalog', [RentalCatalogController::class, 'admin'])->name('catalog.index');
         Route::post('/katalog/kategori', [RentalCatalogController::class, 'categoryStore'])->name('catalog.categories.store');
         Route::put('/katalog/kategori/{category}', [RentalCatalogController::class, 'categoryUpdate'])->name('catalog.categories.update');
         Route::patch('/katalog/kategori/{category}/status', [RentalCatalogController::class, 'categoryToggle'])->name('catalog.categories.toggle');
+        Route::delete('/katalog/kategori/{category}', [RentalCatalogController::class, 'categoryDestroy'])->name('catalog.categories.destroy');
         // Varian warna: dikelola per papan, di halaman admin yang sama.
         Route::post('/katalog/{product}/varian', [RentalCatalogController::class, 'variantStore'])->name('catalog.variants.store');
         Route::put('/katalog/varian/{variant}', [RentalCatalogController::class, 'variantUpdate'])->name('catalog.variants.update');
@@ -199,9 +202,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/katalog/{product}/paket', [RentalCatalogController::class, 'packageStore'])->name('catalog.packages.store');
         Route::put('/katalog/paket/{package}', [RentalCatalogController::class, 'packageUpdate'])->name('catalog.packages.update');
         Route::patch('/katalog/paket/{package}/status', [RentalCatalogController::class, 'packageToggle'])->name('catalog.packages.toggle');
+        Route::delete('/katalog/paket/{package}', [RentalCatalogController::class, 'packageDestroy'])->name('catalog.packages.destroy');
         Route::post('/katalog', [RentalCatalogController::class, 'productStore'])->name('catalog.store');
         Route::put('/katalog/{product}', [RentalCatalogController::class, 'productUpdate'])->name('catalog.update');
         Route::patch('/katalog/{product}/toggle', [RentalCatalogController::class, 'toggle'])->name('catalog.toggle');
+        Route::delete('/katalog/{product}', [RentalCatalogController::class, 'productDestroy'])->name('catalog.destroy');
         Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
 
         Route::get('/pengaturan-pembayaran-sewa', [RentalPaymentSettingController::class, 'edit'])->name('rental.payment-settings.edit');
@@ -210,6 +215,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/buku-kas/ekspor', [RentalCashBookController::class, 'export'])->name('rental.cashbook.export');
         Route::post('/buku-kas', [RentalCashBookController::class, 'store'])->name('rental.cashbook.store');
         Route::put('/buku-kas/{entry}', [RentalCashBookController::class, 'update'])->name('rental.cashbook.update');
+        Route::delete('/buku-kas/{entry}', [RentalCashBookController::class, 'destroy'])->name('rental.cashbook.destroy');
         Route::get('/audit', [AuditLogController::class, 'index'])->name('audit.index');
 
         Route::get('/notifications', [NotificationController::class, 'adminIndex'])->name('notifications');

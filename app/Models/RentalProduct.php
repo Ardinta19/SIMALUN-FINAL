@@ -18,6 +18,15 @@ class RentalProduct extends Model
     public function activeVariants(): HasMany { return $this->variants()->where('is_active', true); }
 
     /**
+     * Unit pesanan yang memakai papan ini.
+     *
+     * Dipakai untuk menghitung `withCount` sebelum tombol hapus dirender:
+     * papan yang sudah pernah dipesan tidak boleh dihapus (FK `restrict`),
+     * jadi admin harus melihat alasannya lebih dulu, bukan setelah gagal.
+     */
+    public function orderUnits(): HasMany { return $this->hasMany(RentalOrderUnit::class); }
+
+    /**
      * Papan ini punya varian aktif?
      *
      * Memakai relasi yang sudah dimuat bila ada, supaya daftar katalog tidak

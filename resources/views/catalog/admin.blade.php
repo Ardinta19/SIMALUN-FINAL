@@ -58,6 +58,17 @@
                     @method('PATCH')
                     <button type="submit" class="btn secondary adm-btn--sm">{{ $category->is_active ? 'Nonaktifkan' : 'Aktifkan' }} kategori</button>
                 </form>
+                <div class="adm-mt-2">
+                    @include('layouts.component.admin._delete_form', [
+                        'action' => route('admin.catalog.categories.destroy', $category),
+                        'label' => 'Hapus kategori',
+                        'confirmLabel' => 'Ya, hapus kategori',
+                        'note' => 'Kategori '.$category->name.' akan hilang dari panel. Papan di dalamnya tidak ikut terhapus.',
+                        'blocked' => $category->products_count > 0
+                            ? 'Masih berisi '.$category->products_count.' papan. Pindahkan atau hapus papannya dulu; kalau hanya ingin menyembunyikan, pakai Nonaktifkan.'
+                            : null,
+                    ])
+                </div>
                 </details>
             </div>
         @endforeach
@@ -109,11 +120,22 @@
                 <div><button class="btn" type="submit">Simpan perubahan</button></div>
             </form>
 
-            <form class="adm-mt-2" method="post" action="{{ route('admin.catalog.toggle', $product) }}">
-                @csrf
-                @method('PATCH')
-                <button type="submit" class="btn secondary adm-btn--sm">{{ $product->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button>
-            </form>
+            <div class="adm-row adm-row--tight adm-row--wrap adm-mt-2">
+                <form method="post" action="{{ route('admin.catalog.toggle', $product) }}">
+                    @csrf
+                    @method('PATCH')
+                    <button type="submit" class="btn secondary adm-btn--sm">{{ $product->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button>
+                </form>
+                @include('layouts.component.admin._delete_form', [
+                    'action' => route('admin.catalog.destroy', $product),
+                    'label' => 'Hapus papan',
+                    'confirmLabel' => 'Ya, hapus papan',
+                    'note' => 'Papan '.$product->name.' beserta '.$product->variants->count().' warna dan '.$product->packages->count().' paket durasinya akan dihapus permanen, termasuk fotonya.',
+                    'blocked' => $product->order_units_count > 0
+                        ? 'Sudah pernah dipesan ('.$product->order_units_count.' unit), jadi tidak bisa dihapus. Pakai Nonaktifkan: katalog menyembunyikannya dan riwayat pesanan tetap utuh.'
+                        : null,
+                ])
+            </div>
 
             <h3 class="adm-subhead">Warna &amp; foto (varian)</h3>
             <p class="adm-help">Tiap warna punya stok sendiri dan pratinjau foto ikut berganti. Harga sama untuk semua warna; selama papan belum punya warna, stok papan yang dipakai.</p>
@@ -238,11 +260,22 @@
                         </div>
                         <div><button class="btn secondary adm-btn--sm" type="submit">Simpan paket</button></div>
                     </form>
-                    <form class="adm-mt-6" method="post" action="{{ route('admin.catalog.packages.toggle', $package) }}">
-                        @csrf
-                        @method('PATCH')
-                        <button type="submit" class="btn secondary adm-btn--sm">{{ $package->is_active ? 'Nonaktifkan paket' : 'Aktifkan paket' }}</button>
-                    </form>
+                    <div class="adm-row adm-row--tight adm-row--wrap adm-mt-6">
+                        <form method="post" action="{{ route('admin.catalog.packages.toggle', $package) }}">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="btn secondary adm-btn--sm">{{ $package->is_active ? 'Nonaktifkan paket' : 'Aktifkan paket' }}</button>
+                        </form>
+                        @include('layouts.component.admin._delete_form', [
+                            'action' => route('admin.catalog.packages.destroy', $package),
+                            'label' => 'Hapus paket',
+                            'confirmLabel' => 'Ya, hapus paket',
+                            'note' => 'Paket '.$package->name.' ('.$package->days.' hari) akan hilang dari halaman papan.',
+                            'blocked' => $package->order_units_count > 0
+                                ? 'Sudah dipakai '.$package->order_units_count.' unit pesanan. Nonaktifkan saja agar tidak muncul lagi di halaman papan.'
+                                : null,
+                        ])
+                    </div>
                     </details>
                 </div>
             @endforeach
