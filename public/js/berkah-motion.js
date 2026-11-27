@@ -58,8 +58,28 @@
         return !!(reduceQuery && reduceQuery.matches);
     }
 
+    /* Jalan keluar darurat tanpa mengubah kode: buka halaman dengan
+       `?gerak=mati` (pilihan diingat) atau `?gerak=hidup` untuk menyalakannya
+       lagi. Berguna bila satu perangkat punya masalah gulir yang tidak bisa
+       direproduksi di tempat lain. */
+    function readMotionOverride() {
+        try {
+            var params = new URLSearchParams(window.location.search);
+            var choice = params.get('gerak');
+
+            if (choice === 'mati') window.localStorage.setItem('bk-motion', 'off');
+            if (choice === 'hidup') window.localStorage.removeItem('bk-motion');
+
+            return window.localStorage.getItem('bk-motion') === 'off';
+        } catch (error) {
+            return false;
+        }
+    }
+
+    var motionForcedOff = readMotionOverride();
+
     function motionOn() {
-        return !prefersReduced();
+        return !prefersReduced() && !motionForcedOff;
     }
 
     function hasGsap() {

@@ -5575,3 +5575,10 @@ meluncur dan berhenti lembut, bukan melompat. Buka sheet filter dan gulir
 isinya: isi sheet yang bergerak, bukan halaman di belakangnya. Muat ulang
 halaman keranjang: isinya masuk dengan lembut, tidak "berkedip" muncul.
 
+**Jalan keluar darurat.** Bila satu perangkat tertentu masih terasa aneh,
+buka halaman dengan `?gerak=mati` — pilihan disimpan di `localStorage`
+(`bk-motion=off`), seluruh gerak termasuk Lenis dimatikan dan semua konten
+tetap terlihat. `?gerak=hidup` menyalakannya lagi. Tidak perlu mengubah kode
+atau menunggu pembaruan; ini jalur dukungan untuk perangkat yang tidak bisa
+kami reproduksi.
+

@@ -152,6 +152,11 @@ class MotionAssetsTest extends TestCase
         $this->assertStringContainsString('saveData', $js);
         $this->assertStringContainsString('prefers-reduced-motion', $js);
 
+        // Jalan keluar darurat tanpa mengubah kode.
+        $this->assertStringContainsString("params.get('gerak')", $js);
+        $this->assertStringContainsString("window.localStorage.setItem('bk-motion', 'off')", $js);
+        $this->assertStringContainsString("return !prefersReduced() && !motionForcedOff;", $js);
+
         // Satu frame panjang tidak boleh menggeser posisi gulir sekaligus.
         $this->assertStringNotContainsString('lagSmoothing(0)', $js, 'Delta frame harus dibatasi, bukan dibiarkan apa adanya.');
         $this->assertStringContainsString('lagSmoothing(500, 33)', $js);
