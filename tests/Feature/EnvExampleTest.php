@@ -70,6 +70,10 @@ class EnvExampleTest extends TestCase
         // pernah dibaca kode rental) tidak boleh muncul lagi di contoh
         // produksi: siapa pun yang menyalin berkas ini akan mengira nilainya
         // masih berpengaruh.
+        // Alamat pengirim surel tidak boleh kosong: tanpa itu pemulihan kata
+        // sandi di produksi ditolak SMTP.
+        $this->assertMatchesRegularExpression('/^MAIL_FROM_ADDRESS="[^"@]+@[^"]+"/m', $isi);
+
         foreach (['LAUNDRY_', 'DRIVER_REALTIME_MODE', 'DRIVER_ASSIGNMENT_STRATEGY', 'Azka'] as $sisa) {
             $this->assertStringNotContainsString($sisa, $isi, 'Sisa konfigurasi laundry/produksi lama: '.$sisa.'.');
         }

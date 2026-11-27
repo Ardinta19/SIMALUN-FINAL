@@ -30,6 +30,10 @@ class DateOnly implements CastsAttributes
             return null;
         }
 
+        if ($value instanceof \DateTimeInterface) {
+            return CarbonImmutable::createFromInterface($value)->startOfDay();
+        }
+
         return CarbonImmutable::parse((string) $value)->startOfDay();
     }
 
@@ -37,6 +41,10 @@ class DateOnly implements CastsAttributes
     {
         if ($value === null || $value === '') {
             return null;
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            return CarbonImmutable::createFromInterface($value)->toDateString();
         }
 
         return CarbonImmutable::parse((string) $value)->toDateString();

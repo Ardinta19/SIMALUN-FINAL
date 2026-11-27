@@ -5194,6 +5194,12 @@ enam kunci `BUSINESS_*`, dan dua kunci driver dihapus. Petunjuk
 `docs/kl/deployment-hostinger.md` disamakan (judul, contoh `.env`, dan satu
 kalimat yang masih menyebut nama laundry).
 
+Selain itu `MAIL_FROM_ADDRESS` di contoh produksi kosong. Laravel memakai
+nilai itu sebagai pengirim seluruh surel; SMTP Hostinger menolak pesan tanpa
+alamat pengirim yang sah, dan gejalanya baru terlihat saat pelanggan meminta
+pemulihan kata sandi. Sekarang diisi pola
+`MAIL_FROM_ADDRESS="no-reply@__DOMAIN_PRODUKSI__"`.
+
 Dijaga `tests/Feature/EnvExampleTest.php` (2 tes baru):
 
 - `test_contoh_produksi_tidak_lagi_membawa_identitas_laundry()` — keenam
