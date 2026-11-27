@@ -6547,3 +6547,64 @@ memuat `bk-progress` lengkap + kalimat "Papan sedang dikerjakan" dan **tidak**
    kalimat penjelas, satu baris pada layar ponsel.
 3. Buka satu unit: stepper lengkap tetap seperti sebelumnya.
 
+## 9.159 Alur kerja admin: tindakan utama di puncak, katalog berlipat (putaran 43)
+
+**Keluhan:** "flow dari laman admin… masih banyak laman yang terasa penuh dan
+tidak efisien dan kurang informatif… sangat membingungkan dari segi layout."
+
+**Akar masalah (lihat angka di `docs/AUDIT-PANEL-ADMIN-3.md`)**
+
+| Gejala | Sebab |
+| --- | --- |
+| Teks "Rincian kas: tanggal, jenis…" muncul di atas tabel buku kas | `<caption class="bk-sr-only">` tetapi kelas itu hanya didefinisikan di `berkah-ui-kit.css`, yang tidak dimuat panel admin |
+| Kotak warna varian tidak muncul di katalog | `.bk-swatch` juga dari kit yang tidak dimuat |
+| Daftar isian pesanan berantakan | `.bk-items__*` dari kit yang tidak dimuat, hanya `.adm-card.bk-items` yang ada |
+| Admin menggulir + membuka lipatan untuk memajukan pengerjaan | Formulir `progress.advance` berada di `<details>` ketiga dari empat |
+| Formulir "melanjutkan unit" muncul tiga kali | Tiga blok berbeda (payment_timeout, dibatalkan, batal terakhir) |
+| Katalog terasa penuh | Setiap varian dan paket membuka formulir sunting 5 isian sekaligus (13 formulir) |
+
+**Perbaikan**
+
+1. Sembilan kelas pinjaman (`bk-sr-only`, `bk-swatch`, `bk-disclosure`,
+   `bk-items__*`, `bk-reference-list`, `bk-status-chip`, `bk-i`) kini punya
+   aturan mandiri di `berkah-admin.css`; `AdminSurfaceTest` menolak kelas admin
+   tanpa aturan gaya.
+2. Panel **"Langkah berikutnya"** di puncak setiap kartu unit: keadaan, satu
+   tombol utama, catatan opsional, dan tautan ke bagian yang menghalangi
+   (desain / ongkos / pembayaran). Tombol dinonaktifkan bila syarat belum
+   terpenuhi, lengkap dengan alasannya.
+3. Konfirmasi unit, melanjutkan unit batal, dan memajukan pengerjaan kini
+   **satu pintu**; formulir lamanya dihapus sehingga tidak ada dua kontrol untuk
+   hal yang sama.
+4. Header unit menyebut `Tahap 2/5 · Dalam pengerjaan` (pil ringkas) tanpa
+   menambah stepper kedua.
+5. Katalog: "Ubah warna ini", "Ubah paket ini", "Tambah warna baru",
+   "Tambah paket baru", dan "Ubah kategori" berada di balik lipatan; baris
+   ringkas tetap terlihat.
+6. Jangkar `#ongkos-`, `#pembayaran-`, `#desain-`, `#riwayat-` per unit plus
+   sorotan `:target`.
+
+**Yang sengaja tidak dipakai:** React/GSAP/Lenis. Panel ini server-rendered dan
+dijaga 550+ tes HTML; menambah bundler mengubah cara deploy. Animasi yang sudah
+ada (`[data-adm-reveal]` + `prefers-reduced-motion`) diperluas, bukan diganti.
+Alasannya tertulis di `docs/AUDIT-PANEL-ADMIN-3.md`.
+
+**Cara memeriksa sendiri**
+
+1. Buku kas: tidak ada lagi kalimat panjang di atas tabel.
+2. Katalog papan: buka satu papan — baris warna tampil ringkas; formulir muncul
+   hanya setelah menekan "Ubah warna ini".
+3. Pesanan sewa → detail: panel "Langkah berikutnya" ada di atas; bila desain
+   belum disetujui, tombol nonaktif dan tautan "Buka pratinjau desain" tersedia.
+4. Tekan "Riwayat" di panel: halaman melompat ke lipatan riwayat dan menyorotnya.
+
+
+### 9.159a Baris tugas pada daftar pesanan
+
+Kartu daftar pesanan admin dulu hanya menampilkan badge "perlu tindakan" yang
+tidak menjelaskan apa pun, sehingga admin membuka pesanan satu per satu. Kini
+tiap kartu memuat sampai tiga tugas konkret ("2 bukti bayar diperiksa",
+"Konfirmasi Papan Mawar", "Ongkos … belum ditawar") yang menaut langsung ke
+lipatan terkait lewat jangkar per unit, diringkas "+N tugas lain" bila lebih.
+Badge "perlu tindakan" dihapus. Relasi `units.payments` dan `units.previews`
+dimuat sekaligus agar hitungannya tidak menjadi kueri per unit.

@@ -1,3 +1,5 @@
+{{-- Memajukan pengerjaan kini lewat panel "Langkah berikutnya" di puncak
+     kartu unit (putaran 43); di sini cukup tampilan tahap dan riwayat. --}}
 @php
     $nextLabels = ['waiting' => 'Mulai pengerjaan', 'production' => 'Tandai siap diserahkan', 'ready' => 'Tandai sudah diserahkan', 'handed_over' => 'Tandai sudah dikembalikan'];
     $progressOrder = ['waiting', 'production', 'ready', 'handed_over', 'returned'];
@@ -33,7 +35,7 @@
     </ul>
 @endif
 
-@if($admin && $unit->status === 'confirmed' && isset($nextLabels[$unit->progress]))
+@if($admin && ($actions ?? true) && $unit->status === 'confirmed' && isset($nextLabels[$unit->progress]))
     <p class="adm-help" style="margin-top:12px">Pengerjaan memerlukan persetujuan pratinjau terbaru, atau keputusan "lanjutkan dengan catatan" setelah tenggat respons desain lewat; serah terima memerlukan pembayaran lunas terverifikasi.</p>
     <form class="adm-stack" method="post" action="{{ route('admin.rental.progress.advance', $unit) }}">
         @csrf

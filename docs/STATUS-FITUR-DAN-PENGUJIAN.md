@@ -390,3 +390,26 @@ Berkas: `resources/views/rental/_progress_bar.blade.php` (baru),
 
 Pemeriksaan manual: `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.158.
 
+## Babak W — Alur kerja admin: tindakan dulu, katalog berlipat (putaran 43)
+
+1. **Panel "Langkah berikutnya"** per unit di detail pesanan: keadaan, satu
+   tombol utama (konfirmasi / majukan pengerjaan / lanjutkan unit batal),
+   catatan pelanggan, dan alasan + tautan bila syarat belum terpenuhi.
+2. **Satu pintu tindakan**: formulir lama (konfirmasi, tiga varian resume,
+   advance di lipatan riwayat) dihapus.
+3. **Pil tahap** `Tahap 2/5 · Dalam pengerjaan` pada header unit.
+4. **Sembilan kelas CSS pinjaman** diberi aturan di `berkah-admin.css`
+   (`bk-sr-only`, `bk-swatch`, `bk-disclosure`, `bk-items__*`,
+   `bk-reference-list`, `bk-status-chip`, `bk-i`).
+5. **Katalog admin**: sunting warna/paket/kategori dan tambah warna/paket
+   berada di balik lipatan.
+6. Jangkar per unit `#ongkos-`, `#pembayaran-`, `#desain-`, `#riwayat-`.
+7. **Daftar pesanan** menyebut hingga tiga tugas konkret per kartu dengan tautan
+   ke bagian terkait; badge samar "perlu tindakan" dihapus.
+
+Berkas: `resources/views/rental/admin-next-step.blade.php` (baru),
+`resources/views/{rental/admin-detail,rental/admin-progress,catalog/admin}.blade.php`,
+`public/css/berkah-admin.css`, `tests/Feature/AdminSurfaceTest.php` (baru),
+`docs/AUDIT-PANEL-ADMIN-3.md` (baru).
+
+Pemeriksaan manual: `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.159.

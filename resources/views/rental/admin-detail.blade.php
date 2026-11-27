@@ -62,9 +62,6 @@
         $unitDesignPolicy = app(\App\Services\RentalDesignDeadline::class);
         $latestDesignPreview = $unit->previews->first();
         $designDeadline = $unitDesignPolicy->deadline($unit);
-        $resumeOpen = $unit->cancel_code === 'payment_timeout'
-            ? $unitDeadlinePolicy->withinGrace($unit)
-            : now('Asia/Jakarta')->toDateString() <= $unit->starts_on->toDateString();
         $unitTone = $unitStatusTones[$unit->status] ?? 'adm-badge--info';
         $pendingPayments = $unit->payments->where('status', 'pending')->count();
     @endphp
@@ -75,8 +72,14 @@
                 <span class="adm-kicker">Unit {{ $loop->iteration }}</span>
                 <h2 class="adm-note-line" id="unit-{{ $unit->id }}">{{ $unit->product_name }}{{ $unit->variant_name ? ' · warna '.$unit->variant_name : '' }}</h2>
             </div>
-            <span class="adm-badge {{ $unitTone }}">{{ $unitStatusLabels[$unit->status] ?? $unit->status }}</span>
+            <div class="adm-row adm-row--end adm-row--tight">
+                <span class="adm-badge {{ $unitTone }}">{{ $unitStatusLabels[$unit->status] ?? $unit->status }}</span>
+                @php $tahapUnit = \App\Support\RentalLabels::progressStep($unit->progress); @endphp
+                <span class="adm-chip adm-chip--stage">Tahap {{ ($tahapUnit ?? 0) + 1 }}/{{ count(\App\Support\RentalLabels::PROGRESS_STEPS) }} · {{ \App\Support\RentalLabels::progress($unit->progress) }}</span>
+            </div>
         </div>
+
+        @include('rental.admin-next-step', ['unit' => $unit])
 
         <div class="adm-grid adm-grid--3 adm-mt-4">
             <div>
@@ -136,22 +139,8 @@
             </div>
         @endif
 
-        @if($unit->status === 'pending')
-            <form class="adm-stack adm-mt-4" method="post" action="{{ route('admin.rental.confirm', $unit) }}">
-                @csrf
-                @if($unit->needsSpecialConfirmation())
-                    <p class="adm-note adm-note--warn adm-flat">Tanggal penerimaan jatuh pada atau sebelum hari batas konfirmasi. Pastikan kesiapan jadwal; persetujuan khusus diperlukan.</p>
-                    <label class="adm-switch">
-                        <input type="checkbox" name="special_confirmation" value="1" required>
-                        <span class="adm-switch__track" aria-hidden="true"></span>
-                        <span>Saya menyetujui penanganan khusus untuk jadwal dekat.</span>
-                    </label>
-                @endif
-                <div><button class="btn" type="submit">Konfirmasi unit</button></div>
-            </form>
-        @endif
 
-        <details class="adm-card adm-card--flat adm-mt-4" data-adm-reveal="details" @if($errors->any() || $unit->payment_review_hold || in_array($filters['status'] ?? '', ['transport_quote', 'transport_approval', 'review'])) open @endif>
+        <details class="adm-card adm-card--flat adm-mt-4" id="ongkos-{{ $unit->id }}" data-adm-reveal="details" @if($errors->any() || $unit->payment_review_hold || in_array($filters['status'] ?? '', ['transport_quote', 'transport_approval', 'review'])) open @endif>
             <summary>Ongkos dan tagihan</summary>
             <div class="adm-pt-3">
                 @if($unit->transportRequired())
@@ -231,31 +220,16 @@
             </p>
         @endif
 
-        @if($unit->status === 'cancelled' && in_array($unit->status_before_cancel, ['pending', 'confirmed'], true))
-            @if($resumeOpen)
-                <form class="adm-stack adm-mt-3" method="post" action="{{ route('admin.rental.resume', $unit) }}">
-                    @csrf
-                    <p class="adm-help">{{ $unit->status_before_cancel === 'pending' ? 'Unit kembali menunggu konfirmasi; tenggat konfirmasi tetap berlaku.' : 'Unit kembali dikonfirmasi setelah pembayaran lunas terverifikasi dan stok tersedia.' }}</p>
-                    <div class="adm-field">
-                        <label for="resume-reason-{{ $unit->id }}">Alasan melanjutkan (tercatat di riwayat)</label>
-                        <textarea id="resume-reason-{{ $unit->id }}" placeholder="Contoh: Pelanggan melunasi pembayaran dan stok unit tersedia kembali." name="reason" maxlength="500" required rows="4">{{ is_scalar(old('reason')) ? old('reason') : '' }}</textarea>
-                    </div>
-                    <div><button class="btn" type="submit">Lanjutkan unit</button></div>
-                </form>
-            @else
-                <p class="adm-help">Batas melanjutkan unit sudah terlewati.</p>
-            @endif
-        @endif
 
-        <details class="adm-card adm-card--flat adm-mt-4" data-adm-reveal="details" @if($errors->any()) open @endif>
+        <details class="adm-card adm-card--flat adm-mt-4" id="riwayat-{{ $unit->id }}" data-adm-reveal="details" @if($errors->any()) open @endif>
             <summary>Riwayat dan perkembangan</summary>
             <div class="adm-pt-3">
                 @include('rental.admin-cancellation-history')
-                @include('rental.admin-progress', ['admin' => true])
+                @include('rental.admin-progress', ['admin' => true, 'actions' => false])
             </div>
         </details>
 
-        <details class="adm-card adm-card--flat adm-mt-3" data-adm-reveal="details" @if($errors->any() || $pendingPayments > 0 || in_array($filters['status'] ?? '', ['payment_pending', 'review'])) open @endif>
+        <details class="adm-card adm-card--flat adm-mt-3" id="pembayaran-{{ $unit->id }}" data-adm-reveal="details" @if($errors->any() || $pendingPayments > 0 || in_array($filters['status'] ?? '', ['payment_pending', 'review'])) open @endif>
             <summary>Pembayaran · {{ $pendingPayments }} bukti menunggu</summary>
             <div class="adm-pt-3">
                 <h3>Pembayaran</h3>
@@ -358,7 +332,7 @@
             </div>
         </details>
 
-        <details class="adm-card adm-card--flat adm-mt-3" data-adm-reveal="details" @if($errors->any() || in_array($filters['status'] ?? '', ['design_pending', 'design_initial', 'design_revision'])) open @endif>
+        <details class="adm-card adm-card--flat adm-mt-3" id="desain-{{ $unit->id }}" data-adm-reveal="details" @if($errors->any() || in_array($filters['status'] ?? '', ['design_pending', 'design_initial', 'design_revision'])) open @endif>
             <summary>Pratinjau desain · {{ $unit->previews->count() }} versi</summary>
             <div class="adm-pt-3">
                 <h3>Pratinjau desain</h3>
@@ -445,17 +419,6 @@
             </details>
         @else
             <p class="muted adm-mt-3">Alasan: {{ $unit->cancel_reason }}</p>
-            @if($unit->status_before_cancel)
-                <form class="adm-stack" method="post" action="{{ route('admin.rental.resume', $unit) }}">
-                    @csrf
-                    <p class="adm-help">Unit terkonfirmasi harus dicek stoknya kembali. Pada hari penerimaan, pembayaran harus lunas terverifikasi; mulai hari berikutnya tidak dapat dilanjutkan. Kelanjutan dapat berisiko terlambat. Catatan terlihat oleh pelanggan.</p>
-                    <div class="adm-field">
-                        <label for="resume2-reason-{{ $unit->id }}">Alasan melanjutkan</label>
-                        <input id="resume2-reason-{{ $unit->id }}" placeholder="Contoh: Pembayaran lunas dan unit tersedia kembali." name="reason" maxlength="500" required>
-                    </div>
-                    <div><button class="btn secondary" type="submit">Lanjutkan unit</button></div>
-                </form>
-            @endif
             @if($unit->cancel_responsibility === 'seller')
                 <p class="adm-note adm-note--warn adm-mt-3">Kesalahan penjual: kembalikan pembayaran pelanggan. Jumlah terverifikasi yang belum dikembalikan: Rp {{ number_format($unit->payments->where('status', 'verified')->sum('amount') - $unit->payments->sum(fn ($p) => $p->refunds->sum('amount')), 0, ',', '.') }}. Periksa juga bukti yang masih menunggu.</p>
             @endif

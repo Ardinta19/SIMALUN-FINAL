@@ -2099,3 +2099,377 @@ html[data-theme="dark"] .adm-app {
     .adm-chipbar > * { flex: none; }
     .adm-chipbar__label { position: sticky; left: 0; background: var(--adm-cream); padding-right: 6px; }
 }
+
+/* ==========================================================================
+   Panel "Langkah berikutnya" per unit (putaran 43)
+   --------------------------------------------------------------------------
+   Tindakan utama admin dulu terkubur di dalam lipatan "Riwayat dan
+   perkembangan" di dasar kartu unit. Panel ini menaruhnya di puncak kartu:
+   satu kalimat keadaan, satu tombol utama, dan alasan bila belum bisa dipakai.
+   ========================================================================== */
+
+.adm-next {
+    display: grid;
+    gap: var(--adm-space-4);
+    margin-top: var(--adm-space-4);
+    padding: var(--adm-space-4);
+    border: 1px solid var(--adm-line);
+    border-left: 3px solid var(--adm-wine, #85092d);
+    border-radius: 14px;
+    background: #fdf6f4;
+}
+
+.adm-next--blocked {
+    border-left-color: #c98a12;
+    background: #fffaf0;
+}
+
+.adm-next__body > :first-child {
+    margin-top: 0;
+}
+
+.adm-next__title {
+    margin: 4px 0 2px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    line-height: 1.3;
+}
+
+.adm-next__blocker {
+    margin-top: var(--adm-space-2);
+}
+
+.adm-next__action {
+    align-self: start;
+}
+
+/* Di layar sedang, kalimat dan tombol berdampingan supaya kartu tidak tinggi. */
+@media (min-width: 760px) {
+    .adm-next {
+        grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+        align-items: start;
+    }
+}
+
+/* Pil tahap pada judul unit: menandai posisi pengerjaan tanpa stepper penuh. */
+.adm-chip--stage {
+    background: #f6e7e6;
+    color: #7b1f37;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Jangkar yang dituju (mis. setelah menekan "Riwayat") ditandai sebentar. */
+.adm-card[id]:target {
+    outline: 2px solid var(--adm-wine, #85092d);
+    outline-offset: 3px;
+}
+
+/* ==========================================================================
+   Komponen "pinjaman" dari kit pelanggan (putaran 43)
+   --------------------------------------------------------------------------
+   Beberapa partial dipakai bersama oleh halaman pelanggan dan admin
+   (`_ordered_items`, daftar foto referensi, pembuka lipatan, label status).
+   Gaya aslinya tinggal di `berkah-ui-kit.css` / `berkah-experience.css`, yang
+   TIDAK dimuat panel admin — akibatnya di admin komponen itu tampil tanpa
+   bentuk: `<caption class="bk-sr-only">` malah terlihat sebagai teks, kotak
+   warna varian tidak muncul, dan daftar isi pesanan kehilangan kolomnya.
+   Aturan di bawah menutup celah itu tanpa memuat seluruh kit.
+   ========================================================================== */
+
+/* Hanya untuk pembaca layar. */
+.bk-sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* Pembuka lipatan bergaya tombol; tinggi 44 px agar nyaman di layar sentuh. */
+.bk-disclosure {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    margin-left: -8px;
+    padding: 0 8px;
+    border-radius: 10px;
+    font-size: .92rem;
+    font-weight: 700;
+    color: #7b1f37;
+    cursor: pointer;
+    touch-action: manipulation;
+    list-style: none;
+}
+
+.bk-disclosure::-webkit-details-marker { display: none; }
+
+.bk-disclosure::before {
+    content: "▸";
+    display: inline-block;
+    font-size: .8em;
+    transition: transform .18s ease;
+}
+
+details[open] > .bk-disclosure::before { transform: rotate(90deg); }
+
+.bk-disclosure:hover { background: #f7edee; }
+
+.bk-disclosure:focus-visible {
+    outline: 3px solid #85092d;
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bk-disclosure::before { transition: none; }
+}
+
+/* Pembungkus ikon (dipakai toast, keadaan kosong, dan label bintang). */
+.bk-i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bk-i > svg { display: block; }
+
+/* Kotak warna varian. */
+.bk-swatch {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--bk-swatch, #85092d);
+    box-shadow: inset 0 0 0 1px rgba(20, 15, 18, .18);
+}
+
+.bk-swatch--sm { width: 14px; height: 14px; }
+
+/* Label status kecil (dipakai daftar isian pesanan di admin). */
+.bk-status-chip {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    padding: 3px 10px;
+    border: 1px solid #e6cfd3;
+    border-radius: 999px;
+    background: #fff6f4;
+    color: #7a1230;
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .01em;
+}
+
+.bk-status-chip[data-status="confirmed"] {
+    border-color: #cfe6d8;
+    background: #f2fbf6;
+    color: #1d6b46;
+}
+
+.bk-status-chip[data-status="cancelled"] {
+    border-color: #f0cfcf;
+    background: #fdf3f3;
+    color: #97202a;
+}
+
+/* Daftar isian pesanan (`rental/_ordered_items`). */
+.bk-items__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.bk-items__head h2 {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.3;
+}
+
+.bk-items__count {
+    padding: 3px 10px;
+    border: 1px solid #f0d9dd;
+    border-radius: 999px;
+    background: #fff0f2;
+    color: #7a1230;
+    font-size: .75rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.bk-items__hint {
+    margin: 6px 0 0;
+    color: #6b4b55;
+    font-size: .82rem;
+    line-height: 1.5;
+}
+
+.bk-items__list {
+    display: grid;
+    gap: 10px;
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.bk-items__row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 4px 12px;
+    padding-top: 10px;
+    border-top: 1px solid #f3e7e3;
+}
+
+.bk-items__row:first-child {
+    padding-top: 0;
+    border-top: 0;
+}
+
+.bk-items__num {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #f7e7e4;
+    color: #7a1230;
+    font-size: .75rem;
+    font-weight: 800;
+}
+
+.bk-items__body { min-width: 0; }
+
+.bk-items__name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    color: #3b1220;
+    font-weight: 800;
+    line-height: 1.35;
+}
+
+.bk-items__name a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(122, 18, 48, .25);
+}
+
+.bk-items__variant {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #6b4b55;
+    font-size: .75rem;
+    font-weight: 700;
+}
+
+.bk-items__meta {
+    margin: 2px 0 0;
+    color: #6b4b55;
+    font-size: .82rem;
+    line-height: 1.5;
+}
+
+.bk-items__addons {
+    display: grid;
+    gap: 2px;
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+    color: #6b4b55;
+    font-size: .78rem;
+}
+
+.bk-items__price {
+    text-align: right;
+    font-weight: 800;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Foto referensi desain pada detail pesanan admin. */
+.bk-reference-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 10px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.bk-reference-list img {
+    display: block;
+    width: 96px;
+    height: 96px;
+    border: 1px solid #ecd8d8;
+    border-radius: 12px;
+    object-fit: cover;
+    background: #fbf3f1;
+}
+
+/* Lipatan kecil di dalam kartu (mis. "Ubah warna ini" di katalog). */
+.adm-subsection {
+    margin-top: var(--adm-space-3);
+}
+
+.adm-subsection > summary {
+    color: #7b1f37;
+}
+
+/* Baris tugas pada kartu daftar pesanan (putaran 43). */
+.adm-tasklist {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: var(--adm-space-3) 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.adm-tasklist__item a,
+.adm-tasklist__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    border: 1px solid #e7d4d7;
+    border-radius: 999px;
+    background: #fff7f5;
+    color: #7a1230;
+    font-size: .78rem;
+    font-weight: 700;
+    text-decoration: none;
+    line-height: 1.35;
+}
+
+.adm-tasklist__item a:hover {
+    border-color: #cd9aa5;
+    background: #fdeeea;
+}
+
+.adm-tasklist__item[data-tone="warn"] a {
+    border-color: #f0d9a8;
+    background: #fffaf0;
+    color: #7a5210;
+}
+
+.adm-tasklist__item[data-tone="calm"] a {
+    border-color: #d7e3ea;
+    background: #f5fafc;
+    color: #2c5b70;
+}
+
+.adm-tasklist__more {
+    border-style: dashed;
+    background: transparent;
+    color: #7c6068;
+}

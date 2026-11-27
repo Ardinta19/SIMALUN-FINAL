@@ -87,7 +87,37 @@
         $pending = $order->units->where('status', 'pending')->count();
         $confirmed = $order->units->where('status', 'confirmed')->count();
         $cancelled = $order->units->where('status', 'cancelled')->count();
-        $needsAttention = $order->units->contains(fn ($unit) => $unit->status === 'pending' || $unit->payment_review_hold);
+
+        /* Satu baris tugas per pesanan: apa yang menunggu admin, dan ke bagian
+           mana harus pergi. Dulu kartu hanya menampilkan badge status, jadi
+           admin harus membuka tiap pesanan untuk tahu mana yang mendesak. */
+        $tugas = [];
+        foreach ($order->units as $unit) {
+            $bukti = $unit->status === 'cancelled' ? 0 : $unit->payments->where('status', 'pending')->count();
+            if ($unit->payment_review_hold) {
+                $tugas[] = ['Tinjau manual unit '.$unit->product_name, 'pembayaran-'.$unit->id, 'warn'];
+            }
+            if ($bukti > 0) {
+                $tugas[] = [$bukti.' bukti bayar diperiksa', 'pembayaran-'.$unit->id, 'warn'];
+            }
+            if ($unit->status === 'pending') {
+                $tugas[] = ['Konfirmasi '.$unit->product_name, 'unit-'.$unit->id, 'info'];
+            }
+            if ($unit->status === 'confirmed' && $unit->progress === 'waiting' && $unit->previews->isEmpty()) {
+                $tugas[] = ['Pratinjau awal '.$unit->product_name, 'desain-'.$unit->id, 'info'];
+            }
+            if ($unit->status === 'confirmed' && $unit->transportRequired() && $unit->transport_quote === null) {
+                $tugas[] = ['Ongkos '.$unit->product_name.' belum ditawar', 'ongkos-'.$unit->id, 'info'];
+            }
+            if ($unit->status === 'confirmed' && $unit->progress === 'handed_over' && $unit->ends_on->isBefore(now('Asia/Jakarta')->startOfDay())) {
+                $tugas[] = ['Tandai kembali '.$unit->product_name, 'riwayat-'.$unit->id, 'warn'];
+            }
+            if ($unit->previews->first()?->status === 'pending') {
+                $tugas[] = ['Pelanggan meninjau desain', 'desain-'.$unit->id, 'calm'];
+            }
+        }
+        $tugasTeratas = array_slice($tugas, 0, 3);
+        $sisaTugas = count($tugas) - count($tugasTeratas);
     @endphp
     <article class="adm-card adm-card--hover" data-adm-reveal="stores" aria-labelledby="adm-order-{{ $order->id }}">
         <div class="adm-row adm-row--between adm-row--top">
@@ -101,7 +131,7 @@
                 @if($pending)<span class="adm-badge adm-badge--pending">{{ $pending }} menunggu</span>@endif
                 @if($confirmed)<span class="adm-badge adm-badge--confirmed">{{ $confirmed }} dikonfirmasi</span>@endif
                 @if($cancelled)<span class="adm-badge adm-badge--cancelled">{{ $cancelled }} dibatalkan</span>@endif
-                @if($needsAttention)<span class="adm-badge adm-badge--info adm-badge--live">perlu tindakan</span>@endif
+
             </div>
         </div>
 
@@ -115,11 +145,30 @@
                     {{ $namaPapan->take(2)->implode(' · ') }}{{ $sisaPapan > 0 ? ' · dan '.$sisaPapan.' papan lain' : '' }}
                 </p>
                 <p class="adm-help adm-meta">
-                    Batas konfirmasi: {{ $order->confirmation_deadline->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB
+                    @if($pending)
+                        Batas konfirmasi: {{ $order->confirmation_deadline->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB
+                    @else
+                        Dibuat {{ $order->created_at->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB
+                    @endif
                 </p>
             </div>
             <a class="btn secondary adm-btn--sm" href="{{ route('admin.rental.orders.show', $order) }}">Lihat detail pesanan</a>
         </div>
+
+        @if($tugasTeratas)
+            <ul class="adm-tasklist" aria-label="Tugas yang menunggu pada pesanan ini">
+                @foreach($tugasTeratas as [$label, $anchor, $tone])
+                    <li class="adm-tasklist__item" data-tone="{{ $tone }}">
+                        <a href="{{ route('admin.rental.orders.show', $order) }}#{{ $anchor }}">{{ $label }}</a>
+                    </li>
+                @endforeach
+                @if($sisaTugas > 0)
+                    <li class="adm-tasklist__more">+{{ $sisaTugas }} tugas lain</li>
+                @endif
+            </ul>
+        @else
+            <p class="adm-help adm-flat adm-mt-2">Tidak ada yang menunggu admin di pesanan ini.</p>
+        @endif
     </article>
 @empty
     <div class="adm-empty" data-adm-reveal="empty">

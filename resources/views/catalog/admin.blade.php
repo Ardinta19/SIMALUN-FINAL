@@ -42,6 +42,8 @@
                     <strong>{{ $category->name }}</strong>
                     <span class="adm-badge {{ $category->is_active ? 'adm-badge--confirmed' : 'adm-badge--cancelled' }}">Status: {{ $category->is_active ? 'Aktif' : 'Nonaktif' }}</span>
                 </div>
+                <details class="adm-subsection">
+                    <summary class="bk-disclosure">Ubah kategori</summary>
                 <form class="adm-stack adm-mt-2" method="post" action="{{ route('admin.catalog.categories.update', $category) }}">
                     @csrf
                     @method('PUT')
@@ -56,6 +58,7 @@
                     @method('PATCH')
                     <button type="submit" class="btn secondary adm-btn--sm">{{ $category->is_active ? 'Nonaktifkan' : 'Aktifkan' }} kategori</button>
                 </form>
+                </details>
             </div>
         @endforeach
     </section>
@@ -125,6 +128,8 @@
                         <span class="adm-chip">{{ $variant->stock }} unit</span>
                         <span class="adm-badge {{ $variant->is_active ? 'adm-badge--confirmed' : 'adm-badge--cancelled' }}">{{ $variant->is_active ? 'Aktif' : 'Nonaktif' }}</span>
                     </div>
+                    <details class="adm-subsection">
+                        <summary class="bk-disclosure">Ubah warna ini</summary>
                     <form class="adm-stack adm-mt-3" method="post" action="{{ route('admin.catalog.variants.update', $variant) }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
@@ -167,11 +172,14 @@
                             <button type="submit" class="btn secondary adm-btn--sm">Hapus warna</button>
                         </form>
                     </div>
+                    </details>
                 </div>
             @empty
                 <p class="adm-help">Belum ada warna untuk papan ini.</p>
             @endforelse
 
+            <details class="adm-subsection">
+                <summary class="bk-disclosure">Tambah warna baru</summary>
             <form class="adm-stack adm-mt-4" method="post" action="{{ route('admin.catalog.variants.store', $product) }}" enctype="multipart/form-data">
                 @csrf
                 <div class="adm-field-grid">
@@ -198,6 +206,7 @@
                 </div>
                 <div><button class="btn secondary adm-btn--sm" type="submit">Tambah warna</button></div>
             </form>
+            </details>
 
             <h3 class="adm-subhead">Paket durasi</h3>
             <p class="adm-help">Paket berlaku untuk jumlah hari yang tepat, termasuk hari penerimaan dan pengembalian.</p>
@@ -208,6 +217,8 @@
                         <strong>{{ $package->name }} · {{ $package->days }} hari</strong>
                         <span class="adm-badge {{ $package->is_active ? 'adm-badge--confirmed' : 'adm-badge--cancelled' }}">{{ $package->is_active ? 'Aktif' : 'Nonaktif' }}</span>
                     </div>
+                    <details class="adm-subsection">
+                        <summary class="bk-disclosure">Ubah paket ini</summary>
                     <form class="adm-stack adm-mt-3" method="post" action="{{ route('admin.catalog.packages.update', $package) }}">
                         @csrf
                         @method('PUT')
@@ -232,9 +243,12 @@
                         @method('PATCH')
                         <button type="submit" class="btn secondary adm-btn--sm">{{ $package->is_active ? 'Nonaktifkan paket' : 'Aktifkan paket' }}</button>
                     </form>
+                    </details>
                 </div>
             @endforeach
 
+            <details class="adm-subsection">
+                <summary class="bk-disclosure">Tambah paket baru</summary>
             <form class="adm-stack adm-mt-4" method="post" action="{{ route('admin.catalog.packages.store', $product) }}">
                 @csrf
                 <div class="adm-field-grid">
@@ -253,6 +267,7 @@
                 </div>
                 <div><button class="btn secondary adm-btn--sm" type="submit">Tambah paket</button></div>
             </form>
+            </details>
         </div>
     </details>
 @empty

@@ -407,7 +407,10 @@ class RentalOrderController extends Controller
             'to' => ['nullable', 'date_format:Y-m-d'],
         ]);
         if (! empty($filters['from']) && ! empty($filters['to']) && $filters['to'] < $filters['from']) throw ValidationException::withMessages(['to' => 'Tanggal akhir tidak boleh sebelum tanggal mulai.']);
-        $orders = RentalOrder::with(['customer', 'units'])
+        // `units.payments` dan `units.previews` dimuat sekaligus: kartu daftar
+        // menghitung tugas yang menunggu (bukti bayar, pratinjau desain) tanpa
+        // memicu kueri per unit.
+        $orders = RentalOrder::with(['customer', 'units.payments', 'units.previews'])
             ->when(! empty($filters['q']), function ($query) use ($filters) {
                 // Escape wildcard LIKE seperti pada pencarian pelanggan.
                 $term = '%'.addcslashes(trim($filters['q']), '%_\\').'%';
