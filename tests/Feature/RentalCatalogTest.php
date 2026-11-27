@@ -63,10 +63,18 @@ class RentalCatalogTest extends TestCase
         $category = RentalCategory::create(['name' => 'Wisuda']);
         RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan Berfoto', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 1, 'image_path' => 'catalog/papan.jpg']);
         RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan Kosong', 'base_price' => 100, 'price_unit' => 'day', 'stock' => 1]);
+        // Gaya bingkai tidak lagi ditulis sebagai <style> di dalam view (§9.155):
+        // aturannya kini di berkah-admin.css, jadi yang diperiksa adalah kelasnya
+        // dipakai di halaman DAN aturannya ada di berkas CSS admin.
         $this->actingAs($admin)->get(route('admin.catalog.index'))->assertOk()
             ->assertSee('admin-photo', false)->assertSee('storage/catalog/papan.jpg', false)
             ->assertSee('Foto Papan Berfoto')->assertSee('Belum ada foto')
-            ->assertSee('object-fit:contain', false);
+            ->assertSee('css/berkah-admin.css?v=', false);
+
+        $css = (string) file_get_contents(public_path('css/berkah-admin.css'));
+        $this->assertStringContainsString('.admin-photo {', $css);
+        $this->assertStringContainsString('.admin-photo img', $css);
+        $this->assertStringContainsString('object-fit: contain', $css);
     }
 
     public function test_inactive_product_is_not_accessible(): void

@@ -6354,6 +6354,13 @@ Tes terakhir langsung menangkap satu kesalahan nyata: prefiks "Rp" pada
 `.adm-amount-hero__unit` semula ditulis `.5em` (≈8–17 px mengikuti induk),
 sekarang `clamp(13px, 1.6vw, 17px)`.
 
+**Tes lama yang mengunci perilaku lama ikut diubah.** `RentalCatalogTest`
+sebelumnya menuntut teks `object-fit:contain` muncul di HTML halaman katalog
+admin — itu hanya benar selama aturannya ditulis sebagai `<style>` di dalam view.
+Setelah §9.155, yang diperiksa adalah: kelas `admin-photo` dipakai di halaman,
+lembar `css/berkah-admin.css?v=` termuat, dan aturan `.admin-photo {` /
+`.admin-photo img` / `object-fit: contain` ada di berkas CSS tersebut.
+
 **Cara memeriksa sendiri:**
 
 1. Buka lima belas halaman admin (katalog, item tambahan, pesanan, detail pesanan,
