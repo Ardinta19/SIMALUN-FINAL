@@ -32,7 +32,7 @@ class RentalDateFilteringTest extends TestCase
             $this->get(route('catalog.show', array_merge(['product' => $full->id], $dates)))->assertOk()->assertSee('0 unit')->assertDontSee('Tambah ke keranjang');
             $this->from(route('catalog.show', $full))->post(route('cart.store', $full), $dates + ['quantity' => 1])->assertSessionHasErrors('quantity');
             $this->post(route('cart.store', $open), $dates + ['quantity' => 1])->assertSessionHasNoErrors();
-            $this->get(route('cart.index'))->assertOk()->assertSee('Tanggal pilihan')->assertSee('+ Tambah unit')->assertSee('Hapus unit');
+            $this->get(route('cart.index'))->assertOk()->assertSee('Tanggal pilihan')->assertSee('Subtotal harga dasar')->assertSee('Tambah satu unit', false)->assertSee('Hapus semua unit', false);
             $this->actingAs($customer)->get(route('rental.checkout'))->assertOk()->assertSee('value="2026-12-04"', false)->assertSee('value="2026-12-05"', false)
                 ->assertSee('min="2026-12-04"', false);
             $this->get(route('welcome', ['starts_on' => '2026-12-03']))->assertSessionHasErrors('ends_on');

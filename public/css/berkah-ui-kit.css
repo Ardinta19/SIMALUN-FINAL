@@ -1762,3 +1762,74 @@ h1, h2, h3 {
     border-color: var(--bk-page-nav-line, #eadbd6);
     cursor: default;
 }
+
+/* ================================================================
+   Stepper jumlah di keranjang
+   ----------------------------------------------------------------
+   Satu baris keranjang mewakili satu kelompok unit dengan papan dan
+   tanggal yang sama. Tombol −/+ memakai token yang sudah punya pasangan
+   tema gelap (--bk-qty-*), jadi tidak perlu aturan warna terpisah.
+   ================================================================ */
+
+.cart-qty {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 14px 0 6px;
+    flex-wrap: wrap;
+}
+
+.cart-qty form { margin: 0; }
+
+.cart-qty .bk-qty-btn {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid var(--bk-check-line, #d9bfc6);
+    border-radius: 12px;
+    background: var(--bk-qty-btn, #f6e7e9);
+    color: var(--bk-qty-ink, #85092d);
+    font-family: inherit;
+    font-size: 1.25rem;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: background var(--bk-dur-1, 120ms) var(--bk-ease, ease), transform var(--bk-dur-1, 120ms) var(--bk-ease, ease);
+}
+
+.cart-qty .bk-qty-btn:hover { background: var(--bk-qty-btn-hover, #f1dade); }
+.cart-qty .bk-qty-btn:active { transform: scale(.96); }
+.cart-qty .bk-qty-btn:focus-visible { outline: 3px solid var(--bk-focus-ring, #bc5b75); outline-offset: 2px; }
+.cart-qty .bk-qty-btn[disabled] { opacity: .45; cursor: not-allowed; }
+
+.cart-qty .bk-qty-num {
+    min-width: 2ch;
+    text-align: center;
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--bk-qty-ink, #85092d);
+}
+
+.cart-qty .bk-qty-label {
+    color: var(--bk-qty-ink, #85092d);
+    font-size: var(--bk-fs-sm, .875rem);
+    opacity: .8;
+}
+
+.cart-subtotal {
+    margin: 2px 0 10px;
+    font-weight: 700;
+    color: var(--bk-qty-ink, #85092d);
+    font-size: var(--bk-fs-sm, .875rem);
+}
+
+.cart-meta {
+    margin: 0;
+    color: var(--bk-qty-ink, #85092d);
+    opacity: .78;
+    font-size: var(--bk-fs-sm, .875rem);
+    line-height: 1.5;
+}

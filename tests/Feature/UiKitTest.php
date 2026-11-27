@@ -856,11 +856,17 @@ class UiKitTest extends TestCase
 
         $cart = File::get(resource_path('views/catalog/cart.blade.php'));
         $this->assertStringContainsString('bk-del', $cart);
-        $this->assertStringContainsString('class="bk-unit-count"', $cart);
-        $this->assertStringContainsString('+ Tambah unit', $cart);
-        $this->assertStringContainsString("route('cart.destroy'", $cart);
-        $this->assertStringContainsString("@method('DELETE')", $cart);
-        $this->assertStringContainsString('aria-label="Hapus unit', $cart);
+        // Keranjang memakai stepper −/+ per baris (papan + tanggal sama),
+        // bukan lagi deretan kartu per unit dengan tombol "+ Tambah unit".
+        $this->assertStringContainsString('class="cart-qty"', $cart);
+        $this->assertStringContainsString('class="bk-qty-btn"', $cart);
+        $this->assertStringContainsString("route('cart.decrement', \$last)", $cart);
+        $this->assertStringContainsString("route('cart.duplicate', \$first)", $cart);
+        $this->assertStringContainsString("route('cart.clear', \$first)", $cart);
+        $this->assertStringContainsString('aria-label="Kurangi satu unit', $cart);
+        $this->assertStringContainsString('aria-label="Tambah satu unit', $cart);
+        $this->assertStringContainsString('aria-label="Hapus semua unit', $cart);
+        $this->assertStringContainsString('aria-live="polite"', $cart);
 
         $addresses = File::get(resource_path('views/roles/customer/addresses/index.blade.php'));
         $this->assertStringContainsString('bk-del', $addresses);

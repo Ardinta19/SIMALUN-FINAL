@@ -5325,3 +5325,42 @@ konfigurasi bawaan (WhatsApp, nomor tampil, alamat kosong, peta kosong).
 `CatalogFooterTest` diperbarui: footer wajib memuat Instagram/TikTok/WhatsApp
 dan **tidak boleh** memuat "Lokasi di Google Maps" atau "Mayang Mangurai",
 serta menyembunyikan semua tautan saat konfigurasi dikosongkan.
+
+### 9.135 Keranjang ringkas: satu baris per papan + tanggal, dengan stepper −/+
+
+Sebelumnya setiap unit di sesi menjadi satu kartu sendiri. Menambah lima unit
+papan yang sama menghasilkan lima kartu hampir identik ("UNIT 1"…"UNIT 5",
+masing-masing dengan tombol Hapus, tautan detail, dan tulisan "N unit … di
+pesanan ini"), sehingga keranjang panjang dan pelanggan harus menekan Hapus
+berkali-kali untuk membatalkan satu papan.
+
+**Pengelompokan.** `RentalCartController::index()` mengelompokkan entri sesi
+berdasarkan `product_id` + `starts_on` + `ends_on`, lalu mengirim `$groups` ke
+view. Satu baris menampilkan: foto, nama papan, kategori · ukuran · harga
+satuan, stepper jumlah, **subtotal harga dasar** (harga × jumlah), tanggal
+pilihan (atau "belum dipilih"/"sudah lewat"), tautan detail, dan satu tombol
+Hapus. Isi sesi tidak berubah bentuknya, jadi checkout tetap menerima satu
+entri per unit — tiap unit memang punya jadwal dan desain sendiri.
+
+**Dua rute baru**, keduanya `throttle:30,1` seperti rute keranjang lain:
+
+- `POST /keranjang/unit/{item}/kurangi` (`cart.decrement`) — menghapus unit
+  **terakhir** pada kelompok yang sama dan kembali ke fragmen
+  `#cart-unit-<produk>` supaya pengguna tidak terlempar ke atas halaman.
+- `POST /keranjang/unit/{item}/hapus-semua` (`cart.clear`) — menghapus seluruh
+  unit pada kelompok itu dalam satu tindakan; kelompok bertanggal lain tidak
+  tersentuh.
+
+Tombol −/+ memakai token `--bk-qty-btn`/`--bk-qty-ink` yang sudah punya
+pasangan tema gelap, berukuran 44×44 px sesuai target sentuh, dan memberi
+`aria-live="polite"` pada angka jumlah sehingga pembaca layar mengumumkan
+perubahan. Gaya dipindahkan ke `public/css/berkah-ui-kit.css` (bukan blok
+`<style>` di view) agar lolos aturan tema gelap `UiKitTest`.
+
+Dijaga `tests/Feature/CartGroupingTest.php` (4 tes): tiga unit bertanggal sama
++ satu unit bertanggal lain = dua baris dengan angka 3 dan 1 serta subtotal
+Rp 300.000; tombol − mengurangi tepat satu unit dari kelompok yang ditekan dan
+tidak menyentuh kelompok lain; tombol Hapus membersihkan satu kelompok saja;
+tombol + menambah satu unit pada kelompok yang sama. `CartThrottleTest` kini
+memeriksa **lima** rute tulis keranjang, dan `UiKitTest` memeriksa markup
+stepper yang baru.

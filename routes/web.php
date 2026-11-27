@@ -41,6 +41,8 @@ Route::get('/keranjang', [RentalCartController::class, 'index'])->name('cart.ind
 Route::post('/keranjang/{product}', [RentalCartController::class, 'store'])->middleware('throttle:30,1')->name('cart.store');
 Route::post('/keranjang/unit/{item}/tambah', [RentalCartController::class, 'duplicate'])->middleware('throttle:30,1')->name('cart.duplicate');
 Route::delete('/keranjang/{item}', [RentalCartController::class, 'destroy'])->middleware('throttle:30,1')->name('cart.destroy');
+Route::post('/keranjang/unit/{item}/kurangi', [RentalCartController::class, 'decrement'])->middleware('throttle:30,1')->name('cart.decrement');
+Route::post('/keranjang/unit/{item}/hapus-semua', [RentalCartController::class, 'clearGroup'])->middleware('throttle:30,1')->name('cart.clear');
 
 Route::middleware('guest')->group(function () {
 

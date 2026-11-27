@@ -4,41 +4,66 @@
 <div class="cart-page">
 <a data-smart-back class="bk-back" href="{{ route('welcome') }}">← Kembali ke katalog</a>
 <div class="bk-cart-heading"><span class="bk-kicker">Pilihanmu</span><h1>Keranjang</h1></div>
-<p class="muted">Setiap unit dapat memiliki jadwal dan desain yang berbeda. Satu pesanan boleh berisi beberapa unit papan yang sama: gunakan tombol <strong>+ Tambah unit</strong> di tiap baris untuk menggandakan unit dengan jadwal yang sama. Menambahkan papan ke keranjang belum mencadangkan stok.</p>
+<p class="muted">Atur jumlah tiap papan dengan tombol <strong>−</strong> dan <strong>+</strong>. Unit yang tanggalnya berbeda tampil sebagai baris tersendiri karena tiap unit punya jadwal dan desain sendiri. Menambah papan belum menahan stok.</p>
 @if(count($cart))<div class="bk-cart-count"><strong>{{ count($cart) }} unit</strong><span>di keranjang</span><a href="#cart-next">Ke langkah berikutnya ↓</a></div>@endif
 <div class="items">
-@forelse($cart as $id => $item)
+@forelse($groups as $group)
     @php
-        $product = $products->get($item['product_id']);
+        $product = $products->get($group['product_id']);
+        $qty = count($group['ids']);
+        $first = $group['ids'][0];
+        $last = $group['ids'][$qty - 1];
+        $hasDates = ! empty($group['starts_on']) && ! empty($group['ends_on']);
+        $datesExpired = $hasDates && $group['starts_on'] < now('Asia/Jakarta')->toDateString();
         $available = $product && $product->is_active && $product->category && $product->category->is_active && $product->stock > 0;
-        $hasDates = !empty($item['starts_on']) && !empty($item['ends_on']);
-        $datesExpired = $hasDates && $item['starts_on'] < now('Asia/Jakarta')->toDateString();
-        $sameProduct = collect($cart)->where('product_id', $item['product_id'])->count();
     @endphp
-    <article class="card body cart-item">
+    <article class="card body cart-item" id="cart-unit-{{ $group['product_id'] }}">
         @if($available && $product->image_path)
             <img class="cart-image" src="{{ asset('storage/'.$product->image_path) }}" alt="Contoh {{ $product->name }}" loading="lazy" decoding="async">
         @else
             <div class="cart-image cart-placeholder" aria-hidden="true"><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span></div>
         @endif
         <div>
-            <p class="cart-number">UNIT {{ $loop->iteration }}</p>
             @if($available)
                 <h2>{{ $product->name }}</h2>
-                <p class="muted">{{ $product->category->name }} · {{ $product->size ?: 'Ukuran sesuai katalog' }}</p>
-                <p class="price">Harga dasar Rp {{ number_format($product->base_price, 0, ',', '.') }} / {{ $product->price_unit === 'day' ? 'hari' : 'acara' }}</p>
-                @if($hasDates)<p class="muted">Tanggal pilihan: {{ \Carbon\Carbon::parse($item['starts_on'])->format('d/m/Y') }}–{{ \Carbon\Carbon::parse($item['ends_on'])->format('d/m/Y') }}; dapat diubah saat checkout.</p>@endif
-                @if($datesExpired)<p class="notice">Tanggal pilihan sudah lewat. Ubah tanggal unit ini saat checkout. Untuk menambah unit dengan tanggal baru, pilih tanggal di detail papan.</p>@endif
-                @if(!$hasDates)<p class="muted">Tanggal belum dipilih; tentukan tanggal acara dan pengembalian saat checkout.</p>@endif
-                <a href="{{ route('catalog.show', array_merge(['product' => $product->id], $hasDates && !$datesExpired ? ['starts_on' => $item['starts_on'], 'ends_on' => $item['ends_on']] : [])) }}">Lihat detail papan</a>
+                <p class="cart-meta">{{ $product->category->name }} · {{ $product->size ?: 'Ukuran sesuai katalog' }} · Rp {{ number_format($product->base_price, 0, ',', '.') }} / {{ $product->price_unit === 'day' ? 'hari' : 'acara' }}</p>
+
+                <div class="cart-qty" role="group" aria-label="Jumlah unit {{ $product->name }}">
+                    <form method="post" action="{{ route('cart.decrement', $last) }}">@csrf
+                        <button type="submit" class="bk-qty-btn" aria-label="Kurangi satu unit {{ $product->name }}">&minus;</button>
+                    </form>
+                    <span class="bk-qty-num" aria-live="polite">{{ $qty }}</span>
+                    <span class="bk-qty-label">unit</span>
+                    <form method="post" action="{{ route('cart.duplicate', $first) }}">@csrf
+                        <button type="submit" class="bk-qty-btn" aria-label="Tambah satu unit {{ $product->name }}" @if($datesExpired) disabled @endif>+</button>
+                    </form>
+                </div>
+
+                <p class="cart-subtotal">Subtotal harga dasar Rp {{ number_format($product->base_price * $qty, 0, ',', '.') }} · belum termasuk durasi dan ongkos</p>
+
+                @if($hasDates && ! $datesExpired)
+                    <p class="cart-meta">Tanggal pilihan: {{ \Carbon\Carbon::parse($group['starts_on'])->format('d/m/Y') }}–{{ \Carbon\Carbon::parse($group['ends_on'])->format('d/m/Y') }} (bisa diubah saat checkout)</p>
+                @elseif($datesExpired)
+                    <p class="notice">Tanggal pilihan sudah lewat. Ubah tanggal unit ini saat checkout, atau buat unit baru dengan tanggal lain dari halaman papan.</p>
+                @else
+                    <p class="cart-meta">Tanggal belum dipilih; tentukan tanggal acara dan pengembalian saat checkout.</p>
+                @endif
+
+                <div class="cart-unit-actions">
+                    <a href="{{ route('catalog.show', array_merge(['product' => $product->id], $hasDates && ! $datesExpired ? ['starts_on' => $group['starts_on'], 'ends_on' => $group['ends_on']] : [])) }}">Lihat detail papan</a>
+                    <form method="post" action="{{ route('cart.clear', $first) }}">@csrf
+                        <button type="submit" class="bk-del" aria-label="Hapus semua unit {{ $product->name }} dari keranjang"><span class="bk-del__icon" aria-hidden="true"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"></path></svg></span><span class="bk-del__text">Hapus</span></button>
+                    </form>
+                </div>
             @else
-                <h2>Papan tidak tersedia</h2><p class="muted">Papan ini tidak lagi tersedia. Hapus unit ini sebelum melanjutkan.</p>
+                <h2>Papan tidak tersedia</h2>
+                <p class="cart-meta">Papan ini sudah tidak dijual. Hapus {{ $qty }} unit ini sebelum melanjutkan.</p>
+                <div class="cart-unit-actions">
+                    <form method="post" action="{{ route('cart.clear', $first) }}">@csrf
+                        <button type="submit" class="bk-del" aria-label="Hapus semua unit papan yang tidak tersedia dari keranjang"><span class="bk-del__icon" aria-hidden="true"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"></path></svg></span><span class="bk-del__text">Hapus</span></button>
+                    </form>
+                </div>
             @endif
-            <div class="cart-unit-actions">
-                <form method="post" action="{{ route('cart.destroy', $id) }}">@csrf @method('DELETE')<button type="submit" class="bk-del" aria-label="Hapus unit {{ $loop->iteration }}{{ $available ? ' '.$product->name : ' yang tidak tersedia' }} dari keranjang"><span class="bk-del__icon" aria-hidden="true"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"></path></svg></span><span class="bk-del__text">Hapus</span></button></form>
-                @if($available)<span class="bk-unit-count" aria-live="polite"><strong>{{ $sameProduct }}</strong> unit {{ $product->name }} di pesanan ini</span>@endif
-                @if($available && !$datesExpired)<form method="post" action="{{ route('cart.duplicate', $id) }}">@csrf<button type="submit" class="btn secondary" aria-label="Tambah satu unit {{ $product->name }} dengan tanggal pilihan yang sama">+ Tambah unit</button></form>@endif
-            </div>
         </div>
     </article>
 @empty
