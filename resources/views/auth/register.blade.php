@@ -404,6 +404,7 @@ $oldText = function (string $key, $fallback = '') {
             <span class="input-icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'user', 'size' => 20])</span>
             <input class="form-input @error('name') error @enderror"
               type="text" id="name" name="name" aria-describedby="err-name"
+              @error('name') aria-invalid="true" @enderror
               placeholder="Contoh: Sari Wulandari"
               value="{{ $oldText('name') }}" autocomplete="name">
           </div>
@@ -412,13 +413,13 @@ $oldText = function (string $key, $fallback = '') {
         </div>
 
         <div class="form-group">
-          <div class="form-label" id="gender-label">Jenis Kelamin</div>
+          <div class="form-label" id="gender-label">Jenis kelamin</div>
           <div class="gender-row" role="radiogroup" aria-labelledby="gender-label" aria-describedby="err-gender">
-            <input type="radio" class="gender-opt" name="gender" id="g-male" value="L" {{ $oldText('gender')=='L' ? 'checked' : '' }}>
+            <input type="radio" class="gender-opt" name="gender" id="g-male" value="L" {{ $oldText('gender')=='L' ? 'checked' : '' }} @error('gender') aria-invalid="true" @enderror>
             <label class="gender-label" for="g-male">
               <span>Laki-laki</span>
             </label>
-            <input type="radio" class="gender-opt" name="gender" id="g-female" value="P" {{ $oldText('gender')=='P' ? 'checked' : '' }}>
+            <input type="radio" class="gender-opt" name="gender" id="g-female" value="P" {{ $oldText('gender')=='P' ? 'checked' : '' }} @error('gender') aria-invalid="true" @enderror>
             <label class="gender-label" for="g-female">
               <span>Perempuan</span>
             </label>
@@ -434,7 +435,8 @@ $oldText = function (string $key, $fallback = '') {
             <div class="phone-input-wrap">
               <input class="form-input @error('phone') error @enderror"
                 type="tel" id="phone" name="phone" aria-describedby="err-phone"
-                placeholder="Contoh: 81234567890"
+              @error('phone') aria-invalid="true" @enderror
+              placeholder="Contoh: 81234567890"
                 value="{{ $oldText('phone') }}" inputmode="tel" autocomplete="tel">
             </div>
           </div>
@@ -459,6 +461,7 @@ $oldText = function (string $key, $fallback = '') {
             <span class="input-icon">@</span>
             <input class="form-input @error('email') error @enderror"
               type="email" id="email" name="email" aria-describedby="err-email"
+              @error('email') aria-invalid="true" @enderror
               placeholder="Contoh: sari@email.com (opsional)"
               value="{{ $oldText('email') }}" autocomplete="email" inputmode="email">
           </div>
@@ -474,6 +477,7 @@ $oldText = function (string $key, $fallback = '') {
           <div class="input-wrap">
             <span class="input-icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'lock', 'size' => 20])</span>
             <input class="form-input" type="password" id="password" name="password" aria-describedby="err-pw"
+              @error('password') aria-invalid="true" @enderror
               placeholder="Min. 8 karakter" autocomplete="new-password">
             <button type="button" class="pw-toggle" id="pw-toggle-1" aria-label="Tampilkan kata sandi" aria-pressed="false"><span data-glyph="eye">@include('layouts.component._icon', ['name' => 'eye', 'size' => 20])</span><span data-glyph="eye-off" hidden>@include('layouts.component._icon', ['name' => 'eye-off', 'size' => 20])</span></button>
           </div>
@@ -499,6 +503,7 @@ $oldText = function (string $key, $fallback = '') {
           <div class="input-wrap">
             <span class="input-icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'lock-keyhole', 'size' => 20])</span>
             <input class="form-input" type="password" id="password_confirmation" name="password_confirmation" aria-describedby="err-pwc"
+              @error('password_confirmation') aria-invalid="true" @enderror
               placeholder="Ulangi kata sandi" autocomplete="new-password">
             <button type="button" class="pw-toggle" id="pw-toggle-2" aria-label="Tampilkan konfirmasi kata sandi" aria-pressed="false"><span data-glyph="eye">@include('layouts.component._icon', ['name' => 'eye', 'size' => 20])</span><span data-glyph="eye-off" hidden>@include('layouts.component._icon', ['name' => 'eye-off', 'size' => 20])</span></button>
           </div>
@@ -518,6 +523,7 @@ $oldText = function (string $key, $fallback = '') {
           <div class="input-wrap">
             <span class="input-icon" style="top:14px;transform:none;" aria-hidden="true">@include('layouts.component._icon', ['name' => 'home', 'size' => 20])</span>
             <textarea class="form-input" id="address" name="address" aria-describedby="err-address"
+              @error('address') aria-invalid="true" @enderror
               placeholder="Contoh: Jl. Merdeka No. 12, RT 03/RW 05, Kel. Talang"
               rows="3" style="padding-left:2.65rem;resize:none;">{{ $oldText('address') }}</textarea>
           </div>
@@ -536,7 +542,7 @@ $oldText = function (string $key, $fallback = '') {
         </div>
 
         <div class="terms-row">
-          <input type="checkbox" class="terms-cb" id="terms" name="terms" aria-describedby="err-terms" value="1" @checked($oldText('terms')) required>
+          <input type="checkbox" class="terms-cb" id="terms" name="terms" aria-describedby="err-terms" @error('terms') aria-invalid="true" @enderror value="1" @checked($oldText('terms')) required>
           <label class="terms-txt" for="terms">
             Saya menyetujui penggunaan data saya untuk pengelolaan akun dan pesanan Berkah Kreatif.
           </label>
@@ -569,7 +575,7 @@ $oldText = function (string $key, $fallback = '') {
                 <span class="bk-auth__text"><span class="bk-auth__chars bk-auth__chars--a"><span style="--i: 1">D</span><span style="--i: 2">a</span><span style="--i: 3">f</span><span style="--i: 4">t</span><span style="--i: 5">a</span><span style="--i: 6">r</span></span><span class="bk-auth__chars bk-auth__chars--b"><span style="--i: 1">B</span><span style="--i: 2">u</span><span style="--i: 3">a</span><span style="--i: 4">t</span><span style="--i: 5"> </span><span style="--i: 6">A</span><span style="--i: 7">k</span><span style="--i: 8">u</span><span style="--i: 9">n</span></span></span>
               </span>
             </span>
-            <span class="btn-text bk-sr-only">Daftar Sekarang</span>
+            <span class="btn-text bk-sr-only">Daftar sekarang</span>
           </button>
         </div>
       </div>
@@ -580,7 +586,7 @@ $oldText = function (string $key, $fallback = '') {
     <div id="success-state">
       @if(session('registered'))
       <div class="success-icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'party-popper', 'size' => 32])</div>
-      <div class="success-title">Akun Berhasil Dibuat!</div>
+      <div class="success-title">Akun berhasil dibuat!</div>
       <div class="success-sub">
         Selamat datang di SIMALUN!<br>
         Akun kamu sudah aktif. Silakan masuk untuk mulai memesan.
@@ -694,8 +700,18 @@ document.addEventListener('DOMContentLoaded', function () {
     return ok;
   }
 
-  function showErr(id, msg) { const el=document.getElementById(id); if(el){el.textContent=msg;el.classList.add('show');} }
-  function clearErr(id) { const el=document.getElementById(id); if(el){el.textContent='';el.classList.remove('show');} }
+  /* Penanda galat harus ikut sampai ke kolomnya, bukan hanya ke teks pesan:
+     pembaca layar butuh `aria-invalid` pada isian agar pengguna tahu kolom
+     mana yang harus diperbaiki saat berpindah dengan Tab. */
+  const ERR_FIELDS = { 'err-name': 'name', 'err-phone': 'phone', 'err-email': 'email', 'err-pw': 'password', 'err-pwc': 'password_confirmation', 'err-address': 'address', 'err-terms': 'terms' };
+  function markInvalid(id, invalid) {
+    const field = document.getElementById(ERR_FIELDS[id] || '');
+    if (!field) return;
+    if (invalid) field.setAttribute('aria-invalid', 'true');
+    else field.removeAttribute('aria-invalid');
+  }
+  function showErr(id, msg) { const el=document.getElementById(id); if(el){el.textContent=msg;el.classList.add('show');markInvalid(id, true);} }
+  function clearErr(id) { const el=document.getElementById(id); if(el){el.textContent='';el.classList.remove('show');markInvalid(id, false);} }
 
   /* ── STEP 3 SUBMIT VALIDATION ── */
   document.getElementById('register-form').addEventListener('submit', function(e) {

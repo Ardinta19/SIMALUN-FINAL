@@ -113,7 +113,7 @@ $oldText = function (string $key, $fallback = '') {
   <div class="bk-splash__petals" aria-hidden="true"><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span></div>
   <div class="bk-splash__center">
     <div class="bk-splash__logo"><img src="{{ asset('images/logo-216.png') }}" width="216" height="118" alt="Logo Berkah Kreatif" decoding="async"></div>
-    <p class="bk-splash__eyebrow">Papan Bunga &amp; Hadiah</p>
+    <p class="bk-splash__eyebrow">Papan bunga &amp; hadiah</p>
     <p class="bk-splash__brand">Berkah Kreatif</p>
     <div class="bk-splash__rule"></div>
     <p class="bk-splash__tagline">Rangkaian bunga untuk momen yang kamu tunggu.</p>

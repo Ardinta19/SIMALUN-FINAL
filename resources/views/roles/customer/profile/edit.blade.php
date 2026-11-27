@@ -248,6 +248,7 @@ html[data-theme="dark"] .alert-success { background: #0f2b22; color: #8ff0cc; }
 @include('layouts.component._theme_head')
 </head>
 <body @if($user->role === 'customer') class="bk-experience bk-customer bk-standalone" @endif>
+@include('layouts.component._skip_link')
 @php
 $oldText = function (string $key, $fallback = '') {
     $value = old($key, $fallback);
@@ -318,7 +319,7 @@ $oldText = function (string $key, $fallback = '') {
                     <label class="field-label" for="profile-name">Nama lengkap <span class="req">*</span></label>
                     <input placeholder="Contoh: Sari Wulandari" autocomplete="name" type="text" id="profile-name" name="name"
                            class="field-input {{ $errors->has('name') ? 'is-error' : '' }}"
-                           value="{{ $oldText('name', $user->name) }}" required>
+                           value="{{ $oldText('name', $user->name) }}" required @error('name') aria-invalid="true" @enderror>
                     @error('name') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
 
@@ -326,7 +327,7 @@ $oldText = function (string $key, $fallback = '') {
                     <label class="field-label" for="profile-email">Email <span style="font-weight:600;color:var(--ink-lt)">(opsional)</span></label>
                     <input placeholder="Contoh: nama@email.com" autocomplete="email" type="email" id="profile-email" name="email"
                            class="field-input {{ $errors->has('email') ? 'is-error' : '' }}"
-                           value="{{ $oldText('email', $user->email) }}">
+                           value="{{ $oldText('email', $user->email) }}" @error('email') aria-invalid="true" @enderror>
                     @error('email') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
 
@@ -334,7 +335,7 @@ $oldText = function (string $key, $fallback = '') {
                     <label class="field-label" for="profile-phone">Nomor HP / WhatsApp <span class="req">*</span></label>
                     <input placeholder="Contoh: 0812 3456 7890" autocomplete="tel" type="tel" inputmode="tel" id="profile-phone" name="phone"
                            class="field-input"
-                           value="{{ $oldText('phone', $user->phone) }}" required>
+                           value="{{ $oldText('phone', $user->phone) }}" required @error('phone') aria-invalid="true" @enderror>
                     @error('phone') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
 
@@ -373,7 +374,7 @@ $oldText = function (string $key, $fallback = '') {
                     <label class="field-label" for="profile-address-phone">No. HP penerima</label>
                     <input placeholder="Contoh: 0812 3456 7890" autocomplete="tel" type="tel" inputmode="tel" id="profile-address-phone" name="phone"
                            class="field-input"
-                           value="{{ $oldText('phone', $primaryAddress->phone ?? $user->phone) }}">
+                           value="{{ $oldText('phone', $primaryAddress->phone ?? $user->phone) }}" @error('phone') aria-invalid="true" @enderror>
                 </div>
 
                 <div>
@@ -391,7 +392,7 @@ $oldText = function (string $key, $fallback = '') {
                 </div>
 
                 <button type="submit" class="btn-submit secondary">
-                    {{ $primaryAddress ? 'Simpan Perubahan Alamat' : 'Simpan Alamat Utama' }}
+                    {{ $primaryAddress ? 'Simpan perubahan alamat' : 'Simpan alamat utama' }}
                 </button>
             </div>
         </div>
@@ -409,13 +410,13 @@ $oldText = function (string $key, $fallback = '') {
             <div class="section-body">
                 <div>
                     <label class="field-label" for="profile-current-password">Kata sandi saat ini</label>
-                    <input type="password" id="profile-current-password" name="current_password" class="field-input" autocomplete="current-password" placeholder="••••••••">
+                    <input type="password" id="profile-current-password" name="current_password" class="field-input" autocomplete="current-password" placeholder="••••••••" @error('current_password') aria-invalid="true" @enderror>
                     @error('current_password', 'updatePassword') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
 
                 <div>
                     <label class="field-label" for="profile-new-password">Kata sandi baru</label>
-                    <input type="password" id="profile-new-password" name="password" class="field-input" autocomplete="new-password" placeholder="Minimal 8 karakter">
+                    <input type="password" id="profile-new-password" name="password" class="field-input" autocomplete="new-password" placeholder="Minimal 8 karakter" @error('password') aria-invalid="true" @enderror>
                     @error('password', 'updatePassword') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
 
@@ -444,7 +445,7 @@ $oldText = function (string $key, $fallback = '') {
                     @method('delete')
                     <div>
                         <label class="field-label" for="profile-delete-password">Konfirmasi kata sandi <span class="req">*</span></label>
-                        <input autocomplete="current-password" type="password" id="profile-delete-password" name="password" class="field-input" required placeholder="Masukkan kata sandi kamu">
+                        <input autocomplete="current-password" type="password" id="profile-delete-password" name="password" class="field-input" required placeholder="Masukkan kata sandi kamu" @error('password') aria-invalid="true" @enderror>
                         @error('password') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                     </div>
                     <button type="button" class="btn-danger" style="margin-top:12px;" id="btn-delete-account">Nonaktifkan akun</button>

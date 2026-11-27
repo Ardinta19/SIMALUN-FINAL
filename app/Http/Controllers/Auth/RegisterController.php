@@ -86,7 +86,7 @@ class RegisterController extends Controller
 
             CustomerAddress::create([
                 'customer_id' => $user->id,
-                'label' => 'Alamat Utama',
+                'label' => 'Alamat utama',
                 'recipient_name' => $user->name,
                 'phone' => $user->phone,
                 'full_address' => $validated['address'],

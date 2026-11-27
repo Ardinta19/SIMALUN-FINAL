@@ -3432,3 +3432,46 @@ Header keamanan (`nosniff`, `DENY`, `Referrer-Policy`, `Permissions-Policy`,
 `no-store` untuk sesi masuk) terpasang lewat middleware.
 
 **Hasil:** harness **166 lulus, 0 gagal, 218 dilewati**.
+
+### 9.72 Putaran kesepuluh (lanjutan): tautan lompat, `aria-invalid`, dan batas voucher
+
+**a. Tiga halaman tanpa tautan lompat ke isi.** `roles/customer/addresses/create`,
+`…/addresses/edit`, dan `roles/customer/profile/edit` punya
+`<main id="main-content">` tetapi tidak punya tautan lompat. Akibatnya Tab
+pertama di halaman itu berhenti di menu, bukan di isi. Ketiganya kini
+menyertakan `layouts.component._skip_link`. Dijaga
+`test_setiap_halaman_punya_tautan_lompat_ke_isi`, yang juga memastikan id
+tujuan tautan benar-benar ada di halaman.
+
+**b. Sembilan halaman menampilkan pesan galat tanpa menandai kolomnya.**
+`rental/addons`, `rental/unit`, `rental/show`, `catalog/index`, `catalog/show`,
+`roles/admin/profile_edit`, `roles/customer/profile/edit`, dan dua formulir
+alamat menampilkan `<p class="…-error" role="alert">` tanpa `aria-invalid` pada
+isiannya — 27 kolom. Pengguna papan ketik yang kembali ke kolom salah tidak
+mendapat tanda apa pun. Semua kolom bergalat kini bertanda; halaman daftar
+menambahkan penanda yang sama dari sisi klien (`markInvalid()`), sebab
+validasinya berjalan sebelum halaman dikirim. Dijaga
+`test_kolom_bergalat_ditandai_aria_invalid`.
+
+**c. Batas kode voucher tidak sesuai kolom.** `vouchers.code` bertipe
+`string(30)`, tetapi validasi penyimpanan mengizinkan `max:40` sementara
+formulir memotong di 30. Kode 31–40 huruf akan lolos validasi lalu gagal saat
+disimpan (`Data too long`) atau terpotong diam-diam. Validasi kini `max:30`,
+sama dengan kolom, formulir, dan aturan pembaruan.
+
+**d. Sisa Judul Kapital di teks pendamping.** "Daftar Sekarang", "Akun Berhasil
+Dibuat!", "Jenis Kelamin", "Papan Bunga & Hadiah", "Jadikan Alamat Utama",
+"Titik Lokasi di Peta (Opsional)", "Simpan Perubahan", "Simpan Perubahan
+Alamat", dan label bawaan "Alamat Utama" dari pendaftaran. Semua kini kalimat
+biasa; label alamat bawaan pelanggan baru berbunyi "Alamat utama". Dijaga
+`test_teks_pendamping_tidak_memakai_judul_kapital`.
+
+**e. Yang diperiksa dan terbukti aman** (jangan diulang): semua `<form
+method="post">` punya `@csrf` (0 temuan); semua `<th>` punya `scope`; semua
+pesan sesi berada di wilayah `aria-live`/`role="status"`; batas `maxlength`
+formulir sepadan dengan `max:`/tipe kolom untuk nama, deskripsi, kategori,
+universitas, kas, dan alamat; kolom teks panjang memakai `text` di basis data
+jadi `max:1000`–`max:3000` tidak meluap; `<fieldset class="bk-star-rating">`
+membawa `aria-invalid`/`aria-describedby` untuk grup bintang.
+
+**Hasil:** harness **169 lulus, 0 gagal, 218 dilewati**.

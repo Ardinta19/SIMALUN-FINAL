@@ -59,7 +59,10 @@ class RentalVoucherController extends Controller
     public function check(Request $request, RentalVouchers $vouchers)
     {
         $data = $request->validate([
-            'code' => ['required', 'string', 'max:40'],
+            // Kolom `vouchers.code` hanya 30 karakter: batas validasi harus
+            // sama, kalau tidak kode 31–40 huruf lolos validasi lalu gagal
+            // saat disimpan (Data too long) atau terpotong diam-diam.
+            'code' => ['required', 'string', 'max:30'],
             // Perkiraan harga sewa dari tanggal dan paket yang sedang diisi di
             // formulir checkout. Hanya dipakai untuk menampilkan perkiraan;
             // angka final selalu dihitung server saat pesanan dikirim.

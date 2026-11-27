@@ -55,7 +55,7 @@
                  style="width:72px;height:72px;flex:none;border-radius:50%;object-fit:cover;border:1px solid var(--adm-line);background:var(--adm-surface-3)">
             <div class="adm-field" style="flex:1 1 220px;min-width:0">
                 <label for="avatar">Foto profil</label>
-                <input type="file" id="avatar" name="avatar" accept="image/jpeg,image/png,image/webp" data-adm-avatar aria-describedby="avatar-hint">
+                <input type="file" id="avatar" name="avatar" accept="image/jpeg,image/png,image/webp" data-adm-avatar aria-describedby="avatar-hint" @error('avatar') aria-invalid="true" @enderror>
                 <p class="adm-help" id="avatar-hint">JPG, PNG, atau WebP, maksimal 5 MB. Kosongkan bila tidak diganti. <span data-adm-avatar-name></span></p>
                 @error('avatar')<p class="adm-err" role="alert">{{ $message }}</p>@enderror
             </div>
@@ -65,19 +65,19 @@
             <div class="adm-field">
                 <label for="name">Nama lengkap <span class="adm-req">(wajib)</span></label>
                 <input type="text" id="name" name="name" autocomplete="name" required
-                       placeholder="Contoh: Sari Wulandari" value="{{ $oldText('name', $user->name) }}">
+                       placeholder="Contoh: Sari Wulandari" value="{{ $oldText('name', $user->name) }}" @error('name') aria-invalid="true" @enderror>
                 @error('name')<p class="adm-err" role="alert">{{ $message }}</p>@enderror
             </div>
             <div class="adm-field">
                 <label for="email">Alamat email <span class="adm-req">(wajib)</span></label>
                 <input type="email" id="email" name="email" autocomplete="email" required
-                       placeholder="Contoh: nama@email.com" value="{{ $oldText('email', $user->email) }}">
+                       placeholder="Contoh: nama@email.com" value="{{ $oldText('email', $user->email) }}" @error('email') aria-invalid="true" @enderror>
                 @error('email')<p class="adm-err" role="alert">{{ $message }}</p>@enderror
             </div>
             <div class="adm-field">
                 <label for="phone">Nomor WhatsApp</label>
                 <input type="tel" id="phone" name="phone" inputmode="tel" autocomplete="tel"
-                       placeholder="Contoh: 081234567890" value="{{ $oldText('phone', $user->phone) }}">
+                       placeholder="Contoh: 081234567890" value="{{ $oldText('phone', $user->phone) }}" @error('phone') aria-invalid="true" @enderror>
                 @error('phone')<p class="adm-err" role="alert">{{ $message }}</p>@enderror
             </div>
         </div>

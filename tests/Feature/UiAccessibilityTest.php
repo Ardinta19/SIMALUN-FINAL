@@ -920,4 +920,86 @@ class UiAccessibilityTest extends TestCase
         $salah = array_values(array_unique($salah));
         $this->assertSame([], $salah, implode(' | ', $salah));
     }
+
+    /** Kolom yang menampilkan pesan galat juga ditandai `aria-invalid`.
+     *
+     *  Pesan galat sendiri sudah `role="alert"`, jadi pembaca layar
+     *  mengumumkannya sekali. Yang hilang tanpa `aria-invalid` adalah tanda
+     *  *melekat* pada kolomnya: saat pengguna berpindah dengan Tab, kolom yang
+     *  salah tidak bisa dibedakan dari yang benar. Dua puluh tujuh kolom
+     *  (katalog, profil, alamat, detail unit, tambahan) sempat tidak bertanda.
+     */
+    public function test_kolom_bergalat_ditandai_aria_invalid(): void
+    {
+        $kurang = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            $relative = str_replace('\\', '/', $file->getRelativePathname());
+            $html = (string) File::get($file->getPathname());
+            $kunci = [];
+
+            preg_match_all("/@error\(\s*'([^']+)'/", $html, $errors);
+            $kunci = array_flip($errors[1]);
+
+            if ($kunci === []) {
+                continue;
+            }
+
+            $pos = 0;
+
+            while (preg_match('/<(input|textarea|select)\b/', $html, $m, PREG_OFFSET_CAPTURE, $pos)) {
+                $start = $m[0][1];
+                $end = $this->tagEnd($html, $start);
+
+                if ($end === null) {
+                    break;
+                }
+
+                $tag = substr($html, $start, $end - $start);
+
+                if (preg_match('/name="([^"]+)"/', $tag, $name)
+                    && isset($kunci[$name[1]])
+                    && ! str_contains($tag, 'aria-invalid')
+                    && ! str_contains($tag, 'type="hidden"')) {
+                    $kurang[] = $relative.' → '.$name[1];
+                }
+
+                $pos = $end;
+            }
+        }
+
+        $kurang = array_values(array_unique($kurang));
+        $this->assertSame([], $kurang, implode(' | ', $kurang));
+    }
+
+    /** Akhir tag pembuka, melewati `{{ … }}` supaya `->` tidak dianggap `>`.
+     *
+     *  Pemindaian tag dengan `[^>]*` berhenti di panah `->` milik Blade dan
+     *  membuat atribut sesudahnya (termasuk `aria-invalid`) tidak terbaca.
+     */
+    private function tagEnd(string $html, int $start): ?int
+    {
+        $length = strlen($html);
+        $i = $start;
+
+        while ($i < $length) {
+            if (substr($html, $i, 2) === '{{') {
+                $close = strpos($html, '}}', $i);
+                $i = $close === false ? $length : $close + 2;
+                continue;
+            }
+
+            if ($html[$i] === '>') {
+                return $i + 1;
+            }
+
+            $i++;
+        }
+
+        return null;
+    }
 }

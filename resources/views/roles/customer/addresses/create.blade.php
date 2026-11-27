@@ -228,6 +228,7 @@ html[data-theme="dark"] .alert-success { background: #0f2b22; color: #8ff0cc; }
 @include('layouts.component._theme_head')
 </head>
 <body class="bk-experience bk-customer bk-standalone">
+@include('layouts.component._skip_link')
 @php
 $oldText = function (string $key, $fallback = '') {
     $value = old($key, $fallback);
@@ -272,14 +273,14 @@ $oldText = function (string $key, $fallback = '') {
                 <div>
                     <label class="field-label" for="address-label">Label alamat <span class="required">*</span></label>
                     <input placeholder="Contoh: Rumah" type="text" name="label" id="address-label" class="field-input {{ $errors->has('label') ? 'is-error' : '' }}"
-                        value="{{ $oldText('label', 'Rumah') }}" required autocomplete="off">
+                        value="{{ $oldText('label', 'Rumah') }}" required autocomplete="off" @error('label') aria-invalid="true" @enderror>
                     @error('label') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
 
                 <div>
                     <label class="field-label" for="address-recipient_name">Nama penerima <span class="required">*</span></label>
                     <input placeholder="Contoh: Ibu Sari Wulandari" type="text" name="recipient_name" id="address-recipient_name" class="field-input {{ $errors->has('recipient_name') ? 'is-error' : '' }}"
-                        value="{{ $oldText('recipient_name', auth()->user()->name) }}" required autocomplete="name">
+                        value="{{ $oldText('recipient_name', auth()->user()->name) }}" required autocomplete="name" @error('recipient_name') aria-invalid="true" @enderror>
                     @error('recipient_name') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
 
@@ -300,7 +301,7 @@ $oldText = function (string $key, $fallback = '') {
             </div>
             <div class="section-body">
                 <div>
-                    <div class="field-label">Titik Lokasi di Peta (Opsional)</div>
+                    <div class="field-label">Titik lokasi di peta (opsional)</div>
                     <div id="addr-map" hidden></div><p class="field-hint" id="map-fallback">Peta bersifat opsional. Jika tidak tampil, isi alamat lengkap secara manual.</p>
                     <div class="map-hint" hidden>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -313,7 +314,7 @@ $oldText = function (string $key, $fallback = '') {
                 <div>
                     <label class="field-label" for="address-full_address">Alamat lengkap <span class="required">*</span></label>
                     <textarea placeholder="Contoh: Jl. Merdeka No. 12, RT 03, Palembang" name="full_address" id="address-full_address" class="field-input {{ $errors->has('full_address') ? 'is-error' : '' }}"
-                        required autocomplete="street-address" rows="4">{{ $oldText('full_address') }}</textarea>
+                        required autocomplete="street-address" rows="4" @error('full_address') aria-invalid="true" @enderror>{{ $oldText('full_address') }}</textarea>
                     @error('full_address') <div class="field-error" role="alert">{{ $message }}</div> @enderror
                 </div>
 
@@ -336,7 +337,7 @@ $oldText = function (string $key, $fallback = '') {
                 <div>
                     <div class="toggle-wrap">
                         <div>
-                            <div class="toggle-label">Jadikan Alamat Utama</div>
+                            <div class="toggle-label">Jadikan alamat utama</div>
                             <div class="toggle-sub">Ditampilkan sebagai alamat utama dan dapat dipilih saat checkout</div>
                         </div>
                         <label><input type="checkbox" name="is_primary" value="1" @checked($oldText('is_primary'))> Jadikan utama</label>

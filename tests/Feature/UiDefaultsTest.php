@@ -1053,4 +1053,97 @@ class UiDefaultsTest extends TestCase
 
         $this->assertSame([], array_values(array_unique($pelanggaran)), implode(' | ', array_values(array_unique($pelanggaran))));
     }
+
+    /** Teks pendamping kecil (label sakelar, kicker, remah) kalimat biasa.
+     *
+     *  "Jadikan Alamat Utama", "Titik Lokasi di Peta (Opsional)", "Daftar
+     *  Sekarang", dan "Akun Berhasil Dibuat!" lolos dari penjaga judul karena
+     *  ditulis di `<div class="toggle-label">`, `<span class="bk-kicker">`,
+     *  atau tombol halaman splash — bukan `<h1>`–`<h4>`.
+     */
+    public function test_teks_pendamping_tidak_memakai_judul_kapital(): void
+    {
+        $sah = ['SIMALUN', 'Berkah', 'Kreatif', 'Jambi', 'WhatsApp', 'Instagram', 'Facebook', 'Google', 'Maps', 'QRIS', 'PDF', 'MB', 'KB', 'HP', 'RT', 'RW', 'QR', 'ID', 'JPG', 'JPEG', 'PNG', 'WebP', 'GIF', 'WIB', 'Bank', 'BCA', 'BRI', 'BNI', 'Mandiri', 'DANA', 'OVO', 'GoPay', 'ShopeePay', 'Indonesia'];
+        $pelanggaran = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            $relative = str_replace('\\', '/', $file->getRelativePathname());
+            $html = (string) File::get($file->getPathname());
+            $html = (string) preg_replace('/\{\{--.*?--\}\}/s', '', $html);
+
+            preg_match_all('/<(div|span|p|small|strong|em|b|td)\b[^>]*class="[^"]*(?:label|kicker|eyebrow|toggle|caption|sub)[^"]*"[^>]*>([^<]{4,80})</i', $html, $found, PREG_SET_ORDER);
+
+            foreach ($found as $item) {
+                $teks = trim(preg_replace('/\s+/u', ' ', html_entity_decode($item[2], ENT_QUOTES)));
+
+                if ($teks === '' || str_contains($teks, '{{') || str_contains($teks, '@')) {
+                    continue;
+                }
+
+                $kata = array_values(array_filter(preg_split('/[\s\/·]+/u', $teks), fn ($k) => preg_match('/[A-Za-z]/', (string) $k)));
+                $biasa = array_values(array_filter($kata, fn ($k) => ! in_array(trim($k, '().,:!'), $sah, true) && ! ctype_upper($k) && mb_strlen($k) > 2));
+
+                if (count($biasa) >= 2 && collect($biasa)->every(fn ($k) => ctype_upper(mb_substr($k, 0, 1)))) {
+                    $pelanggaran[] = $relative.' → "'.$teks.'"';
+                }
+            }
+        }
+
+        $this->assertSame([], array_values(array_unique($pelanggaran)), implode(' | ', array_values(array_unique($pelanggaran))));
+    }
+
+    /** Setiap dokumen HTML punya tautan lompat ke isi yang benar-benar ada.
+     *
+     *  Tautan lompat menyelamatkan pengguna papan ketik dari melewati header
+     *  dan sidebar di setiap halaman. Tiga halaman mandiri (tambah/ubah
+     *  alamat, ubah profil) punya `<main id="main-content">` tetapi tidak
+     *  punya tautannya, jadi Tab pertama berhenti di menu. Tautan yang
+     *  menunjuk id tidak ada sama saja tidak berfungsi.
+     */
+    public function test_setiap_halaman_punya_tautan_lompat_ke_isi(): void
+    {
+        $masalah = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+                continue;
+            }
+
+            $relative = str_replace('\\', '/', $file->getRelativePathname());
+            $html = (string) File::get($file->getPathname());
+
+            // Surel tidak punya navigasi, dan berkas di `layouts/component`
+            // adalah potongan yang menumpang dokumen halaman.
+            if (str_starts_with($relative, 'emails/') || str_starts_with($relative, 'layouts/component/')) {
+                continue;
+            }
+
+            if (! preg_match('/<body\b/', $html)) {
+                continue;
+            }
+
+            $target = null;
+
+            if (preg_match("/@include\('layouts\.component\._skip_link'(?:\s*,\s*\['target'\s*=>\s*'(\w+)'\])?/", $html, $m)) {
+                $target = $m[1] ?? 'main-content';
+            } elseif (preg_match('/class="(?:bk|adm)-skip"[^>]*href="#([\w-]+)"/', $html, $m)) {
+                $target = $m[1];
+            }
+
+            if ($target === null) {
+                $masalah[] = $relative.' → tidak ada tautan lompat';
+                continue;
+            }
+
+            if (! str_contains($html, 'id="'.$target.'"')) {
+                $masalah[] = $relative.' → tujuan #'.$target.' tidak ada';
+            }
+        }
+
+        $this->assertSame([], array_values(array_unique($masalah)), implode(' | ', array_values(array_unique($masalah))));
+    }
 }

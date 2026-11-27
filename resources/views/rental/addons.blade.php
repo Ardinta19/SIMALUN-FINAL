@@ -40,12 +40,12 @@
         <div class="adm-field-grid">
             <div class="adm-field adm-field--wide">
                 <label for="addon-name">Nama item <span class="adm-req">(wajib)</span></label>
-                <input id="addon-name" name="name" maxlength="120" required value="{{ old('name') }}" placeholder="Contoh: Kartu ucapan cetak">
+                <input id="addon-name" name="name" maxlength="120" required value="{{ old('name') }}" placeholder="Contoh: Kartu ucapan cetak" @error('name') aria-invalid="true" @enderror>
                 @error('name')<p class="adm-err" role="alert" id="addon-name-error">{{ $message }}</p>@enderror
             </div>
             <div class="adm-field">
                 <label for="addon-price">Harga per item (Rp) <span class="adm-req">(wajib)</span></label>
-                <input id="addon-price" type="number" inputmode="numeric" name="price" min="0" max="100000000" step="500" required value="{{ old('price') }}" placeholder="Contoh: 15000">
+                <input id="addon-price" type="number" inputmode="numeric" name="price" min="0" max="100000000" step="500" required value="{{ old('price') }}" placeholder="Contoh: 15000" @error('price') aria-invalid="true" @enderror>
                 @error('price')<p class="adm-err" role="alert" id="addon-price-error">{{ $message }}</p>@enderror
             </div>
             <div class="adm-field">
@@ -62,7 +62,7 @@
 
         <div class="adm-field">
             <label for="addon-image">Foto item</label>
-            <input id="addon-image" type="file" name="image" accept="image/jpeg,image/png,image/webp" aria-describedby="addon-image-hint">
+            <input id="addon-image" type="file" name="image" accept="image/jpeg,image/png,image/webp" aria-describedby="addon-image-hint" @error('image') aria-invalid="true" @enderror>
             <p class="muted" id="addon-image-hint">JPG, PNG, atau WebP, maksimal 5 MB. Opsional.</p>
             @error('image')<p class="adm-err" role="alert" id="addon-image-error">{{ $message }}</p>@enderror
         </div>
@@ -124,11 +124,11 @@
                 <div class="adm-field-grid">
                     <div class="adm-field adm-field--wide">
                         <label for="addon-name-{{ $addon->id }}">Nama</label>
-                        <input id="addon-name-{{ $addon->id }}" name="name" value="{{ $addon->name }}" maxlength="120" required>
+                        <input id="addon-name-{{ $addon->id }}" name="name" value="{{ $addon->name }}" maxlength="120" required @error('name') aria-invalid="true" @enderror>
                     </div>
                     <div class="adm-field">
                         <label for="addon-price-{{ $addon->id }}">Harga (Rp)</label>
-                        <input id="addon-price-{{ $addon->id }}" type="number" inputmode="numeric" name="price" min="0" max="100000000" step="500" value="{{ $addon->price }}" required>
+                        <input id="addon-price-{{ $addon->id }}" type="number" inputmode="numeric" name="price" min="0" max="100000000" step="500" value="{{ $addon->price }}" required @error('price') aria-invalid="true" @enderror>
                     </div>
                     <div class="adm-field">
                         <label for="addon-sort-{{ $addon->id }}">Urutan tampil</label>
@@ -141,7 +141,7 @@
                 </div>
                 <div class="adm-field">
                     <label for="addon-image-{{ $addon->id }}">Ganti foto</label>
-                    <input id="addon-image-{{ $addon->id }}" type="file" name="image" accept="image/jpeg,image/png,image/webp" aria-describedby="addon-image-hint-{{ $addon->id }}">
+                    <input id="addon-image-{{ $addon->id }}" type="file" name="image" accept="image/jpeg,image/png,image/webp" aria-describedby="addon-image-hint-{{ $addon->id }}" @error('image') aria-invalid="true" @enderror>
                     <p class="muted" id="addon-image-hint-{{ $addon->id }}">Biarkan kosong bila foto tidak diganti. JPG, PNG, atau WebP, maksimal 5 MB.</p>
                 </div>
                 <div><button class="btn" type="submit">Simpan</button></div>
