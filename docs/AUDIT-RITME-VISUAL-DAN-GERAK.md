@@ -4028,8 +4028,10 @@ itu dipakai untuk kunci pembatasan percobaan masuk (rute `/login` memakai
 
 Nilai itu sekarang bisa diatur tanpa menyentuh kode:
 `App\Support\TrustedProxies::parse()` membaca `TRUSTED_PROXIES`
-(dipisah koma, kosong jatuh ke `'*'`), dipakai lewat
-`config('app.trusted_proxies')` di `bootstrap/app.php`. Bawaannya sengaja
+(dipisah koma, kosong jatuh ke `'*'`), dibaca lewat
+`config('app.trusted_proxies')` di `AppServiceProvider::boot()` — **bukan** di
+`bootstrap/app.php`; lihat butir 9.129 untuk kegagalan yang ditimbulkan
+penempatan awal. Bawaannya sengaja
 **tetap** `'*'` supaya tidak ada perubahan perilaku pada pemasangan yang
 sudah jalan; pemilik yang servernya punya TLS sendiri cukup mengisi
 `TRUSTED_PROXIES=127.0.0.1,::1` (atau daftar IP proxy) dan IP palsu tidak
@@ -4987,3 +4989,74 @@ tidak menolong saringan yang tidak menyebut produk atau status.
 Migrasi `2026_11_22_000025_add_rental_starts_on_index.php` menambahkan
 `rental_units_starts_on` (idempoten lewat `Schema::hasIndex()`), dan
 `RentalQueueIndexTest` diperluas agar indeks itu ikut diperiksa.
+
+### 9.129 `config()` di `bootstrap/app.php` mematikan seluruh aplikasi
+
+**Ini kesalahan yang saya buat sendiri pada butir 9.94**, dan baru terlihat
+ketika pemilik proyek menjalankan `php artisan` di komputernya:
+
+```
+Fatal error: Uncaught ReflectionException: Class "config" does not exist
+#6 .../Illuminate/Foundation/helpers.php(321): app('config')
+#7 .../bootstrap/app.php(36): config('app.trusted_proxies')
+#8 .../ApplicationBuilder.php(308): {closure:.../bootstrap/app.php:18}(Middleware)
+```
+
+Penyebabnya urutan bootstrap, bukan salah ketik. Closure
+`->withMiddleware(function (Middleware $middleware) { … })` dijalankan ketika
+container menyelesaikan `Illuminate\Contracts\Console\Kernel` — dan itu
+terjadi **sebelum** bootstrapper `LoadEnvironmentVariables` dan
+`LoadConfiguration` berjalan. Pada titik itu `config()` (dan `env()`)
+belum ada isinya karena repositori konfigurasi belum terikat di container.
+Akibatnya bukan satu halaman yang rusak, melainkan **semua** perintah
+artisan — `migrate`, `test`, `view:clear`, `route:cache` — gagal dengan galat
+yang tidak menyebut berkas aplikasi sama sekali.
+
+Pesan galatnya menyesatkan: `ReflectionException: Class "config" does not
+exist` terbaca seperti masalah Composer/autoload, padahal kodenya sendiri
+yang memanggil terlalu dini.
+
+**Perbaikan.** Nilainya dipindahkan ke `AppServiceProvider::boot()`, tempat
+konfigurasi sudah dimuat:
+
+```php
+TrustProxiesMiddleware::at(config('app.trusted_proxies', TrustedProxies::DEFAULT));
+```
+
+Ini setara persis dengan `$middleware->trustProxies(at: …)`: di Laravel 12,
+`Illuminate\Foundation\Configuration\Middleware::trustProxies()` hanya
+memanggil `TrustProxies::at($at)` (diperiksa langsung pada sumber
+`Configuration/Middleware.php` baris `if (! is_null($at)) { TrustProxies::at($at); }`),
+dan middleware itu membaca properti statis tersebut saat menangani
+permintaan. Tidak ada perubahan perilaku: `TRUSTED_PROXIES` dari `.env`
+tetap berlaku, `config:cache` tetap aman, dan bawaannya tetap `'*'`.
+
+**Kenapa lolos dari audit sebelumnya.** Harness PHP-WASM hanya memeriksa
+sintaks (`php -l`) dan menjalankan tes yang tidak butuh aplikasi; berkas
+`bootstrap/app.php` tidak pernah dieksekusi. Itu keterbatasan yang sekarang
+ditutup dengan penjaga statis, bukan dengan janji "sudah diperiksa".
+
+Dijaga `tests/Feature/BootstrapGuardTest.php`:
+
+- `test_bootstrap_tidak_memakai_helper_yang_belum_tersedia()` — komentar
+  dibuang lebih dulu, lalu kode `bootstrap/app.php` tidak boleh memuat
+  `config(`, `env(`, atau `app(`.
+- `test_proxy_tepercaya_dikonfigurasi_di_provider()` — `TrustProxies::at(…)`
+  harus ada di `AppServiceProvider`, dan `trustProxies(` tidak boleh kembali
+  ke `bootstrap/app.php`.
+- `test_nilai_proxy_tepercaya_terpasang_setelah_aplikasi_boot()` — lewat
+  refleksi, properti statis `TrustProxies::$alwaysTrustProxies` harus sama
+  dengan `config('app.trusted_proxies')`.
+
+`TrustedProxyTest` juga diperbaiki: tes lamanya justru **mewajibkan**
+`config('app.trusted_proxies')` berada di `bootstrap/app.php`, sehingga
+mengunci kesalahan itu. Sekarang tes memeriksa penempatan yang benar.
+
+**Pemulihan di komputer pemilik proyek** (tidak ada perubahan data):
+
+```bash
+git pull
+php artisan optimize:clear
+php artisan migrate
+php artisan test
+```

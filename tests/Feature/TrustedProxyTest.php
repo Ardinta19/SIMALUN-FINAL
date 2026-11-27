@@ -45,14 +45,23 @@ class TrustedProxyTest extends TestCase
         $this->assertSame(['*'], TrustedProxies::parse('*'));
     }
 
-    public function test_bootstrap_tidak_lagi_menulis_daftar_proxy_di_kode(): void
+    public function test_pengaturan_proxy_tidak_lagi_menulis_daftar_di_kode(): void
     {
-        $sumber = (string) file_get_contents(base_path('bootstrap/app.php'));
+        // `bootstrap/app.php` dievaluasi sebelum config dimuat, jadi
+        // `trustProxies()` tidak boleh dipanggil di sana (lihat
+        // BootstrapGuardTest: pernah membuat semua perintah artisan gagal).
+        $bootstrap = (string) preg_replace(
+            '#(?<!:)//[^\n]*#',
+            '',
+            (string) file_get_contents(base_path('bootstrap/app.php'))
+        );
+        $this->assertStringNotContainsString('trustProxies', $bootstrap);
+        $this->assertStringNotContainsString("at: '*'", $bootstrap);
 
-        $this->assertStringContainsString("config('app.trusted_proxies')", $sumber);
-        $this->assertStringNotContainsString("trustProxies(at: '*')", $sumber);
+        $provider = (string) file_get_contents(app_path('Providers/AppServiceProvider.php'));
+        $this->assertStringContainsString("TrustProxiesMiddleware::at(config('app.trusted_proxies'", $provider);
 
         $config = (string) file_get_contents(base_path('config/app.php'));
-        $this->assertStringContainsString('TrustedProxies::parse(env(\'TRUSTED_PROXIES\'))', $config);
+        $this->assertStringContainsString("TrustedProxies::parse(env('TRUSTED_PROXIES'))", $config);
     }
 }

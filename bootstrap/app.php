@@ -27,13 +27,12 @@ return Application::configure(basePath: dirname(__DIR__))
             EnsureActiveAccount::class,
         ]);
 
-        // Percayai header proxy (X-Forwarded-*) dari reverse proxy /
-        // load balancer hosting (mis. Hostinger). Tanpa ini, Laravel
-        // bisa salah deteksi HTTP vs HTTPS di belakang proxy → memicu
-        // "Mixed Content" atau redirect loop saat HTTPS dipaksa.
-        // Daftar proxy bisa diatur lewat TRUSTED_PROXIES (bawaan "*" seperti
-        // sebelumnya); lihat App\Support\TrustedProxies untuk konsekuensinya.
-        $middleware->trustProxies(at: config('app.trusted_proxies'));
+        // CATATAN: proxy tepercaya TIDAK diatur di sini. Closure ini dijalankan
+        // saat kernel diselesaikan, yaitu SEBELUM bootstrapper LoadConfiguration,
+        // sehingga `config()` belum tersedia — memanggilnya menghasilkan
+        // "Target class [config] does not exist" pada setiap perintah artisan.
+        // Pengaturannya ada di AppServiceProvider::boot(), setara dengan
+        // `$middleware->trustProxies(at: ...)`.
     })
         //
     ->withExceptions(function (Exceptions $exceptions): void {
