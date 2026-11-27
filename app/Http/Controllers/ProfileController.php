@@ -12,6 +12,19 @@ use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
 {
+    /**
+     * Alamat pendek `/profile` (sering diketik atau dibuka dari penanda lama).
+     * Tanpa rute GET, `/profile` jatuh ke PATCH/DELETE dan berakhir 405.
+     */
+    public function show()
+    {
+        return match (Auth::user()->role) {
+            'admin' => redirect()->route('admin.profile'),
+            'customer' => redirect()->route('customer.profile'),
+            default => redirect()->route('profile.edit'),
+        };
+    }
+
     public function edit()
     {
         $user = Auth::user();

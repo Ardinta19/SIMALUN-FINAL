@@ -4527,3 +4527,75 @@ mengunci selamanya.
 Dijaga `tests/Feature/SecurityHardeningTest.php::test_hsts_hanya_di_respons_https`:
 respons `http://localhost/` tidak boleh punya header itu, sedangkan
 `https://localhost/` harus punya dan tidak boleh memuat `includeSubDomains`.
+
+### 9.112 `robots.txt` masih mengaku peta situs belum ada
+
+Baris terakhir `public/robots.txt` berbunyi "Sitemap belum dibuat otomatis;
+tambahkan di sini setelah tersedia." Padahal `/sitemap.xml` sudah ada sejak
+`RentalCatalogController::sitemap()` beserta `SitemapTest`. Petunjuk yang
+basi seperti ini membuat orang berikutnya membuat peta situs kedua.
+
+Komentarnya diganti: menyebut `/sitemap.xml`, menjelaskan bahwa berkas
+`robots.txt` statis sehingga direktif `Sitemap:` (yang menuntut alamat
+absolut) ditambahkan saat menyalin ke server atau didaftarkan lewat Google
+Search Console.
+
+Dijaga `UiDefaultsTest` (tes yang sudah ada): berkas tidak boleh lagi
+memuat kalimat "belum dibuat otomatis", harus menyebut `/sitemap.xml`, dan
+`/sitemap` tidak boleh berada di daftar `Disallow`.
+
+### 9.113 Lima rute ber-closure menggagalkan `route:cache`
+
+Ini temuan yang tidak terlihat dari halaman mana pun. `php artisan
+route:cache` — perintah yang lazim dijalankan setelah `config:cache` —
+menolak seluruh daftar rute bila ada satu saja aksi berupa closure, dengan
+galat `Unable to prepare route [...] for serialization. Uses Closure.`
+Akibatnya di server produksi daftar rute disusun ulang pada setiap
+permintaan.
+
+Lima rute itu:
+
+| Rute | Sebelum | Sesudah |
+| --- | --- | --- |
+| `login` | `fn () => view('auth.login')` | `Route::view('/login', 'auth.login')` |
+| `verification.notice` | `fn () => view('auth.verify-email')` | `Route::view(...)` |
+| `profile.show` | closure `match` per peran | `ProfileController::show()` |
+| `customer.help` | `fn () => view(..., ['settings' => ...])` | `HelpController::customer()` |
+| `admin.help` | `fn () => view('roles.admin.help')` | `HelpController::admin()` |
+
+Bukti: skrip pemeriksa regex yang sama dijalankan pada `routes/web.php`
+versi sebelum dan sesudah perubahan — **5 rute ber-closure sebelum, 0
+sesudah**.
+
+Dijaga `tests/Feature/RouteCacheTest.php`:
+
+- `test_tidak_ada_rute_aksi_berupa_closure()` — statis, memeriksa semua
+  berkas di `routes/`; closure milik `->group(function () { ... })` dikecualikan
+  karena tidak ikut diserialisasi.
+- `test_rute_dapat_di_cache()` — menjalankan `route:cache` lalu `route:clear`
+  di blok `finally`, jadi cache tidak tertinggal di `bootstrap/cache`.
+
+### 9.114 Surel pemulihan kata sandi tidak akan terkirim dengan setelan bawaan
+
+`.env.example` memakai `MAIL_MAILER=log`. Di komputer pengembang itu tepat
+(mail tertulis di `storage/logs`), tetapi berkas yang sama adalah contoh
+yang disalin ke server. Bila dibiarkan, pelanggan yang menekan "Lupa kata
+sandi" melihat pesan "Kami sudah mengirim tautan" — padahal surelnya tidak
+pernah keluar. Tidak ada galat, tidak ada log mencurigakan: kegagalan
+bisnis yang senyap.
+
+Yang dikerjakan:
+
+- Blok "Pengingat untuk server produksi" di `.env.example` kini memuat
+  `MAIL_MAILER=smtp`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_SCHEME`,
+  `MAIL_USERNAME`, `MAIL_PASSWORD`, dan `MAIL_FROM_ADDRESS`, lengkap dengan
+  alasan singkatnya.
+- `README.md` mendapat bagian **Menyiapkan Server Produksi** berisi tabel
+  kunci `.env` yang wajib diganti (`APP_DEBUG`, `APP_URL`,
+  `SESSION_SECURE_COOKIE`, `MAIL_*`, `QUEUE_CONNECTION`, `TRUSTED_PROXIES`)
+  beserta alasan masing-masing, lalu urutan perintah
+  `config:cache` → `route:cache` → `view:cache` → `migrate --force` →
+  `storage:link` → `user:create`.
+- `tests/Feature/EnvExampleTest.php` menjaga baris-baris pengingat itu tetap
+  ada, sekaligus memastikan bawaan lokal (`MAIL_MAILER=log`,
+  `APP_DEBUG=true`, `SESSION_DRIVER=database`) tidak ikut berubah.

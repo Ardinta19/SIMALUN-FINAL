@@ -757,6 +757,12 @@ class UiDefaultsTest extends TestCase
             $this->assertStringContainsString('Disallow: '.$path, $robots, 'robots.txt harus menutup '.$path.'.');
         }
         $this->assertStringContainsString('Allow: /', $robots);
+
+        // Peta situs sudah ada (rute `sitemap`), jadi berkas ini tidak boleh
+        // lagi mengaku belum tersedia, dan `/sitemap.xml` tidak boleh tertutup.
+        $this->assertStringNotContainsString('belum dibuat otomatis', $robots);
+        $this->assertStringContainsString('/sitemap.xml', $robots);
+        $this->assertStringNotContainsString('Disallow: /sitemap', $robots);
     }
 
     /** Logo dan ikon situs memakai berkas yang sudah diperkecil.

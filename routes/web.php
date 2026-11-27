@@ -21,6 +21,7 @@ use App\Http\Controllers\RentalOrderController;
 use App\Http\Controllers\RentalDesignController;
 use App\Http\Controllers\RentalPaymentController;
 use App\Http\Controllers\RentalProgressController;
+use App\Http\Controllers\HelpController;
 use App\Http\Controllers\RentalAddonController;
 use App\Http\Controllers\RentalUniversityController;
 use App\Http\Controllers\RentalVoucherController;
@@ -48,7 +49,7 @@ Route::middleware('guest')->group(function () {
     Route::redirect('/masuk', '/login')->name('login.alias');
     Route::redirect('/daftar', '/register')->name('register.alias');
 
-    Route::get('/login', fn () => view('auth.login'))->name('login');
+    Route::view('/login', 'auth.login')->name('login');
     Route::post('/login', [LoginController::class, 'authenticate'])
         ->middleware('throttle:5,1')
         ->name('login.post');
@@ -81,7 +82,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Email verification (opsional — hanya untuk user yang mengisi email)
-    Route::get('/verify-email', fn () => view('auth.verify-email'))->name('verification.notice');
+    Route::view('/verify-email', 'auth.verify-email')->name('verification.notice');
     Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
         ->middleware(['signed', 'throttle:6,1'])
         ->name('verification.verify');
@@ -99,13 +100,7 @@ Route::middleware('auth')->group(function () {
     // Alamat pendek yang sering diketik atau dibuka dari penanda lama. Tanpa
     // rute GET, /profile jatuh ke PATCH/DELETE (perbarui & hapus akun) dan
     // berakhir 405 Method Not Allowed. Arahkan ke halaman profil sesuai peran.
-    Route::get('/profile', function () {
-        return match (request()->user()->role) {
-            'admin' => redirect()->route('admin.profile'),
-            'customer' => redirect()->route('customer.profile'),
-            default => redirect()->route('profile.edit'),
-        };
-    })->name('profile.show');
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
 
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -158,7 +153,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/addresses/{address}', [CustomerAddressController::class, 'destroy'])->name('addresses.destroy');
         Route::patch('/addresses/{address}/primary', [CustomerAddressController::class, 'setPrimary'])->name('addresses.set-primary');
 
-        Route::get('/help', fn () => view('roles.customer.help', ['settings' => \App\Models\RentalPaymentSetting::find(1)]))->name('help');
+        Route::get('/help', [HelpController::class, 'customer'])->name('help');
     });
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
@@ -216,7 +211,7 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/profile', [ProfileController::class, 'adminShow'])->name('profile');
 
-        Route::get('/help', fn () => view('roles.admin.help'))->name('help');
+        Route::get('/help', [HelpController::class, 'admin'])->name('help');
     });
 
     Route::get('/dashboard/admin', [DashboardController::class, 'admin'])->middleware('role:admin')->name('dashboard.admin');

@@ -39,4 +39,8 @@ Disallow: /reset-password
 Disallow: /confirm-password
 Disallow: /verify-email
 
-# Sitemap belum dibuat otomatis; tambahkan di sini setelah tersedia.
+# Peta situs: /sitemap.xml (dibuat SitemapController, hanya berisi etalase dan
+# papan yang aktif). Berkas ini statis, sedangkan direktif `Sitemap:` menuntut
+# alamat absolut — jadi alamatnya didaftarkan di Google Search Console, atau
+# tambahkan baris `Sitemap: https://domain-anda/sitemap.xml` saat menyalin
+# berkas ini ke server produksi.

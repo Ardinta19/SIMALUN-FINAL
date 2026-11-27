@@ -179,6 +179,34 @@ docs/                         # Dokumen analisis dan audit
 
 ---
 
+## Menyiapkan Server Produksi
+
+`.env.example` disetel untuk pengembangan lokal, jadi ada beberapa nilai
+yang **wajib** diganti sebelum dipasang:
+
+| Kunci | Nilai produksi | Kenapa |
+| --- | --- | --- |
+| `APP_ENV` / `APP_DEBUG` | `production` / `false` | `true` menampilkan jejak kode dan isi `.env` di halaman galat. |
+| `APP_URL` | `https://domain-anda` | Dipakai menyusun tautan di surel dan `sitemap.xml`. |
+| `SESSION_SECURE_COOKIE` | `true` | Cookie sesi tidak dikirim lewat koneksi non-HTTPS. |
+| `MAIL_MAILER` | `smtp` (+ `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_SCHEME`) | Bawaan `log` hanya menulis surel ke `storage/logs`, sehingga tautan "Lupa sandi" tidak pernah sampai. |
+| `MAIL_FROM_ADDRESS` | alamat milik domain sendiri | Alamat contoh akan masuk spam atau ditolak penerima. |
+| `QUEUE_CONNECTION` | `database` + jalankan `php artisan queue:work` | Notifikasi surel diproses lewat antrean. |
+| `TRUSTED_PROXIES` | IP proxy hosting (bukan `*`) | `*` membuat pembatasan percobaan masuk mudah dilewati dengan memalsukan header IP. |
+
+Setelah `.env` final:
+
+```bash
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan migrate --force
+php artisan storage:link
+php artisan user:create      # akun admin pertama
+```
+
+---
+
 ## Pengujian
 
 ```bash
