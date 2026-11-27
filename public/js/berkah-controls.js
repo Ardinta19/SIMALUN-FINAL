@@ -1991,6 +1991,302 @@
         window.__fcObserver = observer;
     }
 
+    /* ================================================================
+       Validasi native → petunjuk halus (bukan balon bawaan peramban)
+       ----------------------------------------------------------------
+       Peramban menampilkan balon "Bagian ini wajib diisi." yang posisinya
+       mengikuti elemen — dan pada kontrol yang disembunyikan (select yang
+       sudah meningkat menjadi sheet) balon itu muncul di tempat aneh, di tepi
+       halaman. Tampilannya pun berbeda di tiap peramban sehingga merusak
+       kesan antarmuka yang tenang.
+
+       Satu hal yang menentukan bentuk lapisan ini: validasi bawaan peramban
+       berjalan SEBELUM event `submit` dikirim. Handler `submit` tidak bisa
+       mencegah balon itu — yang bisa mencegahnya hanya atribut `novalidate`.
+       Jadi `prepareForm()` memasang `noValidate` pada setiap formulir saat
+       halaman dimuat (dan pada formulir yang disisipkan kemudian lewat
+       MutationObserver), baru sesudah itu handler `submit` memeriksa isian.
+
+       Lapisan ini lalu:
+         · memeriksa seluruh kolom ber-kendala (termasuk kolom yang
+           disembunyikan, lewat trigger penggantinya, supaya formulir tidak
+           lolos ke server hanya karena kolomnya tak terlihat),
+         · menandai SEMUA kolom bermasalah, bukan hanya yang pertama,
+         · menampilkan satu kalimat kecil di bawah kolom dengan animasi masuk
+           yang tenang (role="alert", aria-describedby, aria-invalid),
+         · menggulir ke kolom pertama yang bermasalah lewat Lenis bila ada,
+           dengan fokus dipindahkan tanpa melompat (preventScroll).
+       Pesan dibersihkan begitu isian diperbaiki. Tanpa JavaScript, atribut
+       required tetap bekerja seperti biasa.
+       ================================================================ */
+
+    var cueSeq = 0;
+
+    function cssEscapeValue(value) {
+        if (window.CSS && typeof window.CSS.escape === 'function') return window.CSS.escape(value);
+        return String(value).replace(/["\\]/g, '\\$&');
+    }
+
+    /* Jangkar petunjuk: kolom itu sendiri bila terlihat, atau trigger
+       penggantinya bila kolom asli disembunyikan oleh lapisan kontrol. */
+    function cueAnchor(field) {
+        if (visible(field)) return field;
+
+        var trigger = field.__fcTrigger || null;
+        if (trigger && visible(trigger)) return trigger;
+
+        return null;
+    }
+
+    function cueHost(anchor) {
+        /* Label yang membungkus kolom: petunjuk ditaruh SESUDAH label supaya
+           teks label tetap bersih dan tidak ikut terbaca sebagai nama kolom. */
+        var label = anchor.closest ? anchor.closest('label') : null;
+        if (label && label.contains(anchor)) return label;
+
+        var id = anchor.id;
+        var forLabel = id ? document.querySelector('label[for="' + cssEscapeValue(id) + '"]') : null;
+        if (forLabel && forLabel.parentNode) return forLabel;
+
+        return anchor;
+    }
+
+    function cueFor(field, message) {
+        if (field.__bkCue && field.__bkCue.isConnected) {
+            field.__bkCue.textContent = message;
+            return field.__bkCue;
+        }
+
+        var anchor = cueAnchor(field);
+        if (!anchor) return null;
+
+        var cue = document.createElement('span');
+        cue.className = 'bk-cue';
+        cue.id = 'bk-cue-' + (++cueSeq);
+        cue.setAttribute('role', 'alert');
+
+        /* Teks dipasang SEBELUM elemen masuk dokumen: pembaca layar
+           mengumumkan isi saat node disisipkan, bukan saat diubah sesudahnya. */
+        cue.textContent = message;
+
+        cueHost(anchor).insertAdjacentElement('afterend', cue);
+
+        field.__bkCue = cue;
+        field.__bkCueAnchor = anchor;
+
+        var described = (anchor.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean);
+        if (described.indexOf(cue.id) === -1) {
+            described.push(cue.id);
+            anchor.setAttribute('aria-describedby', described.join(' '));
+        }
+
+        return cue;
+    }
+
+    function cueMessage(field) {
+        var v = field.validity || {};
+        var raw = cleanTitle(field.getAttribute('data-fc-title') || labelText(field));
+        var lower = raw ? raw.toLowerCase() : '';
+        var upper = raw ? raw.charAt(0).toUpperCase() + raw.slice(1) : '';
+
+        if (v.valueMissing) return upper ? upper + ' belum diisi.' : 'Bagian ini wajib diisi.';
+        if (v.typeMismatch) return upper ? upper + ' belum berformat benar.' : 'Format isian belum benar.';
+        if (v.patternMismatch) return upper ? 'Format ' + lower + ' belum sesuai.' : 'Format isian belum sesuai.';
+        if (v.tooShort) return upper ? upper + ' minimal ' + field.minLength + ' karakter.' : 'Isian masih terlalu pendek.';
+        if (v.tooLong) return upper ? upper + ' maksimal ' + field.maxLength + ' karakter.' : 'Isian terlalu panjang.';
+        if (v.badInput) return upper ? upper + ' belum lengkap.' : 'Isian belum lengkap.';
+        if (v.rangeUnderflow) return upper ? upper + ' minimal ' + field.min + '.' : 'Angka di bawah batas.';
+        if (v.rangeOverflow) return upper ? upper + ' maksimal ' + field.max + '.' : 'Angka di atas batas.';
+        if (v.stepMismatch) return 'Nilai tidak sesuai kelipatan yang diizinkan.';
+
+        return upper ? 'Periksa kembali ' + lower + '.' : 'Periksa kembali isian ini.';
+    }
+
+    function showCue(field) {
+        var cue = cueFor(field, cueMessage(field));
+        if (!cue) return false;
+
+        var anchor = field.__bkCueAnchor;
+        if (!field.__bkCueInvalid) {
+            field.__bkCueInvalid = true;
+
+            /* Tandai hanya atribut yang benar-benar kita pasang, supaya
+               pembersihan tidak menghapus status milik lapisan kontrol. */
+            if (!anchor.hasAttribute('aria-invalid')) {
+                anchor.setAttribute('aria-invalid', 'true');
+                anchor.setAttribute('data-bk-cue', '1');
+            }
+
+            anchor.classList.add('bk-cue-field');
+        }
+
+        /* Ulangi animasi masuk bila kolom yang sama ditolak dua kali. */
+        cue.classList.remove('bk-cue--in');
+        void cue.offsetWidth;
+        cue.classList.add('bk-cue--in');
+
+        return true;
+    }
+
+    function clearCue(field) {
+        if (field.__bkCue && field.__bkCue.isConnected) field.__bkCue.remove();
+        field.__bkCue = null;
+
+        var anchor = field.__bkCueAnchor;
+        field.__bkCueAnchor = null;
+
+        if (field.__bkCueInvalid) {
+            field.__bkCueInvalid = false;
+
+            if (anchor) {
+                var described = (anchor.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean);
+                var left = described.filter(function (id) { return !/^bk-cue-\d+$/.test(id); });
+                if (left.length) anchor.setAttribute('aria-describedby', left.join(' '));
+                else anchor.removeAttribute('aria-describedby');
+
+                if (anchor.getAttribute('data-bk-cue') === '1') {
+                    anchor.removeAttribute('aria-invalid');
+                    anchor.removeAttribute('data-bk-cue');
+                }
+
+                anchor.classList.remove('bk-cue-field');
+            }
+        }
+    }
+
+    function constraintFields(form) {
+        var list = [];
+
+        for (var i = 0; i < form.elements.length; i += 1) {
+            var field = form.elements[i];
+            if (!field || !field.willValidate || field.disabled) continue;
+            if (field.type === 'hidden' || field.type === 'submit' || field.type === 'button') continue;
+            if (!field.validity || field.validity.valid) continue;
+            /* Tanpa jangkar yang terlihat, petunjuk tidak punya tempat tampil;
+               kolom seperti itu tetap dilaporkan server. */
+            if (!cueAnchor(field)) continue;
+            list.push(field);
+        }
+
+        return list;
+    }
+
+    function revealField(field) {
+        var anchor = cueAnchor(field) || field;
+
+        focusQuiet(anchor);
+
+        var lenis = window.BkMotion && window.BkMotion.lenis;
+        try {
+            if (lenis && typeof lenis.scrollTo === 'function') {
+                lenis.scrollTo(anchor, { offset: -96, duration: reducedMotion() ? 0 : 0.45 });
+                return;
+            }
+        } catch (e) { /* jatuh ke scrollIntoView */ }
+
+        if (typeof anchor.scrollIntoView === 'function') {
+            try {
+                anchor.scrollIntoView({ block: 'center', behavior: reducedMotion() ? 'auto' : 'smooth' });
+            } catch (e) { /* peramban lama */ }
+        }
+    }
+
+    function validateConstraints(form) {
+        var bad = constraintFields(form);
+        if (!bad.length) return true;
+
+        /* Semua kolom bermasalah ditandai supaya pengguna melihat gambaran
+           lengkap, bukan satu per satu setiap kali menekan Kirim. Batasi lima
+           agar halaman tidak dipenuhi pesan. */
+        bad.slice(0, 5).forEach(showCue);
+        revealField(bad[0]);
+
+        return false;
+    }
+
+    /* Formulir yang penulisnya sendiri sudah memasang novalidate tidak
+       diawasi: keputusan itu milik halaman, bukan lapisan ini. */
+    function prepareForm(form) {
+        if (!form || form.nodeName !== 'FORM') return;
+        if (form.getAttribute('data-bk-cue-ready') === '1') return;
+        form.setAttribute('data-bk-cue-ready', '1');
+
+        if (form.hasAttribute('novalidate')) {
+            form.setAttribute('data-bk-cue-off', '1');
+            return;
+        }
+
+        form.noValidate = true;
+    }
+
+    each(document, 'form', prepareForm);
+
+    try {
+        var formWatcher = new MutationObserver(function (records) {
+            records.forEach(function (record) {
+                Array.prototype.forEach.call(record.addedNodes || [], function (node) {
+                    if (!node || node.nodeType !== 1) return;
+                    if (node.nodeName === 'FORM') prepareForm(node);
+                    else if (node.querySelectorAll) each(node, 'form', prepareForm);
+                });
+            });
+        });
+        formWatcher.observe(document.documentElement, { childList: true, subtree: true });
+    } catch (error) {
+        /* Lingkungan tanpa MutationObserver: formulir yang ada sudah siap. */
+    }
+
+    document.addEventListener('submit', function (event) {
+        var form = event.target;
+        if (!form || form.nodeName !== 'FORM') return;
+        if (event.defaultPrevented) return;
+
+        /* Tombol dengan formnovalidate (mis. "Lewati langkah ini") meminta
+           sendiri agar pemeriksaan dilewati. */
+        var submitter = event.submitter || null;
+        if (submitter && submitter.formNoValidate) return;
+        if (form.getAttribute('data-bk-cue-off') === '1') return;
+
+        prepareForm(form);
+
+        if (!validateConstraints(form)) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+        }
+    }, true);
+
+    ['input', 'change'].forEach(function (kind) {
+        document.addEventListener(kind, function (event) {
+            var field = event.target;
+            if (!field || !field.__bkCueInvalid) return;
+            if (field.validity && field.validity.valid) clearCue(field);
+        }, true);
+    });
+
+    /* Kembali dari cache riwayat: pesan lama tidak boleh menempel. */
+    window.addEventListener('pageshow', function () {
+        each(document, '.bk-cue', function (cue) {
+            if (cue.parentNode) cue.parentNode.removeChild(cue);
+        });
+        each(document, '.bk-cue-field', function (anchor) {
+            anchor.classList.remove('bk-cue-field');
+
+            var described = (anchor.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean)
+                .filter(function (id) { return !/^bk-cue-\d+$/.test(id); });
+            if (described.length) anchor.setAttribute('aria-describedby', described.join(' '));
+            else anchor.removeAttribute('aria-describedby');
+
+            if (anchor.getAttribute('data-bk-cue') === '1') {
+                anchor.removeAttribute('aria-invalid');
+                anchor.removeAttribute('data-bk-cue');
+            }
+
+            anchor.__bkCueInvalid = false;
+            anchor.__bkCue = null;
+            anchor.__bkCueAnchor = null;
+        });
+    });
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', boot);
     } else {

@@ -930,3 +930,55 @@ html[data-theme="dark"] .fc-cal__day.is-blocked {
         min-height: 44px;
     }
 }
+
+/* ================================================================
+   Micro-trigger validasi (pengganti balon bawaan peramban)
+   ----------------------------------------------------------------
+   Muncul tepat di bawah kolom yang bermasalah: satu titik kecil, satu
+   kalimat tenang, masuk dengan 180 ms. Tidak ada kotak mengambang, tidak
+   ada getaran kasar — cukup isyarat halus yang mengarahkan mata.
+   ================================================================ */
+
+.bk-cue {
+    display: block;
+    margin-top: 6px;
+    font-size: var(--bk-fs-xs, .8125rem);
+    font-weight: 700;
+    line-height: 1.45;
+    color: var(--bk-danger-ink, var(--bk-wine, #a4133c));
+    opacity: 0;
+    transform: translateY(-2px);
+    transition: opacity .18s var(--bk-ease, ease), transform .18s var(--bk-ease, ease);
+}
+
+.bk-cue::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    vertical-align: 1px;
+}
+
+.bk-cue--in {
+    opacity: 1;
+    transform: none;
+}
+
+/* Isyarat pada kolomnya sendiri: satu denyut cincin tipis, sekali. */
+.bk-cue-field {
+    border-color: currentColor;
+    animation: bk-cue-pulse .42s var(--bk-ease, ease) 1;
+}
+
+@keyframes bk-cue-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(164, 19, 60, .28); }
+    100% { box-shadow: 0 0 0 6px rgba(164, 19, 60, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bk-cue { transition: none; opacity: 1; transform: none; }
+    .bk-cue-field { animation: none; box-shadow: 0 0 0 2px rgba(164, 19, 60, .18); }
+}
