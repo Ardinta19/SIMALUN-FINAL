@@ -358,6 +358,33 @@ class UiAccessibilityTest extends TestCase
         }
     }
 
+    /** Preload huruf harus memakai alamat yang SAMA PERSIS dengan permintaan
+     *  `@font-face`. Dulu href preload ditambahi `?v=<mtime>` lewat
+     *  `$themeAsset()`, sedangkan CSS meminta berkas tanpa query — peramban
+     *  menganggapnya dua berkas, mengunduh huruf dua kali, dan memunculkan
+     *  peringatan "preloaded but not used within a few seconds" di konsol. */
+    public function test_preload_huruf_memakai_alamat_yang_sama_dengan_font_face(): void
+    {
+        $head = File::get(resource_path('views/layouts/component/_theme_head.blade.php'));
+        $css = File::get(public_path('css/berkah-fonts.css'));
+
+        $this->assertStringContainsString(
+            "href=\"{{ asset('fonts/plus-jakarta-sans-latin-wght-normal.woff2') }}\"",
+            $head,
+            'Preload huruf harus memakai asset() polos agar sama dengan url() di berkah-fonts.css.'
+        );
+        $this->assertStringNotContainsString(
+            "url('../fonts/plus-jakarta-sans-latin-wght-normal.woff2?v=",
+            $css,
+            '@font-face tidak boleh memakai query versi; alamatnya harus sama dengan preload.'
+        );
+        $this->assertStringNotContainsString(
+            'woff2?v=',
+            $head,
+            'Alamat huruf di kepala halaman tidak boleh memakai ?v= — preload akan dianggap tidak terpakai.'
+        );
+    }
+
     /** Setiap berkas di public/css dan public/js harus disebut minimal sekali
      *  oleh berkas lain (view atau skrip lain). Isi berkas itu sendiri tidak
      *  dihitung, jadi komentar yang menyebut namanya sendiri tidak menyelamatkan

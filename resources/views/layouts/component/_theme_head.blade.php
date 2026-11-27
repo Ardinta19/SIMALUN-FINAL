@@ -22,8 +22,13 @@
      luring maupun saat CDN pihak ketiga diblokir. Preload hanya berkas latin
      karena itu yang dipakai seluruh teks Indonesia. --}}
 @once
+{{-- Alamat preload WAJIB sama persis dengan yang diminta @font-face di
+     berkah-fonts.css, yaitu tanpa query `?v=`. Dulu di sini dipakai
+     `$themeAsset()` yang menambahkan `?v=<mtime>`; peramban menganggapnya
+     berkas lain, mengunduh huruf dua kali, lalu memunculkan peringatan
+     "preloaded but not used within a few seconds". --}}
 <link rel="preload" as="font" type="font/woff2" crossorigin
-      href="{{ $themeAsset('fonts/plus-jakarta-sans-latin-wght-normal.woff2') }}">
+      href="{{ asset('fonts/plus-jakarta-sans-latin-wght-normal.woff2') }}">
 <link rel="stylesheet" href="{{ $themeAsset('css/berkah-fonts.css') }}">
 @endonce
 {{-- Warna bilah peramban: satu nilai merek untuk seluruh aplikasi. Skrip di

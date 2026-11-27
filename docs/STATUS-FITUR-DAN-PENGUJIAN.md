@@ -160,3 +160,22 @@ Pemeriksaan manual yang perlu dilakukan:
 3. Dari katalog, tekan "Pesan langsung" pada satu papan sampai checkout, lalu "Kembali ke keranjang" — harus terbuka halaman keranjang, bukan detail papan.
 4. Di ponsel: gulir beranda dan katalog — harus meluncur halus; buka sheet filter lalu gulir isinya — isi sheet yang bergerak, bukan halaman di belakangnya.
 5. Muat ulang halaman keranjang dan halaman bantuan — isi masuk dengan lembut, tidak berkedip.
+
+### Babak K — suite hijau lagi, galat konsol admin, preload huruf (`statis, belum diuji di Windows`)
+
+Putaran 32 menindaklanjuti laporan setelah `git pull` ke `df87abc`: **2 gagal, 493 lulus**. Kedua kegagalan bukan regresi putaran 31, melainkan tes yang tidak ikut diperbarui saat keranjang diubah menjadi berkelompok (§9.135).
+
+1. **`RentalCartTest` mencari label `UNIT 1`/`UNIT 2`.** Label itu sudah tidak ada karena keranjang merender satu baris per papan + tanggal. Tes diperbarui ke bentuk baru: penghitung stepper `2`, nama papan sebagai `<h2>`, dan tombol "Hapus semua unit …" yang berlaku untuk seluruh kelompok — bukan asersi yang dilonggarkan, melainkan ekspektasi yang menyesuaikan desain yang sudah disetujui. Detail: §9.143.
+2. **`RentalDateFilteringTest` menuntut `cart.duplicate` tidak ada pada jadwal kedaluwarsa.** View memang masih merendernya (tombol `+` ber-`disabled` di dalam `<form>`). Sekarang cabang kedaluwarsa merender tombol mati **tanpa formulir**, jadi aksinya benar-benar tidak dikirim ke peramban dan tes tetap ketat. Detail: §9.143.
+3. **`Uncaught ReferenceError: sheet is not defined` (2×) di `berkah-admin.js`.** `layers()` masih memeriksa panel bawah yang sudah dicabut, sehingga resize, Escape, dan Tab di dalam drawer melempar galat dan kurungan fokus mati. Ketiga pemeriksaan dihapus; diuji ulang di jsdom tanpa galat. Detail: §9.141.
+4. **Peringatan preload huruf.** Preload memakai URL ber-`?v=`, sedangkan `@font-face` meminta URL tanpa query — peramban mengunduh huruf dua kali dan menganggap preload tidak terpakai. Keduanya kini memakai alamat yang sama. Detail: §9.142.
+5. **Chip kartu dasbor berdesakan di ponsel.** Di bawah 560 px chip turun ke barisnya sendiri, judul boleh terlipat. Detail: §9.144.
+
+Tes penjaga baru: `UiDefaultsTest::test_pengendali_lapisan_admin_hanya_memakai_lapisan_yang_ada` dan `UiAccessibilityTest::test_preload_huruf_memakai_alamat_yang_sama_dengan_font_face` (2 tes). Perkiraan jumlah tes: **±495 lulus**.
+
+Pemeriksaan manual:
+
+1. `git pull; php artisan optimize:clear; php artisan test` → harap **495 lulus, 0 gagal**.
+2. Buka dasbor admin, kecilkan/lebarkan jendela beberapa kali, buka menu di ponsel lalu tekan Escape dan Tab — konsol harus bersih, drawer tertutup, fokus tetap di dalam drawer.
+3. Konsol tidak lagi memuat "was preloaded using link preload but not used".
+4. Keranjang berisi papan bertanggal kemarin: tombol `+` tampak mati, dan tidak ada formulir "tambah" di HTML-nya.

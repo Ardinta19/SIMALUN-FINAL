@@ -48,7 +48,18 @@ class RentalCartTest extends TestCase
         $category = RentalCategory::create(['name' => 'Wisuda']);
         $product = RentalProduct::create(['rental_category_id' => $category->id, 'name' => 'Papan', 'base_price' => 100000, 'price_unit' => 'day', 'stock' => 2]);
         $this->post(route('cart.store', $product), ['quantity' => 2]);
-        $this->get(route('cart.index'))->assertOk()->assertSee('2 unit')->assertSee('UNIT 1')->assertSee('UNIT 2')->assertSee('Lanjut ke checkout');
+        /* Desain keranjang sejak `539a825` merender satu baris per kelompok
+           (papan + tanggal), bukan satu baris per unit. Dulu tes ini mencari
+           label "UNIT 1"/"UNIT 2" yang sudah tidak ada. Yang tetap harus benar:
+           kedua unit terwakili lewat penghitung stepper, dan tombol hapus
+           berlaku untuk seluruh kelompok. */
+        $this->get(route('cart.index'))->assertOk()
+            ->assertSee('2 unit')
+            ->assertSee('<h2>Papan</h2>', false)
+            ->assertSee('aria-label="Jumlah unit Papan"', false)
+            ->assertSee('<span class="bk-qty-num" aria-live="polite">2</span>', false)
+            ->assertSee('aria-label="Hapus semua unit Papan dari keranjang"', false)
+            ->assertSee('Lanjut ke checkout');
         $category->update(['is_active' => false]);
         $this->get(route('cart.index'))->assertOk()->assertSee('Papan tidak tersedia')->assertSee('Hapus 2 unit yang tidak tersedia')->assertDontSee('Lanjut ke checkout');
         $keys = array_keys(session('rental_cart'));

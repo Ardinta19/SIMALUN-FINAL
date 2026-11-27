@@ -1214,6 +1214,12 @@ body.adm-layer-open { overflow: hidden; }
     .adm-actions > .adm-btn { flex: 1 1 44%; justify-content: center; min-height: 42px; padding-inline: 10px; }
     .adm-chipbar { gap: 8px; }
     .adm-chipbar__label { flex: 0 0 100%; margin-bottom: 2px; }
+    /* Kepala kartu di layar sempit: judul dan chip tidak lagi berebut satu
+       baris. Chip turun ke barisnya sendiri dan rata kiri, jadi tidak lagi
+       menumpuk di kanan sementara judul terlipat dua baris. */
+    .adm-card__head { align-items: flex-start; row-gap: 6px; }
+    .adm-card__head > :is(h2, h3) { min-width: 0; overflow-wrap: anywhere; }
+    .adm-card__head > .adm-chip { margin-left: 0; }
 }
 
 /* ── Drawer di ponsel: lebar nyaman, isi tidak tertutup home-indicator ─── */

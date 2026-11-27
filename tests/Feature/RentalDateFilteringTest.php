@@ -182,7 +182,12 @@ class RentalDateFilteringTest extends TestCase
             $key = array_key_first(session('rental_cart'));
             Carbon::setTestNow(Carbon::parse('2026-12-03 10:00:00', 'Asia/Jakarta'));
             $this->get(route('cart.index'))->assertOk()->assertSee('Tanggal pilihan sudah lewat')
-                ->assertSee('href="'.route('catalog.show', $product).'"', false)->assertDontSee(route('cart.duplicate', $key));
+                ->assertSee('href="'.route('catalog.show', $product).'"', false)
+                /* Tombol "+" untuk jadwal kedaluwarsa kini berupa tombol mati tanpa
+                   formulir: aksi `cart.duplicate` benar-benar tidak dikirim ke
+                   peramban, bukan sekadar `disabled` di dalam <form>. */
+                ->assertDontSee(route('cart.duplicate', $key))
+                ->assertSee('tidak tersedia karena tanggal sudah lewat', false);
             $this->get(route('catalog.show', $product))->assertOk()->assertSee('Periksa perkiraan ketersediaan');
             $customer = User::factory()->create(['role' => 'customer']);
             $this->actingAs($customer)->get(route('rental.checkout'))->assertOk()->assertSee('value="'.$date.'"', false);

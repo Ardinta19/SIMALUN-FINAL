@@ -34,9 +34,16 @@
                     </form>
                     <span class="bk-qty-num" aria-live="polite">{{ $qty }}</span>
                     <span class="bk-qty-label">unit</span>
-                    <form method="post" action="{{ route('cart.duplicate', $first) }}">@csrf
-                        <button type="submit" class="bk-qty-btn" aria-label="Tambah satu unit {{ $product->name }}" @if($datesExpired) disabled @endif>+</button>
-                    </form>
+                    @if($datesExpired)
+                        {{-- Tanggal jadwal ini sudah lewat: menambah unit dengan tanggal yang sama
+                             tidak mungkin diproses, jadi aksinya tidak dirender sama sekali
+                             (tombol tetap tampil agar bentuk stepper tidak berubah). --}}
+                        <button type="button" class="bk-qty-btn" aria-label="Tambah satu unit {{ $product->name }}, tidak tersedia karena tanggal sudah lewat" disabled>+</button>
+                    @else
+                        <form method="post" action="{{ route('cart.duplicate', $first) }}">@csrf
+                            <button type="submit" class="bk-qty-btn" aria-label="Tambah satu unit {{ $product->name }}">+</button>
+                        </form>
+                    @endif
                 </div>
 
                 <p class="cart-subtotal">Subtotal harga dasar Rp {{ number_format($product->base_price * $qty, 0, ',', '.') }} · belum termasuk durasi dan ongkos</p>

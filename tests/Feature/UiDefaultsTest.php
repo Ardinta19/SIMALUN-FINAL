@@ -256,6 +256,35 @@ class UiDefaultsTest extends TestCase
         $this->assertStringContainsString("setAttribute('aria-expanded'", $js);
     }
 
+    public function test_pengendali_lapisan_admin_hanya_memakai_lapisan_yang_ada(): void
+    {
+        // `layers()` dulu masih memeriksa `sheet`, `sheetPanel`, dan `closeSheet()`
+        // dari panel bawah yang sudah dicabut. Tidak satu pun dideklarasikan, jadi
+        // setiap resize, tombol Escape, dan Tab di dalam drawer melempar
+        // "ReferenceError: sheet is not defined" (terlihat di konsol admin) dan
+        // penutupan drawer serta sinkronisasi sidebar ikut berhenti di tengah jalan.
+        $js = File::get(public_path('js/berkah-admin.js'));
+
+        foreach (['sheet &&', 'sheetPanel', 'closeSheet('] as $sisa) {
+            $this->assertStringNotContainsString(
+                $sisa,
+                $js,
+                "berkah-admin.js masih menyebut `{$sisa}` yang tidak pernah dideklarasikan."
+            );
+        }
+
+        // Penangan resize wajib tetap menutup drawer dan menyinkronkan sidebar.
+        $this->assertMatchesRegularExpression(
+            '/var onResize = function \(\) \{.*?syncSidebar\(\);\s*\};/s',
+            $js,
+            'onResize harus menutup drawer dan memanggil syncSidebar().'
+        );
+
+        // Escape menutup drawer yang terbuka, dan Tab tetap dikurung di lapisan.
+        $this->assertStringContainsString("if (event.key !== 'Escape') return;", $js);
+        $this->assertStringContainsString("'.adm-drawer[data-open=\"true\"]'", $js);
+    }
+
     public function test_shell_admin_memuat_modal_konfirmasi(): void
     {
         // Halaman profil admin memakai `showConfirmModal` untuk tombol keluar.

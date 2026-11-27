@@ -5582,3 +5582,88 @@ tetap terlihat. `?gerak=hidup` menyalakannya lagi. Tidak perlu mengubah kode
 atau menunggu pembaruan; ini jalur dukungan untuk perangkat yang tidak bisa
 kami reproduksi.
 
+### 9.141 `sheet is not defined`: lapisan admin yang menyebut panel yang sudah dicabut
+
+Laporan konsol dari peramban pengguna:
+
+```
+Uncaught ReferenceError: sheet is not defined
+    at berkah-admin.js?v=1795774678:275
+```
+
+Dua kali, pada halaman admin. Ternyata bukan galat sekali lewat: `layers()`
+masih memeriksa `sheet`, `sheetPanel`, dan memanggil `closeSheet()` — sisa panel
+bawah (bottom sheet) admin yang sudah dicabut dan tidak pernah dibuat lagi.
+Tidak satu pun dari ketiganya dideklarasikan, sehingga:
+
+1. setiap `resize` melempar `ReferenceError` di `onResize` **sebelum**
+   `syncSidebar()` jalan — drawer yang terbuka tidak ditutup saat layar
+   dilebarkan, dan `aria-expanded` pada tombol menu bisa tertinggal;
+2. setiap tombol **Escape** melempar galat di baris pertama, jadi drawer dan
+   sidebar tidak bisa ditutup dengan papan tunjuk;
+3. setiap **Tab** di dalam lapisan melempar galat saat menghitung lapisan aktif,
+   sehingga kurungan fokus tidak pernah berjalan — fokus bisa keluar ke konten
+   di belakang backdrop.
+
+Perbaikan: ketiga pemeriksaan dihapus. `layers()` kini hanya mengenal dua
+lapisan yang benar-benar ada — `.adm-drawer[data-open="true"]` dan
+`.adm-sidebar[data-open="true"]` — dan `onResize` hanya menutup sidebar di
+lebar > 700 px lalu memanggil `syncSidebar()`. Komentar singkat ditinggalkan di
+tempat kejadian agar tidak ada yang menambahkan kembali pemeriksaan lapisan
+hantu.
+
+Dijaga `tests/Feature/UiDefaultsTest.php`:
+`test_pengendali_lapisan_admin_hanya_memakai_lapisan_yang_ada` memastikan
+`berkah-admin.js` tidak lagi menyebut `sheet &&`, `sheetPanel`, atau
+`closeSheet(`, bahwa `onResize` masih menutup drawer dan memanggil
+`syncSidebar()`, serta bahwa jalur Escape dan kurungan fokus tetap ada. Selain
+itu skrip diuji langsung di jsdom (`/tmp/wasm-php/admin-jsdom.cjs`): satu
+`resize`, satu `Tab`, dan satu `Escape` pada drawer terbuka menghasilkan nol
+galat dan drawer tertutup.
+
+### 9.142 Preload huruf yang diunduh dua kali
+
+Chrome mencatat di konsol: *"The resource
+`/fonts/plus-jakarta-sans-latin-wght-normal.woff2` was preloaded using link
+preload but not used within a few seconds."*
+
+Penyebabnya bukan huruf yang tidak dipakai, melainkan **alamat yang berbeda**.
+`_theme_head.blade.php` memakai `$themeAsset('fonts/…woff2')` yang menambahkan
+`?v=<mtime>`, sedangkan `@font-face` di `berkah-fonts.css` meminta
+`url('../fonts/…woff2')` tanpa query. Peramban menyimpan keduanya sebagai
+sumber daya berbeda: preload `?v=` diunduh, tidak pernah "terpakai" karena
+permintaan CSS memakai URL lain, lalu huruf yang sama diunduh sekali lagi.
+
+Perbaikan: preload memakai `asset()` polos tanpa `?v=`, sama persis dengan
+permintaan CSS. Versi berkas huruf kini dikendalikan oleh nama berkas (ganti
+nama bila hurufnya berubah), bukan query. Dijaga
+`tests/Feature/UiAccessibilityTest.php`:
+`test_preload_huruf_memakai_alamat_yang_sama_dengan_font_face`.
+
+### 9.143 Tombol "+" pada jadwal kedaluwarsa: tombol mati tanpa formulir
+
+Sisa desain keranjang berkelompok: tombol `+` untuk kelompok yang tanggalnya
+sudah lewat dirender di dalam `<form action="…/tambah">` lalu diberi `disabled`.
+Secara tampilan sudah benar, tetapi peramban tetap menerima aksi yang mustahil
+diproses, dan tes lama (`RentalDateFilteringTest`) menuntut aksi itu tidak ada
+sama sekali. Sekarang cabang kedaluwarsa merender `<button type="button"
+disabled>` tanpa formulir: bentuk stepper tetap simetris, `cart.duplicate`
+benar-benar tidak dikirim ke peramban, dan labelnya menjelaskan alasannya
+("…, tidak tersedia karena tanggal sudah lewat").
+
+Dua tes yang gagal di mesin pengguna ikut diperbarui karena **ekspektasinya**
+yang usang, bukan kodenya: `RentalCartTest` masih mencari label `UNIT 1`/`UNIT 2`
+dari desain satu-baris-per-unit yang sudah diganti pada 9.135. Tes itu sekarang
+memeriksa hal yang sama secara baru: penghitung stepper `2`, nama papan sebagai
+`<h2>`, dan tombol hapus yang berlaku untuk seluruh kelompok.
+
+### 9.144 Kepala kartu di ponsel: chip tidak lagi berdesakan
+
+Pada tangkapan layar dasbor admin, chip "Seluruh buku kas" tampak menumpuk di
+kanan sementara judul kartu terlipat dua baris. `.adm-card__head` memang sudah
+`flex-wrap`, tetapi `space-between` menahan chip di ujung baris dan judul tidak
+punya `min-width: 0`, jadi keduanya berebut ruang sampai sumbing. Di bawah
+560 px chip sekarang turun ke barisnya sendiri dan rata kiri, judul boleh
+terlipat (`overflow-wrap: anywhere`), dan `align-items` menjadi `flex-start`
+agar keduanya tidak saling mendorong.
+

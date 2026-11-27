@@ -243,7 +243,6 @@
 
         on(document, 'keydown', function (event) {
             if (event.key !== 'Escape') return;
-            if (sheet && !sheet.hasAttribute('hidden')) return closeSheet();
             var openDrawer = document.querySelector('.adm-drawer[data-open="true"]');
             if (openDrawer) return closeLayer(openDrawer, backdrop);
             if (sidebar && sidebar.getAttribute('data-open') === 'true') {
@@ -256,7 +255,6 @@
         on(document, 'keydown', function (event) {
             if (event.key !== 'Tab') return;
             var layer = document.querySelector('.adm-drawer[data-open="true"]')
-                || (sheet && !sheet.hasAttribute('hidden') ? sheetPanel : null)
                 || (sidebar && sidebar.getAttribute('data-open') === 'true' ? sidebar : null);
             if (!layer) return;
             var list = Array.prototype.filter.call(focusables(layer), function (el) { return el.offsetParent !== null; });
@@ -270,9 +268,13 @@
             }
         });
 
+        /* Dulu ada `sheet` (panel bawah) di sini, tetapi panelnya sudah tidak
+           pernah dibuat — variabelnya pun tidak dideklarasikan. Setiap resize,
+           tombol Escape, dan Tab di dalam lapisan melempar ReferenceError
+           sehingga penutupan drawer dan sinkronisasi sidebar ikut berhenti.
+           Sekarang hanya drawer dan sidebar yang dikenal. */
         var onResize = function () {
             if (window.innerWidth > 700 && sidebar) closeLayer(sidebar, backdrop);
-            if (sheet && window.innerWidth > 899) closeSheet();
             syncSidebar();
         };
         on(window, 'resize', onResize, { passive: true });
