@@ -291,8 +291,8 @@
          · hanya empat anak pertama <main> (bukan seluruh pohon),
          · elemen berposisi fixed/sticky dilewati (transform pada induknya
            bisa mengubah titik acuan),
-         · halaman yang sudah punya [data-bk-reveal] dilewati — jangan dua
-           koreografi pada satu layar,
+         · blok yang sudah punya [data-bk-reveal] (atau memuatnya) dilewati —
+           jangan dua koreografi pada satu elemen,
          · transform dibersihkan setelah selesai (clearProps), jadi tidak
            ada sisa containing block,
          · <html data-bk-no-page-enter> mematikannya, dan gerak dikurangi /
@@ -304,11 +304,23 @@
 
         var page = document.getElementById('page') || document.querySelector('main');
         if (!page) return;
-        if (page.querySelector('[data-bk-reveal], [data-bk-reveal-group]')) return;
+
+        /* Panel admin punya koreografi sendiri (IntersectionObserver di
+           berkah-admin.js); halaman masuk punya animasi splash. Jangan
+           ditimpa animasi kedua. */
+        if (page.querySelector('[data-adm-reveal]')) return;
+        if (document.getElementById('bk-splash')) return;
 
         var blocks = Array.prototype.filter.call(page.children, function (el) {
             if (!el || el.nodeType !== 1) return false;
             if (el.hasAttribute('data-bk-no-enter')) return false;
+
+            /* Blok yang sudah punya koreografi sendiri (atau memuatnya) tidak
+               disentuh — supaya elemen yang sama tidak dianimasikan dua kali
+               dan tidak ada yang tertinggal dalam keadaan transparan. */
+            if (el.hasAttribute('data-bk-reveal') || el.hasAttribute('data-bk-reveal-group')) return false;
+            if (el.querySelector && el.querySelector('[data-bk-reveal], [data-bk-reveal-group]')) return false;
+
             var style = window.getComputedStyle ? window.getComputedStyle(el) : null;
             if (!style) return true;
             return style.position !== 'fixed' && style.position !== 'sticky';

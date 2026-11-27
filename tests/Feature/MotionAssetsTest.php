@@ -105,8 +105,13 @@ class MotionAssetsTest extends TestCase
         $this->assertStringContainsString("style.position !== 'fixed' && style.position !== 'sticky'", $js);
         $this->assertStringContainsString('.slice(0, 4)', $js);
 
-        // Halaman yang sudah punya koreografi sendiri tidak dianimasikan dua kali.
-        $this->assertStringContainsString("page.querySelector('[data-bk-reveal], [data-bk-reveal-group]')", $js);
+        // Blok yang sudah punya koreografi sendiri tidak dianimasikan dua kali.
+        $this->assertStringContainsString("if (el.hasAttribute('data-bk-reveal') || el.hasAttribute('data-bk-reveal-group')) return false;", $js);
+        $this->assertStringContainsString("el.querySelector('[data-bk-reveal], [data-bk-reveal-group]')", $js);
+
+        // Panel admin dan halaman masuk punya koreografi sendiri.
+        $this->assertStringContainsString("page.querySelector('[data-adm-reveal]')", $js);
+        $this->assertStringContainsString("document.getElementById('bk-splash')", $js);
 
         // Tidak ada sisa transform/containing block setelah animasi selesai.
         $this->assertStringContainsString("clearProps: 'opacity,transform'", $js);

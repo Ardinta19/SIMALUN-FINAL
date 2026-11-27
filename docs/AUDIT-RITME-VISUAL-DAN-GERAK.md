@@ -5545,14 +5545,21 @@ keempat sebab yang dulu ditemukan:
 - **Frame panjang tetap dibatasi** oleh `lagSmoothing(500, 33)`, dan gerak
   dimatikan total untuk `prefers-reduced-motion` maupun mode hemat data.
 
-Selain gulir, halaman yang belum punya koreografi sendiri kini punya animasi
-masuk: `initPageEnter()` menaikkan empat blok pertama `<main>` 12 px sambil
-memudar masuk (stagger 60 ms). Batasnya ketat supaya tidak ada halaman rusak —
-hanya anak langsung `<main>` (bukan seluruh pohon), elemen `fixed`/`sticky`
-dilewati, halaman yang sudah memakai `[data-bk-reveal]` dilewati, dan
-`clearProps` membersihkan transform setelah selesai sehingga tidak ada
-containing block yang tertinggal. Dua jalan keluar disediakan:
-`<html data-bk-no-page-enter>` dan `data-bk-no-enter` per blok.
+Selain gulir, halaman kini punya animasi masuk: `initPageEnter()` menaikkan
+empat blok pertama `<main>` 12 px sambil memudar masuk (stagger 60 ms).
+Batasnya ketat supaya tidak ada halaman rusak — hanya anak langsung `<main>`
+(bukan seluruh pohon), elemen `fixed`/`sticky` dilewati, blok yang sudah punya
+`[data-bk-reveal]` (atau memuatnya) dilewati, panel admin (`[data-adm-reveal]`,
+punya IntersectionObserver sendiri) dan halaman masuk (`#bk-splash`, punya
+splash sendiri) dilewati seluruhnya, dan `clearProps` membersihkan transform
+setelah selesai sehingga tidak ada containing block yang tertinggal. Dua jalan
+keluar disediakan: `<html data-bk-no-page-enter>` dan `data-bk-no-enter` per
+blok.
+
+Halaman keranjang dan pusat bantuan ikut memakai koreografi yang sudah ada:
+judulnya `data-bk-reveal="hero"`, dan daftar unit keranjang
+`data-bk-reveal-group` (stagger 0,05) sehingga baris unit masuk berurutan
+tanpa mengubah satu pun formulir di dalamnya.
 
 Dijaga `tests/Feature/MotionAssetsTest.php`: tes
 `test_gulir_sentuh_dihaluskan_dengan_pengaman` (menggantikan
