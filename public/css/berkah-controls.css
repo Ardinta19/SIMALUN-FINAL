@@ -269,7 +269,10 @@ html.fc-ui input[type="file"]::file-selector-button:hover {
     z-index: 1;
     width: 100%;
     max-width: 560px;
+    /* 86vh sebagai cadangan untuk WebView lama; dvh menghindari sheet
+       terpotong bilah alamat ponsel yang menyusut/memanjang. */
     max-height: 86vh;
+    max-height: min(86dvh, 720px);
     margin: auto auto 0;
     display: flex;
     flex-direction: column;
@@ -360,6 +363,9 @@ html.fc-ui input[type="file"]::file-selector-button:hover {
     overflow-y: auto;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
+    /* Hanya usapan vertikal yang diteruskan ke isi sheet; usapan mendatar
+       tidak boleh memicu gestur navigasi peramban dan menutup sheet. */
+    touch-action: pan-y;
     padding: 8px;
 }
 

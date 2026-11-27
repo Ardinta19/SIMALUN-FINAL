@@ -5364,3 +5364,45 @@ tidak menyentuh kelompok lain; tombol Hapus membersihkan satu kelompok saja;
 tombol + menambah satu unit pada kelompok yang sama. `CartThrottleTest` kini
 memeriksa **lima** rute tulis keranjang, dan `UiKitTest` memeriksa markup
 stepper yang baru.
+
+### 9.136 Sheet pilihan: isi bisa digulir dan menutupnya tidak melempar halaman ke atas
+
+Dua keluhan pemilik usaha saat memakai pemilih "Pengembalian" dan
+"Tanggal pengembalian" ternyata punya sebab teknis yang berbeda.
+
+**1. Isi sheet tidak bisa digulir.** `berkah-motion.js` menandai semua daerah
+gulir dengan `data-lenis-prevent` lewat `markScrollRegions()` — tetapi
+`markScrollRegions()` berjalan **sekali** saat Lenis dibuat, sedangkan sheet
+`.fc-sheet` baru dibuat beberapa detik kemudian oleh `openLayer()`. Tanpa
+penanda itu Lenis tetap mengintersep roda mouse/trackpad, sehingga roda
+menggulirkan halaman di belakang dan isi sheet terasa "diam". Sekarang
+`openLayer()` memasang `data-lenis-prevent` pada `panel` dan `body` milik
+layer yang baru dibuat.
+
+Selain itu batas tinggi sheet memakai `86dvh` (dengan `86vh` sebagai cadangan
+untuk WebView lama) supaya tidak terpotong bilah alamat ponsel, dan
+`.fc-layer__body` mendapat `touch-action: pan-y` agar usapan mendatar tidak
+diterjemahkan menjadi gestur navigasi yang menutup sheet.
+
+**2. Halaman melompat ke atas saat sheet ditutup.** `unlockScroll()` dulu
+memanggil `lenis.scrollTo(lock.y)` — padahal selama sheet terbuka Lenis
+berhenti, dan vendor `lenis.css` memasang `overflow: clip` pada `<html>` saat
+`.lenis-stopped` aktif. Permintaan gulir dalam keadaan itu diabaikan, jadi
+posisi kembali ke 0. Kelas `lenis-stopped` baru dilepas oleh MutationObserver
+yang berjalan **asinkron**, sesudah pemulihan posisi. Urutannya sekarang:
+lepas gaya body → `lenis.start()` bila masih berhenti → `lenis.scrollTo(y,
+immediate, force)` + `window.scrollTo(0, y)` → periksa ulang pada dua
+`requestAnimationFrame` berikutnya dan pasang ulang bila posisi masih
+bergeser. Posisi awal juga dibaca dari `window.pageYOffset`, `root.scrollTop`,
+dan `body.scrollTop` (yang pertama bisa 0 ketika `<html>` sedang `clip`).
+
+Fokus tetap dikembalikan dengan `focus({ preventScroll: true })`, dan tidak ada
+`scrollTo(0, 0)` di seluruh berkas — jadi menutup sheet tidak lagi "seperti
+memuat ulang" halaman.
+
+Dijaga `tests/Feature/SheetScrollTest.php` (4 tes statis terhadap
+`public/js/berkah-controls.js` dan `public/css/berkah-controls.css`): penanda
+`data-lenis-prevent` pada layer dinamis, batas tinggi `dvh` + `overflow-y` +
+`touch-action: pan-y` + `overscroll-behavior: contain`, urutan `lenis.start()`
+sebelum `lenis.scrollTo()` beserta pemeriksaan ulang `requestAnimationFrame`,
+dan tidak adanya gulir paksa ke atas.

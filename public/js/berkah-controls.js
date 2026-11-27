@@ -167,7 +167,11 @@
         lock.count += 1;
         if (lock.count > 1) return;
         var body = document.body;
-        lock.y = window.pageYOffset || root.scrollTop || 0;
+        /* Simpan posisi gulir dari sumber mana pun yang tersedia. Di sebagian
+           peramban ponsel `window.pageYOffset` bernilai 0 ketika <html> sudah
+           memakai `overflow: clip` (dipasang Lenis saat berhenti), sehingga
+           pembacaan tunggal bisa menyimpan posisi yang salah. */
+        lock.y = window.pageYOffset || root.scrollTop || body.scrollTop || 0;
         lock.htmlBehavior = root.style.scrollBehavior;
         root.style.scrollBehavior = 'auto';
         body.style.position = 'fixed';
@@ -184,6 +188,8 @@
         lock.count -= 1;
         if (lock.count > 0) return;
         var body = document.body;
+        var y = lock.y;
+        lock.y = 0;
         body.classList.remove('fc-scroll-lock');
         body.style.position = '';
         body.style.top = '';
@@ -191,20 +197,48 @@
         body.style.right = '';
         body.style.width = '';
         body.style.overflow = '';
-        /* Lenis memegang posisi gulirnya sendiri; memulihkan lewat
-           window.scrollTo() bisa langsung ditimpa lagi oleh frame berikutnya.
-           Kalau mesin gerak ada, serahkan pemulihan kepadanya. */
-        try {
-            var lenis = window.BkMotion && window.BkMotion.lenis;
-            if (lenis && typeof lenis.scrollTo === 'function') {
-                lenis.scrollTo(lock.y, { immediate: true, force: true });
-            } else {
-                window.scrollTo(0, lock.y);
-            }
-        } catch (e) {
-            root.scrollTop = lock.y;
-        }
         root.style.scrollBehavior = lock.htmlBehavior || '';
+
+        var lenis = null;
+        try {
+            lenis = window.BkMotion && window.BkMotion.lenis;
+        } catch (e) { lenis = null; }
+
+        /* Urutan ini penting dan dulu salah. Vendor lenis.css memasang
+           `overflow: clip` pada <html> selama `.lenis-stopped` aktif, sehingga
+           `scrollTo()` apa pun diabaikan — halaman tampak melompat ke atas
+           setiap kali sheet ditutup. Kelas itu dilepas oleh MutationObserver
+           yang berjalan asinkron, jadi Lenis dinyalakan lebih dulu di sini. */
+        if (lenis) {
+            try {
+                if (lenis.isStopped && typeof lenis.start === 'function') lenis.start();
+            } catch (e) { /* versi Lenis lain: lanjutkan dengan gulir asli */ }
+        }
+
+        var apply = function () {
+            try {
+                if (lenis && typeof lenis.scrollTo === 'function') {
+                    lenis.scrollTo(y, { immediate: true, force: true });
+                }
+                window.scrollTo(0, y);
+                if (root) root.scrollTop = y;
+            } catch (e) {
+                try { window.scrollTo(0, y); } catch (e2) { /* abaikan */ }
+            }
+        };
+
+        if (y > 0) {
+            apply();
+            /* Tinggi dokumen baru pulih setelah gaya body dilepas. Periksa satu
+               dan dua frame kemudian; kalau peramban masih menahan posisi di 0,
+               pasang ulang. Tanpa ini pengguna tetap melihat halaman di atas. */
+            window.requestAnimationFrame(function () {
+                if (Math.abs((window.pageYOffset || 0) - y) > 2) apply();
+                window.requestAnimationFrame(function () {
+                    if (Math.abs((window.pageYOffset || 0) - y) > 2) apply();
+                });
+            });
+        }
     }
 
     /* ================================================================
@@ -271,6 +305,14 @@
             var dialogHost = trigger.closest('dialog');
             if (dialogHost && dialogHost.open) host = dialogHost;
         }
+        /* Penanda ini dipasang sekali untuk elemen statis oleh
+           markScrollRegions() di berkah-motion.js; layer ini baru dibuat
+           sesudahnya, jadi tanpa tanda berikut roda mouse/trackpad tetap
+           digulirkan Lenis ke halaman di belakang sheet. Akibatnya isi sheet
+           terasa tidak bisa digeser naik-turun. */
+        panel.setAttribute('data-lenis-prevent', '');
+        body.setAttribute('data-lenis-prevent', '');
+
         host.appendChild(overlay);
 
         var locked = mobile && host === document.body;
