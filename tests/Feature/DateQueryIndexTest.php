@@ -128,10 +128,42 @@ class DateQueryIndexTest extends TestCase
             'progress' => 'waiting',
         ]);
 
-        // Saringan "dari/tanggal" pada daftar pesanan admin tetap menemukan unit
-        // yang tanggal acaranya tepat di batas.
+        // Pesanan pembanding di luar rentang: kalau saringan diabaikan, nomor
+        // referensinya akan ikut muncul di halaman.
+        $luar = RentalOrder::create([
+            'reference' => (string) Str::uuid(),
+            'customer_id' => $customer->id,
+            'confirmation_deadline' => now()->addDay(),
+        ]);
+        $luar->units()->create([
+            'rental_product_id' => $product->id,
+            'product_name' => 'Papan Hijau',
+            'unit_price' => 100000,
+            'price_unit' => 'day',
+            'rental_amount' => 1,
+            'starts_on' => '2026-12-20',
+            'event_on' => '2026-12-20',
+            'ends_on' => '2026-12-20',
+            'recipient_name' => 'Penerima',
+            'greeting' => 'Selamat',
+            'delivery_method' => 'pickup',
+            'return_method' => 'dropoff',
+            'status' => 'pending',
+            'progress' => 'waiting',
+        ]);
+
+        // Saringan "dari/sampai" pada daftar pesanan admin tetap menemukan unit
+        // yang tanggal acaranya tepat di batas. Daftar pesanan hanya memuat
+        // identitas pesanan (nomor referensi), bukan nama papan — nama papan
+        // diperiksa di halaman detail.
         $this->actingAs($admin)
             ->get(route('admin.rental.orders', ['from' => '2026-12-10', 'to' => '2026-12-10']))
+            ->assertOk()
+            ->assertSee($order->reference)
+            ->assertDontSee($luar->reference)
+            ->assertSee('1 pesanan ditemukan');
+
+        $this->get(route('admin.rental.orders.show', $order))
             ->assertOk()
             ->assertSee('Papan Merah');
     }

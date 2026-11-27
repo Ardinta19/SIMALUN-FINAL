@@ -5213,3 +5213,31 @@ Dijaga `tests/Feature/EnvExampleTest.php` (2 tes baru):
 `MAIL_FROM_NAME` dan `APP_NAME` di sana tidak dibaca dari repositori. Ganti
 keduanya bila masih bertuliskan nama laundry lama; baris `LAUNDRY_*` boleh
 dihapus karena sudah tidak berpengaruh.
+
+### 9.132 Dua kegagalan sisa: teks yang tidak pernah dirender dan kapitalisasi judul 403
+
+Setelah §9.130/§9.131, tes pemilik proyek turun ke **2 gagal / 467 lulus**.
+Keduanya bukan cacat aplikasi, tetapi tetap harus dibereskan karena tes yang
+menuntut teks yang tidak pernah ada akan gagal selamanya.
+
+**1. `DateQueryIndexTest::test_hasil_pencarian_tanggal_pada_daftar_pesanan_admin`.**
+Saringan `from`/`to` sudah benar — halaman menjawab "1 pesanan ditemukan" —
+tetapi tes menuntut nama papan ("Papan Merah") muncul di **daftar** pesanan.
+Daftar admin hanya memuat identitas pesanan (nama pelanggan, nomor referensi,
+hitungan unit, dan lencana status); nama papan baru tampil di halaman detail.
+Sebelum §9.130 tes ini gagal di baris yang sama karena query tanggal tidak
+mengembalikan apa pun, sehingga sebab keduanya tertutup.
+
+Tes kini memeriksa tiga hal yang benar-benar membuktikan saringan bekerja:
+
+- `assertSee($order->reference)` — pesanan yang cocok tampil;
+- `assertDontSee($luar->reference)` — pesanan kedua bertanggal 2026-12-20
+  tidak ikut tampil (kontrol negatif; kalau saringan diabaikan, tes gagal);
+- `assertSee('1 pesanan ditemukan')` — hitungan hasil ikut diperiksa;
+- nama papan diperiksa di `admin.rental.orders.show`.
+
+**2. `ErrorPageBrandingTest`.** Halaman 403 memakai "Akses ditolak" (kalimat
+biasa), sesuai standar yang sudah dikunci `UiDefaultsTest::test_halaman_galat_berbahasa_indonesia`
+(`'403' => 'Akses ditolak'`). Tes lama menuntut "Akses Ditolak" dan bertentangan
+dengan tes lain di repo yang sama. Tes disesuaikan ke kalimat biasa; halaman
+tidak diubah.

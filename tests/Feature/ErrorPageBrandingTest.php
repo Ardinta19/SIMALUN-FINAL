@@ -35,7 +35,7 @@ class ErrorPageBrandingTest extends TestCase
             'is_primary' => true,
         ]);
         $this->actingAs($customer)->get(route('customer.addresses.edit', $address))->assertForbidden()
-            ->assertSee('Akses Ditolak')->assertSee('Berkah Kreatif')->assertSee(route('dashboard'))
+            ->assertSee('Akses ditolak')->assertSee('Berkah Kreatif')->assertSee(route('dashboard'))
             ->assertDontSee('Azka Laundry');
     }
 }
