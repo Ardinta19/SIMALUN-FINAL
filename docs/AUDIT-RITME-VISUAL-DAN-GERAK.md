@@ -4682,7 +4682,8 @@ Ditambahkan pula `onOneServer()` supaya, bila cron terpasang di lebih dari
 satu server, hanya satu yang menjalankan tugas. Ini butuh cache store yang
 mendukung lock; `database` (bawaan), `file`, dan `array` semuanya
 mengimplementasikan `LockProvider` — `Illuminate\Cache\FileStore` diperiksa
-langsung di sumber Laravel 11.x. Driver `null` tidak mendukung lock, dan
+langsung di sumber kerangka Laravel (proyek ini memakai `laravel/framework ^12.0`).
+Driver `null` tidak mendukung lock, dan
 `.env.example` tidak pernah memakainya.
 
 Dijaga `tests/Feature/ScheduleGuardTest.php`:
@@ -4714,3 +4715,31 @@ Sekalian dikoreksi satu baris tabel yang tidak akurat: `QUEUE_CONNECTION`
 tidak perlu `queue:work`, karena belum ada job ber-`ShouldQueue` —
 notifikasi tersimpan di tabel `notifications` dan surel reset dikirim
 langsung (`grep ShouldQueue` di `app/`, `routes/`, `database/` = kosong).
+
+### 9.120 Kolom antrean admin belum terindeks
+
+Dasbor admin (`DashboardController::admin()`) menjalankan belasan `count()`
+setiap kali dibuka: unit `pending`, unit `confirmed` yang belum kembali,
+pembayaran `pending`, unit yang tanggal acaranya lewat, unit `cancelled`
+yang menunggu hangus DP, dan seterusnya — ditambah empat tugas penjadwal
+yang menyaring dengan pola yang sama tiap menit. Indeks yang ada
+(`rental_units_availability`) berawalan `rental_product_id`, sehingga tidak
+dapat dipakai untuk saringan berbasis status saja; `rental_payments.status`
+sama sekali belum terindeks.
+
+Migrasi baru `2026_11_22_000024_add_rental_queue_indexes.php` menambahkan:
+
+| Tabel | Indeks |
+| --- | --- |
+| `rental_order_units` | `(status, progress)` |
+| `rental_order_units` | `(event_on)` |
+| `rental_order_units` | `(ends_on)` |
+| `rental_payments` | `(status)` |
+
+Migrasi ini idempoten (memakai `Schema::hasIndex()` sebelum membuat dan
+sesudah memeriksa saat `down()`), dan tidak mengubah satu pun kolom —
+hanya menambah indeks, jadi aman dijalankan pada basis data yang sudah berisi.
+
+Dijaga `tests/Feature/RentalQueueIndexTest.php`: keempat indeks baru harus
+benar-benar ada di skema setelah migrasi, dan indeks ketersediaan yang lama
+tidak boleh hilang.
