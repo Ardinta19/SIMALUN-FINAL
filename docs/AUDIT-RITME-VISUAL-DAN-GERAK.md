@@ -4083,3 +4083,28 @@ Diperiksa ulang dan dinyatakan benar; dicatat supaya tidak diaudit lagi:
 **Hasil putaran 16:** harness **189 lulus, 0 gagal, 226 dilewati**
 (naik dari 183 karena 6 tes baru); `blade-scan.py` 81 view / 0 / 0;
 `.tmp-verify.php` 26/0; `php -l` pada 15 berkas yang diubah bersih.
+
+### 9.97 "Error 404" yang tersisa di halaman galat
+
+Enam halaman galat (`403`, `404`, `413`, `419`, `429`, `500`, `503`) sudah
+berjudul Indonesia dan sudah diuji, tetapi kartu galatnya masih memakai
+label kecil berbahasa Inggris dari layout bersama:
+
+```blade
+<span class="code-pill">Error {{ $code }}</span>
+```
+
+Label itu tampil di setiap halaman galat, persis di atas angka besar kode
+status. Diganti menjadi `Galat {{ $code }}`. Sekalian, tombol bawaan layout
+menulis "Kembali ke Beranda" dengan huruf besar di tengah, sementara semua
+halaman galat lain memakai kalimat yang sama dengan huruf kecil ("Kembali
+ke beranda", "Ke beranda"). Diseragamkan ke bentuk huruf kecil supaya satu
+jenis tombol tidak punya dua ejaan.
+
+`UiDefaultsTest` diperluas: label kartu harus "Galat {{ $code }}", bukan
+">Error {{ $code }}", dan tombol bawaan harus `'Kembali ke beranda'`.
+
+Pemeriksaan sejenis untuk teks Inggris lain di view (kata seperti "Save",
+"Submit", "Cancel", "Loading") hanya menyisakan sisa yang sah: nama atribut
+HTML (`type="date"`), komentar Blade, dan kata serapan yang memang dipakai
+sehari-hari ("Email", "Status", "Total", "No. HP").

@@ -1,6 +1,6 @@
 @php
     $accent = $accent ?? '#85092d';
-    $primary = $primary ?? ['url' => url('/'), 'label' => 'Kembali ke Beranda', 'icon' => 'home'];
+    $primary = $primary ?? ['url' => url('/'), 'label' => 'Kembali ke beranda', 'icon' => 'home'];
     $heroIcon = $icon ?? 'alert-triangle';
 @endphp
 <!DOCTYPE html>
@@ -55,7 +55,7 @@ p.lead{animation-delay:.17s}.actions{animation-delay:.21s}.tip{animation-delay:.
 <main id="main-content" tabindex="-1">
     <div class="card">
         <img class="logo" src="{{ asset('images/logo-104.png') }}" alt="Berkah Kreatif" width="54" height="54">
-        <span class="code-pill">Error {{ $code }}</span>
+        <span class="code-pill">Galat {{ $code }}</span>
         <div class="hero-icon" aria-hidden="true">@include('layouts.component._icon', ['name' => $heroIcon, 'size' => 32])</div>
         <div class="code-big">{{ $code }}</div>
         <h1>{{ $title }}</h1>

@@ -739,6 +739,15 @@ class UiDefaultsTest extends TestCase
             }
         }
 
+        // Label kecil di kartu galat juga berbahasa Indonesia, dan tombol
+        // bawaannya memakai huruf kecil seperti halaman galat yang lain
+        // ("Kembali ke beranda"), bukan "Beranda".
+        $layoutGalat = File::get(resource_path('views/errors/layout.blade.php'));
+        $this->assertStringContainsString('Galat {{ $code }}', $layoutGalat);
+        $this->assertStringNotContainsString('>Error {{ $code }}', $layoutGalat);
+        $this->assertStringContainsString("'Kembali ke beranda'", $layoutGalat);
+        $this->assertStringNotContainsString("'Kembali ke Beranda'", $layoutGalat);
+
         // robots.txt menutup area akun dan panel admin.
         $robots = File::get(public_path('robots.txt'));
         // Tautan berbagi `/apresiasi/{token}` bisa dibuka tanpa masuk, jadi ia
