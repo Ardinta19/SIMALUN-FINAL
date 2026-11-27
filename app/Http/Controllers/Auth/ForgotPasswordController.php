@@ -4,9 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
 
 class ForgotPasswordController extends Controller
@@ -31,7 +29,12 @@ class ForgotPasswordController extends Controller
 
         if ($user) {
             $token = Password::broker()->createToken($user);
-            Notification::send($user, new ResetPassword($token));
+
+            // Jangan `new ResetPassword(...)` langsung: kelas bawaan Laravel itu
+            // memakai template Inggris. `sendPasswordResetNotification()` pada
+            // model User sudah diarahkan ke ResetPasswordNotification milik
+            // aplikasi ini — berbahasa Indonesia dan memakai merek toko.
+            $user->sendPasswordResetNotification($token);
         }
 
         return back()->with('status', __('passwords.sent'));

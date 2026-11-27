@@ -4599,3 +4599,30 @@ Yang dikerjakan:
 - `tests/Feature/EnvExampleTest.php` menjaga baris-baris pengingat itu tetap
   ada, sekaligus memastikan bawaan lokal (`MAIL_MAILER=log`,
   `APP_DEBUG=true`, `SESSION_DRIVER=database`) tidak ikut berubah.
+
+### 9.115 Surel "lupa kata sandi" ternyata template Inggris bawaan Laravel
+
+`ForgotPasswordController::sendLink()` mengirim
+`Notification::send($user, new ResetPassword($token))` — kelas
+`Illuminate\Auth\Notifications\ResetPassword` milik kerangka. Akibatnya
+`User::sendPasswordResetNotification()` (yang diarahkan ke
+`App\Notifications\Auth\ResetPasswordNotification`) **tidak pernah
+dipanggil**, dan pelanggan menerima surel berbahasa Inggris dengan subjek
+"Reset Password Notification", bukan surel bermerek toko yang sudah disiapkan
+di `resources/views/emails/reset-password.blade.php`.
+
+Perbaikannya satu baris, tetapi mengubah pengalaman pelanggan: controller
+kini memanggil `$user->sendPasswordResetNotification($token)`. Token tetap
+dibuat lewat `Password::broker()->createToken($user)` sehingga masa berlaku
+dan pencocokan token tidak berubah, dan pesan status tetap
+`passwords.sent` (tidak membocorkan apakah email terdaftar).
+
+Dijaga `tests/Feature/Auth/PasswordResetTest.php`:
+
+- `test_surel_reset_memakai_notifikasi_berbahasa_indonesia()` — dengan
+  `Notification::fake()`, permintaan reset harus mengirim
+  `ResetPasswordNotification` milik aplikasi.
+- `test_isi_surel_reset_berbahasa_indonesia_dan_bermerek_toko()` — merender
+  surel lalu memastikan sapaan memakai nama pengguna, tombolnya berbunyi
+  "Atur ulang kata sandi", nama toko muncul, dan subjeknya bukan subjek
+  bawaan Laravel.
