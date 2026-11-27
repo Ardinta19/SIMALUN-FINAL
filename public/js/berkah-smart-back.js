@@ -5,9 +5,15 @@
  *  1. Server sudah memilih URL cadangan yang masuk akal (halaman induk) dan
  *     menuliskannya di href. Tanpa JavaScript, tombol tetap bekerja.
  *  2. Saat JavaScript aktif DAN pengunjung benar-benar datang dari halaman lain
- *     di situs ini, tombol memakai history.back(). Hasilnya: filter, posisi
- *     gulir, dan tab yang sedang dibuka kembali seperti semula — bukan halaman
- *     induk yang generik.
+ *     di situs ini — DAN halaman itu sama dengan halaman yang tertulis di
+ *     href — tombol memakai history.back(). Hasilnya: filter, posisi gulir,
+ *     dan tab yang sedang dibuka kembali seperti semula.
+ *
+ * Pemeriksaan tujuan itu wajib. Dulu `history.back()` dipakai untuk setiap
+ * referrer dalam situs, sehingga tombol berlabel "Kembali ke keranjang" di
+ * halaman checkout bisa membawa pengunjung ke halaman papan bunga (asal
+ * checkout dibuka lewat "Pesan langsung") — labelnya berbohong. Bila tujuan
+ * riwayat berbeda dari label, href-lah yang dipakai.
  *
  * Bila halaman dibuka dari tautan luar, dari bookmark, setelah muat ulang,
  * atau di tab baru, history.back() akan melempar pengunjung keluar dari situs.
@@ -34,17 +40,38 @@
         return parsed.origin === SITE.origin ? parsed : null;
     }
 
-    /** Apakah pengunjung sampai di halaman ini lewat navigasi di dalam situs? */
+    function samePath(a, b) {
+        var normalize = function (path) {
+            return (path || '/').replace(/\/+$/, '') || '/';
+        };
+        return normalize(a) === normalize(b);
+    }
+
+    /**
+     * Boleh memakai history.back()?
+     *
+     * Syarat: pengunjung datang dari halaman lain di situs ini, halaman itu
+     * BUKAN halaman formulir yang berbahaya diulang, dan halaman itu memang
+     * halaman yang ditulis pada href tombol. Tanpa syarat terakhir, label
+     * tombol dan tujuan sebenarnya bisa berbeda.
+     */
     function cameFromSameSite(anchor) {
         var referrer = parseSameSite(document.referrer);
         if (!referrer) return false;
 
+        var href = parseSameSite(anchor.getAttribute('href'));
+        if (!href) return false;
+
+        // Inti perbaikan: tujuan riwayat harus sama dengan yang tertulis di
+        // tombol. Kalau berbeda, ikuti href supaya label tidak berbohong.
+        if (!samePath(referrer.pathname, href.pathname)) return false;
+
         // Muat ulang halaman yang sama: jangan kembali ke diri sendiri.
         if (referrer.pathname === SITE.pathname && referrer.search === SITE.search) return false;
 
-        // Jangan pernah kembali ke halaman keluar/masuk atau halaman form POST
-        // yang bisa memicu kirim ulang data.
-        var skipPaths = ['/login', '/logout', '/register'];
+        // Jangan pernah kembali ke halaman keluar/masuk, halaman checkout, atau
+        // halaman form POST lain yang bisa memicu kirim ulang data.
+        var skipPaths = ['/login', '/logout', '/register', '/checkout'];
         if (skipPaths.indexOf(referrer.pathname) !== -1) return false;
 
         // Target khusus (mis. buka di tab baru) tidak boleh diubah perilakunya.
