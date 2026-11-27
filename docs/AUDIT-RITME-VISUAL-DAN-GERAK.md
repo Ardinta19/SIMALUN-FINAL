@@ -3579,3 +3579,129 @@ di dalam perulangan; `.photo` memakai `aspect-ratio` sehingga tidak ada
 lonjakan tata letak saat foto termuat.
 
 **Hasil:** harness **175 lulus, 0 gagal, 218 dilewati**.
+
+### 9.76 Putaran kedua belas, catatan penutup: pembatalan admin berhenti di serah terima
+
+Alur pesanan ditelusuri ujung ke ujung (katalog dan filter tanggal → keranjang
+→ checkout → konfirmasi → ongkos → pratinjau desain → pembayaran → progres →
+penutupan dan rating → pembatalan dan pesan ulang). Satu celah ditemukan di
+titik pembatalan oleh admin.
+
+`RentalOrderController::cancel()` hanya menolak unit yang **sudah** berstatus
+`cancelled` (`app/Http/Controllers/RentalOrderController.php:556`). Akibatnya
+unit yang sudah **diserahkan** (`progress = handed_over`) masih bisa
+dibatalkan lewat POST langsung, padahal form di halaman admin pun tidak
+menyaringnya: `resources/views/rental/admin-detail.blade.php:415` dahulu hanya
+memeriksa `$unit->status !== 'cancelled'`. Pembatalan melepas reservasi
+sekaligus mengeluarkan unit dari tiga penjaga yang semuanya menyaring
+`status = confirmed` dan `progress = handed_over`:
+`RentalReminders::remindReturns()` (pengingat papan belum kembali),
+`RentalAutoClose::run()` (penutupan otomatis setelah `GRACE_DAYS`), dan
+antrean "aktif" dasbor. Papan yang masih di tangan pelanggan karena itu hilang
+dari pelacakan tanpa jejak apa pun.
+
+Perbaikan dua sisi. Server kini menolak dengan pesan yang menjelaskan langkah
+berikutnya (`RentalOrderController.php:557–561`): *"Papan sudah diserahkan.
+Tandai pengembalian lebih dulu sebelum membatalkan unit; pembatalan dapat
+dilakukan setelah unit tercatat kembali."* Halaman admin mengganti form itu
+dengan satu paragraf penjelas (`admin-detail.blade.php:415–416`), sehingga
+tidak ada tombol yang berujung galat. Pesan galatnya tetap tampil lewat kotak
+galat global tata letak admin (`layouts/admin.blade.php:46–52`) bila ada yang
+mengirim POST langsung.
+
+Dijaga `tests/Feature/RentalAdminCancellationTest.php`: (1) POST pada unit
+`handed_over` menghasilkan galat `unit`, status tetap `confirmed`, progres
+tetap `handed_over`, dan **tidak** ada catatan pembatalan; (2) halaman detail
+admin tidak lagi memuat tautan `admin.rental.cancel` untuk unit itu, tetapi
+masih memuatnya untuk unit `waiting`; (3) unit `production` tetap bisa
+dibatalkan dan tanggalnya benar-benar kembali tersedia
+(`RentalAvailability::minimumAvailable` naik dari 1 ke 2).
+
+### 9.77 Stok papan adalah kapasitas, bukan sisa yang dikurangi
+
+`RentalProduct::stock` tidak pernah didekrementasi saat checkout — dan itu
+memang disengaja. Ketersediaan dihitung dari baris unit yang menahan tanggal,
+bukan dari kolom stok: `RentalOrderUnit::RESERVING_STATUSES`
+(`app/Models/RentalOrderUnit.php:22`) berisi `pending` dan `confirmed`, lalu
+`RentalAvailability::minimumAvailable()` menarik semua unit yang beririsan
+(`app/Services/RentalAvailability.php:64`) dan `minimumFromOverlaps()`
+menghitung puncak tumpang tindih dengan sapuan peristiwa
+(`app/Services/RentalAvailability.php:95`). Pola ini membuat pembatalan,
+kedaluwarsa konfirmasi, dan hangusnya DP otomatis melepas tanggal tanpa
+perlu mengembalikan angka apa pun — satu sumber kebenaran, tanpa risiko
+"stok bocor" karena satu jalur lupa menaikkan kembali.
+
+Karena itu pemeriksaan `stock < 1` di checkout
+(`RentalOrderController.php:35`, `:188`) dan di keranjang
+(`RentalCartController.php:28`, `:61`) bukan pengganti pemeriksaan tanggal;
+keduanya hanya menolak papan yang dinonaktifkan admin. Catatan ini
+ditambahkan ke `docs/ALUR-PEMESANAN.md` supaya tidak ada yang "memperbaiki"
+kolom stok di kemudian hari.
+
+### 9.78 Matematika tenggat: semua batas dihitung di WIB, bukan zona peramban
+
+Empat batas waktu pada alur sewa diperiksa satu per satu dan semuanya memakai
+`Asia/Jakarta` secara eksplisit:
+
+- tenggat pelunasan `plannedPaymentDeadline()`
+  (`app/Models/RentalOrderUnit.php:34–38`) = 23.59.59 WIB pada H-1;
+- `cutoff()` (`app/Services/RentalPaymentDeadline.php:10`) = 00.00.00 WIB pada
+  hari penerimaan, dipakai sebagai batas **eksklusif** supaya bukti yang
+  dikirim pukul 23.59 masih dihitung tepat waktu;
+- toleransi `graceDeadline()` (`app/Services/RentalPaymentDeadline.php:30`) =
+  H+1 pukul 12.00 WIB, batas terakhir unit yang dibatalkan karena tenggat
+  masih bisa dilanjutkan sebelum DP hangus;
+- tenggat desain `deadline()` (`app/Services/RentalDesignDeadline.php:34`) =
+  `min(unggah + 48 jam, H-3)`, dengan lantai `unggah` supaya pesanan mendadak
+  tidak langsung melewati tenggat saat pratinjau baru tersedia.
+
+`config('app.timezone')` bernilai `Asia/Jakarta` dan `.env.example` ikut
+menyetel `APP_TIMEZONE` (`config/app.php:68`, `.env.example:10`), jadi
+`submitted_at` yang dibandingkan `timelyCoverage()` berada di zona yang sama
+dengan batasnya. Tidak ada lagi perbandingan yang bergantung pada zona
+peramban.
+
+### 9.79 Pembekuan ubah data unit: view dan server memakai ukuran yang sama
+
+Kekhawatiran lama bahwa halaman unit menyembunyikan form lebih awal daripada
+aturan server ternyata tidak terbukti. Halaman memakai
+`$netPaid` = pembayaran `verified` dikurangi pengembalian
+(`resources/views/rental/unit.blade.php:8`) dengan syarat
+`status = confirmed`, `progress = waiting`, dan `$netPaid === 0`
+(`unit.blade.php:47`). Server memakai `verifiedNet()` — rumus yang sama
+(`app/Models/RentalOrderUnit.php:74`) — dengan dua syarat yang sama
+(`RentalOrderController.php:501–502`). Bukti yang masih `pending` tidak
+membekukan apa pun di kedua sisi, jadi pelanggan tidak pernah melihat form
+yang pasti ditolak. Tidak ada perubahan kode di sini; hanya dicatat agar
+pemeriksaan ini tidak diulang.
+
+### 9.80 Checkout: satu pesanan per keranjang, dan semua angka dikunci
+
+Pengiriman ulang formulir checkout tidak membuat pesanan ganda: baris
+pelanggan dikunci lebih dulu (`User::whereKey(...)->lockForUpdate()`), lalu
+`checkout_key` dicari dan `checkout_payload_hash` dibandingkan; isi keranjang
+yang berbeda ditolak dengan pesan yang menyuruh memeriksa "Pesanan saya"
+(`RentalOrderController.php:147–151`). Harga tidak pernah diambil dari
+formulir: produk, item tambahan, paket durasi, universitas antar/jemput, dan
+voucher semuanya dibaca ulang di dalam transaksi dengan `lockForUpdate`, dan
+ketersediaan tanggal diperiksa dengan `canFitRequested(..., true)` yang ikut
+mengunci. Foto referensi sengaja disimpan **di luar** transaksi dan dihapus
+bila transaksi gagal atau pesanan ternyata sudah ada, sehingga percobaan
+ulang karena *deadlock* tidak meninggalkan berkas yatim.
+
+### 9.81 Voucher di halaman checkout memang hanya perkiraan
+
+Halaman checkout menyebut dirinya sendiri dengan jujur: *"Potongan dihitung
+dari harga sewa unit dan diperiksa kembali saat pesanan dikirim"* dan status
+tombol cek berbunyi *"Kode diperiksa saat pesanan dikirim; tombol cek hanya
+menampilkan perkiraan potongan."*
+(`resources/views/rental/checkout.blade.php:91`, `:95`). Selisih antara
+perkiraan dan potongan final memang mungkin terjadi karena pilihan paket
+durasi baru diketahui saat formulir dikirim
+(`app/Services/RentalVouchers.php:estimateRentalBase`), dan aturan final
+memakai basis sewa yang sebenarnya. Karena antarmuka sudah menyebutnya
+perkiraan, ini bukan cacat; dicatat agar teks itu tidak "dirapikan" menjadi
+janji potongan pasti.
+
+**Hasil:** harness **175 lulus, 0 gagal, 218 dilewati**; `blade-scan.py`
+81 view / 0 / 0; `node --check` 11 berkas JS lolos; `.tmp-verify.php` 26/0.

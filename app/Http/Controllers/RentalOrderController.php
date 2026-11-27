@@ -554,6 +554,11 @@ class RentalOrderController extends Controller
             RentalProduct::lockForUpdate()->findOrFail($unit->rental_product_id);
             $unit = RentalOrderUnit::lockForUpdate()->findOrFail($unit->id);
             if ($unit->status === 'cancelled') throw ValidationException::withMessages(['unit' => 'Unit sudah dibatalkan.']);
+            // Papan yang sudah keluar jangan dihapus dari pelacakan: pembatalan
+            // melepas reservasi sekaligus mengeluarkan unit dari antrean
+            // pengembalian dan dari penutupan otomatis, sehingga papan yang
+            // masih di tangan pelanggan tidak terpantau lagi.
+            if ($unit->progress === 'handed_over') throw ValidationException::withMessages(['unit' => 'Papan sudah diserahkan. Tandai pengembalian lebih dulu sebelum membatalkan unit; pembatalan dapat dilakukan setelah unit tercatat kembali.']);
             $unit->cancellationEvents()->create(['action' => 'cancel', 'previous_status' => $unit->status, 'new_status' => 'cancelled', 'note' => $data['reason'], 'responsibility' => $data['responsibility'], 'recorded_by' => $request->user()->id]);
             $unit->update(['status_before_cancel' => $unit->status, 'cancel_code' => 'manual', 'status' => 'cancelled', 'cancel_reason' => $data['reason'], 'cancel_responsibility' => $data['responsibility'], 'cancelled_at' => now(), 'cancelled_by' => $request->user()->id]);
             app(RentalNotifications::class)->customer($unit->order, 'Unit dibatalkan', 'Unit '.$unit->product_name.' dibatalkan. Lihat detail pesanan.');

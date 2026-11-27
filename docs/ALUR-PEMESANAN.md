@@ -438,3 +438,42 @@ sudah ada (transaksi, notifikasi dalam transaksi, perintah penjadwal idempoten).
 | DL-3 sisa | **ada**: `RentalTransportWaitTest` (admin diingatkan bila ongkos tak pernah ditawar, pelanggan diingatkan bila penawaran tak dijawab, keduanya sekali per hari dan berhenti setelah ada tindakan) |
 | G-2/G-3 | **ada**: `RentalAutoCloseTest` (tutup otomatis H+7 + riwayat Sistem + notifikasi, idempoten, tidak menyentuh unit dalam tenggang/`ready`, rating pesanan terbuka) |
 | RT-7 (jalur WhatsApp) | **ada**: `RentalWhatsAppLinkTest` (nomor dinormalkan, pesan memuat referensi + status unit, tombol disembunyikan bila nomor kosong/tidak valid) |
+| Pembatalan setelah serah terima | **ada**: `RentalAdminCancellationTest` (unit `handed_over` ditolak dengan galat `unit`, tidak ada catatan pembatalan, form disembunyikan; unit `production` tetap bisa dibatalkan dan tanggalnya lepas) |
+
+## 10. Kapasitas, bukan sisa stok
+
+`rental_products.stock` adalah **jumlah papan yang dimiliki**, bukan sisa yang
+dikurangi setiap checkout. Nilai itu tidak pernah didekrementasi dan tidak
+boleh didekrementasi; sisa untuk satu rentang tanggal dihitung dari baris unit
+yang menahan tanggal:
+
+```
+sisa(min) = stock − puncak tumpang tindih unit berstatus pending/confirmed
+```
+
+Bukti: `RentalOrderUnit::RESERVING_STATUSES`
+(`app/Models/RentalOrderUnit.php:22`),
+`RentalAvailability::minimumAvailable()` dan `minimumFromOverlaps()`
+(`app/Services/RentalAvailability.php:64`, `:95`). Karena status yang menahan
+tanggal dipakai langsung, pembatalan, kedaluwarsa konfirmasi, dan hangusnya DP
+otomatis melepas tanggalnya — tanpa langkah "kembalikan stok" yang bisa
+terlewat di satu jalur.
+
+Pemeriksaan `stock < 1` di checkout dan keranjang
+(`app/Http/Controllers/RentalOrderController.php:35`, `:188`;
+`app/Http/Controllers/RentalCartController.php:28`, `:61`) hanya menolak papan
+yang dinonaktifkan atau kehabisan kapasitas, bukan pengganti pemeriksaan
+tanggal.
+
+## 11. Siapa yang boleh membatalkan
+
+| Pelaku | Boleh membatalkan bila | Penjaga |
+| --- | --- | --- |
+| Pelanggan | status `pending`/`confirmed` **dan** progres `waiting` | `RentalOrderController::cancelByCustomer()` (`:477`) |
+| Admin | status belum `cancelled` **dan** papan **belum diserahkan** (`progress` bukan `handed_over`) | `RentalOrderController::cancel()` (`:556–561`) |
+| Sistem | konfirmasi lewat 24 jam, atau pelunasan lewat tenggat dan toleransi H+1 12.00 WIB habis | `ExpireRentalConfirmations`, `ExpireRentalPayments` |
+
+Papan yang sudah diserahkan sengaja tidak bisa dibatalkan: pembatalan melepas
+reservasi dan mengeluarkan unit dari pengingat "belum kembali", dari
+penutupan otomatis, dan dari antrean aktif dasbor. Alurnya: tandai
+pengembalian lebih dulu, baru batalkan bila memang perlu.

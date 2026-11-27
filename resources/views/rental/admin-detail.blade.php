@@ -412,7 +412,9 @@
             </div>
         </details>
 
-        @if($unit->status !== 'cancelled')
+        @if($unit->status !== 'cancelled' && $unit->progress === 'handed_over')
+            <p class="muted" style="margin-top:12px">Papan sudah diserahkan dan belum ditandai kembali. Tandai pengembalian lewat bagian perkembangan lebih dulu; setelah itu unit dapat dibatalkan bila memang perlu.</p>
+        @elseif($unit->status !== 'cancelled')
             <details class="adm-card adm-card--flat" data-adm-reveal="details" style="margin-top:12px" @if($errors->any()) open @endif>
                 <summary>Batalkan unit</summary>
                 <form class="adm-stack" style="padding-top:12px" method="post" action="{{ route('admin.rental.cancel', $unit) }}">
