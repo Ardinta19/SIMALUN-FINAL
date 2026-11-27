@@ -59,9 +59,11 @@ class CartGroupingTest extends TestCase
 
         $html = $response->getContent();
         $this->assertSame(2, substr_count($html, 'class="card body cart-item"'), 'Tiga unit + satu unit bertanggal lain = dua baris.');
-        $this->assertStringContainsString('<span class="bk-qty-num" aria-live="polite">3</span>', $html);
-        $this->assertStringContainsString('<span class="bk-qty-num" aria-live="polite">1</span>', $html);
-        $this->assertStringContainsString('Subtotal harga dasar Rp 300.000', $html);
+        /* Sejak pembaruan langsung (§9.146) penghitung unit dan subtotal
+           membawa kait data-*; angkanya tetap sama. */
+        $this->assertStringContainsString('<span class="bk-qty-num" aria-live="polite" data-cart-count>3</span>', $html);
+        $this->assertStringContainsString('<span class="bk-qty-num" aria-live="polite" data-cart-count>1</span>', $html);
+        $this->assertStringContainsString('Subtotal harga dasar <strong data-cart-subtotal>Rp 300.000</strong>', $html);
         $this->assertStringContainsString('4 unit', $html);
     }
 

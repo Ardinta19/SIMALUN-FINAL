@@ -57,7 +57,7 @@ class RentalCartTest extends TestCase
             ->assertSee('2 unit')
             ->assertSee('<h2>Papan</h2>', false)
             ->assertSee('aria-label="Jumlah unit Papan"', false)
-            ->assertSee('<span class="bk-qty-num" aria-live="polite">2</span>', false)
+            ->assertSee('<span class="bk-qty-num" aria-live="polite" data-cart-count>2</span>', false)
             ->assertSee('aria-label="Hapus semua unit Papan dari keranjang"', false)
             ->assertSee('Lanjut ke checkout');
         $category->update(['is_active' => false]);

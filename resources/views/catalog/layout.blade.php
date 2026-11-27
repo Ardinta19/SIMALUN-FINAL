@@ -131,6 +131,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 {{-- Strip berjalan (langkah pemesanan + kontak) hanya ada di beranda katalog;
      skripnya kecil dan langsung berhenti bila elemennya tidak ditemukan. --}}
 <script src="{{ $asset('js/berkah-ribbon.js') }}" defer></script>
+{{-- Varian warna (pemilih swatch + total baris) dan keranjang yang berubah
+     tanpa memuat ulang. Keduanya berhenti sendiri bila elemennya tidak ada. --}}
+<script src="{{ $asset('js/berkah-variants.js') }}" defer></script>
+<script src="{{ $asset('js/berkah-cart-live.js') }}" defer></script>
 @include('layouts.component._form_controls')
 @include('layouts.component._ui_kit')
 </body></html>

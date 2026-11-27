@@ -18,7 +18,7 @@
     $graceDeadline = $unit->cancel_code === 'payment_timeout' ? $deadlinePolicy->graceDeadline($unit) : null;
 @endphp
 <nav class="bk-jump bk-unit-jump" aria-label="Lompat ke bagian unit"><strong>Lihat bagian</strong><div><a href="#unit-info-{{ $unit->id }}">Jadwal &amp; ucapan</a>@if($unit->transportRequired())<a href="#transport-{{ $unit->id }}">Ongkos</a>@endif<a href="#unit-progress-{{ $unit->id }}">Perkembangan</a><a href="#payment-{{ $unit->id }}">Pembayaran</a><a href="#design-{{ $unit->id }}">Desain</a><a href="#rating-{{ $unit->id }}">Rating</a></div></nav><noscript><p class="muted">Setelah menuju bagian, buka judul bagian untuk melihat isinya.</p></noscript>
-<article class="card body"><h2>Unit {{ $unitNumber }} · {{ $unit->product_name }}</h2>
+<article class="card body"><h2>Unit {{ $unitNumber }} · {{ $unit->product_name }}{{ $unit->variant_name ? ' · warna '.$unit->variant_name : '' }}</h2>
 @php $waAdmin = \App\Support\RentalWhatsApp::adminLink($order, $unit); @endphp
 @if($waAdmin)<p><a class="btn secondary" href="{{ $waAdmin }}" target="_blank" rel="noopener noreferrer">Tanya admin via WhatsApp</a></p>@endif
 <section class="notice" aria-label="Langkah berikutnya untuk unit {{ $unitNumber }}"><strong>Langkah berikutnya</strong>

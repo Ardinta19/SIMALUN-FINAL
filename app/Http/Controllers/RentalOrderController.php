@@ -29,10 +29,22 @@ class RentalOrderController extends Controller
     {
         $cart = $request->session()->get('rental_cart', []);
         if (! $cart) return redirect()->route('cart.index')->withErrors(['cart' => 'Keranjang masih kosong.']);
-        $products = RentalProduct::with(['category', 'packages' => fn ($query) => $query->where('is_active', true)])->whereIn('id', array_column($cart, 'product_id'))->get()->keyBy('id');
+        $products = RentalProduct::with(['category', 'variants', 'packages' => fn ($query) => $query->where('is_active', true)])->whereIn('id', array_column($cart, 'product_id'))->get()->keyBy('id');
         foreach ($cart as $entry) {
             $product = $products->get($entry['product_id']);
-            if (! $product || ! $product->is_active || ! $product->category?->is_active || $product->stock < 1) {
+            if (! $product || ! $product->is_active || ! $product->category?->is_active) {
+                return redirect()->route('cart.index')->withErrors(['cart' => 'Ada papan yang tidak lagi tersedia. Hapus unit tersebut dari keranjang sebelum checkout.']);
+            }
+            // Papan bervarian diperiksa per warna: warna yang habis tidak boleh
+            // ikut ke checkout hanya karena warna lain masih ada.
+            if ($product->hasVariants()) {
+                $variant = $product->findVariant($entry['variant_id'] ?? 0);
+                if (! $variant || $variant->stock < 1) {
+                    return redirect()->route('cart.index')->withErrors(['cart' => 'Ada warna papan yang sudah habis atau tidak tersedia. Perbarui keranjang sebelum checkout.']);
+                }
+                continue;
+            }
+            if ($product->stock < 1) {
                 return redirect()->route('cart.index')->withErrors(['cart' => 'Ada papan yang tidak lagi tersedia. Hapus unit tersebut dari keranjang sebelum checkout.']);
             }
         }
@@ -155,7 +167,7 @@ class RentalOrderController extends Controller
                 // Mengunci produk dalam urutan konsisten dengan konfirmasi stok.
                 // Unit pending ikut dihitung karena sejak pesanan dikirim tanggalnya
                 // sudah ditahan sampai admin mengonfirmasi atau tenggatnya lewat.
-                $products = RentalProduct::with('category')->whereIn('id', array_column($cart, 'product_id'))->orderBy('id')->lockForUpdate()->get()->keyBy('id');
+                $products = RentalProduct::with(['category', 'variants'])->whereIn('id', array_column($cart, 'product_id'))->orderBy('id')->lockForUpdate()->get()->keyBy('id');
                 // Item tambahan dikunci sebelum dipakai agar harga yang tersimpan
                 // sama dengan yang dihitung; item nonaktif ditolak.
                 $requestedAddons = [];
@@ -169,7 +181,13 @@ class RentalOrderController extends Controller
                     : collect();
                 $rangesByProduct = [];
                 foreach ($cart as $key => $entry) {
-                    $rangesByProduct[$entry['product_id']][] = ['starts_on' => $data['units'][$key]['starts_on'], 'ends_on' => $data['units'][$key]['ends_on']];
+                    // Varian ikut dikirim ke pemeriksa ketersediaan: pesanan
+                    // marun tidak boleh memakan stok putih.
+                    $rangesByProduct[$entry['product_id']][] = [
+                        'starts_on' => $data['units'][$key]['starts_on'],
+                        'ends_on' => $data['units'][$key]['ends_on'],
+                        'variant_id' => $entry['variant_id'] ?? null,
+                    ];
                 }
                 foreach ($rangesByProduct as $productId => $ranges) {
                     $product = $products->get($productId);
@@ -185,7 +203,17 @@ class RentalOrderController extends Controller
                     $unitNumber++;
                     $unitLabel = 'Unit '.$unitNumber.': ';
                     $product = $products->get($entry['product_id']);
-                    if (! $product || ! $product->is_active || ! $product->category->is_active || $product->stock < 1) throw ValidationException::withMessages(['cart' => 'Ada papan yang tidak tersedia. Perbarui keranjang.']);
+                    if (! $product || ! $product->is_active || ! $product->category->is_active) throw ValidationException::withMessages(['cart' => 'Ada papan yang tidak tersedia. Perbarui keranjang.']);
+                    // Warna dikunci ulang di sini: bisa saja admin menonaktifkan
+                    // atau mengosongkannya setelah unit masuk keranjang.
+                    $variant = null;
+                    if ($product->hasVariants()) {
+                        $variant = $product->findVariant($entry['variant_id'] ?? 0);
+                        if (! $variant) throw ValidationException::withMessages(['cart' => $unitLabel.'warna papan sudah tidak tersedia. Perbarui keranjang.']);
+                        if ($variant->stock < 1) throw ValidationException::withMessages(['cart' => $unitLabel.'warna '.$variant->name.' sedang kosong. Pilih warna lain.']);
+                    } elseif ($product->stock < 1) {
+                        throw ValidationException::withMessages(['cart' => 'Ada papan yang tidak tersedia. Perbarui keranjang.']);
+                    }
                     $unit = $data['units'][$key];
                     // Item tambahan: jumlah 0 berarti tidak dipilih. Nama dan harga
                     // disalin ke baris pesanan supaya katalog boleh berubah nanti.
@@ -228,7 +256,7 @@ class RentalOrderController extends Controller
                     if ($hasTransport && $allFixed) $transport += ['transport_quote' => (int) ($delivery?->delivery_fee ?? 0) + (int) ($collection?->collection_fee ?? 0), 'transport_quote_version' => 1, 'transport_quote_note' => 'Tarif universitas sesuai pilihan saat checkout.'];
                     // Unit dibuat setelah potongan voucher diketahui agar setiap
                     // baris unit langsung menyimpan bagian potongannya.
-                    $plans[$key] = array_merge($unit, $transport, ['rental_product_id' => $product->id, 'product_name' => $product->name, 'unit_price' => $product->base_price, 'price_unit' => $product->price_unit, 'rental_amount' => $amount, 'addon_amount' => $addonTotal, 'rental_duration_package_id' => $package?->id, 'package_name' => $package?->name, 'package_days' => $package?->days]);
+                    $plans[$key] = array_merge($unit, $transport, ['rental_product_id' => $product->id, 'product_name' => $product->name, 'rental_product_variant_id' => $variant?->id, 'variant_name' => $variant?->name, 'variant_color' => $variant?->color, 'unit_price' => $product->base_price, 'price_unit' => $product->price_unit, 'rental_amount' => $amount, 'addon_amount' => $addonTotal, 'rental_duration_package_id' => $package?->id, 'package_name' => $package?->name, 'package_days' => $package?->days]);
                 }
 
                 // Voucher: diperiksa dan dikunci di dalam transaksi supaya kuota
@@ -530,14 +558,24 @@ class RentalOrderController extends Controller
     {
         abort_unless($unit->order->customer_id === $request->user()->id, 403);
         if ($unit->status !== 'cancelled') throw ValidationException::withMessages(['reorder' => 'Pesan ulang hanya tersedia untuk unit yang dibatalkan.']);
-        $product = RentalProduct::with('category')->find($unit->rental_product_id);
-        if (! $product || ! $product->is_active || ! $product->category?->is_active || $product->stock < 1) {
+        $product = RentalProduct::with(['category', 'variants'])->find($unit->rental_product_id);
+        if (! $product || ! $product->is_active || ! $product->category?->is_active) {
+            throw ValidationException::withMessages(['reorder' => 'Papan ini tidak lagi tersedia di katalog.']);
+        }
+        // Warna yang dulu dipesan dipakai lagi hanya bila masih dijual.
+        $variant = $unit->rental_product_variant_id ? $product->findVariant($unit->rental_product_variant_id) : null;
+        if ($product->hasVariants()) {
+            if (! $variant || $variant->stock < 1) {
+                throw ValidationException::withMessages(['reorder' => 'Warna '.($unit->variant_name ?: 'yang dipilih').' sudah tidak tersedia. Pilih warna lain dari katalog.']);
+            }
+        } elseif ($product->stock < 1) {
             throw ValidationException::withMessages(['reorder' => 'Papan ini tidak lagi tersedia di katalog.']);
         }
         $cart = $request->session()->get('rental_cart', []);
         if (count($cart) >= 50) throw ValidationException::withMessages(['reorder' => 'Keranjang maksimal 50 unit.']);
-        $cart[(string) Str::uuid()] = [
+        $cart[(string) Str::uuid()] = array_filter([
             'product_id' => $product->id,
+            'variant_id' => $variant?->id,
             'recipient_name' => $unit->recipient_name,
             'greeting' => $unit->greeting,
             'design_notes' => $unit->design_notes,
@@ -545,7 +583,7 @@ class RentalOrderController extends Controller
             'delivery_address' => $unit->delivery_address,
             'return_method' => $unit->return_method,
             'return_address' => $unit->return_address,
-        ];
+        ], fn ($value) => $value !== null);
         $request->session()->put('rental_cart', $cart);
         return redirect()->route('rental.checkout')->with('success', 'Unit dimasukkan lagi ke keranjang. Pilih tanggal baru sebelum mengirim.');
     }

@@ -97,7 +97,7 @@
         <summary style="cursor:pointer;display:flex;align-items:center;gap:10px;list-style:none">
             <strong>{{ $product->name }}</strong>
             <span class="adm-badge {{ $product->is_active ? 'adm-badge--confirmed' : 'adm-badge--cancelled' }}">{{ $product->is_active ? 'Aktif' : 'Nonaktif' }}</span>
-            <span class="adm-chip" style="margin-left:auto">{{ $product->category->name }} · {{ $product->stock }} unit</span>
+            <span class="adm-chip" style="margin-left:auto">{{ $product->category->name }} · {{ $product->stock }} unit @if($product->variants->isNotEmpty()) · {{ $product->variants->count() }} warna @endif</span>
         </summary>
 
         <div style="margin-top:14px">
@@ -113,6 +113,7 @@
                 @csrf
                 @method('PUT')
                 @include('catalog.product-fields', ['product' => $product])
+                <p class="adm-help" style="margin:8px 0 0">Stok papan dipakai selama papan belum punya warna. Bila sudah ada warna di bawah, stok yang berlaku adalah stok tiap warna.</p>
                 <div><button class="btn" type="submit">Simpan perubahan</button></div>
             </form>
 
@@ -120,6 +121,93 @@
                 @csrf
                 @method('PATCH')
                 <button type="submit" class="btn secondary adm-btn--sm">{{ $product->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</button>
+            </form>
+
+            <h3 class="adm-subhead">Warna &amp; foto (varian)</h3>
+            <p class="adm-help">Tiap warna punya stok sendiri. Pelanggan memilih warna di katalog dan pratinjau foto langsung berganti. Harga tidak berubah antarvarians; selama belum ada warna, papan memakai stok papan seperti biasa.</p>
+
+            @forelse($product->variants as $variant)
+                <div class="adm-note" style="margin-top:10px">
+                    <div class="adm-row" style="justify-content:space-between;gap:8px;flex-wrap:wrap">
+                        <strong style="display:flex;align-items:center;gap:8px">
+                            <span class="bk-swatch" style="--bk-swatch:{{ $variant->color }}" aria-hidden="true"></span>
+                            {{ $variant->name }}
+                        </strong>
+                        <span class="adm-chip">{{ $variant->stock }} unit</span>
+                        <span class="adm-badge {{ $variant->is_active ? 'adm-badge--confirmed' : 'adm-badge--cancelled' }}">{{ $variant->is_active ? 'Aktif' : 'Nonaktif' }}</span>
+                    </div>
+                    <form class="adm-stack" style="margin-top:10px" method="post" action="{{ route('admin.catalog.variants.update', $variant) }}" enctype="multipart/form-data">
+                        @csrf
+                        @method('PUT')
+                        <div class="adm-field-grid">
+                            <div class="adm-field">
+                                <label for="variant-name-{{ $variant->id }}">Nama warna</label>
+                                <input id="variant-name-{{ $variant->id }}" name="name" maxlength="60" value="{{ $variant->name }}" required>
+                            </div>
+                            <div class="adm-field">
+                                <label for="variant-color-{{ $variant->id }}">Warna</label>
+                                <input id="variant-color-{{ $variant->id }}" type="color" name="color" value="{{ $variant->color }}" required>
+                            </div>
+                            <div class="adm-field">
+                                <label for="variant-stock-{{ $variant->id }}">Stok (unit)</label>
+                                <input id="variant-stock-{{ $variant->id }}" type="number" inputmode="numeric" name="stock" min="0" max="10000" value="{{ $variant->stock }}" required>
+                            </div>
+                            <div class="adm-field">
+                                <label for="variant-order-{{ $variant->id }}">Urutan</label>
+                                <input id="variant-order-{{ $variant->id }}" type="number" inputmode="numeric" name="sort_order" min="0" max="999" value="{{ $variant->sort_order }}">
+                            </div>
+                            <div class="adm-field">
+                                <label for="variant-image-{{ $variant->id }}">Foto contoh (opsional)</label>
+                                <input id="variant-image-{{ $variant->id }}" type="file" name="image" accept="image/png,image/jpeg,image/webp">
+                            </div>
+                        </div>
+                        @if($variant->image_path)
+                            <div class="admin-photo" style="margin-top:8px"><img src="{{ asset('storage/'.$variant->image_path) }}" alt="Foto warna {{ $variant->name }}" loading="lazy" decoding="async"></div>
+                        @endif
+                        <div><button class="btn secondary adm-btn--sm" type="submit">Simpan warna</button></div>
+                    </form>
+                    <div class="adm-row" style="gap:8px;margin-top:6px;flex-wrap:wrap">
+                        <form method="post" action="{{ route('admin.catalog.variants.toggle', $variant) }}">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="btn secondary adm-btn--sm">{{ $variant->is_active ? 'Nonaktifkan warna' : 'Aktifkan warna' }}</button>
+                        </form>
+                        <form method="post" action="{{ route('admin.catalog.variants.destroy', $variant) }}" data-variant-delete>
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn secondary adm-btn--sm">Hapus warna</button>
+                        </form>
+                    </div>
+                </div>
+            @empty
+                <p class="adm-help">Belum ada warna untuk papan ini.</p>
+            @endforelse
+
+            <form class="adm-stack" style="margin-top:14px" method="post" action="{{ route('admin.catalog.variants.store', $product) }}" enctype="multipart/form-data">
+                @csrf
+                <div class="adm-field-grid">
+                    <div class="adm-field">
+                        <label for="variant-new-name-{{ $product->id }}">Nama warna baru</label>
+                        <input id="variant-new-name-{{ $product->id }}" name="name" maxlength="60" placeholder="Contoh: Merah Marun" required>
+                    </div>
+                    <div class="adm-field">
+                        <label for="variant-new-color-{{ $product->id }}">Warna</label>
+                        <input id="variant-new-color-{{ $product->id }}" type="color" name="color" value="#85092d" required>
+                    </div>
+                    <div class="adm-field">
+                        <label for="variant-new-stock-{{ $product->id }}">Stok (unit)</label>
+                        <input id="variant-new-stock-{{ $product->id }}" type="number" inputmode="numeric" name="stock" min="0" max="10000" value="1" required>
+                    </div>
+                    <div class="adm-field">
+                        <label for="variant-new-order-{{ $product->id }}">Urutan</label>
+                        <input id="variant-new-order-{{ $product->id }}" type="number" inputmode="numeric" name="sort_order" min="0" max="999" value="0">
+                    </div>
+                    <div class="adm-field">
+                        <label for="variant-new-image-{{ $product->id }}">Foto contoh (opsional)</label>
+                        <input id="variant-new-image-{{ $product->id }}" type="file" name="image" accept="image/png,image/jpeg,image/webp">
+                    </div>
+                </div>
+                <div><button class="btn secondary adm-btn--sm" type="submit">Tambah warna</button></div>
             </form>
 
             <h3 class="adm-subhead">Paket durasi</h3>
@@ -188,3 +276,26 @@
 
 <div class="pagination">{{ $products->links() }}</div>
 @endsection
+
+@push('scripts')
+<script>
+/* Hapus warna memakai modal konfirmasi bersama, bukan balon bawaan peramban. */
+(function () {
+    'use strict';
+    document.querySelectorAll('form[data-variant-delete]').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (typeof window.showConfirmModal !== 'function') return;
+            event.preventDefault();
+            window.showConfirmModal({
+                title: 'Hapus warna ini?',
+                message: 'Warna akan hilang dari katalog. Pesanan lama tetap menyimpan nama warnanya.',
+                confirmText: 'Ya, hapus',
+                cancelText: 'Batal',
+                type: 'danger',
+                onConfirm: function () { form.submit(); }
+            });
+        });
+    });
+})();
+</script>
+@endpush

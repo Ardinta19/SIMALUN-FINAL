@@ -5744,3 +5744,89 @@ terbuka, strip berhenti dulu, lalu lanjut. Tekan Tab sampai salah satu pil
 kontak — strip berhenti selama fokus di sana. Di ponsel: ketuk salah satu pil,
 dan strip diam dua detik setelahnya. Bila `?gerak=mati`, strip diam dan bisa
 digeser dengan jari.
+### 9.146 Varian warna, stok per warna, dan harga yang bergerak sendiri
+
+Permintaan pemilik usaha: *"pada katalog/item ... jika jumlah pesanan
+bertambah/berkurang harga juga ikut berubah, sepertinya item kita nantinya punya
+varian/warna jadi siapkan juga kolom itu, dan jika di klik langsung berubah ke
+preview warna/varian yang dipilih"*.
+
+Empat keputusan diambil lewat pertanyaan langsung: **varian tidak mengubah
+harga**, **stok dihitung per varian**, **preview mengganti foto bila varian
+punya foto, selain itu warna + nama**, dan **jumlah/harga berubah tanpa memuat
+ulang halaman**.
+
+**1. Skema.** Dua migrasi baru:
+
+- `rental_product_variants` — `name`, `color` (heksa `#rrggbb`),
+  `image_path`, `stock`, `sort_order`, `is_active`, unik per
+  `(rental_product_id, name)`.
+- `rental_order_units` — `rental_product_variant_id` (`nullOnDelete`),
+  `variant_name`, `variant_color`. Nama dan warna **disalin** saat checkout,
+  sama seperti `product_name` dan `unit_price`: mengganti nama warna di katalog
+  tidak boleh menulis ulang riwayat pesanan.
+
+Papan tanpa varian tetap memakai `rental_products.stock`; tabel varian kosong
+berarti perilakunya persis seperti sebelum fitur ini.
+
+**2. Ketersediaan per warna.** `RentalAvailability` mendapat jalur kedua:
+
+- `minimumAvailable()` mengembalikan sisa **varian terbaik** (katalog hanya
+  perlu tahu apakah masih ada warna yang bisa dipesan);
+- `canFitRequested()` memeriksa tiap warna terpisah — pesanan marun tidak
+  memakan stok putih. Rentang tanpa `variant_id` (keranjang lama) diperiksa
+  terhadap stok papan secara keseluruhan, bukan dibuang diam-diam;
+- `fullyBookedDates()` menandai tanggal penuh hanya bila **semua** warna habis;
+- `assertAvailable()` saat admin mengonfirmasi memakai warna unit itu sendiri,
+  bukan sisa warna mana pun;
+- `datesWithNoAvailableProduct()` ikut memperhitungkan warna.
+
+**3. Katalog.** Kartu dan halaman detail memakai partial
+`catalog/_variant_picker.blade.php`: satu tombol per warna dengan cincin
+`--bk-swatch`, nama warna, dan tanda "habis" (garis miring + `disabled`).
+`public/js/berkah-variants.js` mengganti: cincin aktif, nilai
+`input[name="variant_id"]`, label "Warna: …", foto pratinjau (kembali ke foto
+papan bila varian tanpa foto), dan `max` jumlah unit sesuai stok warna. Tombol
+panah kiri/kanan berpindah antars watch, sama seperti pola pemilih warna yang
+lazim.
+
+**4. Harga bergerak sendiri.** Setiap perubahan jumlah — tombol −/+, mengetik,
+atau pemintal bawaan — memperbarui total baris:
+`data-unit-price` (harga satuan dari server) × jumlah. Tidak ada harga yang
+dihitung di server-side JavaScript yang bisa menyimpang dari tagihan.
+
+**5. Keranjang tanpa muat ulang.** `public/js/berkah-cart-live.js` mengirim
+formulir −/+/Hapus lewat `fetch` dengan `Accept: application/json`. Server
+(`RentalCartController`) menjawab `{count, total, total_label, groups[]}` yang
+**dihitung ulang dari sesi**, bukan dari angka peramban. Yang diperbarui:
+jumlah unit baris, subtotal baris, total keranjang, jumlah unit di kepala
+halaman; baris yang habis dihapus dan keranjang kosong memuat ulang halaman.
+Bila permintaan gagal (stok warna habis, tanggal lewat, jaringan putus),
+halaman dimuat ulang agar pesan server tampil seperti biasa. Tanpa JavaScript
+semuanya tetap bekerja lewat formulir biasa.
+
+Satu perbaikan menyusul: id baris keranjang dulu `cart-unit-<produk>`, sehingga
+papan yang sama dengan dua warna/tanggal menghasilkan **id ganda** yang tidak
+valid. Sekarang id diturunkan dari kunci kelompok (`cart-group-<hash>`), dan
+kunci itu juga dipakai jawaban JSON untuk menemukan baris yang harus diubah.
+
+**6. Pesanan & admin.** Warna ikut ke checkout (chip warna di tiap unit),
+disimpan di baris unit, dan tampil di detail pesanan pelanggan, kuitansi,
+halaman unit, serta detail admin. Admin mengelola warna di halaman katalog yang
+sama: nama, pemilih warna bawaan peramban, stok, urutan, foto contoh, aktif/
+nonaktif, dan hapus (memakai modal konfirmasi bersama, bukan balon peramban).
+Stok warna tidak bisa diturunkan selama masih ada pesanan yang menahan tanggal,
+dan warna yang masih dipakai pesanan aktif tidak bisa dihapus — nonaktifkan
+saja.
+
+Dijaga `tests/Feature/ProductVariantTest.php` (10 tes). Perilaku skrip diuji di
+jsdom: `/tmp/wasm-php/variants-jsdom.cjs` (pilih Putih → `variant_id` 8, label,
+`max` 1, foto berganti, warna habis tidak bisa dipilih, total 3 × Rp 100.000 =
+Rp 300.000) dan `/tmp/wasm-php/cartlive-jsdom.cjs` (submit dicegah, `fetch`
+membawa token, total & jumlah baris diperbarui, baris lain tidak tersentuh).
+
+**Cara memeriksa sendiri:** buka katalog, pilih warna pada satu papan — foto dan
+label berganti. Ubah jumlah unit: total di bawah tombol ikut berubah seketika.
+Tambahkan ke keranjang, lalu tekan − dan + di keranjang: angka unit, subtotal
+baris, dan total keranjang berubah tanpa halaman berkedip. Bila warna habis,
+tombol + berhenti sendiri dan pesan muncul saat dicoba.

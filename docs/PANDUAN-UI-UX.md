@@ -212,3 +212,13 @@ Strip berjalan hanya dipakai di beranda katalog (`.bk-ribbon`): lima langkah pem
 4. **Sambungan mulus tanpa lompatan.** Jumlah salinan genap, dan jarak antarsalinan ditaruh sebagai `padding-right` di dalam grup — bukan `gap` pada track. Dengan `gap`, satu putaran tidak selebar satu salinan sehingga animasi melompat beberapa piksel setiap kali mengulang.
 5. **Hemat tenaga.** Hentikan animasi saat tab tidak aktif atau strip di luar layar (`IntersectionObserver`).
 6. **Warna ikut tema.** Pil kontak punya pasangan `html[data-theme="dark"]` di `berkah-theme.css`; jangan menaruh `<style>` atau `style="…"` di view.
+
+### Varian warna & harga yang bergerak langsung
+
+1. **Harga tidak diatur per varian.** Varian hanya menentukan warna, stok, dan foto. Bila kelak harga berbeda per warna, ubah bersama `RentalOrderController` (harga disalin ke `rental_order_units`) dan tampilkan perubahan harga di pemilih warna — jangan hanya mengubah katalog.
+2. **Stok per varian.** Papan tanpa varian memakai `rental_products.stock`; papan bervarian memakai `rental_product_variants.stock`. Jangan mencampur keduanya: `RentalAvailability::variantStocks()` mengembalikan daftar kosong untuk papan lama, dan itulah penanda jalur lama.
+3. **Satu sumber kebenaran angka.** Total baris = `data-unit-price` (harga satuan dari server) × jumlah. Keranjang: server mengembalikan `{count, total, total_label, groups[]}` lewat `Accept: application/json`; peramban hanya menampilkan, tidak menghitung tagihan.
+4. **Selalu sediakan jalur tanpa JavaScript.** Formulir −/+/Hapus tetap berupa `<form method="post">` biasa; skrip hanya mencegah pengiriman bila `fetch` tersedia. Kegagalan apa pun berakhir dengan `location.reload()` agar pesan validasi server tampil.
+5. **Kait DOM yang dipakai skrip:** `[data-cart-group]`, `[data-cart-count]`, `[data-cart-subtotal]`, `[data-cart-total]`, `[data-cart-total-count]`, `[data-bk-variants]`, `[data-variant-id]`, `input[name="variant_id"]`, `[data-bk-line-total]` + `[data-bk-line-value]`. Mengganti nama kait ini berarti memperbarui `berkah-variants.js` dan `berkah-cart-live.js` sekaligus.
+6. **Warna gaya tidak boleh sebaris bebas.** Satu-satunya gaya sebaris yang diizinkan adalah `--bk-swatch` (kode heksa tervalidasi `^#[0-9a-fA-F]{6}$`) dan `style` bawaan admin yang sudah ada. Cincin, ukuran, dan tema gelap diatur di `berkah-experience.css`/`berkah-theme.css`.
+7. **Id baris keranjang** memakai hash kunci kelompok, bukan id produk: papan yang sama boleh muncul beberapa kali dengan warna atau tanggal berbeda.

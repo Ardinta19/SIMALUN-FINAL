@@ -68,7 +68,7 @@
         <div class="adm-row" style="justify-content:space-between;align-items:flex-start;gap:12px">
             <div style="min-width:0">
                 <span class="adm-kicker">Unit {{ $loop->iteration }}</span>
-                <h2 id="unit-{{ $unit->id }}" style="margin:2px 0 0">{{ $unit->product_name }}</h2>
+                <h2 id="unit-{{ $unit->id }}" style="margin:2px 0 0">{{ $unit->product_name }}{{ $unit->variant_name ? ' · warna '.$unit->variant_name : '' }}</h2>
             </div>
             <span class="adm-badge {{ $unitTone }}">{{ $unitStatusLabels[$unit->status] ?? $unit->status }}</span>
         </div>

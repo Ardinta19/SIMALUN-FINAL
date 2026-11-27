@@ -15,9 +15,12 @@
     $oldUnit = fn (string $field, $fallback = '') => is_scalar($value = old('units.'.$key.'.'.$field, $fallback)) ? (string) $value : (string) $fallback;
     $today = now('Asia/Jakarta')->toDateString();
     $chosenEvent = $oldUnit('event_on', $entry['starts_on'] ?? '');
+    // Warna yang dipilih di katalog, ditampilkan lagi di sini agar pelanggan
+    // bisa memastikan sebelum mengirim pesanan.
+    $checkoutVariant = $product->findVariant($entry['variant_id'] ?? 0);
     $returnMin = preg_match('/^\d{4}-\d{2}-\d{2}$/', $chosenEvent) && $chosenEvent > $today ? $chosenEvent : $today;
 @endphp
-<section class="card body" id="checkout-unit-{{ $loop->iteration }}" data-checkout-unit data-unit-price="{{ (int) $product->base_price }}" data-unit-price-unit="{{ $product->price_unit }}" aria-labelledby="checkout-heading-{{ $unitNumber }}"><h2 id="checkout-heading-{{ $unitNumber }}">Unit {{ $loop->iteration }} dari {{ count($cart) }} · {{ $product->name }}</h2>
+<section class="card body" id="checkout-unit-{{ $loop->iteration }}" data-checkout-unit data-unit-price="{{ (int) $product->base_price }}" data-unit-price-unit="{{ $product->price_unit }}" aria-labelledby="checkout-heading-{{ $unitNumber }}"><h2 id="checkout-heading-{{ $unitNumber }}">Unit {{ $loop->iteration }} dari {{ count($cart) }} · {{ $product->name }}</h2>@if($checkoutVariant)<p class="cart-variant"><span class="bk-swatch bk-swatch--sm" style="--bk-swatch:{{ $checkoutVariant->color }}" aria-hidden="true"></span>Warna <strong>{{ $checkoutVariant->name }}</strong></p>@endif
 @if(collect(array_keys($fieldLabels))->contains(fn ($field) => $errors->has('units.'.$key.'.'.$field)))
 <div class="bk-unit-errors" role="alert" id="checkout-errors-{{ $unitNumber }}"><strong>Periksa isian unit {{ $unitNumber }}:</strong><ul>@foreach($fieldLabels as $field => $label)@if($errors->has('units.'.$key.'.'.$field))<li><a href="#checkout-{{ $unitNumber }}-{{ $field }}">{{ $label }}</a></li>@endif @endforeach</ul></div>
 @endif

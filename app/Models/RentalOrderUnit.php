@@ -24,7 +24,7 @@ class RentalOrderUnit extends Model
     /** Status yang sudah pasti memakai unit; dipakai saat admin mengonfirmasi. */
     public const COMMITTED_STATUSES = [self::STATUS_CONFIRMED];
 
-    protected $fillable = ['rental_order_id', 'rental_product_id', 'product_name', 'unit_price', 'price_unit', 'rental_amount', 'addon_amount', 'starts_on', 'event_on', 'ends_on', 'recipient_name', 'greeting', 'design_notes', 'delivery_method', 'delivery_address', 'return_method', 'return_address', 'status', 'status_before_cancel', 'cancel_code', 'payment_review_hold', 'payment_review_resolved', 'deposit_forfeited_at', 'payment_late_resumed_at', 'progress', 'cancel_reason', 'cancel_responsibility', 'cancelled_at', 'cancelled_by', 'confirmed_at', 'special_confirmation', 'rental_duration_package_id', 'package_name', 'package_days', 'delivery_university', 'delivery_university_fee', 'return_university', 'return_university_fee', 'transport_quote', 'transport_quote_version', 'transport_quote_note', 'transport_approved_at', 'design_override_at', 'design_override_by', 'design_override_version', 'design_override_note', 'discount_amount', 'transport_discount_amount'];
+    protected $fillable = ['rental_order_id', 'rental_product_id', 'rental_product_variant_id', 'variant_name', 'variant_color', 'product_name', 'unit_price', 'price_unit', 'rental_amount', 'addon_amount', 'starts_on', 'event_on', 'ends_on', 'recipient_name', 'greeting', 'design_notes', 'delivery_method', 'delivery_address', 'return_method', 'return_address', 'status', 'status_before_cancel', 'cancel_code', 'payment_review_hold', 'payment_review_resolved', 'deposit_forfeited_at', 'payment_late_resumed_at', 'progress', 'cancel_reason', 'cancel_responsibility', 'cancelled_at', 'cancelled_by', 'confirmed_at', 'special_confirmation', 'rental_duration_package_id', 'package_name', 'package_days', 'delivery_university', 'delivery_university_fee', 'return_university', 'return_university_fee', 'transport_quote', 'transport_quote_version', 'transport_quote_note', 'transport_approved_at', 'design_override_at', 'design_override_by', 'design_override_version', 'design_override_note', 'discount_amount', 'transport_discount_amount'];
     protected $casts = ['addon_amount' => 'integer', 'discount_amount' => 'integer', 'transport_discount_amount' => 'integer', 'starts_on' => \App\Casts\DateOnly::class, 'event_on' => \App\Casts\DateOnly::class, 'ends_on' => \App\Casts\DateOnly::class, 'payment_review_hold' => 'boolean', 'payment_review_resolved' => 'boolean', 'payment_late_resumed_at' => 'datetime', 'deposit_forfeited_at' => 'datetime', 'cancelled_at' => 'datetime', 'special_confirmation' => 'boolean', 'confirmed_at' => 'datetime', 'transport_approved_at' => 'datetime', 'design_override_at' => 'datetime'];
     public function needsSpecialConfirmation(): bool
     {
@@ -66,7 +66,14 @@ class RentalOrderUnit extends Model
     {
         return (int) $this->discount_amount + (int) $this->transport_discount_amount;
     }
+    public function variant(): BelongsTo { return $this->belongsTo(RentalProductVariant::class, 'rental_product_variant_id'); }
     public function order(): BelongsTo { return $this->belongsTo(RentalOrder::class, 'rental_order_id'); }
+
+    /** Label warna untuk pesan, mis. " · warna Marun". */
+    public function variantLabel(): string
+    {
+        return $this->variant_name ? ' · warna '.$this->variant_name : '';
+    }
     public function product(): BelongsTo { return $this->belongsTo(RentalProduct::class, 'rental_product_id'); }
     public function cancellationEvents(): HasMany { return $this->hasMany(RentalUnitCancellationEvent::class)->orderBy('id'); }
     public function progressEvents(): HasMany { return $this->hasMany(RentalUnitProgressEvent::class)->orderBy('id'); }

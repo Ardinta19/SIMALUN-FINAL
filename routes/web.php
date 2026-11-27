@@ -191,6 +191,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/katalog/kategori', [RentalCatalogController::class, 'categoryStore'])->name('catalog.categories.store');
         Route::put('/katalog/kategori/{category}', [RentalCatalogController::class, 'categoryUpdate'])->name('catalog.categories.update');
         Route::patch('/katalog/kategori/{category}/status', [RentalCatalogController::class, 'categoryToggle'])->name('catalog.categories.toggle');
+        // Varian warna: dikelola per papan, di halaman admin yang sama.
+        Route::post('/katalog/{product}/varian', [RentalCatalogController::class, 'variantStore'])->name('catalog.variants.store');
+        Route::put('/katalog/varian/{variant}', [RentalCatalogController::class, 'variantUpdate'])->name('catalog.variants.update');
+        Route::patch('/katalog/varian/{variant}/status', [RentalCatalogController::class, 'variantToggle'])->name('catalog.variants.toggle');
+        Route::delete('/katalog/varian/{variant}', [RentalCatalogController::class, 'variantDestroy'])->name('catalog.variants.destroy');
         Route::post('/katalog/{product}/paket', [RentalCatalogController::class, 'packageStore'])->name('catalog.packages.store');
         Route::put('/katalog/paket/{package}', [RentalCatalogController::class, 'packageUpdate'])->name('catalog.packages.update');
         Route::patch('/katalog/paket/{package}/status', [RentalCatalogController::class, 'packageToggle'])->name('catalog.packages.toggle');

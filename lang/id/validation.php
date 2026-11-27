@@ -255,6 +255,9 @@ return [
         'base_price' => 'harga dasar',
         'price_unit' => 'satuan harga',
         'stock' => 'stok',
+        // Varian warna papan: dipilih pelanggan di katalog, diatur admin.
+        'variant_id' => 'warna papan',
+        'color' => 'warna',
         'value' => 'nilai',
         'min_order' => 'minimum belanja',
         'max_discount' => 'potongan maksimum',

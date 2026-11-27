@@ -47,22 +47,35 @@
 @if($dates)<p class="notice" role="status">Menampilkan papan yang diperkirakan tersedia pada {{ \Carbon\Carbon::parse($dates['starts_on'])->format('d/m/Y') }}–{{ \Carbon\Carbon::parse($dates['ends_on'])->format('d/m/Y') }}. Perkiraan ini belum menahan tanggal; tanggal dikunci setelah pesanan dikirim sampai admin mengonfirmasi paling lambat 24 jam.</p>@else<p class="muted">Foto merupakan contoh; desain akhir mengikuti permintaan pelanggan. Pilih tanggal di atas untuk memeriksa ketersediaan.</p>@endif
 <div class="grid" data-catalog-products data-bk-reveal-group="cards" data-bk-reveal-stagger="0.055">
 @forelse($products as $product)
-<article class="card bk-product-card" data-bk-tilt>
+<article class="card bk-product-card" data-bk-tilt data-bk-product>
+    @php
+        // Varian aktif dipakai untuk tiga hal: pratinjau foto, batas jumlah
+        // unit, dan nilai awal kolom warna di formulir keranjang.
+        $cardVariants = $product->activeVariantList();
+        $cardVariant = $cardVariants->first(fn ($variant) => $variant->stock > 0) ?? $cardVariants->first();
+        $cardImage = $cardVariant?->image_path ?: $product->image_path;
+        $cardAvailable = $cardVariants->isNotEmpty()
+            ? $cardVariants->contains(fn ($variant) => $variant->stock > 0)
+            : $product->stock > 0;
+    @endphp
     <a class="bk-product-image-link" href="{{ route('catalog.show', array_merge(['product' => $product->id], $dates ?? [], array_filter(['q' => request('q'), 'category' => request('category')], fn ($v) => is_scalar($v) && $v !== ''))) }}" aria-label="Lihat detail {{ $product->name }}">
-    @if($product->image_path)<img loading="lazy" decoding="async" class="photo" src="{{ asset('storage/'.$product->image_path) }}" alt="">@else<div class="photo placeholder" aria-hidden="true"><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span></div>@endif</a>
+    @if($cardImage)<img loading="lazy" decoding="async" class="photo" src="{{ asset('storage/'.$cardImage) }}" alt="" data-bk-preview-img>@else<div class="photo placeholder" aria-hidden="true" data-bk-preview-placeholder><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span></div>@endif</a>
     <div class="body"><p class="muted">{{ $product->category->name }}</p><h3><a class="bk-product-name" href="{{ route('catalog.show', array_merge(['product' => $product->id], $dates ?? [], array_filter(['q' => request('q'), 'category' => request('category')], fn ($v) => is_scalar($v) && $v !== ''))) }}">{{ $product->name }}</a></h3>
     <p class="price">Rp {{ number_format($product->base_price, 0, ',', '.') }} <span class="muted">/ {{ $product->price_unit === 'day' ? 'hari' : 'acara' }}</span></p>
+    @if($cardVariants->isNotEmpty())
+        @include('catalog._variant_picker', ['product' => $product, 'variants' => $cardVariants])
+    @endif
     @include('catalog.product-feedback', ['product' => $product])
     @if($dates)<p class="muted">Perkiraan {{ $product->available_for_period }} unit tersedia</p>@elseif($product->stock < 1)<p class="muted">Belum tersedia</p>@endif
     @if($errors->hasAny(['starts_on', 'ends_on']))
     <p class="muted">Perbaiki tanggal dan cari kembali sebelum menambahkan papan.</p>
-    @elseif($product->stock > 0)
+    @elseif($cardAvailable)
     <form method="post" action="{{ route('cart.store', $product) }}" class="bk-product-add">@csrf
     <div class="bk-qty" data-bk-qty>
         <button class="bk-qty__btn" type="button" data-bk-qty-step="-1" aria-label="Kurangi jumlah unit {{ $product->name }}">−</button>
-        <input class="bk-qty__input" type="number" name="quantity" value="1" min="1" max="{{ max(1, min(20, $product->stock)) }}" step="1" inputmode="numeric" aria-label="Jumlah unit {{ $product->name }}">
+        <input class="bk-qty__input" type="number" name="quantity" value="1" min="1" max="{{ max(1, min(20, $cardVariant?->stock ?? $product->stock)) }}" step="1" inputmode="numeric" aria-label="Jumlah unit {{ $product->name }}">
         <button class="bk-qty__btn" type="button" data-bk-qty-step="1" aria-label="Tambah jumlah unit {{ $product->name }}">+</button>
-    </div>@if($dates)<input type="hidden" name="starts_on" value="{{ $dates['starts_on'] }}"><input type="hidden" name="ends_on" value="{{ $dates['ends_on'] }}">@endif<button class="bk-atc" type="submit" data-bk-press aria-label="Tambah {{ $product->name }} ke keranjang"><span class="bk-atc__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20.4" r="1.4"></circle><circle cx="19" cy="20.4" r="1.4"></circle><path d="M2.5 3.2h2.1l2.36 11.09a1.9 1.9 0 0 0 1.86 1.51h8.6a1.9 1.9 0 0 0 1.86-1.51L21.4 7.1H6.1"></path></svg></span><span class="bk-atc__label"><span class="bk-atc__label-long">Tambah ke keranjang</span><span class="bk-atc__label-short">Tambah</span></span><span class="bk-atc__bar" aria-hidden="true"></span></button></form>
+    </div>@if($cardVariants->isNotEmpty())<input type="hidden" name="variant_id" value="{{ $cardVariant?->id }}">@endif<p class="bk-line-total" data-bk-line-total data-unit-price="{{ (int) $product->base_price }}">Total <strong data-bk-line-value>Rp {{ number_format($product->base_price, 0, ',', '.') }}</strong></p>@if($dates)<input type="hidden" name="starts_on" value="{{ $dates['starts_on'] }}"><input type="hidden" name="ends_on" value="{{ $dates['ends_on'] }}">@endif<button class="bk-atc" type="submit" data-bk-press aria-label="Tambah {{ $product->name }} ke keranjang"><span class="bk-atc__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20.4" r="1.4"></circle><circle cx="19" cy="20.4" r="1.4"></circle><path d="M2.5 3.2h2.1l2.36 11.09a1.9 1.9 0 0 0 1.86 1.51h8.6a1.9 1.9 0 0 0 1.86-1.51L21.4 7.1H6.1"></path></svg></span><span class="bk-atc__label"><span class="bk-atc__label-long">Tambah ke keranjang</span><span class="bk-atc__label-short">Tambah</span></span><span class="bk-atc__bar" aria-hidden="true"></span></button></form>
     @else<p class="bk-product-unavailable">Belum tersedia untuk dipesan</p>@endif</div>
 </article>
 @empty<div class="card body">@if($dates)<p>Tidak ada papan yang tersedia pada {{ \Carbon\Carbon::parse($dates['starts_on'])->format('d/m/Y') }}–{{ \Carbon\Carbon::parse($dates['ends_on'])->format('d/m/Y') }}. Semua papan sudah dibooking pada rentang itu atau tanggalnya di luar jendela pemesanan.</p><a class="btn secondary" href="{{ route('welcome', request()->only(['q', 'category'])) }}">Hapus filter tanggal</a>@else<p>Tidak ada papan yang cocok atau tersedia untuk pilihan ini.</p><a class="btn secondary" href="{{ route('welcome') }}">Lihat semua papan</a>@endif</div>@endforelse

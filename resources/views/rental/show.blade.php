@@ -38,7 +38,7 @@
 <div class="items" data-bk-reveal-group="units" data-bk-reveal-stagger="0.06">
 @forelse($order->units as $unit)
 <article class="card body">
-    <h2>Unit {{ $loop->iteration }} · {{ $unit->product_name }}</h2>
+    <h2>Unit {{ $loop->iteration }} · {{ $unit->product_name }}{{ $unit->variant_name ? ' · warna '.$unit->variant_name : '' }}</h2>
     <p><strong>{{ \App\Support\RentalLabels::unitStatus($unit->status) }}</strong></p>
     <p>@if($unit->starts_on->isSameDay($unit->event_on)) Acara dan penerimaan: {{ $unit->event_on->format('d/m/Y') }} @else Penerimaan: {{ $unit->starts_on->format('d/m/Y') }} · Acara: {{ $unit->event_on->format('d/m/Y') }} @endif · Pengembalian: {{ $unit->ends_on->format('d/m/Y') }}</p>
     <p class="muted">Penerima: {{ $unit->recipient_name }}</p>

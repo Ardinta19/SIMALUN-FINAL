@@ -3,7 +3,9 @@ namespace App\Http\Controllers;
 
 use App\Models\RentalCategory;
 use App\Models\RentalProduct;
+use App\Models\RentalProductVariant;
 use App\Models\RentalDurationPackage;
+use App\Models\RentalOrderUnit;
 use App\Services\RentalAvailability;
 use App\Support\Audit;
 use Carbon\CarbonImmutable;
@@ -29,7 +31,7 @@ class RentalCatalogController extends Controller
         $dates = ! empty($filters['starts_on']) ? ['starts_on' => $filters['starts_on'], 'ends_on' => $filters['ends_on']] : null;
         if ($dates) $this->validateRentalPeriod($dates);
         $categories = RentalCategory::where('is_active', true)->orderBy('name')->get();
-        $query = RentalProduct::with('category')->withCount(['likes', 'reviews'])->withAvg('reviews', 'rating')
+        $query = RentalProduct::with(['category', 'variants'])->withCount(['likes', 'reviews'])->withAvg('reviews', 'rating')
             ->when($request->user()?->role === 'customer', fn ($q) => $q->withExists(['likes as liked_by_customer' => fn ($likes) => $likes->where('user_id', $request->user()->id)]))
             ->where('is_active', true)
             ->whereHas('category', fn ($q) => $q->where('is_active', true))
@@ -52,7 +54,7 @@ class RentalCatalogController extends Controller
         // Kalender filter hanya memblokir tanggal yang penuh untuk SEMUA papan,
         // bukan untuk satu produk: filter ini mencari papan mana saja yang kosong.
         $blockedDates = $availability->datesWithNoAvailableProduct(
-            RentalProduct::where('is_active', true)->whereHas('category', fn ($q) => $q->where('is_active', true))->get(['id', 'stock'])
+            RentalProduct::with('variants')->where('is_active', true)->whereHas('category', fn ($q) => $q->where('is_active', true))->get(['id', 'stock'])
         );
         return view('catalog.index', compact('products', 'categories', 'dates', 'blockedDates'));
     }
@@ -95,7 +97,10 @@ class RentalCatalogController extends Controller
         abort_unless($product->is_active && $product->category->is_active, 404);
         $product->loadCount(['likes', 'reviews'])->loadAvg('reviews', 'rating');
         if ($request->user()?->role === 'customer') $product->loadExists(['likes as liked_by_customer' => fn ($likes) => $likes->where('user_id', $request->user()->id)]);
-        $product->load(['packages' => fn ($query) => $query->where('is_active', true)]);
+        $product->load([
+            'packages' => fn ($query) => $query->where('is_active', true),
+            'variants' => fn ($query) => $query->where('is_active', true),
+        ]);
         $available = null;
         if ($request->has('starts_on') || $request->has('ends_on')) {
             $data = $request->validate(['starts_on' => ['required', 'date_format:Y-m-d'], 'ends_on' => ['required', 'date_format:Y-m-d']]);
@@ -119,6 +124,10 @@ class RentalCatalogController extends Controller
         return response()->json([
             'product_id' => $product->id,
             'stock' => (int) $product->stock,
+            // Stok per warna ikut dikirim supaya pemilih warna di halaman
+            // detail bisa menandai warna yang sudah habis tanpa memuat ulang.
+            'variants' => $product->variants()->where('is_active', true)->get(['id', 'name', 'color', 'stock'])
+                ->map(fn ($variant) => ['id' => $variant->id, 'name' => $variant->name, 'color' => $variant->color, 'stock' => (int) $variant->stock])->values(),
             'blocked' => $availability->fullyBookedDates($product),
             'fetched_at' => now('Asia/Jakarta')->toIso8601String(),
         ])->header('Cache-Control', 'no-store, max-age=0');
@@ -126,7 +135,7 @@ class RentalCatalogController extends Controller
 
     public function admin()
     {
-        return view('catalog.admin', ['categories' => RentalCategory::orderBy('name')->get(), 'products' => RentalProduct::with(['category', 'packages'])->latest()->paginate(20)]);
+        return view('catalog.admin', ['categories' => RentalCategory::orderBy('name')->get(), 'products' => RentalProduct::with(['category', 'packages', 'variants'])->latest()->paginate(20)]);
     }
 
     public function categoryStore(Request $request)
@@ -252,6 +261,142 @@ class RentalCatalogController extends Controller
             Audit::log('rental.catalog.product.toggle', $locked, before: $before, after: $this->productSnapshot($locked));
         });
         return back()->with('success', 'Status papan diperbarui.');
+    }
+
+    /* ── Varian warna ───────────────────────────────────────────────────────
+       Admin mengelola warna per papan: nama, warna, stok, dan foto contoh.
+       Harga tidak diatur di sini karena varian memang tidak mengubah harga. */
+
+    public function variantStore(Request $request, RentalProduct $product)
+    {
+        $data = $this->validateVariant($request, $product);
+        $path = $this->storeVariantImage($request);
+        if ($path) $data['image_path'] = $path;
+
+        try {
+            DB::transaction(function () use ($product, $data) {
+                $variant = $product->variants()->create($data);
+                Audit::log('rental.catalog.variant.create', $variant, after: $this->variantSnapshot($variant->refresh()));
+            });
+        } catch (\Throwable $e) {
+            if ($path) Storage::disk('public')->delete($path);
+            throw $e;
+        }
+
+        return back()->with('success', 'Warna ditambahkan. Pelanggan bisa memilihnya di katalog.');
+    }
+
+    public function variantUpdate(Request $request, RentalProductVariant $variant)
+    {
+        $data = $this->validateVariant($request, $variant->product, $variant);
+        $path = $this->storeVariantImage($request);
+        if ($path) $data['image_path'] = $path;
+
+        try {
+            $oldPath = DB::transaction(function () use ($variant, $data) {
+                $locked = RentalProductVariant::lockForUpdate()->findOrFail($variant->id);
+                $this->assertVariantStockDecreaseAllowed($locked, (int) $data['stock']);
+                $before = $this->variantSnapshot($locked);
+                $oldPath = $locked->image_path;
+                $locked->update($data);
+                Audit::log('rental.catalog.variant.update', $locked, before: $before, after: $this->variantSnapshot($locked));
+
+                return $oldPath;
+            });
+        } catch (\Throwable $e) {
+            if ($path) Storage::disk('public')->delete($path);
+            throw $e;
+        }
+
+        if ($path && $oldPath && $oldPath !== $path && str_starts_with($oldPath, 'catalog/variants/')
+            && ! RentalProductVariant::where('image_path', $oldPath)->exists()) {
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        return back()->with('success', 'Warna diperbarui; pesanan lama tetap memakai nama warna yang tersimpan.');
+    }
+
+    public function variantToggle(RentalProductVariant $variant)
+    {
+        DB::transaction(function () use ($variant) {
+            $locked = RentalProductVariant::lockForUpdate()->findOrFail($variant->id);
+            $before = $this->variantSnapshot($locked);
+            $locked->update(['is_active' => ! $locked->is_active]);
+            Audit::log('rental.catalog.variant.toggle', $locked, before: $before, after: $this->variantSnapshot($locked));
+        });
+
+        return back()->with('success', 'Status warna diperbarui.');
+    }
+
+    public function variantDestroy(RentalProductVariant $variant)
+    {
+        // Varian yang masih dipakai pesanan aktif tidak dihapus: riwayatnya
+        // memang aman (nullOnDelete), tetapi menghapus warna yang sedang
+        // menahan stok akan membuat sisa stok tidak bisa ditelusuri.
+        $dipakai = RentalOrderUnit::where('rental_product_variant_id', $variant->id)
+            ->whereIn('status', RentalOrderUnit::RESERVING_STATUSES)->exists();
+        if ($dipakai) {
+            throw ValidationException::withMessages(['variant' => 'Warna ini masih dipakai pesanan yang menahan tanggal. Nonaktifkan saja agar tidak bisa dipilih pelanggan baru.']);
+        }
+
+        $path = $variant->image_path;
+        $nama = $variant->name;
+        DB::transaction(function () use ($variant) {
+            $locked = RentalProductVariant::lockForUpdate()->findOrFail($variant->id);
+            Audit::log('rental.catalog.variant.delete', $locked, before: $this->variantSnapshot($locked));
+            $locked->delete();
+        });
+        if ($path && str_starts_with($path, 'catalog/variants/') && ! RentalProductVariant::where('image_path', $path)->exists()) {
+            Storage::disk('public')->delete($path);
+        }
+
+        return back()->with('success', 'Warna '.$nama.' dihapus dari katalog.');
+    }
+
+    private function validateVariant(Request $request, RentalProduct $product, ?RentalProductVariant $variant = null): array
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:60', Rule::unique('rental_product_variants', 'name')
+                ->where(fn ($query) => $query->where('rental_product_id', $product->id))
+                ->ignore($variant?->id)],
+            'color' => ['required', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'stock' => ['required', 'integer', 'min:0', 'max:10000'],
+            'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+        ], [
+            'color.regex' => 'Warna harus berupa kode heksa seperti #85092d.',
+            'name.unique' => 'Nama warna ini sudah dipakai papan yang sama.',
+        ]);
+        unset($data['image']);
+        $data['sort_order'] = (int) ($data['sort_order'] ?? 0);
+
+        return $data;
+    }
+
+    private function assertVariantStockDecreaseAllowed(RentalProductVariant $variant, int $stock): void
+    {
+        if ($stock >= (int) $variant->stock) return;
+        $menahan = RentalOrderUnit::where('rental_product_variant_id', $variant->id)
+            ->whereIn('status', RentalOrderUnit::RESERVING_STATUSES)
+            ->where('ends_on', '>=', now('Asia/Jakarta')->toDateString())
+            ->exists();
+        if ($menahan) {
+            throw ValidationException::withMessages(['stock' => 'Stok warna tidak dapat dikurangi selama masih ada pesanan yang menahan tanggal.']);
+        }
+    }
+
+    private function storeVariantImage(Request $request): ?string
+    {
+        if (! $request->hasFile('image')) return null;
+        $path = $request->file('image')->store('catalog/variants', 'public');
+        if (! $path) throw ValidationException::withMessages(['image' => 'Foto warna tidak dapat disimpan. Silakan coba lagi.']);
+
+        return $path;
+    }
+
+    private function variantSnapshot(RentalProductVariant $variant): array
+    {
+        return $variant->only(['rental_product_id', 'name', 'color', 'image_path', 'stock', 'sort_order', 'is_active']);
     }
 
     private function storeProductImage(Request $request): ?string

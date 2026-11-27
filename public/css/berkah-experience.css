@@ -919,3 +919,146 @@ body.bk-experience {
         transition: none;
     }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Varian warna papan: pemilih swatch, pratinjau, dan total langsung
+   ──────────────────────────────────────────────────────────────────────────
+   Warna datang dari admin sebagai kode heksa dan diteruskan sebagai variabel
+   `--bk-swatch`. Semua ukuran, jarak, dan cincin fokus memakai token yang
+   sama dengan kontrol lain di katalog.
+   ══════════════════════════════════════════════════════════════════════════ */
+.bk-swatch {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    flex: none;
+    background: var(--bk-swatch, #85092d);
+    box-shadow: inset 0 0 0 1px rgba(20, 15, 18, .18);
+}
+
+.bk-swatch--sm { width: 14px; height: 14px; }
+
+.bk-variants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 10px 0 4px;
+}
+
+.bk-variant {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 34px;
+    padding: 4px 11px 4px 7px;
+    border: 1px solid #e7d5d1;
+    border-radius: 999px;
+    background: #fffaf7;
+    color: #5c2a3a;
+    font: inherit;
+    font-size: var(--bk-fs-2xs);
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.bk-variant:hover { border-color: #c98a9c; }
+.bk-variant:active { transform: scale(.985); }
+.bk-variant.is-active,
+.bk-variant[aria-pressed="true"] {
+    border-color: #85092d;
+    box-shadow: 0 0 0 2px rgba(133, 9, 45, .14);
+}
+
+.bk-variant[aria-pressed="true"] .bk-variant__name { color: #6d0a26; }
+
+.bk-variant.is-sold-out,
+.bk-variant[disabled] {
+    opacity: .5;
+    cursor: not-allowed;
+    /* Cincin warna habis diberi garis miring agar tidak terbaca "masih bisa dipilih". */
+    background-image: linear-gradient(45deg, transparent 46%, #b98e9c 47%, #b98e9c 53%, transparent 54%);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
+
+.bk-variant:focus-visible {
+    outline: 3px solid #bc5b75;
+    outline-offset: 3px;
+}
+
+.bk-variant-label {
+    margin: 2px 0 0;
+    font-size: var(--bk-fs-2xs);
+}
+
+/* Total baris yang ikut berubah saat jumlah unit diubah (kartu & detail). */
+.bk-line-total {
+    margin: 10px 0 0;
+    font-size: var(--bk-fs-sm);
+    color: #5c2a3a;
+}
+
+.bk-line-total strong {
+    font-size: 1.05em;
+    color: #6d0a26;
+}
+
+/* Pratinjau tanpa foto varian: latar contoh diwarnai warna pilihan. */
+.photo.placeholder[data-bk-preview-placeholder] {
+    background: color-mix(in srgb, var(--bk-swatch, #f8e9ed) 22%, #fffaf7);
+}
+
+/* Warna pada baris keranjang. */
+.cart-variant {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 2px 0 4px;
+    font-size: var(--bk-fs-xs);
+    color: #5c2a3a;
+}
+
+/* Total keranjang: satu angka besar yang ikut berubah tanpa muat ulang. */
+.cart-total {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 10px;
+    margin: 0 0 12px;
+    padding: 12px 16px;
+    border: 1px solid #eadbd6;
+    border-radius: 14px;
+    background: #fffaf7;
+    font-size: var(--bk-fs-sm);
+}
+
+.cart-total strong {
+    margin-left: auto;
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: #4b1f2d;
+    letter-spacing: -.01em;
+}
+
+.cart-total small {
+    flex: 0 0 100%;
+    color: #705a5c;
+    font-size: var(--bk-fs-2xs);
+}
+
+[data-cart-total].is-updated,
+[data-cart-total-count].is-updated {
+    animation: bk-total-pop .45s ease;
+}
+
+@keyframes bk-total-pop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.06); color: #a3133c; }
+    100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bk-variant, [data-cart-total].is-updated, [data-cart-total-count].is-updated { transition: none; animation: none; }
+}

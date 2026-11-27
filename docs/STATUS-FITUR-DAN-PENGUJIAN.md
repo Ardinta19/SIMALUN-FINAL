@@ -199,3 +199,28 @@ Pemeriksaan manual di beranda katalog:
 2. Kursor di atas strip → berhenti; pindahkan → 2 detik kemudian lanjut.
 3. Tab sampai salah satu pil kontak → berhenti; Tab keluar → lanjut.
 4. Buka dengan `?gerak=mati` → strip diam dan bisa digeser; isi tetap terbaca.
+
+### Babak M — varian warna & harga yang berubah langsung (`statis, belum diuji di Windows`)
+
+Permintaan pemilik usaha: harga ikut berubah saat jumlah unit naik/turun (katalog dan keranjang), item punya varian/warna, dan klik warna langsung mengganti preview.
+
+1. **Skema varian.** `rental_product_variants` (nama, warna heksa, stok, foto, urutan, aktif) dan tiga kolom salinan di `rental_order_units` (`rental_product_variant_id`, `variant_name`, `variant_color`). Papan tanpa varian berperilaku persis seperti sebelumnya.
+2. **Stok per warna.** Ketersediaan tanggal, konfirmasi admin, kalender, dan keranjang semuanya memeriksa warna yang dipilih; tanggal baru "penuh" bila semua warna habis.
+3. **Harga tidak berubah antarvarians** (keputusan pemilik). Yang berubah: cincin warna, nama warna, foto pratinjau, batas jumlah unit, dan total baris.
+4. **Harga bergerak sendiri.** Kartu katalog & halaman detail menampilkan total `harga satuan × jumlah` yang diperbarui setiap kali jumlah berubah — dihitung dari harga satuan yang ditulis server.
+5. **Keranjang tanpa muat ulang.** Tombol −/+/Hapus mengirim formulir lewat fetch; server menjawab JSON berisi jumlah, subtotal, dan total yang dihitung ulang dari sesi. Gagal → halaman dimuat ulang agar pesan server tampil. Tanpa JavaScript tetap bekerja.
+6. **Id baris keranjang diperbaiki.** Dulu `cart-unit-<produk>` bisa ganda untuk papan yang sama dengan warna/tanggal berbeda; sekarang `cart-group-<hash>` dari kunci kelompok.
+7. **Pesanan & admin.** Warna tampil di checkout, detail pesanan, kuitansi, halaman unit, dan detail admin. Admin mengelola warna (nama, pemilih warna, stok, urutan, foto, aktif/nonaktif, hapus dengan modal) di halaman katalog.
+
+Berkas utama: `database/migrations/2026_11_22_000026_*` & `000027_*`, `app/Models/RentalProductVariant.php`, `app/Models/RentalProduct.php`, `app/Services/RentalAvailability.php`, `app/Http/Controllers/{RentalCartController,RentalCatalogController,RentalOrderController}.php`, `resources/views/catalog/{_variant_picker,index,show,cart,admin}.blade.php`, `public/js/{berkah-variants,berkah-cart-live}.js`, `public/css/{berkah-experience,berkah-theme}.css`, `lang/id/validation.php`.
+
+Tes penjaga baru: `tests/Feature/ProductVariantTest.php` (10). Perkiraan jumlah tes: **±514 lulus**.
+
+Pemeriksaan manual:
+
+1. `php artisan migrate` (dua migrasi baru), lalu `php artisan optimize:clear`.
+2. Admin → Katalog → buka satu papan → tambah warna (mis. "Marun", "Putih") dengan stok 2 dan 1.
+3. Katalog: klik warna → foto/label berganti; jumlah unit dibatasi stok warna; total di bawah tombol berubah saat jumlah diubah.
+4. Keranjang: tekan − dan + beberapa kali tanpa halaman dimuat ulang — angka unit, subtotal baris, dan total keranjang berubah; baris dengan warna berbeda tetap terpisah.
+5. Tambah warna melebihi stok → pesan server muncul setelah halaman dimuat ulang (jalur cadangan).
+6. Checkout & detail pesanan menampilkan "warna Marun"; admin melihat warna yang sama di detail pesanan.
