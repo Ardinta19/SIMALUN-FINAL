@@ -45,7 +45,23 @@
         <button class="btn" type="submit">Tampilkan</button>
         <a class="btn secondary" href="{{ route('admin.rental.cashbook.index') }}">Atur ulang filter</a>
     </div>
+    <p class="adm-toolbar__hint">Periode dan tanggal langsung berlaku saat diubah.</p>
 </form>
+
+@php
+    $labelPeriode = ['day' => 'Harian', 'week' => 'Mingguan', 'month' => 'Bulanan', 'year' => 'Tahunan'][$period] ?? $period;
+    // Melepas satu filter tidak boleh ikut menghapus yang lain: tanggal acuan
+    // tetap dibawa saat yang dilepas adalah periode.
+    $hapusKas = fn (string $kunci) => route('admin.rental.cashbook.index', array_filter(array_merge(
+        ['period' => $period, 'date' => $date->toDateString()],
+        [$kunci => null]
+    )));
+    $chipKas = [
+        ['label' => 'Periode: '.$labelPeriode, 'remove' => $hapusKas('period')],
+        ['label' => 'Tanggal acuan '.$date->format('d/m/Y'), 'remove' => null],
+    ];
+@endphp
+@include('layouts.component.admin._filter_state', ['chips' => $chipKas])
 
 <div class="adm-grid adm-grid--2">
     <section class="adm-card" data-adm-reveal="summary">

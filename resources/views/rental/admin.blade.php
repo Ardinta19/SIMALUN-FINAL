@@ -56,12 +56,30 @@
         </div>
     </div>
     <div class="adm-row">
-        <button class="btn" type="submit">Terapkan filter</button>
+        <button class="btn" type="submit">Tampilkan</button>
         <a class="btn secondary" href="{{ route('admin.rental.orders') }}">Atur ulang filter</a>
         <span class="adm-help adm-push">{{ $orders->total() }} pesanan ditemukan</span>
     </div>
-    <p class="adm-help">Hasil memuat seluruh unit dalam pesanan yang memiliki setidaknya satu unit sesuai filter. Filter menunggu diurutkan berdasarkan batas konfirmasi terdekat.</p>
+    <p class="adm-toolbar__hint">Pilihan langsung berlaku saat diubah. Daftar memuat pesanan yang punya minimal satu unit sesuai filter; antrean menunggu diurutkan menurut batas konfirmasi terdekat.</p>
 </form>
+
+@php
+    $hapusFilter = fn (string $kunci) => route('admin.rental.orders', array_filter(array_merge($filters, [$kunci => null])));
+    $chipFilter = [];
+    if (! empty($filters['status'])) {
+        $chipFilter[] = ['label' => 'Status: '.(\App\Support\RentalLabels::UNIT_STATUS[$filters['status']] ?? $filters['status']), 'remove' => $hapusFilter('status')];
+    }
+    if (! empty($filters['q'])) {
+        $chipFilter[] = ['label' => 'Cari: '.$filters['q'], 'remove' => $hapusFilter('q')];
+    }
+    if (! empty($filters['from'])) {
+        $chipFilter[] = ['label' => 'Acara mulai '.\Carbon\Carbon::parse($filters['from'])->format('d/m/Y'), 'remove' => $hapusFilter('from')];
+    }
+    if (! empty($filters['to'])) {
+        $chipFilter[] = ['label' => 'Acara sampai '.\Carbon\Carbon::parse($filters['to'])->format('d/m/Y'), 'remove' => $hapusFilter('to')];
+    }
+@endphp
+@include('layouts.component.admin._filter_state', ['chips' => $chipFilter, 'resetUrl' => route('admin.rental.orders')])
 
 @forelse($orders as $order)
     @php
@@ -88,9 +106,18 @@
         </div>
 
         <div class="adm-row adm-row--between adm-mt-3">
-            <p class="muted adm-flat">
-                Batas konfirmasi: {{ $order->confirmation_deadline->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB
-            </p>
+            <div class="adm-min0">
+                @php
+                    $namaPapan = $order->units->pluck('product_name')->filter()->unique();
+                    $sisaPapan = max(0, $namaPapan->count() - 2);
+                @endphp
+                <p class="muted adm-flat">
+                    {{ $namaPapan->take(2)->implode(' · ') }}{{ $sisaPapan > 0 ? ' · dan '.$sisaPapan.' papan lain' : '' }}
+                </p>
+                <p class="adm-help adm-meta">
+                    Batas konfirmasi: {{ $order->confirmation_deadline->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB
+                </p>
+            </div>
             <a class="btn secondary adm-btn--sm" href="{{ route('admin.rental.orders.show', $order) }}">Lihat detail pesanan</a>
         </div>
     </article>

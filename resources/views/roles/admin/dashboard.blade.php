@@ -96,6 +96,30 @@
     <p class="adm-help adm-inline-note adm-inline-note--top">Pembatalan karena penjual mencakup seluruh riwayat, termasuk yang sudah ditindaklanjuti.</p>
 </section>
 
+<section class="adm-card adm-mb-gap" aria-labelledby="adm-today-title" data-adm-reveal="today">
+    <div class="adm-card__head">
+        <h2 id="adm-today-title">Hari ini</h2>
+        <span class="adm-chip">{{ $hariIniLabel }}</span>
+    </div>
+    <div class="adm-today">
+        <a class="adm-today__cell" href="{{ route('admin.rental.schedule.daily-sheet', ['date' => $hariIni->toDateString()]) }}">
+            <span class="adm-today__num">{{ $hariIniTerima }}</span>
+            <span class="adm-today__label">papan diserahkan</span>
+            <span class="adm-today__meta">Buka lembar serah terima hari ini</span>
+        </a>
+        <a class="adm-today__cell" href="{{ route('admin.rental.schedule.daily-sheet', ['date' => $hariIni->toDateString()]) }}">
+            <span class="adm-today__num">{{ $hariIniKembali }}</span>
+            <span class="adm-today__label">papan dikembalikan</span>
+            <span class="adm-today__meta">Periksa kondisi papan yang kembali</span>
+        </a>
+        <a class="adm-today__cell" href="{{ route('admin.rental.schedule', ['month' => $hariIni->format('Y-m')]) }}">
+            <span class="adm-today__num">{{ $rentalActive }}</span>
+            <span class="adm-today__label">unit aktif</span>
+            <span class="adm-today__meta">Lihat jadwal bulan ini</span>
+        </a>
+    </div>
+</section>
+
 <div class="adm-stats adm-mb-gap" data-adm-reveal="stats">
     <a class="adm-stat" href="{{ route('admin.rental.orders') }}">
         <span class="adm-stat__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'package', 'size' => 20])</span>
@@ -132,62 +156,60 @@
     <p class="adm-help adm-block-gap--sm">Bulan ini <strong>Rp {{ number_format($pemasukanBulan ?? 0, 0, ',', '.') }}</strong></p>
 </section>
 
-<div class="adm-grid adm-grid--split adm-mb-gap">
-    <div class="adm-grid">
-        <section class="adm-card" data-adm-reveal="waiting" aria-labelledby="adm-waiting-title">
-            <div class="adm-card__head">
-                <h2 id="adm-waiting-title">Menunggu pelanggan</h2>
-                <span class="adm-chip">Bukan tugas admin</span>
-            </div>
-            <div class="adm-stack adm-stack--tight">
-                <a class="adm-listlink" href="{{ route('admin.rental.orders', ['status' => 'design_pending']) }}">
-                    <span class="adm-stat__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'package', 'size' => 18])</span>
-                    <span class="adm-min0"><strong>{{ $rentalWaitingDesign }}</strong> unit menunggu persetujuan desain
-                        @if($rentalWaitingDesignSince)· menunggu sejak {{ $rentalWaitingDesignSince->format('d/m H:i') }} WIB @endif
-                    </span>
-                </a>
-                <a class="adm-listlink" href="{{ route('admin.rental.orders', ['status' => 'transport_approval']) }}">
-                    <span class="adm-stat__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'location', 'size' => 18])</span>
-                    <span class="adm-min0"><strong>{{ $rentalWaitingTransport }}</strong> unit menunggu persetujuan ongkos
-                        @if($rentalWaitingTransportSince)· penawaran tertua {{ $rentalWaitingTransportSince->format('d/m H:i') }} WIB @endif
-                    </span>
-                </a>
-                <a class="adm-listlink" href="{{ route('admin.rental.orders', ['status' => 'grace']) }}">
-                    <span class="adm-stat__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'clock', 'size' => 18])</span>
-                    <span class="adm-min0"><strong>{{ $rentalWaitingGrace }}</strong> unit dalam toleransi pembayaran
-                        @if($rentalWaitingGraceNearest)· batas terdekat {{ $rentalWaitingGraceNearest->copy()->timezone('Asia/Jakarta')->format('d/m H:i') }} WIB @else· sampai H+1 pukul 12.00 WIB @endif
-                    </span>
-                </a>
-            </div>
-        </section>
-
-        <section class="adm-card" data-adm-reveal="recent" aria-labelledby="adm-recent-title">
-            <div class="adm-card__head">
-                <h2 id="adm-recent-title">Pesanan sewa terbaru</h2>
-                <a class="adm-btn adm-btn--ghost adm-btn--sm" href="{{ route('admin.rental.orders') }}">Semua pesanan</a>
-            </div>
-            <div class="adm-stack adm-stack--tight">
-                @forelse($recentRentalOrders as $order)
-                    <a class="adm-listlink" href="{{ route('admin.rental.orders', ['q' => $order->reference]) }}">
-                        <span class="adm-stat__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'package', 'size' => 18])</span>
-                        <span class="adm-min0">
-                            <strong>{{ $order->customer?->name ?? 'Pelanggan tidak tersedia' }}</strong> · {{ $order->units_count }} unit
-                            <span class="adm-help adm-block">{{ $order->reference }}</span>
-                        </span>
-                    </a>
-                @empty
-                    <div class="adm-empty adm-pad-y">
-                        <p class="adm-empty__title">Belum ada pesanan sewa</p>
-                        <p class="adm-help adm-flat">Pesanan baru akan muncul di sini.</p>
-                    </div>
-                @endforelse
-            </div>
-        </section>
-
-        <div class="adm-note adm-note--warn adm-flat">
-            <span class="adm-note__title">Mode pengujian</span>
-            Sistem masih dalam pengujian dan belum untuk transaksi nyata. Ringkasan buku kas dapat mencakup data lama.
+<div class="adm-grid adm-grid--2 adm-mb-gap">
+    <section class="adm-card" data-adm-reveal="waiting" aria-labelledby="adm-waiting-title">
+        <div class="adm-card__head">
+            <h2 id="adm-waiting-title">Menunggu pelanggan</h2>
+            <span class="adm-chip">Bukan tugas admin</span>
         </div>
+        <div class="adm-stack adm-stack--tight">
+            <a class="adm-listlink" href="{{ route('admin.rental.orders', ['status' => 'design_pending']) }}">
+                <span class="adm-stat__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'package', 'size' => 18])</span>
+                <span class="adm-min0"><strong>{{ $rentalWaitingDesign }}</strong> unit menunggu persetujuan desain
+                    @if($rentalWaitingDesignSince)· menunggu sejak {{ $rentalWaitingDesignSince->format('d/m H:i') }} WIB @endif
+                </span>
+            </a>
+            <a class="adm-listlink" href="{{ route('admin.rental.orders', ['status' => 'transport_approval']) }}">
+                <span class="adm-stat__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'location', 'size' => 18])</span>
+                <span class="adm-min0"><strong>{{ $rentalWaitingTransport }}</strong> unit menunggu persetujuan ongkos
+                    @if($rentalWaitingTransportSince)· penawaran tertua {{ $rentalWaitingTransportSince->format('d/m H:i') }} WIB @endif
+                </span>
+            </a>
+            <a class="adm-listlink" href="{{ route('admin.rental.orders', ['status' => 'grace']) }}">
+                <span class="adm-stat__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'clock', 'size' => 18])</span>
+                <span class="adm-min0"><strong>{{ $rentalWaitingGrace }}</strong> unit dalam toleransi pembayaran
+                    @if($rentalWaitingGraceNearest)· batas terdekat {{ $rentalWaitingGraceNearest->copy()->timezone('Asia/Jakarta')->format('d/m H:i') }} WIB @else· sampai H+1 pukul 12.00 WIB @endif
+                </span>
+            </a>
+        </div>
+    </section>
+
+    <section class="adm-card" data-adm-reveal="recent" aria-labelledby="adm-recent-title">
+        <div class="adm-card__head">
+            <h2 id="adm-recent-title">Pesanan sewa terbaru</h2>
+            <a class="adm-btn adm-btn--ghost adm-btn--sm" href="{{ route('admin.rental.orders') }}">Semua pesanan</a>
+        </div>
+        <div class="adm-stack adm-stack--tight">
+            @forelse($recentRentalOrders as $order)
+                <a class="adm-listlink" href="{{ route('admin.rental.orders', ['q' => $order->reference]) }}">
+                    <span class="adm-stat__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'package', 'size' => 18])</span>
+                    <span class="adm-min0">
+                        <strong>{{ $order->customer?->name ?? 'Pelanggan tidak tersedia' }}</strong> · {{ $order->units_count }} unit
+                        <span class="adm-help adm-block">{{ $order->reference }}</span>
+                    </span>
+                </a>
+            @empty
+                <div class="adm-empty adm-pad-y">
+                    <p class="adm-empty__title">Belum ada pesanan sewa</p>
+                    <p class="adm-help adm-flat">Pesanan baru akan muncul di sini.</p>
+                </div>
+            @endforelse
+        </div>
+    </section>
+
+    <div class="adm-note adm-note--warn adm-flat">
+        <span class="adm-note__title">Mode pengujian</span>
+        Sistem masih dalam pengujian dan belum untuk transaksi nyata. Ringkasan buku kas dapat mencakup data lama.
     </div>
 </div>
 @endsection

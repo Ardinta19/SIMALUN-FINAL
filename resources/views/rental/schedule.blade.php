@@ -3,7 +3,6 @@
 @section('title', 'Jadwal sewa')
 @section('crumbs')<a href="{{ route('admin.rental.orders') }}">Pesanan sewa</a><span class="adm-crumbs__sep" aria-hidden="true">/</span><strong>Jadwal sewa</strong>@endsection
 @section('content')
-<a data-smart-back class="bk-back" href="{{ route('admin.rental.orders') }}">← Pesanan sewa</a>
 @php
     $prevMonth = $month->copy()->subMonth()->format('Y-m');
     $nextMonth = $month->copy()->addMonth()->format('Y-m');
@@ -16,7 +15,7 @@
         <p class="adm-page-sub">Semua hari dalam periode sewa, termasuk penerimaan dan pengembalian.</p>
                 <details class="adm-page-note">
                     <summary>Selengkapnya</summary>
-                    <p>Setiap hari dalam periode sewa ditampilkan, termasuk hari penerimaan dan pengembalian. Unit menunggu sudah menahan tanggal sampai tenggat konfirmasi; unit terkonfirmasi menahannya secara tetap. Perkiraan jadwal bukan bukti serah terima aktual.</p>
+                    <p>Unit menunggu sudah menahan tanggal sampai tenggat konfirmasi; unit terkonfirmasi menahannya secara tetap. Jadwal ini perkiraan, bukan bukti serah terima aktual.</p>
                 </details>
     </div>
     <div class="adm-actions">
@@ -57,54 +56,117 @@
             <a class="btn secondary adm-btn--sm" href="{{ route('admin.rental.schedule', array_merge($input, ['month' => $nextMonth])) }}">Bulan berikutnya →</a>
         </span>
     </div>
+    <p class="adm-toolbar__hint">Bulan, status, dan kegiatan langsung berlaku saat diubah.</p>
 </form>
+
+@php
+    $hariIni = now('Asia/Jakarta')->toDateString();
+    $hariTerisi = collect($days)->filter(fn ($day) => count($day['units']) > 0)->values();
+    $hariKosong = collect($days)->reject(fn ($day) => count($day['units']) > 0)->values();
+    $jumlahUnit = collect($days)->sum(fn ($day) => count($day['units']));
+    $hariIniAda = collect($days)->first(fn ($day) => $day['date']->toDateString() === $hariIni);
+    $hapusJadwal = fn (string $kunci) => route('admin.rental.schedule', array_filter(array_merge($input, ['month' => $month->format('Y-m'), $kunci => null])));
+    $chipJadwal = [];
+    if (! empty($input['status'])) {
+        $chipJadwal[] = ['label' => 'Status: '.(\App\Support\RentalLabels::SCHEDULE_STATUS[$input['status']] ?? $input['status']), 'remove' => $hapusJadwal('status')];
+    }
+    if (! empty($input['activity'])) {
+        $labelKegiatan = ['receiving' => 'Penerimaan', 'event' => 'Acara', 'returning' => 'Pengembalian'][$input['activity']] ?? $input['activity'];
+        $chipJadwal[] = ['label' => 'Kegiatan: '.$labelKegiatan, 'remove' => $hapusJadwal('activity')];
+    }
+@endphp
+@include('layouts.component.admin._filter_state', ['chips' => $chipJadwal, 'resetUrl' => route('admin.rental.schedule')])
 
 <div class="adm-row adm-row--between adm-month-row" data-adm-reveal="month">
     <h2>{{ $month->locale('id')->translatedFormat('F Y') }}</h2>
-    <span class="adm-chip">{{ collect($days)->sum(fn ($day) => count($day['units'])) }} unit terjadwal</span>
+    <span class="adm-row adm-row--tight">
+        @if($hariIniAda)
+            <a class="adm-btn adm-btn--ghost adm-btn--sm" href="#hari-ini">Hari ini</a>
+        @endif
+        <span class="adm-chip">{{ $jumlahUnit }} unit terjadwal · {{ $hariTerisi->count() }} tanggal terisi</span>
+    </span>
 </div>
 
-<div class="adm-grid adm-grid--auto">
-    @foreach($days as $day)
-        @php $today = $day['date']->toDateString(); @endphp
-        <section class="adm-card adm-card--hover" data-adm-reveal="days">
-            <div class="adm-card__head">
-                <div>
-                    <span class="adm-kicker">{{ $day['date']->locale('id')->translatedFormat('l') }}</span>
-                    <h3 class="adm-title--tight">{{ $day['date']->locale('id')->translatedFormat('d F Y') }}</h3>
-                </div>
-                <a class="adm-btn adm-btn--ghost adm-btn--sm" href="{{ route('admin.rental.schedule.daily-sheet', ['date' => $today]) }}">Lembar serah terima</a>
-            </div>
-
-            @forelse($day['units'] as $unit)
-                <div class="adm-divider-row">
-                    <div class="adm-row adm-row--between adm-row--tight">
-                        <strong>{{ $unit->product_name }}</strong>
-                        <span class="adm-badge {{ $unit->status === 'confirmed' ? 'adm-badge--confirmed' : 'adm-badge--pending' }}">
-                            {{ $unit->status === 'confirmed' ? 'Dikonfirmasi · stok dicadangkan' : 'Menunggu · tanggal ditahan' }}
-                        </span>
+@if($hariTerisi->isEmpty())
+    <div class="adm-empty" data-adm-reveal="empty">
+        <span class="adm-empty__icon" aria-hidden="true"><span class="bk-i">@include('layouts.component._icon', ['name' => 'calendar', 'size' => 24])</span></span>
+        <span class="adm-empty__title">Belum ada unit di {{ $month->locale('id')->translatedFormat('F Y') }}</span>
+        <p>Tanggal baru terisi setelah pesanan dikonfirmasi. Lihat bulan lain, atau buka antrean pesanan yang menunggu konfirmasi.</p>
+        <span class="adm-row adm-row--center adm-row--tight">
+            <a class="btn secondary" href="{{ route('admin.rental.schedule', ['month' => $prevMonth]) }}">← {{ $month->copy()->subMonth()->locale('id')->translatedFormat('F Y') }}</a>
+            <a class="btn secondary" href="{{ route('admin.rental.schedule', ['month' => $nextMonth]) }}">{{ $month->copy()->addMonth()->locale('id')->translatedFormat('F Y') }} →</a>
+            <a class="btn" href="{{ route('admin.rental.orders', ['status' => 'pending']) }}">Pesanan menunggu konfirmasi</a>
+        </span>
+    </div>
+@else
+    <div class="adm-grid adm-grid--auto">
+        @foreach($hariTerisi as $day)
+            @php
+                $tanggal = $day['date']->toDateString();
+                $terima = $day['units']->filter(fn ($unit) => $unit->starts_on->toDateString() === $tanggal)->count();
+                $kembali = $day['units']->filter(fn ($unit) => $unit->ends_on->toDateString() === $tanggal)->count();
+            @endphp
+            <section class="adm-card adm-card--hover" id="{{ $tanggal === $hariIni ? 'hari-ini' : 'hari-'.$tanggal }}" data-adm-reveal="days">
+                <div class="adm-card__head">
+                    <div>
+                        <span class="adm-kicker">{{ $day['date']->locale('id')->translatedFormat('l') }}{{ $tanggal === $hariIni ? ' · hari ini' : '' }}</span>
+                        <h3 class="adm-title--tight">{{ $day['date']->locale('id')->translatedFormat('d F Y') }}</h3>
                     </div>
-                    <p class="muted adm-meta">
-                        {{ $unit->order->customer?->name ?? 'Pelanggan tidak tersedia' }} · {{ $unit->recipient_name }} · Acara {{ $unit->event_on->format('d/m/Y') }}
+                    <span class="adm-chip">{{ count($day['units']) }} unit</span>
+                </div>
+
+                @if($terima || $kembali)
+                    <p class="adm-row adm-row--tight adm-flat">
+                        @if($terima)<span class="adm-badge adm-badge--confirmed">{{ $terima }} serah terima</span>@endif
+                        @if($kembali)<span class="adm-badge adm-badge--pending">{{ $kembali }} pengembalian</span>@endif
                     </p>
-                    @if($unit->starts_on->toDateString() === $today)
-                        <p class="adm-meta">Penerimaan hari ini: {{ $unit->delivery_method === 'delivery' ? 'Diantar penjual · '.$unit->delivery_address : 'Diambil sendiri' }}</p>
-                    @endif
-                    @if($unit->event_on->toDateString() === $today)
-                        <p class="adm-meta">Acara hari ini</p>
-                    @endif
-                    @if($unit->ends_on->toDateString() === $today)
-                        <p class="adm-meta">Pengembalian hari ini: {{ $unit->return_method === 'collection' ? 'Diambil kembali penjual · '.$unit->return_address : 'Dikembalikan sendiri' }}</p>
-                    @endif
-                    <div class="adm-row adm-row--between adm-mt-6">
-                        <span class="adm-chip">{{ \App\Support\RentalLabels::progress($unit->progress) }}</span>
-                        <a href="{{ route('admin.rental.orders.show', $unit->order) }}">Buka pesanan</a>
+                @endif
+
+                @foreach($day['units'] as $unit)
+                    <div class="adm-divider-row">
+                        <div class="adm-row adm-row--between adm-row--tight">
+                            <strong>{{ $unit->product_name }}</strong>
+                            <span class="adm-badge {{ $unit->status === 'confirmed' ? 'adm-badge--confirmed' : 'adm-badge--pending' }}">
+                                {{ $unit->status === 'confirmed' ? 'Dikonfirmasi · stok dicadangkan' : 'Menunggu · tanggal ditahan' }}
+                            </span>
+                        </div>
+                        <p class="muted adm-meta">
+                            {{ $unit->order->customer?->name ?? 'Pelanggan tidak tersedia' }} · {{ $unit->recipient_name }} · Acara {{ $unit->event_on->format('d/m/Y') }}
+                        </p>
+                        @if($unit->starts_on->toDateString() === $tanggal)
+                            <p class="adm-meta">Penerimaan hari ini: {{ $unit->delivery_method === 'delivery' ? 'Diantar penjual · '.$unit->delivery_address : 'Diambil sendiri' }}</p>
+                        @endif
+                        @if($unit->event_on->toDateString() === $tanggal)
+                            <p class="adm-meta">Acara hari ini</p>
+                        @endif
+                        @if($unit->ends_on->toDateString() === $tanggal)
+                            <p class="adm-meta">Pengembalian hari ini: {{ $unit->return_method === 'collection' ? 'Diambil kembali penjual · '.$unit->return_address : 'Dikembalikan sendiri' }}</p>
+                        @endif
+                        <div class="adm-row adm-row--between adm-mt-6">
+                            <span class="adm-chip">{{ \App\Support\RentalLabels::progress($unit->progress) }}</span>
+                            <a href="{{ route('admin.rental.orders.show', $unit->order) }}">Buka pesanan</a>
+                        </div>
                     </div>
+                @endforeach
+
+                <div class="adm-card__foot">
+                    <a class="adm-btn adm-btn--ghost adm-btn--sm" href="{{ route('admin.rental.schedule.daily-sheet', ['date' => $tanggal]) }}">Lembar serah terima</a>
                 </div>
-            @empty
-                <p class="muted adm-inline-note adm-inline-note--top">Tidak ada unit terjadwal.</p>
-            @endforelse
-        </section>
-    @endforeach
-</div>
+            </section>
+        @endforeach
+    </div>
+
+    @if($hariKosong->isNotEmpty())
+        <div class="adm-quietdays adm-mt-4" data-adm-reveal="quiet">
+            <details>
+                <summary>{{ $hariKosong->count() }} tanggal lain tanpa unit di bulan ini</summary>
+                <ul>
+                    @foreach($hariKosong as $day)
+                        <li>{{ $day['date']->locale('id')->translatedFormat('d M') }}</li>
+                    @endforeach
+                </ul>
+            </details>
+        </div>
+    @endif
+@endif
 @endsection

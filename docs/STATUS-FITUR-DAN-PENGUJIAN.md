@@ -345,3 +345,30 @@ Berkas: 15 view `layouts.admin`, `public/css/berkah-admin.css`,
 
 Pemeriksaan manual: `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.155.
 
+### Babak U — panel admin dirapikan untuk dipakai, bukan ditebak (`statis, belum diuji di Windows`)
+
+Keluhan: panel admin "masih sangat membingungkan dan kurang menarik".
+
+1. **Filter langsung berlaku** (select/bulan/tanggal di `.adm-toolbar`), dengan
+   penjaga nilai awal supaya tidak memuat ulang tanpa perubahan.
+2. **Chip "Filter aktif"** di Pesanan, Jadwal, Buku kas, dan Jejak audit — tiap
+   chip bisa dilepas sendiri.
+3. **Dasbor**: pembungkus kolom yang menyisakan separuh layar kosong diperbaiki;
+   kartu **"Hari ini"** (serah terima, pengembalian, unit aktif).
+4. **Jadwal sewa**: hanya tanggal terisi yang menjadi kartu, tanggal kosong
+   diringkas; keadaan kosong menawarkan langkah berikutnya.
+5. **Satu kendali kembali**: tautan "← Kembali" besar dihapus dari enam halaman;
+   panah bilah atas jadi satu-satunya.
+6. **Bilah atas ponsel** hanya judul halaman (tidak terpotong lagi); antrean
+   cepat menjadi satu baris bergeser.
+7. **Label filter diseragamkan** ("Tampilkan") dan **kartu pesanan menyebut
+   nama papan**.
+
+Berkas: `public/js/berkah-admin.js`, `public/css/berkah-admin.css`,
+`resources/views/layouts/component/admin/_filter_state.blade.php` (baru),
+`resources/views/{rental/admin,rental/schedule,rental/cashbook,roles/admin/audit/index,roles/admin/dashboard}.blade.php`,
+`app/Http/Controllers/DashboardController.php`,
+`tests/Feature/AdminClarityTest.php` (baru), `tests/Feature/UiKitTest.php`.
+
+Pemeriksaan manual: `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.157.
+

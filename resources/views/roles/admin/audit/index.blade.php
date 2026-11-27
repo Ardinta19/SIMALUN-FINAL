@@ -80,14 +80,34 @@
     <div class="adm-actions">
         <button type="submit" class="adm-btn">
             @include('layouts.component._icon', ['name' => 'check', 'size' => 16])
-            Terapkan
+            Tampilkan
         </button>
         <a href="{{ route('admin.audit.index') }}" class="adm-btn adm-btn--ghost">
             @include('layouts.component._icon', ['name' => 'refresh', 'size' => 16])
             Atur ulang filter
         </a>
     </div>
+    <p class="adm-toolbar__hint">Pilihan dan tanggal langsung berlaku saat diubah.</p>
 </form>
+
+@php
+    $hapusAudit = fn (string $kunci) => route('admin.audit.index', array_filter(request()->except($kunci, 'page')));
+    $chipAudit = [];
+    if (request('actor_id')) {
+        $aktor = $actors->firstWhere('id', (int) request('actor_id'));
+        $chipAudit[] = ['label' => 'Aktor: '.($aktor->name ?? 'tidak dikenal'), 'remove' => $hapusAudit('actor_id')];
+    }
+    if (request('action')) {
+        $chipAudit[] = ['label' => 'Aksi: '.request('action'), 'remove' => $hapusAudit('action')];
+    }
+    if (request('date_from')) {
+        $chipAudit[] = ['label' => 'Dari '.\Carbon\Carbon::parse(request('date_from'))->format('d/m/Y'), 'remove' => $hapusAudit('date_from')];
+    }
+    if (request('date_to')) {
+        $chipAudit[] = ['label' => 'Sampai '.\Carbon\Carbon::parse(request('date_to'))->format('d/m/Y'), 'remove' => $hapusAudit('date_to')];
+    }
+@endphp
+@include('layouts.component.admin._filter_state', ['chips' => $chipAudit, 'resetUrl' => route('admin.audit.index')])
 
 <section class="adm-card" data-adm-reveal="logs" aria-labelledby="adm-audit-list-title">
     <div class="adm-card__head">

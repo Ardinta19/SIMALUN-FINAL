@@ -109,11 +109,20 @@ class DashboardController extends Controller
         $rentalWaitingTransportSince = $jamJakarta($rentalWaitingTransportSince);
         $recentRentalOrders = RentalOrder::with('customer')->withCount('units')->latest()->take(5)->get();
 
+        // "Hari ini" di dasbor: dua angka yang paling dicari saat panel dibuka —
+        // berapa papan harus diserahkan dan berapa harus kembali hari ini.
+        // Hanya unit terkonfirmasi, sama dengan isi lembar serah terima.
+        $hariIni = now('Asia/Jakarta');
+        $hariIniTerima = RentalOrderUnit::where('status', 'confirmed')->where('starts_on', $hariIni->toDateString())->count();
+        $hariIniKembali = RentalOrderUnit::where('status', 'confirmed')->where('ends_on', $hariIni->toDateString())->count();
+        $hariIniLabel = $hariIni->locale('id')->translatedFormat('l, d F Y');
+
         return view('roles.admin.dashboard', compact(
             'rentalPending', 'rentalActive', 'rentalPaymentPending', 'rentalReview', 'rentalQuoteNeeded', 'rentalDesignNeeded', 'rentalSellerCancelled',
             'rentalWaitingDesign', 'rentalWaitingTransport', 'rentalWaitingGrace', 'rentalReturnOverdue',
             'rentalWaitingDesignSince', 'rentalWaitingTransportSince', 'rentalWaitingGraceNearest', 'recentRentalOrders',
             'rentalPendingNearest', 'paymentPendingOldest',
+            'hariIni', 'hariIniTerima', 'hariIniKembali', 'hariIniLabel',
             'pemasukanHari',
             'pemasukanBulan',
             'voucherAktif',

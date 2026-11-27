@@ -9,7 +9,8 @@
      4. Drawer & sidebar mobile (fokus terkurung, Esc, klik latar)
      5. Toast flash (tutup otomatis, jeda saat hover/fokus)
      6. Status topbar saat digulir + pintasan "/" ke kotak pencarian
-     7. Keadaan memuat tombol kirim (anti klik ganda)
+     7. Filter langsung berlaku (select, bulan, tanggal)
+     8. Keadaan memuat tombol kirim (anti klik ganda)
 
    Semua efek dihentikan saat prefers-reduced-motion: reduce.
    Tidak ada navigasi yang dicegat dan tidak ada form yang diubah namanya.
@@ -346,7 +347,51 @@
     }
 
     /* ---------------------------------------------------------------------
-       7. Keadaan memuat formulir
+       7. Filter langsung berlaku
+
+       Dulu pengguna harus menekan "Tampilkan" setelah mengubah kolom Bulan atau
+       Status. Kalau lupa, daftar tetap memuat filter lama sementara kolomnya
+       sudah menunjukkan pilihan baru — sumber kebingungan yang paling sering
+       dilaporkan. Sekarang setiap select / bulan / tanggal di dalam
+       `.adm-toolbar` mengirim form begitu nilainya berubah. Tombol "Tampilkan"
+       tetap ada untuk pengguna tanpa JavaScript.
+       ------------------------------------------------------------------ */
+    function serialize(form) {
+        try {
+            return new URLSearchParams(new FormData(form)).toString();
+        } catch (error) {
+            return null;
+        }
+    }
+
+    each('.adm-toolbar', document, function (form) {
+        if (form.getAttribute('data-adm-autofilter') === 'off') return;
+        form.setAttribute('data-adm-autofilter', 'on');
+
+        // Nilai awal dicatat supaya kendali kustom yang memicu `change` saat
+        // disiapkan (mis. pemilih tanggal yang menyelaraskan nilainya) tidak
+        // membuat halaman memuat ulang sendiri tanpa ada perubahan nyata.
+        var awal = serialize(form);
+
+        on(form, 'change', function (event) {
+            var field = event.target;
+            if (!field || !field.name) return;
+
+            var isSelect = field.tagName === 'SELECT';
+            var isDateish = field.tagName === 'INPUT' && (field.type === 'month' || field.type === 'date');
+            if (!isSelect && !isDateish) return;
+
+            var sekarang = serialize(form);
+            if (awal !== null && sekarang === awal) return;
+            awal = sekarang;
+
+            if (typeof form.requestSubmit === 'function') form.requestSubmit();
+            else form.submit();
+        });
+    });
+
+    /* ---------------------------------------------------------------------
+       8. Keadaan memuat formulir
        ------------------------------------------------------------------ */
     function forms() {
         each('.adm-app form', document, function (form) {

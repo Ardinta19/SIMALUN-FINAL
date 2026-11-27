@@ -3,7 +3,6 @@
 @section('title', 'Pengaturan pembayaran')
 @section('crumbs')<strong>Petunjuk pembayaran</strong>@endsection
 @section('content')
-<a data-smart-back class="bk-back" href="{{ route('admin.rental.orders') }}">← Pesanan sewa</a>
 @php
     $oldText = function (string $key, $fallback = '') {
         $value = old($key, $fallback);

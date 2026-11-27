@@ -3,7 +3,6 @@
 @section('title', 'Voucher sewa')
 @section('crumbs')<strong>Voucher sewa</strong>@endsection
 @section('content')
-<a data-smart-back class="bk-back" href="{{ route('dashboard.admin') }}">← Beranda admin</a>
 <div class="adm-page-head" data-adm-reveal="head">
     <div class="adm-page-head__text">
         <span class="adm-kicker">Katalog &amp; penawaran</span>

@@ -1041,10 +1041,10 @@ class UiKitTest extends TestCase
             'catalog/index.blade.php' => ['class="btn secondary" href="{{ route(\'welcome\') }}">Hapus filter'],
             'catalog/show.blade.php' => ['class="btn secondary" href="{{ route(\'catalog.show\', $product) }}">Hapus tanggal'],
             'rental/admin.blade.php' => ['class="btn secondary"'],
-            'rental/schedule.blade.php' => ['class="btn secondary"', 'class="bk-back"'],
-            'rental/payment-settings.blade.php' => ['class="bk-back"'],
-            'rental/universities.blade.php' => ['class="bk-back"'],
-            'rental/admin-detail.blade.php' => ['class="bk-back"', 'class="btn secondary"'],
+            'rental/schedule.blade.php' => ['class="btn secondary"'],
+            'rental/payment-settings.blade.php' => ['class="btn"'],
+            'rental/universities.blade.php' => ['class="btn secondary"'],
+            'rental/admin-detail.blade.php' => ['class="btn secondary"'],
         ];
 
         foreach ($expectations as $file => $needles) {
@@ -1054,6 +1054,13 @@ class UiKitTest extends TestCase
                 $this->assertStringContainsString($needle, $blade, 'Tautan aksi tanpa gaya sistem di '.$file);
             }
         }
+
+        // Sejak putaran 41 hanya ada SATU kendali kembali di panel admin: panah
+        // pada bilah atas. Tautan "← Kembali" besar di setiap halaman dihapus
+        // karena menduplikasi kendali itu dan memakan satu baris penuh.
+        $topbar = File::get(resource_path('views/layouts/component/admin/_topbar.blade.php'));
+        $this->assertStringContainsString('class="adm-iconbtn adm-topbar__back"', $topbar);
+        $this->assertStringContainsString('data-smart-back', $topbar);
 
         // Tombol sistem punya keadaan hover dan fokus keyboard yang terlihat.
         $layout = File::get(resource_path('views/catalog/layout.blade.php'));

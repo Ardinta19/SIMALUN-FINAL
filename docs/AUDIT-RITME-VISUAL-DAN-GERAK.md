@@ -6416,3 +6416,81 @@ muncul kalau ada unit berstatus `pending`, itulah sebabnya baru terlihat sekaran
 **Pelajaran.** SQLite tidak menegur kolom yang salah pada ekspresi agregat; ia
 diam-diam mengembalikan nama kolom. Setiap `min`/`max`/`sum` pada model wajib
 diperiksa tabelnya, bukan hanya "jalannya kueri".
+
+### 9.157 Panel admin: filter yang langsung berlaku, "hari ini", dan satu kendali kembali
+
+Laporan pemilik usaha: *"halaman role admin secara keseluruhan masih sangat
+membingungkan dan kurang menarik untuk digunakan"*. Ini bukan soal warna, jadi
+yang dicari adalah **titik-titik di mana pengguna harus menebak**.
+
+**Diagnosis (dengan bukti dari kode dan tangkapan layar):**
+
+| # | Gejala | Sebab |
+| --- | --- | --- |
+| 1 | Kolom **Bulan** berkata *November 2026*, daftar di bawahnya *Januari 2027* | filter hanya berlaku setelah tombol ditekan; tidak ada tanda filter mana yang sedang dipakai |
+| 2 | Separuh kanan dasbor kosong | `.adm-grid--split` (dua kolom) hanya berisi **satu** anak |
+| 3 | Saat membuka panel tidak ada jawaban "hari ini harus apa" | tidak ada ringkasan serah terima/pengembalian hari ini |
+| 4 | Judul di bilah atas terpotong menjadi "Jadwal se…" | remah roti "Pesanan sewa / Jadwal sewa" berebut ruang di 390 px |
+| 5 | Dua tombol kembali | panah bilah atas **dan** tautan besar "← Kembali" di tujuh halaman |
+| 6 | Halaman jadwal penuh kartu "Tidak ada unit terjadwal" | setiap tanggal dirender sebagai kartu, walau kosong |
+| 7 | Tombol filter bernama berbeda di tiap halaman | "Tampilkan", "Tampilkan hasil", "Terapkan filter" |
+| 8 | Kartu pesanan tidak menyebut papan apa yang dipesan | hanya "2 unit" |
+| 9 | Antrean cepat di ponsel memakan tiga baris | `.adm-chipbar` membungkus ke bawah |
+
+**Perbaikan:**
+
+1. **Filter langsung berlaku** — `berkah-admin.js` §7 memantau setiap
+   `.adm-toolbar`: `select`, `input[type=month]`, dan `input[type=date]`
+   mengirim form begitu nilainya berubah. Kotak pencarian tetap menunggu Enter,
+   dan formulir dapat memilih keluar dengan `data-adm-autofilter="off"`.
+   Nilai awal disimpan (`serialize(form)`), jadi kendali kustom yang memicu
+   `change` saat disiapkan tidak memuat ulang halaman tanpa perubahan nyata.
+2. **Ringkasan filter aktif** — partial baru
+   `layouts.component.admin._filter_state` menulis ulang setiap filter sebagai
+   chip dengan tombol lepas sendiri, plus "Hapus semua filter". Dipakai di
+   Pesanan sewa, Jadwal sewa, Buku kas, dan Jejak audit.
+3. **Petunjuk di bawah filter** (`.adm-toolbar__hint`): "Bulan, status, dan
+   kegiatan langsung berlaku saat diubah."
+4. **Dasbor** — pembungkus `.adm-grid--split` berisi satu anak dibuang, diganti
+   `.adm-grid--2`; kartu **"Hari ini"** menampilkan jumlah papan yang harus
+   diserahkan, yang harus dikembalikan, dan unit aktif, ketiganya menuju lembar
+   serah terima atau jadwal bulan ini. Angkanya dihitung di
+   `DashboardController` (`$hariIniTerima`, `$hariIniKembali`, `$hariIniLabel`).
+5. **Jadwal sewa** — hanya tanggal berisi unit yang menjadi kartu; tanggal
+   kosong diringkas dalam satu baris "N tanggal lain tanpa unit di bulan ini"
+   (`.adm-quietdays`). Kartu menyebut "N serah terima / N pengembalian", tanggal
+   hari ini diberi penanda dan jangkar `#hari-ini`, dan keadaan kosong
+   menawarkan dua bulan tetangga serta antrean menunggu konfirmasi.
+6. **Satu kendali kembali** — tautan `bk-back` besar dihapus dari enam halaman
+   admin (jadwal, tambahan, universitas, voucher, petunjuk pembayaran, detail
+   pesanan). Panah bilah atas tetap menjadi satu-satunya kendali, didampingi
+   remah roti di layar lebar.
+7. **Bilah atas ponsel** hanya menampilkan judul halaman; remah roti dan
+   pembatasnya disembunyikan di ≤ 560 px supaya judul tidak lagi terpotong.
+8. **Antrean cepat** menjadi satu baris yang dapat digeser di ponsel.
+9. **Label filter diseragamkan** menjadi "Tampilkan" di empat halaman.
+10. **Kartu pesanan** menyebut isi pesanan: dua nama papan pertama dan
+    "dan N papan lain".
+
+**Tes penjaga — `tests/Feature/AdminClarityTest.php` (7 tes):** filter otomatis
+dan petunjuknya, ringkasan filter aktif di empat halaman, dasbor "Hari ini" dan
+larangan `.adm-grid--split` tanpa pasangan, jadwal yang hanya menampilkan tanggal
+terisi, satu kendali kembali, judul ponsel, dan nama papan pada kartu pesanan.
+`UiKitTest` diperbarui: kendali kembali kini diperiksa pada bilah atas, bukan
+pada tautan besar tiap halaman.
+
+**Bukti perilaku filter (jsdom, skrip sekali pakai):** nilai tidak berubah → tidak
+mengirim; bulan diubah → mengirim; status diubah → mengirim; kotak pencarian
+diketik → tidak mengirim; formulir `data-adm-autofilter="off"` → tidak mengirim.
+
+**Cara memeriksa sendiri:**
+
+1. Buka Jadwal sewa, ubah kolom **Bulan** tanpa menekan apa pun — daftar harus
+   langsung berganti dan judul bulan ikut berubah.
+2. Di Pesanan sewa, pilih status lalu tekan tombol lepas pada chip "Filter
+   aktif": hanya filter itu yang hilang.
+3. Dasbor: kartu "Hari ini" muncul di bawah "Perlu tindakanmu"; pada layar lebar
+   "Menunggu pelanggan" dan "Pesanan terbaru" berdampingan tanpa separuh kosong.
+4. Ponsel 390 px: bilah atas hanya "Jadwal sewa" (tidak terpotong), antrean
+   cepat satu baris bergeser.
+5. Jadwal sewa: tidak ada lagi deretan kartu "Tidak ada unit terjadwal".
