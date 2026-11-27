@@ -50,8 +50,13 @@ final class OrderedItems
                     'label' => $addon->label(),
                     'amount' => (int) $addon->total,
                 ])->all(),
-                'price_amount' => (int) $unit->unit_price,
+                // `rental_amount` adalah biaya sewa yang benar-benar ditagih
+                // (sudah memperhitungkan paket durasi). `unit_price` hanya tarif
+                // dasar, sehingga memakainya di sini akan mengecilkan tagihan
+                // pesanan berpaket.
+                'price_amount' => (int) $unit->rental_amount,
                 'price_unit' => (string) $unit->price_unit,
+                'price_note' => $unit->package_name ? 'paket '.$unit->package_days.' hari' : null,
                 'status_label' => RentalLabels::unitStatus($unit->status),
                 'status_key' => (string) $unit->status,
                 'url' => $urlFor ? $urlFor($unit) : null,
@@ -98,6 +103,8 @@ final class OrderedItems
                 'addons' => [],
                 'price_amount' => (int) $product->base_price,
                 'price_unit' => (string) $product->price_unit,
+                // Paket belum dipilih saat di keranjang; catatan satuan dipakai.
+                'price_note' => null,
                 'status_label' => null,
                 'status_key' => null,
                 'url' => null,

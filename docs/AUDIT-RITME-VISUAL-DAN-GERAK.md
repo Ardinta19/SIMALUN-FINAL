@@ -6247,8 +6247,13 @@ apa yang dipesan.
 Partial `rental._ordered_items` merender keduanya. Setiap baris memuat: nomor
 papan, nama (dapat diketuk bila ada tautannya), nama + contoh warna, label status
 berwarna, tanggal acara & kembali, daftar item tambahan beserta harganya, dan
-harga satuan (`/ hari` atau `/ acara`). Judul kartunya memakai id turunan agar
-dua daftar di satu halaman tidak berbagi id.
+biaya sewa.
+
+Angka yang dipakai **`rental_amount`**, bukan `unit_price`: `unit_price` hanya
+tarif dasar, sehingga pesanan berpaket akan tampil lebih murah daripada
+tagihannya. Untuk unit berpaket, catatan satuannya menjadi `/ paket N hari`.
+Judul kartunya memakai id turunan agar dua daftar di satu halaman tidak berbagi
+id.
 
 **Tempat tampil:**
 

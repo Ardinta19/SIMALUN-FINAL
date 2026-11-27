@@ -57,6 +57,7 @@ class OrderedItemsTest extends TestCase
             "\$item['addons']",
             "\$item['price_amount']",
             "'hari' : 'acara'",
+            "\$item['price_note']",
             'bk-status-chip',
         ] as $needle) {
             $this->assertStringContainsString($needle, $partial, 'Daftar item kehilangan: '.$needle);
@@ -131,6 +132,13 @@ class OrderedItemsTest extends TestCase
         $this->assertSame('day', $items[0]['price_unit']);
         $this->assertSame('Menunggu konfirmasi', $items[0]['status_label']);
         $this->assertTrue($items[0]['dates_known'], 'Unit tersimpan selalu punya tanggal acara.');
+        $this->assertNull($items[0]['price_note']);
+
+        // Pesanan berpaket: yang ditampilkan biaya sewa sebenarnya + catatan paket.
+        $unit->update(['package_name' => 'Hemat 3 hari', 'package_days' => 3, 'rental_amount' => 300000]);
+        $berpaket = OrderedItems::fromUnits([$unit->fresh(['addons'])]);
+        $this->assertSame(300000, $berpaket[0]['price_amount']);
+        $this->assertSame('paket 3 hari', $berpaket[0]['price_note']);
         $this->assertSame('unit-'.$unit->id, $items[0]['url']);
     }
 

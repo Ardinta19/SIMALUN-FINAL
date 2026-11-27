@@ -64,7 +64,7 @@
                 @endif
             </div>
             <span class="bk-items__price">
-                Rp {{ number_format($item['price_amount'], 0, ',', '.') }}<small>/ {{ $item['price_unit'] === 'day' ? 'hari' : 'acara' }}</small>
+                Rp {{ number_format($item['price_amount'], 0, ',', '.') }}<small>/ {{ $item['price_note'] ?? ($item['price_unit'] === 'day' ? 'hari' : 'acara') }}</small>
             </span>
         </li>
         @endforeach
