@@ -304,3 +304,15 @@ Animasi "pop" pada total dan jumlah unit keranjang dicabut (JS + CSS), diganti `
 
 Pemeriksaan manual: `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.152 dan §9.153.
 
+### Babak S — "Item yang dipesan" di empat tempat (`statis, belum diuji di Windows`)
+
+1. **Satu sumber data**: `App\Support\OrderedItems` (`fromUnits()`, `fromCart()`) + partial `rental._ordered_items`.
+2. **Tampil di**: checkout (di atas kolom kesiapan), halaman pesanan pelanggan, detail pesanan admin, dan kartu daftar "Pesanan saya" (nama papan, maks. tiga + "dan N papan lain", dimuat satu `with()`).
+3. **Isi baris**: nomor, nama (bisa diketuk), warna + contoh swatch, label status, tanggal acara/kembali, item tambahan + harga, harga satuan.
+4. **Gaya di `berkah-ui-kit.css`** karena layout admin tidak memuat `berkah-experience.css`.
+5. **Kolom kanan checkout** kini grid dengan batas tinggi + gulir sendiri agar tombol kirim tetap terlihat; labelnya menjadi "Ringkasan pesanan dan kesiapan pengisian".
+
+Tes: `tests/Feature/OrderedItemsTest.php` (6; dua di antaranya butuh basis data dan dilewati di sandbox).
+
+Pemeriksaan manual: `docs/AUDIT-RITME-VISUAL-DAN-GERAK.md` §9.154.
+

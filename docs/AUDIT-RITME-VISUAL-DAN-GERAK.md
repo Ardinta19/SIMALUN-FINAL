@@ -6228,3 +6228,70 @@ tidak terasa "tidak merespons".
 unit, subtotal baris, dan total berganti seketika tanpa efek membesar/memerah.
 Uji dengan pembaca layar (NVDA/Narrator): perubahan total terdengar sekali,
 tidak berulang.
+
+### 9.154 "Item yang dipesan": satu daftar isi pesanan di empat tempat
+
+Permintaan pemilik usaha: *"tambahkan tampilan item yang dipesan"*. Sebelumnya
+isi pesanan hanya terbaca sebagai deretan kartu panjang, dan di daftar pesanan
+hanya berupa angka ("2 unit") — pelanggan harus membuka pesanan untuk tahu papan
+apa yang dipesan.
+
+**Satu sumber data, satu partial.** Isi pesanan dinormalkan di
+`App\Support\OrderedItems`:
+
+- `fromUnits()` untuk unit pesanan yang sudah tersimpan (halaman pesanan
+  pelanggan, detail admin);
+- `fromCart()` untuk isi sesi keranjang (checkout), memakai `findVariant()` dan
+  **harga dasar** — sesuai keputusan putaran 34 bahwa warna tidak mengubah harga.
+
+Partial `rental._ordered_items` merender keduanya. Setiap baris memuat: nomor
+papan, nama (dapat diketuk bila ada tautannya), nama + contoh warna, label status
+berwarna, tanggal acara & kembali, daftar item tambahan beserta harganya, dan
+harga satuan (`/ hari` atau `/ acara`). Judul kartunya memakai id turunan agar
+dua daftar di satu halaman tidak berbagi id.
+
+**Tempat tampil:**
+
+1. **Checkout** — di atas "Kesiapan pesanan". Petunjuknya jujur: harga satuan
+   katalog *sebelum* paket, item tambahan, dan ongkos; rincian akhir muncul di
+   halaman pesanan. Tanggal tidak ditampilkan di sini karena masih diisi di
+   kartu papan (menampilkan "tanggal belum dipilih" akan bertentangan dengan
+   isian yang baru diketik).
+2. **Halaman pesanan pelanggan** — ringkasan di atas, lalu "Rincian dan tindakan
+   tiap papan"; setiap nama papan menuju halaman unitnya.
+3. **Detail pesanan admin** — daftar untuk persiapan sebelum bagian tindakan per
+   papan (tautan menuju jangkar `#unit-<id>`).
+4. **Daftar "Pesanan saya"** — kartu menyebut nama papan (maksimal tiga + "dan N
+   papan lain"), dimuat lewat satu `with()` bertiga kolom sehingga tidak ada
+   N+1.
+
+**Kenapa gayanya di `berkah-ui-kit.css`.** Layout admin hanya memuat
+`berkah-admin.css` + kepala tema bersama; `berkah-experience.css` tidak dimuat di
+sana. Menaruh `.bk-items` di berkas pengalaman akan membuat ringkasan di halaman
+admin tampil tanpa gaya. Tes menahan keputusan ini agar tidak "dirapikan" ke
+berkas yang salah di kemudian hari.
+
+**Detail lain yang ikut dibenahi:**
+
+- kolom kanan checkout kini `display:grid` dengan jarak antar kartu, dan
+  `max-height: calc(100vh - 108px) + overflow-y:auto` supaya tombol kirim tetap
+  terjangkau ketika daftar item membuat kolom lebih tinggi dari layar (di layar
+  ≤ 960 px kolom kembali statis);
+- label `aria-label` kolom kanan menjadi "Ringkasan pesanan dan kesiapan
+  pengisian" karena kini memuat dua kartu;
+- panduan singkat dari tab "Permintaan desain" tetap menunjuk kartu unggah foto.
+
+**Cara memeriksa sendiri:**
+
+1. Checkout dua papan: kartu "Item yang dipesan" di kanan menyebut kedua papan,
+   warnanya, dan harga satuan; jumlah "2 papan" di kanan atas kartu.
+2. Kirim pesanan → halaman pesanan: ringkasan yang sama muncul dengan tanggal
+   acara/kembali, item tambahan, dan label status; ketuk nama papan → halaman
+   unit.
+3. Admin → detail pesanan: daftar item muncul sebelum bagian tindakan; ketuk
+   nama papan → menggulung ke `#unit-<id>` (tidak tertutup topbar).
+4. "Pesanan saya": setiap kartu menyebut nama papan.
+5. Ponsel (≤ 520 px): harga pindah ke bawah nama; (≤ 960 px) kolom kanan
+   checkout tidak lagi lengket dan tidak memotong tombol.
+6. Tema gelap: kartu daftar item memakai permukaan gelap, angka harga memakai
+   warna aksen.

@@ -19,7 +19,18 @@
     @forelse($orders as $order)
         <article class="bk-order-card">
             <div class="bk-order-card__head"><span class="bk-order-card__mark" aria-hidden="true"><span class="bk-i">@include('layouts.component._icon', ['name' => 'flower-2', 'size' => 24])</span></span><div><span class="bk-order-card__label">Referensi pesanan</span><h2>{{ $order->reference }}</h2></div></div>
-            <p class="muted">{{ $order->units_count }} unit · {{ $order->created_at->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB</p>
+            @php
+                // "Item yang dipesan" langsung di kartu: pelanggan tidak perlu
+                // membuka pesanan hanya untuk tahu papan apa yang ada di dalamnya.
+                $itemNames = $order->units->take(3)
+                    ->map(fn ($unit) => $unit->product_name.($unit->variant_name ? ' ('.$unit->variant_name.')' : ''))
+                    ->implode(', ');
+                $itemRest = max(0, $order->units_count - 3);
+            @endphp
+            <p class="muted">{{ $order->units_count }} papan · {{ $order->created_at->copy()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB</p>
+            @if($itemNames)
+                <p class="bk-order-items">{{ $itemNames }}@if($itemRest) <span class="muted">dan {{ $itemRest }} papan lain</span>@endif</p>
+            @endif
             <div class="bk-order-status"><span>Menunggu: {{ $order->pending_units_count }}</span><span>Dikonfirmasi: {{ $order->confirmed_units_count }}</span><span>Dibatalkan: {{ $order->cancelled_units_count }}</span></div>
             @if($order->working_units_count || $order->ready_units_count || $order->done_units_count)
                 {{-- Putaran 35: satu baris progres yang bisa dibaca tanpa membuka

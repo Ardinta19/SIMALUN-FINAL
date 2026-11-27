@@ -30,6 +30,8 @@ layar tempat orang itu biasanya berada**, dan **tidak ada halaman perantara**.
 | Publik | Masukkan papan ke keranjang | Halaman papan | 2 (isi tanggal → tambah) | ≤ 2 | tercapai |
 | Publik | Selesaikan pesanan | Keranjang | 2 (checkout → kirim) + isi formulir | ≤ 2 | tercapai |
 | Publik | Tahu seberapa jauh pengisian checkout | Halaman checkout | 0 (bilah + sisa isian selalu tampil) | 0 | **baru** |
+| Publik | Tahu apa saja yang dipesan | Kartu "Item yang dipesan" (checkout, pesanan, daftar pesanan) | 0 | 0 | **baru** |
+| Admin | Tahu isi pesanan untuk persiapan | Detail pesanan admin (daftar item di atas) | 0 | 0 | **baru** |
 | Publik | Pindah antar bagian pengisian | Tab bagian per papan | 1 (tab atau Lanjut) | 1 | **baru** |
 | Publik | Tanya stok tanpa keluar dari situs | Halaman papan | 1 (tombol WhatsApp terisi) | 1 | **baru** |
 | Pelanggan | Tahu pesanannya sampai mana | Dasbor | 0 (stepper sudah tampil) | 0–1 | **baru** |

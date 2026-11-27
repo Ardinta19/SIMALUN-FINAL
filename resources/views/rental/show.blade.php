@@ -45,7 +45,12 @@
 <section class="card body bk-feedback-card"><h2>Suka publik</h2><p>{{ $likeCount }} suka. Tautan hanya menampilkan jumlah suka, tanpa data pesanan atau identitasmu.</p>
 @if($likeShare)<div class="bk-share-link"><label for="share-link">Tautan untuk dibagikan</label><div class="bk-share-actions"><input id="share-link" readonly value="{{ route('rental.likes.public', $likeShare->token) }}"><button type="button" class="btn secondary" data-copy-share hidden>Salin tautan</button></div><p class="muted" role="status" data-copy-status>Salin tautan secara manual jika diperlukan.</p></div><p class="muted">Siapa pun yang memiliki tautan dapat melihat jumlah suka. Pelanggan yang masuk dapat memberi atau membatalkan suka.</p><form method="post" action="{{ route('rental.order.share', $order) }}">@csrf<input type="hidden" name="enabled" value="0"><button type="submit" class="btn secondary">Nonaktifkan tautan</button></form>
 @else<p class="muted">Tautan belum aktif. Kamu dapat menonaktifkannya kapan saja. Jumlah suka tetap tersimpan jika tautan dinonaktifkan.</p><form method="post" action="{{ route('rental.order.share', $order) }}">@csrf<input type="hidden" name="enabled" value="1"><button type="submit" class="btn secondary">Buat tautan suka</button></form>@endif</section>
-<h2 class="bk-section">Papan dalam pesanan ini</h2>
+@include('rental._ordered_items', [
+    'items' => \App\Support\OrderedItems::fromUnits($order->units, fn ($unit) => route('rental.orders.unit', [$order, $unit])),
+    'hint' => 'Ketuk nama papan untuk membuka ongkos, desain, pembayaran, dan perkembangannya.',
+])
+
+<h2 class="bk-section">Rincian dan tindakan tiap papan</h2>
 <p class="bk-section__hint">Pilih satu papan untuk memeriksa ongkos, desain, dan pembayaran.</p>
 <div class="items" data-bk-reveal-group="units" data-bk-reveal-stagger="0.06">
 @forelse($order->units as $unit)

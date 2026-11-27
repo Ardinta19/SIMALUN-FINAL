@@ -201,7 +201,12 @@
         </section>
         </div>
 
-        <aside class="bk-co__aside" aria-label="Kesiapan pesanan">
+        <aside class="bk-co__aside" aria-label="Ringkasan pesanan dan kesiapan pengisian">
+            @include('rental._ordered_items', [
+                'items' => \App\Support\OrderedItems::fromCart($cart, $products),
+                'hint' => 'Harga satuan katalog, sebelum paket, item tambahan, dan ongkos. Rincian akhir muncul di halaman pesanan.',
+                'class' => 'bk-co-card',
+            ])
             <div class="bk-co-card bk-co-ready">
                 <h2>Kesiapan pesanan</h2>
                 <ul class="bk-co-checklist" data-co-checklist>

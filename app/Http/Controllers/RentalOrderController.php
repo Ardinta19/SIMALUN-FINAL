@@ -391,6 +391,9 @@ class RentalOrderController extends Controller
                 'units as working_units_count' => fn ($q) => $q->where('status', 'confirmed')->where('progress', 'production'),
                 'units as ready_units_count' => fn ($q) => $q->where('status', 'confirmed')->where('progress', 'ready'),
                 'units as done_units_count' => fn ($q) => $q->where('status', 'confirmed')->where('progress', 'returned')])
+            // Nama papan per pesanan untuk kartu daftar; hanya tiga kolom supaya
+            // ringan, dan sekaligus mencegah N+1 saat kartu menyebut isinya.
+            ->with(['units' => fn ($q) => $q->select('id', 'rental_order_id', 'product_name', 'variant_name')->orderBy('id')])
             ->latest()->orderByDesc('id')->paginate(20)->withQueryString();
         return view('rental.index', compact('orders', 'filters'));
     }

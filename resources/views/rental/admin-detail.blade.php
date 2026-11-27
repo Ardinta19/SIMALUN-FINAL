@@ -50,6 +50,12 @@
     @endif
 </section>
 
+@include('rental._ordered_items', [
+    'items' => \App\Support\OrderedItems::fromUnits($order->units, fn ($unit) => '#unit-'.$unit->id),
+    'hint' => 'Daftar ini untuk persiapan; tindakan per papan ada di bagian di bawahnya.',
+    'class' => 'adm-card',
+])
+
 <div class="adm-stack" style="margin-top:var(--adm-gap)">
 @foreach($order->units as $unit)
     @php

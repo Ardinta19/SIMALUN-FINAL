@@ -1776,3 +1776,13 @@ html[data-theme="dark"] .adm-app {
     font-size: var(--adm-fs-xs, .78rem);
     line-height: 1.35;
 }
+
+/* Saat "Item yang dipesan" dipakai di dalam kartu admin, bingkainya milik
+   `.adm-card`; daftar ini tidak perlu menggambar kartu kedua di dalamnya. */
+.adm-card.bk-items {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    padding: 0;
+    margin: 0 0 var(--adm-gap);
+}
