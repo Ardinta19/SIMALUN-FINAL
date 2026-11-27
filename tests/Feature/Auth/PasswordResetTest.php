@@ -5,6 +5,7 @@ namespace Tests\Feature\Auth;
 use App\Models\User;
 use App\Notifications\Auth\ResetPasswordNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
 use Tests\TestCase;
@@ -87,5 +88,38 @@ class PasswordResetTest extends TestCase
         $this->assertStringContainsString('Atur ulang kata sandi', $html);
         $this->assertStringContainsString('Berkah Kreatif', $html);
         $this->assertStringNotContainsString('Reset Password Notification', (string) $mail->subject);
+    }
+
+    /**
+     * Kata sandi direset karena akun mungkin sudah dibobol. Sesi yang terlanjur
+     * terbuka di perangkat lain harus ikut diputus, bukan hanya kata sandinya
+     * yang berganti.
+     */
+    public function test_reset_kata_sandi_memutus_sesi_lain(): void
+    {
+        config(['session.driver' => 'database']);
+
+        $user = User::factory()->create();
+        $token = Password::broker()->createToken($user);
+
+        foreach (['sesi-lama-1', 'sesi-lama-2'] as $id) {
+            DB::table('sessions')->insert([
+                'id' => $id,
+                'user_id' => $user->id,
+                'ip_address' => '127.0.0.1',
+                'user_agent' => 'Peramban lain',
+                'payload' => '',
+                'last_activity' => time(),
+            ]);
+        }
+
+        $this->post('/reset-password', [
+            'token' => $token,
+            'email' => $user->email,
+            'password' => 'kata-sandi-baru',
+            'password_confirmation' => 'kata-sandi-baru',
+        ])->assertSessionHasNoErrors();
+
+        $this->assertSame(0, DB::table('sessions')->where('user_id', $user->id)->count());
     }
 }

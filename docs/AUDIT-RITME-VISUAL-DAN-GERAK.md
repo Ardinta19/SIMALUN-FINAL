@@ -4626,3 +4626,34 @@ Dijaga `tests/Feature/Auth/PasswordResetTest.php`:
   surel lalu memastikan sapaan memakai nama pengguna, tombolnya berbunyi
   "Atur ulang kata sandi", nama toko muncul, dan subjeknya bukan subjek
   bawaan Laravel.
+
+### 9.116 Reset kata sandi tidak memutus sesi yang sudah terbuka
+
+`ResetPasswordController::update()` sudah merotasi `remember_token`, tetapi
+baris `sessions` milik pengguna tetap ada. Artinya, kalau akun dibobol dan
+pemiliknya mereset kata sandi, penyerang yang sedang memegang sesi aktif
+**tetap** masuk sampai sesi itu kedaluwarsa (bawaan `SESSION_LIFETIME=120`
+menit, dan bisa diperpanjang terus selama dipakai).
+
+Sekarang, tepat setelah `Password::reset()` berhasil, controller memanggil
+`lupakanSesiLain()` yang menghapus `sessions` milik pengguna tersebut.
+Fungsinya hanya bekerja bila `session.driver` = `database` (driver lain
+tidak punya tabel untuk disapu). Pengguna yang mereset tetap harus masuk
+ulang dengan kata sandi baru — perilaku yang sudah ada sebelumnya dan justru
+lebih aman.
+
+Dijaga `PasswordResetTest::test_reset_kata_sandi_memutus_sesi_lain()`: dua
+baris sesi lama disisipkan, reset dilakukan, lalu jumlah sesi pengguna harus
+nol.
+
+### 9.117 Ganti kata sandi (dengan sandi lama) juga merotasi `remember_token`
+
+`Auth\PasswordController::update()` hanya menulis ulang kolom `password`.
+Cookie "ingat saya" yang sudah tertanam di perangkat lain tetap sah, karena
+recaller hanya dicocokkan dengan `remember_token` lama. Sekarang
+`remember_token` ikut dirotasi dalam satu `forceFill(...)->save()`, sejalan
+dengan `ResetPasswordController` (butir 9.116).
+
+Dijaga `PasswordUpdateTest::test_mengganti_kata_sandi_merotasi_remember_token()`:
+token lama disetel, kata sandi diganti, lalu token harus berubah dan
+panjangnya 60 karakter seperti keluaran `Str::random(60)`.

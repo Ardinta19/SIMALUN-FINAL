@@ -48,4 +48,28 @@ class PasswordUpdateTest extends TestCase
             ->assertSessionHasErrorsIn('updatePassword', 'current_password')
             ->assertRedirect('/profile');
     }
+
+    /**
+     * Cookie "ingat saya" di perangkat lain tidak boleh tetap berlaku setelah
+     * pemilik akun mengganti kata sandinya.
+     */
+    public function test_mengganti_kata_sandi_merotasi_remember_token(): void
+    {
+        $user = User::factory()->create();
+        $user->forceFill(['remember_token' => 'token-lama'])->save();
+
+        $this->actingAs($user)
+            ->from('/profile')
+            ->put('/password', [
+                'current_password' => 'password',
+                'password' => 'new-password',
+                'password_confirmation' => 'new-password',
+            ])
+            ->assertSessionHasNoErrors();
+
+        $token = $user->refresh()->remember_token;
+
+        $this->assertNotSame('token-lama', $token);
+        $this->assertSame(60, strlen((string) $token));
+    }
 }
