@@ -3475,3 +3475,14 @@ jadi `max:1000`–`max:3000` tidak meluap; `<fieldset class="bk-star-rating">`
 membawa `aria-invalid`/`aria-describedby` untuk grup bintang.
 
 **Hasil:** harness **169 lulus, 0 gagal, 218 dilewati**.
+
+**f. Putaran kesepuluh, catatan kecil terakhir.** Gambar QRIS (halaman unit
+pelanggan dan pengaturan pembayaran admin) kini membawa `width="320"
+height="320"` sehingga ruangnya dipesan sebelum gambar termuat — CSS tetap
+`height:auto`, jadi rasionya tidak berubah. Gambar produk tidak perlu:
+`.photo` sudah memakai `aspect-ratio`, avatar profil sudah `96×96` tetap, dan
+`.cart-image` duduk di jalur grid yang sama dengan wadah placeholder.
+Kelas `js-card` yang tidak dirujuk skrip mana pun dibuang dari tiga kartu di
+formulir alamat. Sisa kelas tanpa definisi hanyalah `registration-progress`
+(digayai lewat `#registration-progress`), `bk-rating-total` dan
+`bk-share-link` (mewarisi gaya wadahnya) — semuanya bukan temuan.

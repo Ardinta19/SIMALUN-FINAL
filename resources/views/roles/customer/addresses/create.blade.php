@@ -264,7 +264,7 @@ $oldText = function (string $key, $fallback = '') {
         @csrf
 
         {{-- SECTION 1: Info Penerima --}}
-        <div class="section-card js-card">
+        <div class="section-card">
             <div class="section-head">
                 <div class="section-num">1</div>
                 <div class="section-title">Info penerima</div>
@@ -294,7 +294,7 @@ $oldText = function (string $key, $fallback = '') {
         </div>
 
         {{-- SECTION 2: Lokasi --}}
-        <div class="section-card js-card">
+        <div class="section-card">
             <div class="section-head">
                 <div class="section-num">2</div>
                 <div class="section-title">Lokasi alamat</div>
@@ -328,7 +328,7 @@ $oldText = function (string $key, $fallback = '') {
         </div>
 
         {{-- SECTION 3: Pengaturan --}}
-        <div class="section-card js-card">
+        <div class="section-card">
             <div class="section-head">
                 <div class="section-num">3</div>
                 <div class="section-title">Pengaturan</div>
