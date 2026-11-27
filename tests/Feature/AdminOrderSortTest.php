@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\RentalCategory;
 use App\Models\RentalOrder;
+use App\Models\RentalProduct;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
@@ -24,6 +26,8 @@ class AdminOrderSortTest extends TestCase
 
     private User $customer;
 
+    private RentalProduct $product;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -33,6 +37,16 @@ class AdminOrderSortTest extends TestCase
 
         $this->customer = User::factory()->create();
         $this->customer->forceFill(['role' => 'customer'])->save();
+
+        // `rental_product_id` wajib (foreign key tanpa nullable).
+        $kategori = RentalCategory::create(['name' => 'Wisuda']);
+        $this->product = RentalProduct::create([
+            'rental_category_id' => $kategori->id,
+            'name' => 'Papan Uji',
+            'base_price' => 100,
+            'price_unit' => 'day',
+            'stock' => 8,
+        ]);
     }
 
     /** @return array{0: RentalOrder, 1: RentalOrder} */
@@ -54,6 +68,7 @@ class AdminOrderSortTest extends TestCase
 
         foreach ([[$b, 2], [$a, 12]] as [$order, $hari]) {
             $order->units()->create([
+                'rental_product_id' => $this->product->id,
                 'product_name' => 'Papan '.$order->id,
                 'unit_price' => 100,
                 'price_unit' => 'day',
@@ -100,6 +115,19 @@ class AdminOrderSortTest extends TestCase
             ->assertOk()
             ->assertSeeInOrder([$b->reference, $a->reference])
             ->assertSee('Urutan: Tanggal acara');
+    }
+
+    public function test_pilihan_bawaan_mengosongkan_urutan_tanpa_galat(): void
+    {
+        [$a, $b] = $this->duaPesanan();
+
+        // Formulir mengirim `sort=` ketika "Bawaan" dipilih. Middleware
+        // `ConvertEmptyStringsToNull` mengubahnya jadi null; kalau tidak,
+        // `Rule::in` akan menolak string kosong dan halaman balik dengan galat.
+        $this->actingAs($this->admin)->get(route('admin.rental.orders', ['sort' => '']))
+            ->assertOk()
+            ->assertSessionHasNoErrors()
+            ->assertSeeInOrder([$a->reference, $b->reference]);
     }
 
     public function test_nilai_urutan_asing_ditolak(): void

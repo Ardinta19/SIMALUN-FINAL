@@ -6652,6 +6652,12 @@ Empat celah yang tertangkap saat menyapu ulang panel admin setelah P1.
    dengan penjagaan pembagi nol.
 5. Chip tugas di kartu pesanan naik ke 44 px pada `@media (pointer: coarse)`.
 
+**Celah yang hampir lolos:** pilihan "Bawaan" mengirim `sort=` (string kosong).
+`Rule::in` menolak string kosong, tetapi middleware `ConvertEmptyStringsToNull`
+mengubahnya menjadi null sebelum validasi. Perilaku ini sekarang dikunci tes
+`test_pilihan_bawaan_mengosongkan_urutan_tanpa_galat` supaya perubahan
+middleware di masa depan tidak diam-diam membuat halaman balik dengan galat.
+
 **Sapuan yang bersih (tidak ada temuan):** formulir POST tanpa `@csrf`, tombol
 tanpa `type` di dalam formulir, `<img>` tanpa `alt`, `<label for>` tanpa `id`
 yang cocok, isian tanpa label/`aria-label`, `h1` ganda, dan lompatan tingkat
