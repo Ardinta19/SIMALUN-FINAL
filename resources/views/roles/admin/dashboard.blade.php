@@ -107,15 +107,18 @@
             <span class="adm-today__label">papan diserahkan</span>
             <span class="adm-today__meta">Buka lembar serah terima hari ini</span>
         </a>
-        <a class="adm-today__cell" href="{{ route('admin.rental.schedule.daily-sheet', ['date' => $hariIni->toDateString()]) }}">
+        {{-- Pengembalian menuju jadwal dengan kegiatan "pengembalian" aktif:
+             lembar harian hanya memuat serah terima, jadi tautan lama membawa
+             admin ke halaman yang tidak memuat angka di atasnya. --}}
+        <a class="adm-today__cell" href="{{ route('admin.rental.schedule', ['month' => $hariIni->format('Y-m'), 'activity' => 'returning']) }}{{ $hariIniKembali > 0 ? '#hari-ini' : '' }}">
             <span class="adm-today__num">{{ $hariIniKembali }}</span>
             <span class="adm-today__label">papan dikembalikan</span>
             <span class="adm-today__meta">Periksa kondisi papan yang kembali</span>
         </a>
-        <a class="adm-today__cell" href="{{ route('admin.rental.schedule', ['month' => $hariIni->format('Y-m')]) }}">
-            <span class="adm-today__num">{{ $rentalActive }}</span>
-            <span class="adm-today__label">unit aktif</span>
-            <span class="adm-today__meta">Lihat jadwal bulan ini</span>
+        <a class="adm-today__cell" href="{{ route('admin.rental.schedule', ['month' => $hariIni->format('Y-m'), 'activity' => 'event']) }}{{ $hariIniAcara > 0 ? '#hari-ini' : '' }}">
+            <span class="adm-today__num">{{ $hariIniAcara }}</span>
+            <span class="adm-today__label">papan dipakai acara</span>
+            <span class="adm-today__meta">Pastikan papan sudah di tangan pelanggan</span>
         </a>
     </div>
 </section>

@@ -109,12 +109,17 @@ class DashboardController extends Controller
         $rentalWaitingTransportSince = $jamJakarta($rentalWaitingTransportSince);
         $recentRentalOrders = RentalOrder::with('customer')->withCount('units')->latest()->take(5)->get();
 
-        // "Hari ini" di dasbor: dua angka yang paling dicari saat panel dibuka —
-        // berapa papan harus diserahkan dan berapa harus kembali hari ini.
+        // "Hari ini" di dasbor: tiga angka yang paling dicari saat panel dibuka —
+        // berapa papan harus diserahkan, dipakai untuk acara, dan kembali hari ini.
         // Hanya unit terkonfirmasi, sama dengan isi lembar serah terima.
+        //
+        // Dulu sel ketiga berisi "unit aktif", angka yang sama sudah muncul di
+        // grid statistik tepat di bawahnya; sekarang isinya acara hari ini, satu-
+        // satunya kegiatan hari ini yang belum terwakili.
         $hariIni = now('Asia/Jakarta');
         $hariIniTerima = RentalOrderUnit::where('status', 'confirmed')->where('starts_on', $hariIni->toDateString())->count();
         $hariIniKembali = RentalOrderUnit::where('status', 'confirmed')->where('ends_on', $hariIni->toDateString())->count();
+        $hariIniAcara = RentalOrderUnit::where('status', 'confirmed')->where('event_on', $hariIni->toDateString())->count();
         $hariIniLabel = $hariIni->locale('id')->translatedFormat('l, d F Y');
 
         return view('roles.admin.dashboard', compact(
@@ -122,7 +127,7 @@ class DashboardController extends Controller
             'rentalWaitingDesign', 'rentalWaitingTransport', 'rentalWaitingGrace', 'rentalReturnOverdue',
             'rentalWaitingDesignSince', 'rentalWaitingTransportSince', 'rentalWaitingGraceNearest', 'recentRentalOrders',
             'rentalPendingNearest', 'paymentPendingOldest',
-            'hariIni', 'hariIniTerima', 'hariIniKembali', 'hariIniLabel',
+            'hariIni', 'hariIniTerima', 'hariIniKembali', 'hariIniAcara', 'hariIniLabel',
             'pemasukanHari',
             'pemasukanBulan',
             'voucherAktif',
