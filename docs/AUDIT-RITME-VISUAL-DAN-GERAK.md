@@ -6662,3 +6662,67 @@ middleware di masa depan tidak diam-diam membuat halaman balik dengan galat.
 tanpa `type` di dalam formulir, `<img>` tanpa `alt`, `<label for>` tanpa `id`
 yang cocok, isian tanpa label/`aria-label`, `h1` ganda, dan lompatan tingkat
 judul — semuanya nol di 15 view admin.
+
+## 9.161 Dasbor admin: uang harian di atas, arus tujuh hari, jam pemakaian (putaran 51)
+
+**Keluhan yang dijawab.** Admin meminta dasbor "di-unslop": ditata ulang, bukan
+ditambal. Urutan lama membuka dengan tiga kartu angka (Unit aktif / Menunggu /
+Tinjau manual) yang isinya mengulang "Perlu tindakanmu" tepat di bawahnya, lalu
+hanya menampilkan **pemasukan** — pengeluaran tidak pernah muncul sama sekali.
+Akibatnya angka "masuk Rp 3.000.000" terlihat menggembirakan walau hari itu
+keluar Rp 2.800.000 untuk cetak dan sewa alat.
+
+**Urutan baru (dari atas).**
+
+| Blok | Isi | Menjawab |
+| --- | --- | --- |
+| Kepala halaman | sapaan, tanggal, satu tombol "N unit menunggu" | siapa, kapan, ada tugas? |
+| **Uang hari ini** | pemasukan besar, pengeluaran, selisih, delta vs kemarin, ringkas bulan ini | "hari ini saya untung?" |
+| **Papan sedang keluar** | jam setengah lingkaran `pemakaianPersen` + "X dari Y papan" | "stok masih cukup?" |
+| **Arus kas tujuh hari** | batang masuk/keluar berdampingan + tabel angka di lipatan | "minggu ini naik?" |
+| Perlu tindakanmu | 7 baris tugas berprioritas tenggat | "apa yang harus saya kerjakan?" |
+| Hari ini | serah terima, pengembalian, acara | "hari ini di lapangan?" |
+| Menunggu pelanggan / Pesanan terbaru | daftar | "ada yang macet?" |
+
+Grid tiga kartu `adm-stats` **dihapus**: angkanya sudah ada di "Perlu
+tindakanmu" (menunggu, tinjau manual) dan di jam pemakaian (unit aktif).
+
+**Data.** `DashboardController::admin()` kini juga menghitung
+`pengeluaranHari`, `pengeluaranBulan`, `arusHarian` (7 titik), `arusPuncak`
+(minimal 1), `arusMasukTujuhHari`, `arusKeluarTujuhHari`, `arusKemarin`,
+`stokTotal`, `papanKeluar`, `pemakaianPersen`. Arus tujuh hari memakai **satu**
+kueri agregat `DB::table('finance_entries')` yang dikelompokkan per
+`entry_date` + `entry_type`; model `FinanceEntry` tidak dipakai karena cast
+`entry_date` menjadi Carbon merusak kunci harian. Stok dihitung per warna
+(`variants`) bila ada, sama seperti katalog.
+
+**Grafik.** Batang CSS/SVG tanpa pustaka: tinggi relatif terhadap hari
+terbesar, `min-height:3px` supaya hari kecil tetap terlihat, angka lengkap tetap
+tersedia di `<details>` + tabel (bukan warna saja). Jam memakai busur
+setengah lingkaran `M16 104 A84 84 0 0 1 184 104` dengan
+`stroke-dasharray:264` (= π × 84); nilai akhir dipasang langsung lewat
+`--arc`, animasi hanya menambahkan sapuan dari 264. Dengan kata lain **grafik
+tetap terbaca bila JavaScript gagal dimuat**, dan `prefers-reduced-motion`
+mematikan animasinya.
+
+**Tentang GSAP / React / Lenis.** Permintaan itu tidak dipenuhi apa adanya dan
+ini alasannya, bukan kelalaian:
+
+1. Repo ini tidak punya `node_modules`, Vite, atau langkah build; semua view
+   dirender server dan CSS/JS disajikan mentah dari `public/`. React akan
+   menuntut bundel + hidrasi di halaman yang seluruhnya Blade.
+2. Panel admin sudah punya sistem gerak sendiri (`data-adm-reveal` → `.is-in`
+   lewat IntersectionObserver, `data-adm-count` untuk angka berjalan, token
+   `.adm-ease*`), dan `AdminSurfaceTest` melarang `<style>` maupun `style="…"`
+   statis. Menempelkan GSAP berarti dua sistem gerak yang saling berebut
+   properti yang sama.
+3. Lenis (gulir halus) justru merugikan panel berisi formulir dan tabel: ia
+   menunda posisi gulir setelah pengguna mengetik, dan bertabrakan dengan
+   penanganan `prefers-reduced-motion` yang sudah ada.
+4. CSP tidak memuat CDN, jadi "React lewat unpkg" bukan pilihan.
+
+Yang dikerjakan sebagai gantinya: sapuan busur, batang tumbuh bertahap
+(`--i × 60ms`), angka berjalan, dan kartu masuk layar — semuanya CSS/keyframe
+yang bisa dimatikan pengguna. `tests/Feature/AdminDashboardFinanceTest.php`
+mengunci larangan `gsap`/`lenis`/`react`/CDN di view agar keputusan ini tidak
+berubah tanpa sengaja.

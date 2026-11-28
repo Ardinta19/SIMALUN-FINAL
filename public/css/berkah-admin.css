@@ -2756,3 +2756,212 @@ details[open] > .bk-disclosure::before { transform: rotate(90deg); }
     margin: 0;
     max-width: 46ch;
 }
+
+/* ==========================================================================
+   Dasbor: uang hari ini, arus tujuh hari, dan jam pemakaian papan
+   --------------------------------------------------------------------------
+   Tiga blok ini menggantikan deretan tiga kartu angka yang isinya mengulang
+   "Perlu tindakanmu". Kartu uang menjawab "hari ini masuk berapa, keluar
+   berapa"; grafik menjawab "minggu ini naik atau turun"; jam menjawab "berapa
+   papan yang sedang di luar". Semua digambar dengan SVG/CSS sendiri — tanpa
+   pustaka grafik, jadi tidak ada langkah build dan tidak ada permintaan jaringan
+   tambahan.
+   ========================================================================== */
+
+.adm-money {
+    display: grid;
+    gap: var(--adm-space-4);
+    align-content: start;
+}
+
+.adm-money__label {
+    display: block;
+    font-size: var(--adm-fs-2xs);
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--adm-ink-3);
+}
+
+.adm-money__pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.adm-money__cell {
+    padding: 10px 12px;
+    border: 1px solid var(--adm-line);
+    border-radius: var(--adm-r-sm);
+    background: var(--adm-surface);
+}
+
+.adm-money__cell span {
+    display: block;
+    font-size: var(--adm-fs-2xs);
+    font-weight: 700;
+    color: var(--adm-ink-3);
+}
+
+.adm-money__cell strong {
+    display: block;
+    margin-top: 2px;
+    font-size: var(--adm-fs-lg);
+    font-weight: 800;
+    letter-spacing: -.01em;
+    font-variant-numeric: tabular-nums;
+}
+
+.adm-money__cell--net {
+    border-color: var(--adm-line-strong);
+    background: var(--adm-rose-soft);
+}
+
+.adm-delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--adm-fs-xs);
+    font-weight: 700;
+    color: var(--adm-ink-2);
+}
+
+.adm-delta--up { color: #1d6b46; }
+.adm-delta--down { color: #97202a; }
+
+/* Grafik batang: dua batang per hari, tinggi relatif terhadap hari terbesar. */
+.adm-bars {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 8px;
+    height: 132px;
+    margin-top: var(--adm-space-2);
+}
+
+.adm-bars__day {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 6px;
+    min-height: 0;
+}
+
+.adm-bars__pair {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 4px;
+    min-height: 0;
+}
+
+/* Batang terlihat penuh tanpa JavaScript; animasi hanya *tambahan* saat kartu
+   masuk layar. Kalau skrip gagal dimuat, grafiknya tetap terbaca — bukan
+   sekumpulan garis setinggi nol. */
+.adm-bars__fill {
+    display: block;
+    width: 12px;
+    min-height: 3px;
+    border-radius: 6px 6px 3px 3px;
+    transform-origin: bottom;
+}
+
+.adm-bars__fill--in { background: linear-gradient(180deg, var(--adm-rose), var(--adm-wine)); }
+.adm-bars__fill--out { background: linear-gradient(180deg, #e3a3a0, #c9605b); }
+
+.adm-app [data-adm-reveal].is-in .adm-bars__fill {
+    animation: adm-bar-grow .55s cubic-bezier(.22, 1, .36, 1) both;
+    animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+@keyframes adm-bar-grow {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+}
+
+.adm-bars__label {
+    font-size: var(--adm-fs-2xs);
+    font-weight: 700;
+    text-align: center;
+    color: var(--adm-ink-3);
+}
+
+.adm-legend {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--adm-fs-2xs);
+    font-weight: 700;
+    color: var(--adm-ink-3);
+}
+
+.adm-legend__dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.adm-legend__dot--in { background: var(--adm-wine); }
+.adm-legend__dot--out { background: #c9605b; }
+
+/* Jam pemakaian: busur setengah lingkaran, panjang 264 px (π × 84). */
+.adm-gauge {
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    --arc: 0;
+}
+
+.adm-gauge__svg {
+    display: block;
+    width: min(100%, 260px);
+    height: auto;
+}
+
+.adm-gauge__track {
+    fill: none;
+    stroke: var(--adm-line);
+    stroke-width: 14;
+    stroke-linecap: round;
+}
+
+.adm-gauge__value {
+    fill: none;
+    stroke: var(--adm-wine);
+    stroke-width: 14;
+    stroke-linecap: round;
+    stroke-dasharray: 264;
+    /* Nilai akhir langsung terpasang: tanpa JS busur tetap menunjukkan angka. */
+    stroke-dashoffset: calc(264 - (264 * var(--arc) / 100));
+}
+
+.adm-app [data-adm-reveal].is-in .adm-gauge__value {
+    animation: adm-gauge-sweep .9s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+@keyframes adm-gauge-sweep {
+    from { stroke-dashoffset: 264; }
+}
+
+.adm-gauge__num {
+    margin: 0;
+    font-size: clamp(1.6rem, 4.6vw, 2.1rem);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+}
+
+.adm-gauge__foot {
+    margin: 0;
+    font-size: var(--adm-fs-xs);
+    color: var(--adm-ink-2);
+    text-align: center;
+}
+
+/* Tanpa gerak: nilai akhir langsung terlihat, tidak ada transform yang macet. */
+@media (prefers-reduced-motion: reduce) {
+    .adm-app [data-adm-reveal].is-in .adm-bars__fill,
+    .adm-app [data-adm-reveal].is-in .adm-gauge__value {
+        animation: none;
+    }
+}

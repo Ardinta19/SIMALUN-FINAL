@@ -73,6 +73,130 @@
     </div>
 </div>
 
+<div class="adm-grid adm-grid--2 adm-mb-gap">
+    {{-- Uang hari ini: pertanyaan pertama admin saat membuka panel. Pemasukan
+         dan pengeluaran ditampilkan berdampingan supaya "masuk besar" tidak
+         menyembunyikan "keluar juga besar". --}}
+    <section class="adm-card adm-money" data-adm-reveal="uang" aria-labelledby="adm-uang-title">
+        @php
+            $netHari = (int) $pemasukanHari - (int) $pengeluaranHari;
+            $selisihKemarin = (int) $pemasukanHari - (int) $arusKemarin;
+        @endphp
+        <div class="adm-card__head">
+            <h2 id="adm-uang-title">Uang hari ini</h2>
+            <span class="adm-chip">{{ $hariIniLabel }}</span>
+        </div>
+
+        <div>
+            <span class="adm-money__label">Pemasukan</span>
+            <p class="adm-amount-hero"><span class="adm-amount-hero__unit">Rp</span>{{ number_format((int) $pemasukanHari, 0, ',', '.') }}</p>
+            @if($arusKemarin > 0)
+                <p class="adm-delta {{ $selisihKemarin >= 0 ? 'adm-delta--up' : 'adm-delta--down' }}">
+                    {{ $selisihKemarin >= 0 ? '▲' : '▼' }}
+                    Rp {{ number_format(abs($selisihKemarin), 0, ',', '.') }}
+                    {{ $selisihKemarin >= 0 ? 'lebih tinggi' : 'lebih rendah' }} dari kemarin
+                    (Rp {{ number_format((int) $arusKemarin, 0, ',', '.') }})
+                </p>
+            @else
+                <p class="adm-delta">Belum ada pemasukan kemarin untuk dibandingkan.</p>
+            @endif
+        </div>
+
+        <div class="adm-money__pair">
+            <div class="adm-money__cell">
+                <span>Pengeluaran</span>
+                <strong>Rp {{ number_format((int) $pengeluaranHari, 0, ',', '.') }}</strong>
+            </div>
+            <div class="adm-money__cell adm-money__cell--net">
+                <span>Selisih hari ini</span>
+                <strong>{{ $netHari < 0 ? '− ' : '' }}Rp {{ number_format(abs($netHari), 0, ',', '.') }}</strong>
+            </div>
+        </div>
+
+        <p class="adm-help adm-flat">
+            Bulan ini: masuk Rp {{ number_format((int) $pemasukanBulan, 0, ',', '.') }} ·
+            keluar Rp {{ number_format((int) $pengeluaranBulan, 0, ',', '.') }}
+        </p>
+        <div><a class="adm-btn adm-btn--ghost adm-btn--sm" href="{{ route('admin.rental.cashbook.index') }}">Buka buku kas</a></div>
+    </section>
+
+    {{-- Jam pemakaian: seberapa penuh stok hari ini. Angka persen tanpa konteks
+         tidak berarti, jadi selalu disertai "X dari Y papan". --}}
+    <section class="adm-card" data-adm-reveal="jam" aria-labelledby="adm-jam-title">
+        <div class="adm-card__head">
+            <h2 id="adm-jam-title">Papan sedang keluar</h2>
+            <span class="adm-chip">{{ $papanKeluar }} dari {{ $stokTotal }}</span>
+        </div>
+        <div class="adm-gauge" style="--arc:{{ $pemakaianPersen }}">
+            <svg class="adm-gauge__svg" viewBox="0 0 200 116" role="img"
+                 aria-label="Pemakaian stok hari ini {{ $pemakaianPersen }} persen: {{ $papanKeluar }} dari {{ $stokTotal }} papan">
+                <path class="adm-gauge__track" d="M16 104 A84 84 0 0 1 184 104"></path>
+                <path class="adm-gauge__value" d="M16 104 A84 84 0 0 1 184 104"></path>
+            </svg>
+            <p class="adm-gauge__num">{{ $pemakaianPersen }}%</p>
+            <p class="adm-gauge__foot">
+                @if($stokTotal > 0)
+                    {{ $papanKeluar }} papan sedang di luar, {{ max(0, $stokTotal - $papanKeluar) }} masih di tempat.
+                @else
+                    Belum ada papan aktif di katalog, jadi pemakaian belum bisa dihitung.
+                @endif
+                <br>Unit aktif seluruhnya: {{ $rentalActive }}.
+            </p>
+        </div>
+    </section>
+</div>
+
+{{-- Arus tujuh hari: menjawab "minggu ini naik atau turun", bukan sekadar
+     angka hari ini. Angka tiap hari tetap tersedia dalam tabel di bawah grafik. --}}
+<section class="adm-card adm-mb-gap" data-adm-reveal="arus" aria-labelledby="adm-arus-title">
+    <div class="adm-card__head">
+        <h2 id="adm-arus-title">Arus kas tujuh hari</h2>
+        <span class="adm-legend">
+            <span class="adm-legend__dot adm-legend__dot--in" aria-hidden="true"></span>Masuk
+            <span class="adm-legend__dot adm-legend__dot--out" aria-hidden="true"></span>Keluar
+        </span>
+    </div>
+
+    <div class="adm-bars" role="img"
+         aria-label="Grafik batang arus kas tujuh hari. Masuk Rp {{ number_format((int) $arusMasukTujuhHari, 0, ',', '.') }}, keluar Rp {{ number_format((int) $arusKeluarTujuhHari, 0, ',', '.') }}.">
+        @foreach($arusHarian as $i => $hari)
+            <div class="adm-bars__day">
+                <div class="adm-bars__pair">
+                    <span class="adm-bars__fill adm-bars__fill--in"
+                          style="height:{{ $hari['masuk'] > 0 ? max(3, (int) round($hari['masuk'] / $arusPuncak * 100)) : 0 }}%;--i:{{ $i }}"></span>
+                    <span class="adm-bars__fill adm-bars__fill--out"
+                          style="height:{{ $hari['keluar'] > 0 ? max(3, (int) round($hari['keluar'] / $arusPuncak * 100)) : 0 }}%;--i:{{ $i }}"></span>
+                </div>
+                <span class="adm-bars__label">{{ $hari['label'] }}</span>
+            </div>
+        @endforeach
+    </div>
+
+    <details class="adm-mt-3">
+        <summary class="bk-disclosure">Lihat angka tiap hari</summary>
+        <table class="adm-table adm-mt-2">
+            <caption class="bk-sr-only">Arus kas masuk dan keluar per hari selama tujuh hari terakhir</caption>
+            <thead>
+                <tr><th scope="col">Tanggal</th><th scope="col">Masuk</th><th scope="col">Keluar</th></tr>
+            </thead>
+            <tbody>
+                @foreach($arusHarian as $hari)
+                    <tr>
+                        <td>{{ $hari['tanggal'] }}</td>
+                        <td class="adm-table__num">Rp {{ number_format($hari['masuk'], 0, ',', '.') }}</td>
+                        <td class="adm-table__num">Rp {{ number_format($hari['keluar'], 0, ',', '.') }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </details>
+
+    <p class="adm-help adm-flat">
+        Tujuh hari: masuk Rp {{ number_format((int) $arusMasukTujuhHari, 0, ',', '.') }} ·
+        keluar Rp {{ number_format((int) $arusKeluarTujuhHari, 0, ',', '.') }}
+    </p>
+</section>
+
 <section class="adm-card adm-attention adm-mb-gap" data-adm-reveal="attention" aria-labelledby="adm-attention-title">
     <div class="adm-card__head">
         <h2 id="adm-attention-title">Perlu tindakanmu</h2>
@@ -121,42 +245,6 @@
             <span class="adm-today__meta">Pastikan papan sudah di tangan pelanggan</span>
         </a>
     </div>
-</section>
-
-<div class="adm-stats adm-mb-gap" data-adm-reveal="stats">
-    <a class="adm-stat" href="{{ route('admin.rental.orders') }}">
-        <span class="adm-stat__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'package', 'size' => 20])</span>
-        <span class="adm-stat__value" data-adm-count data-to="{{ (int) $rentalActive }}">{{ $rentalActive }}</span>
-        <span class="adm-stat__label">Unit aktif</span>
-        <span class="adm-stat__hint">Sedang dipakai pelanggan</span>
-    </a>
-    <a class="adm-stat" href="{{ route('admin.rental.orders', ['status' => 'pending']) }}">
-        <span class="adm-stat__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'orders', 'size' => 20])</span>
-        <span class="adm-stat__value" data-adm-count data-to="{{ (int) $rentalPending }}">{{ $rentalPending }}</span>
-        <span class="adm-stat__label">Menunggu</span>
-        <span class="adm-stat__hint">Perlu konfirmasi admin</span>
-    </a>
-    <a class="adm-stat" href="{{ route('admin.rental.orders', ['status' => 'review']) }}">
-        <span class="adm-stat__icon" aria-hidden="true">@include('layouts.component._icon', ['name' => 'search', 'size' => 20])</span>
-        <span class="adm-stat__value" data-adm-count data-to="{{ (int) $rentalReview }}">{{ $rentalReview }}</span>
-        <span class="adm-stat__label">Tinjau manual</span>
-        <span class="adm-stat__hint">Menunggu pemeriksaan berkas</span>
-    </a>
-</div>
-
-<section class="adm-card adm-mb-gap" data-adm-reveal="revenue" aria-labelledby="adm-revenue-title">
-    <div class="adm-card__head">
-        <h2 id="adm-revenue-title">Pemasukan hari ini</h2>
-        <span class="adm-chip">Seluruh buku kas</span>
-    </div>
-    <div class="adm-row adm-row--between adm-row--gap3 adm-row--wrap">
-        <p class="adm-amount-hero">
-            <span class="adm-amount-hero__unit">Rp</span>
-            {{ number_format($pemasukanHari ?? 0, 0, ',', '.') }}
-        </p>
-        <a class="adm-btn adm-btn--ghost adm-btn--sm" href="{{ route('admin.rental.cashbook.index') }}">Buku kas</a>
-    </div>
-    <p class="adm-help adm-block-gap--sm">Bulan ini <strong>Rp {{ number_format($pemasukanBulan ?? 0, 0, ',', '.') }}</strong></p>
 </section>
 
 <div class="adm-grid adm-grid--2 adm-mb-gap">

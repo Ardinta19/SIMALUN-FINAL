@@ -7,7 +7,9 @@ use App\Models\Voucher;
 use App\Models\RentalOrder;
 use App\Models\RentalOrderUnit;
 use App\Models\RentalPayment;
+use App\Models\RentalProduct;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -51,6 +53,72 @@ class DashboardController extends Controller
         $pemasukanBulan = FinanceEntry::where('entry_type', 'income')
             ->where('period_key', now()->format('Y-m'))
             ->sum('amount');
+
+        // Pengeluaran adalah pasangan yang selama ini tidak ada di dasbor:
+        // admin bisa melihat uang masuk tanpa pernah tahu uang keluar.
+        $pengeluaranHari = FinanceEntry::where('entry_type', 'expense')
+            ->where('entry_date', today()->toDateString())
+            ->sum('amount');
+
+        $pengeluaranBulan = FinanceEntry::where('entry_type', 'expense')
+            ->where('period_key', now()->format('Y-m'))
+            ->sum('amount');
+
+        /*
+         * Arus kas tujuh hari untuk grafik batang.
+         *
+         * Satu kueri agregat, bukan tujuh kueri: `DB::table` dipakai (bukan
+         * model) supaya kolom `entry_date` tidak di-cast menjadi objek tanggal
+         * dan tetap bisa dijadikan kunci array apa adanya (`Y-m-d`).
+         */
+        $awalArus = today()->subDays(6)->toDateString();
+        $petaArus = [];
+        foreach (DB::table('finance_entries')
+            ->whereBetween('entry_date', [$awalArus, today()->toDateString()])
+            ->whereIn('entry_type', ['income', 'expense'])
+            ->selectRaw('entry_date, entry_type, SUM(amount) as total')
+            ->groupBy('entry_date', 'entry_type')
+            ->get() as $baris) {
+            $petaArus[substr((string) $baris->entry_date, 0, 10)][$baris->entry_type] = (int) $baris->total;
+        }
+
+        $arusHarian = [];
+        for ($mundur = 6; $mundur >= 0; $mundur--) {
+            $tanggal = today()->subDays($mundur);
+            $kunci = $tanggal->toDateString();
+            $arusHarian[] = [
+                'tanggal' => $tanggal->format('d/m'),
+                'label' => $tanggal->locale('id')->isoFormat('dd'),
+                'masuk' => $petaArus[$kunci]['income'] ?? 0,
+                'keluar' => $petaArus[$kunci]['expense'] ?? 0,
+            ];
+        }
+        // Pembagi grafik: hari terbesar. Minimal 1 supaya tidak ada pembagian nol
+        // ketika seminggu penuh belum ada catatan.
+        $arusPuncak = max(1, max(array_map(fn (array $hari) => max($hari['masuk'], $hari['keluar']), $arusHarian)));
+        $arusMasukTujuhHari = array_sum(array_column($arusHarian, 'masuk'));
+        $arusKeluarTujuhHari = array_sum(array_column($arusHarian, 'keluar'));
+        $arusKemarin = $arusHarian[5]['masuk'];
+
+        /*
+         * Jam pemakaian papan: berapa unit sedang di luar dibanding stok yang
+         * benar-benar bisa disewakan. Stok dihitung per warna bila papan punya
+         * warna aktif — sama seperti aturan ketersediaan di katalog.
+         */
+        $stokTotal = RentalProduct::with('variants')->where('is_active', true)->get(['id', 'stock'])
+            ->sum(function (RentalProduct $produk) {
+                $warnaAktif = $produk->variants->where('is_active', true);
+
+                return $produk->variants->isNotEmpty() ? (int) $warnaAktif->sum('stock') : (int) $produk->stock;
+            });
+
+        $papanKeluar = RentalOrderUnit::where('status', 'confirmed')
+            ->where('starts_on', '<=', today()->toDateString())
+            ->where('ends_on', '>=', today()->toDateString())
+            ->where('progress', '!=', 'returned')
+            ->count();
+
+        $pemakaianPersen = $stokTotal > 0 ? min(100, (int) round($papanKeluar / $stokTotal * 100)) : 0;
 
         $voucherAktif = Voucher::where('is_active', true)->count();
 
@@ -128,8 +196,9 @@ class DashboardController extends Controller
             'rentalWaitingDesignSince', 'rentalWaitingTransportSince', 'rentalWaitingGraceNearest', 'recentRentalOrders',
             'rentalPendingNearest', 'paymentPendingOldest',
             'hariIni', 'hariIniTerima', 'hariIniKembali', 'hariIniAcara', 'hariIniLabel',
-            'pemasukanHari',
-            'pemasukanBulan',
+            'pemasukanHari', 'pengeluaranHari', 'pemasukanBulan', 'pengeluaranBulan',
+            'arusHarian', 'arusPuncak', 'arusMasukTujuhHari', 'arusKeluarTujuhHari', 'arusKemarin',
+            'stokTotal', 'papanKeluar', 'pemakaianPersen',
             'voucherAktif',
             'adminUnread',
         ));
