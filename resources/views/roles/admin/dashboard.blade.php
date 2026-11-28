@@ -88,7 +88,7 @@
 
         <div>
             <span class="adm-money__label">Pemasukan</span>
-            <p class="adm-amount-hero"><span class="adm-amount-hero__unit">Rp</span>{{ number_format((int) $pemasukanHari, 0, ',', '.') }}</p>
+            <p class="adm-amount-hero"><span class="adm-amount-hero__unit">Rp</span><span data-adm-nilai="{{ (int) $pemasukanHari }}">{{ number_format((int) $pemasukanHari, 0, ',', '.') }}</span></p>
             @if($arusKemarin > 0)
                 <p class="adm-delta {{ $selisihKemarin >= 0 ? 'adm-delta--up' : 'adm-delta--down' }}">
                     {{ $selisihKemarin >= 0 ? '▲' : '▼' }}
@@ -132,7 +132,7 @@
                 <path class="adm-gauge__track" d="M16 104 A84 84 0 0 1 184 104"></path>
                 <path class="adm-gauge__value" d="M16 104 A84 84 0 0 1 184 104"></path>
             </svg>
-            <p class="adm-gauge__num">{{ $pemakaianPersen }}%</p>
+            <p class="adm-gauge__num"><span data-adm-persen="{{ $pemakaianPersen }}">{{ $pemakaianPersen }}</span>%</p>
             <p class="adm-gauge__foot">
                 @if($stokTotal > 0)
                     {{ $papanKeluar }} papan sedang di luar, {{ max(0, $stokTotal - $papanKeluar) }} masih di tempat.
@@ -157,19 +157,25 @@
         </span>
     </div>
 
-    <div class="adm-bars" role="img"
-         aria-label="Grafik batang arus kas tujuh hari. Masuk Rp {{ number_format((int) $arusMasukTujuhHari, 0, ',', '.') }}, keluar Rp {{ number_format((int) $arusKeluarTujuhHari, 0, ',', '.') }}.">
-        @foreach($arusHarian as $i => $hari)
-            <div class="adm-bars__day">
-                <div class="adm-bars__pair">
-                    <span class="adm-bars__fill adm-bars__fill--in"
-                          style="height:{{ $hari['masuk'] > 0 ? max(3, (int) round($hari['masuk'] / $arusPuncak * 100)) : 0 }}%;--i:{{ $i }}"></span>
-                    <span class="adm-bars__fill adm-bars__fill--out"
-                          style="height:{{ $hari['keluar'] > 0 ? max(3, (int) round($hari['keluar'] / $arusPuncak * 100)) : 0 }}%;--i:{{ $i }}"></span>
+    {{-- Grafik cadangan dirender server: sudah terbaca sebelum skrip apa pun
+         jalan. Ketika React tersedia, isi wadah ini diganti versi interaktif
+         (sakelar 7/14/30 hari). Data 30 hari dikirim sebagai atribut, bukan
+         lewat permintaan tambahan. --}}
+    <div class="adm-chart" data-adm-chart data-adm-days='@json($arusBulanan)'>
+        <div class="adm-bars" role="img"
+             aria-label="Grafik batang arus kas tujuh hari. Masuk Rp {{ number_format((int) $arusMasukTujuhHari, 0, ',', '.') }}, keluar Rp {{ number_format((int) $arusKeluarTujuhHari, 0, ',', '.') }}.">
+            @foreach($arusHarian as $i => $hari)
+                <div class="adm-bars__day">
+                    <div class="adm-bars__pair">
+                        <span class="adm-bars__fill adm-bars__fill--in"
+                              style="height:{{ $hari['masuk'] > 0 ? max(3, (int) round($hari['masuk'] / $arusPuncak * 100)) : 0 }}%;--i:{{ $i }}"></span>
+                        <span class="adm-bars__fill adm-bars__fill--out"
+                              style="height:{{ $hari['keluar'] > 0 ? max(3, (int) round($hari['keluar'] / $arusPuncak * 100)) : 0 }}%;--i:{{ $i }}"></span>
+                    </div>
+                    <span class="adm-bars__label">{{ $hari['label'] }}</span>
                 </div>
-                <span class="adm-bars__label">{{ $hari['label'] }}</span>
-            </div>
-        @endforeach
+            @endforeach
+        </div>
     </div>
 
     <details class="adm-mt-3">
@@ -305,3 +311,20 @@
 </div>
 @endsection
 
+@push('scripts')
+    @php
+        // Pustaka gerak khusus dasbor, semuanya dari server sendiri (tanpa CDN).
+        // Urutan wajib: React → ReactDOM → htm → skrip dasbor.
+        $asetDasbor = function (string $path) {
+            $penuh = public_path($path);
+            return asset($path).(file_exists($penuh) ? '?v='.filemtime($penuh) : '');
+        };
+    @endphp
+    <script src="{{ $asetDasbor('vendor/react/react.production.min.js') }}" defer></script>
+    <script src="{{ $asetDasbor('vendor/react/react-dom.production.min.js') }}" defer></script>
+    <script src="{{ $asetDasbor('vendor/htm/htm.umd.js') }}" defer></script>
+    {{-- SplitText hanya dipakai judul dasbor, jadi dimuat di sini — bukan di
+         partial bersama yang dipakai setiap halaman. --}}
+    <script src="{{ $asetDasbor('vendor/gsap/SplitText.min.js') }}" defer></script>
+    <script src="{{ $asetDasbor('js/adm-dashboard.js') }}" defer></script>
+@endpush

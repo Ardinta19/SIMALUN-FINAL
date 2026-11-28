@@ -71,7 +71,7 @@ class DashboardController extends Controller
          * model) supaya kolom `entry_date` tidak di-cast menjadi objek tanggal
          * dan tetap bisa dijadikan kunci array apa adanya (`Y-m-d`).
          */
-        $awalArus = today()->subDays(6)->toDateString();
+        $awalArus = today()->subDays(29)->toDateString();
         $petaArus = [];
         foreach (DB::table('finance_entries')
             ->whereBetween('entry_date', [$awalArus, today()->toDateString()])
@@ -82,23 +82,32 @@ class DashboardController extends Controller
             $petaArus[substr((string) $baris->entry_date, 0, 10)][$baris->entry_type] = (int) $baris->total;
         }
 
-        $arusHarian = [];
-        for ($mundur = 6; $mundur >= 0; $mundur--) {
+        /*
+         * Tiga puluh hari dibangun sekali lalu diiris: grafik server memakai
+         * tujuh hari terakhir, sedangkan sakelar 7/14/30 di dasbor (React)
+         * memakai seluruh 30 hari dari atribut data yang sama. Satu kueri,
+         * satu larik, tidak ada permintaan tambahan dari peramban.
+         */
+        $arusBulanan = [];
+        for ($mundur = 29; $mundur >= 0; $mundur--) {
             $tanggal = today()->subDays($mundur);
             $kunci = $tanggal->toDateString();
-            $arusHarian[] = [
+            $arusBulanan[] = [
+                'iso' => $kunci,
                 'tanggal' => $tanggal->format('d/m'),
                 'label' => $tanggal->locale('id')->isoFormat('dd'),
-                'masuk' => $petaArus[$kunci]['income'] ?? 0,
-                'keluar' => $petaArus[$kunci]['expense'] ?? 0,
+                'masuk' => (int) ($petaArus[$kunci]['income'] ?? 0),
+                'keluar' => (int) ($petaArus[$kunci]['expense'] ?? 0),
             ];
         }
+
+        $arusHarian = array_slice($arusBulanan, -7);
         // Pembagi grafik: hari terbesar. Minimal 1 supaya tidak ada pembagian nol
         // ketika seminggu penuh belum ada catatan.
         $arusPuncak = max(1, max(array_map(fn (array $hari) => max($hari['masuk'], $hari['keluar']), $arusHarian)));
         $arusMasukTujuhHari = array_sum(array_column($arusHarian, 'masuk'));
         $arusKeluarTujuhHari = array_sum(array_column($arusHarian, 'keluar'));
-        $arusKemarin = $arusHarian[5]['masuk'];
+        $arusKemarin = $arusBulanan[count($arusBulanan) - 2]['masuk'];
 
         /*
          * Jam pemakaian papan: berapa unit sedang di luar dibanding stok yang
@@ -197,7 +206,7 @@ class DashboardController extends Controller
             'rentalPendingNearest', 'paymentPendingOldest',
             'hariIni', 'hariIniTerima', 'hariIniKembali', 'hariIniAcara', 'hariIniLabel',
             'pemasukanHari', 'pengeluaranHari', 'pemasukanBulan', 'pengeluaranBulan',
-            'arusHarian', 'arusPuncak', 'arusMasukTujuhHari', 'arusKeluarTujuhHari', 'arusKemarin',
+            'arusHarian', 'arusBulanan', 'arusPuncak', 'arusMasukTujuhHari', 'arusKeluarTujuhHari', 'arusKemarin',
             'stokTotal', 'papanKeluar', 'pemakaianPersen',
             'voucherAktif',
             'adminUnread',

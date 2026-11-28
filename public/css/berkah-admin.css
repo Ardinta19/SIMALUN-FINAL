@@ -2763,9 +2763,9 @@ details[open] > .bk-disclosure::before { transform: rotate(90deg); }
    Tiga blok ini menggantikan deretan tiga kartu angka yang isinya mengulang
    "Perlu tindakanmu". Kartu uang menjawab "hari ini masuk berapa, keluar
    berapa"; grafik menjawab "minggu ini naik atau turun"; jam menjawab "berapa
-   papan yang sedang di luar". Semua digambar dengan SVG/CSS sendiri — tanpa
-   pustaka grafik, jadi tidak ada langkah build dan tidak ada permintaan jaringan
-   tambahan.
+   papan yang sedang di luar". Bentuknya digambar sendiri dengan SVG/CSS (tanpa
+   pustaka grafik), lalu dianimasikan GSAP dan — untuk grafik arus kas — diganti
+   versi interaktif oleh pulau React di `js/adm-dashboard.js`.
    ========================================================================== */
 
 .adm-money {
@@ -2964,4 +2964,158 @@ details[open] > .bk-disclosure::before { transform: rotate(90deg); }
     .adm-app [data-adm-reveal].is-in .adm-gauge__value {
         animation: none;
     }
+}
+
+/* ==========================================================================
+   Grafik arus kas interaktif (React) + gerak GSAP
+   --------------------------------------------------------------------------
+   Batang yang dirender server tetap menjadi tampilan dasar; pulau React hanya
+   MENGGANTI isi `.adm-chart` ketika React, ReactDOM, dan htm berhasil dimuat
+   dari `public/vendor`. Jadi kalau satu berkas gagal dimuat, admin tetap
+   melihat grafik tujuh hari yang bisa dibaca, bukan kotak kosong.
+
+   Kelas di bawah dipakai bersama oleh markup Blade (cadangan) dan komponen
+   React, supaya warna dan ukuran batang tidak pernah berbeda antara keduanya.
+   ========================================================================== */
+
+.adm-chart {
+    position: relative;
+}
+
+.adm-chart__inner {
+    display: grid;
+    gap: 2px;
+}
+
+.adm-chart__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: var(--adm-space-2);
+}
+
+/* Sakelar rentang: 7 / 14 / 30 hari. */
+.adm-chart__seg {
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid var(--adm-line);
+    border-radius: 999px;
+    background: var(--adm-surface);
+}
+
+.adm-chart__segbtn {
+    min-height: 32px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    font: inherit;
+    font-size: var(--adm-fs-2xs);
+    font-weight: 800;
+    color: var(--adm-ink-2);
+    cursor: pointer;
+    transition: background-color .18s ease, color .18s ease;
+}
+
+.adm-chart__segbtn:hover { background: var(--adm-surface-3); }
+
+.adm-chart__segbtn[aria-pressed="true"] {
+    background: var(--adm-wine);
+    color: #fff;
+}
+
+.adm-chart__segbtn:focus-visible {
+    outline: 2px solid var(--adm-wine);
+    outline-offset: 2px;
+}
+
+.adm-chart__sum {
+    margin: 0;
+    font-size: var(--adm-fs-xs);
+    font-weight: 600;
+    color: var(--adm-ink-2);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Keterangan hari yang sedang disorot; tinggi tetap supaya tata letak tidak
+   melompat setiap kali kursor berpindah batang. */
+.adm-chart__tip {
+    min-height: 1.35em;
+    margin: 6px 0 0;
+    font-size: var(--adm-fs-xs);
+    font-weight: 600;
+    color: var(--adm-ink-2);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Versi interaktif: satu batang per hari, lebarnya mengikuti layar sehingga
+   30 hari pun muat tanpa gulir mendatar. */
+.adm-bars--live {
+    display: flex;
+    align-items: stretch;
+    gap: 4px;
+}
+
+.adm-bars--live .adm-bars__day {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.adm-bars--live .adm-bars__fill {
+    width: 100%;
+    max-width: 14px;
+    margin: 0 auto;
+}
+
+.adm-bars__hit {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 6px;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: var(--adm-r-sm);
+    background: none;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+}
+
+.adm-bars__hit:focus-visible {
+    outline: 2px solid var(--adm-wine);
+    outline-offset: 2px;
+}
+
+.adm-bars__hit[data-aktif="true"] .adm-bars__fill {
+    box-shadow: 0 0 0 2px var(--adm-surface-3), 0 0 0 3px var(--adm-wine);
+}
+
+/* GSAP memegang kendali gerak begitu ia tersedia: keyframe CSS dimatikan agar
+   busur dan batang tidak dianimasikan dua kali oleh dua mesin berbeda. */
+body.adm-gsap .adm-app [data-adm-reveal].is-in .adm-bars__fill,
+body.adm-gsap .adm-app [data-adm-reveal].is-in .adm-gauge__value,
+body.adm-gsap .adm-bars__fill,
+body.adm-gsap .adm-gauge__value {
+    animation: none;
+}
+
+/* Judul yang dipecah SplitText: potongan kata tidak boleh meluber keluar baris. */
+.adm-split-mask {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: bottom;
+}
+
+/* Hari pada grafik interaktif dibungkus tombol: bungkusnya cukup blok penuh,
+   pembagian baris (batang + label) ditangani tombolnya sendiri. */
+.adm-bars--live .adm-bars__day {
+    display: block;
+}
+
+.adm-bars--live .adm-bars__hit {
+    height: 100%;
 }

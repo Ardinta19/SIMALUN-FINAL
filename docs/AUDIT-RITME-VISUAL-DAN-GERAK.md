@@ -6705,24 +6705,84 @@ setengah lingkaran `M16 104 A84 84 0 0 1 184 104` dengan
 tetap terbaca bila JavaScript gagal dimuat**, dan `prefers-reduced-motion`
 mematikan animasinya.
 
-**Tentang GSAP / React / Lenis.** Permintaan itu tidak dipenuhi apa adanya dan
-ini alasannya, bukan kelalaian:
+**Tentang GSAP / React / Lenis (revisi, lihat §9.162).** Versi pertama putaran
+ini menolak ketiganya dengan alasan "tidak ada langkah build". Itu keliru berat:
+GSAP 3.15, ScrollTrigger, dan Lenis 1.3 **sudah** dilayani sendiri dari
+`public/vendor` dan dimuat setiap halaman admin lewat
+`layouts/component/_form_controls.blade.php`. Keputusan akhirnya: ketiganya
+dipakai (termasuk React), tanpa CDN dan tanpa bundel — rinciannya di §9.162.
 
-1. Repo ini tidak punya `node_modules`, Vite, atau langkah build; semua view
-   dirender server dan CSS/JS disajikan mentah dari `public/`. React akan
-   menuntut bundel + hidrasi di halaman yang seluruhnya Blade.
-2. Panel admin sudah punya sistem gerak sendiri (`data-adm-reveal` → `.is-in`
-   lewat IntersectionObserver, `data-adm-count` untuk angka berjalan, token
-   `.adm-ease*`), dan `AdminSurfaceTest` melarang `<style>` maupun `style="…"`
-   statis. Menempelkan GSAP berarti dua sistem gerak yang saling berebut
-   properti yang sama.
-3. Lenis (gulir halus) justru merugikan panel berisi formulir dan tabel: ia
-   menunda posisi gulir setelah pengguna mengetik, dan bertabrakan dengan
-   penanganan `prefers-reduced-motion` yang sudah ada.
-4. CSP tidak memuat CDN, jadi "React lewat unpkg" bukan pilihan.
+## 9.162 Dasbor memakai GSAP, Lenis, dan React yang sebenarnya (putaran 52)
 
-Yang dikerjakan sebagai gantinya: sapuan busur, batang tumbuh bertahap
-(`--i × 60ms`), angka berjalan, dan kartu masuk layar — semuanya CSS/keyframe
-yang bisa dimatikan pengguna. `tests/Feature/AdminDashboardFinanceTest.php`
-mengunci larangan `gsap`/`lenis`/`react`/CDN di view agar keputusan ini tidak
-berubah tanpa sengaja.
+**Koreksi atas §9.161.** Alasan "tidak ada langkah build" tidak berlaku untuk
+GSAP/Lenis: keduanya sudah divendorkan sejak lama (`public/vendor/gsap`,
+`public/vendor/lenis`) dan dimuat global di partial `_form_controls`, termasuk
+di panel admin. Yang benar-benar tidak ada hanyalah React. Pemilik sistem
+memutuskan ketiganya harus dipakai — mereka melihat gerak sebagai bagian dari
+nilai jual, bukan hiasan. Maka implementasinya:
+
+### Pustaka, semuanya dari server sendiri
+
+| Berkas | Asal | Ukuran | Dimuat oleh |
+| --- | --- | --- | --- |
+| `vendor/gsap/gsap.min.js` | GSAP 3.15.0 | 71 KB | `_form_controls` (semua halaman) |
+| `vendor/gsap/ScrollTrigger.min.js` | 3.15 | 43 KB | `_form_controls` |
+| `vendor/gsap/SplitText.min.js` | 3.15.1 | 7,8 KB | dasbor saja |
+| `vendor/lenis/lenis.min.js` + `.css` | Lenis 1.3 | — | `_form_controls` |
+| `vendor/react/react.production.min.js` | React 18.3.1 | 10,5 KB | dasbor saja |
+| `vendor/react/react-dom.production.min.js` | 18.3.1 | 129 KB | dasbor saja |
+| `vendor/htm/htm.umd.js` | htm 3.1.1 | 1,3 KB | dasbor saja |
+
+Tidak ada CDN, tidak ada `npm install`, tidak ada `@vite`. `htm` menggantikan
+JSX: template literal diterjemahkan menjadi `React.createElement` saat runtime,
+jadi tidak perlu Babel dan tidak ada `unsafe-eval`.
+
+### Pulau React: grafik arus kas yang benar-benar interaktif
+
+Markup Blade tetap merender grafik tujuh hari — bisa dibaca sebelum skrip apa
+pun jalan, dan tetap dipakai pembaca layar. Ketika React + ReactDOM + htm
+tersedia, `adm-dashboard.js` memanggil `ReactDOM.createRoot(...).render(...)`
+pada wadah `[data-adm-chart]` dan menggantinya dengan versi interaktif:
+
+- sakelar **7 / 14 / 30 hari** (`aria-pressed`, batang digambar ulang dengan
+  pembagi puncak baru);
+- sorotan per batang lewat `mouseenter` **dan** `focus` (papan ketik ikut
+  dapat), keterangan angka muncul di baris `role="status" aria-live="polite"`;
+- data 30 hari dikirim sekali di atribut `data-adm-days` (hasil `@json`), jadi
+  berpindah rentang tidak memicu permintaan jaringan.
+
+React dipilih justru karena markup server tidak bisa melakukan dua hal di atas
+tanpa menambah bahasa kedua di Blade (tujuh tombol × tiga rentang × status
+sorotan). Di sinilah React masuk akal: satu wadah, satu state, satu render.
+
+### Koreografi GSAP
+
+1. **Busur jam** — `gsap.fromTo(busur, {strokeDashoffset: 264}, {strokeDashoffset: akhir})`
+   dengan ScrollTrigger `once`; nilai akhir dibaca dari CSS yang dihitung, jadi
+   tetap benar walau `--arc` berubah.
+2. **Batang** — `window.gsap.fromTo(fills, {scaleY: 0}, {stagger: 0.028})` tiap
+   kali rentang berganti (React `useEffect`), dengan `clearProps: 'transform'`.
+3. **Angka berjalan** — pemasukan hari ini dan persentase jam dihitung dari 0
+   memakai `Intl.NumberFormat('id-ID')`, kait angkanya ada di markup
+   (`data-adm-nilai`, `data-adm-persen`) supaya skrip tidak menebak dari teks.
+4. **Judul** — `SplitText` memecah `h1` per kata (`mask: 'words'`,
+   `aria: 'auto'`), lalu naik bertahap.
+
+Begitu GSAP ada, `body.adm-gsap` menyala dan keyframe CSS lama untuk batang/jam
+dimatikan — supaya tidak ada dua mesin yang berebut `transform` dan
+`stroke-dashoffset` yang sama. Tanpa GSAP, keyframe CSS itulah yang bekerja;
+tanpa JavaScript sama sekali, grafiknya sudah penuh karena tinggi batang
+dirender server.
+
+### Pengaman
+
+- `prefers-reduced-motion: reduce` → `gerak()` berhenti sebelum menyentuh GSAP,
+  tidak ada angka yang dimulai dari nol, tidak ada kata yang dipecah.
+- Pustaka hilang/gagal dimuat → `pasangGrafik()` pulang lebih awal, markup
+  server tetap tampil utuh.
+- `SplitText` dibungkus `try/catch`: kalau gagal, judul tetap teks biasa.
+- Semua skrip `defer`; urutan React → ReactDOM → htm → SplitText → skrip dasbor.
+
+**Dikunci oleh tes** (`tests/Feature/AdminDashboardFinanceTest.php`): keberadaan
+dan ukuran setiap aset, urutan pemuatan, tidak adanya CDN, penjaga "pustaka
+tidak lengkap", serta `prefers-reduced-motion` di skrip.
