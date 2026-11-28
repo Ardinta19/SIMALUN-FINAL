@@ -87,6 +87,9 @@ class AdminDashboardFinanceTest extends TestCase
         $this->assertStringContainsString("RentalProduct::with('variants')", $controller);
         $this->assertStringContainsString('min(100, (int) round($papanKeluar / $stokTotal * 100))', $controller);
 
+        // Angka harus bisa ditindaklanjuti: tautan ke daftar papan yang keluar.
+        $this->assertStringContainsString("route('admin.rental.orders', ['status' => 'confirmed'])", $view);
+
         // Stok nol tidak boleh menjadi pembagi.
         $this->assertStringContainsString('$stokTotal > 0 ?', $controller);
     }

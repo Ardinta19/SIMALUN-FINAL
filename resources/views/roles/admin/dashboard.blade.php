@@ -12,7 +12,6 @@
 @php
     $fullName = trim(auth()->user()->name ?? 'Admin');
     $adminName = explode(' ', $fullName)[0] ?: 'Admin';
-    $initial = mb_strtoupper(mb_substr($adminName, 0, 1));
     $jam = (int) now('Asia/Jakarta')->format('H');
     $sapaan = $jam < 11 ? 'Selamat pagi' : ($jam < 15 ? 'Selamat siang' : ($jam < 19 ? 'Selamat sore' : 'Selamat malam'));
     $tanggal = now('Asia/Jakarta')->locale('id')->isoFormat('dddd, D MMMM YYYY');
@@ -142,6 +141,7 @@
                 @endif
                 <br>Unit aktif seluruhnya: {{ $rentalActive }}.
             </p>
+            <p class="adm-flat"><a class="adm-btn adm-btn--ghost adm-btn--sm" href="{{ route('admin.rental.orders', ['status' => 'confirmed']) }}">Lihat papan yang sedang keluar</a></p>
         </div>
     </section>
 </div>
